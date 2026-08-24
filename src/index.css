@@ -1,0 +1,228 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  .text-text-primary {
+    color: var(--color-text-primary);
+  }
+
+  .text-text-secondary {
+    color: var(--color-text-secondary);
+  }
+
+  .text-text-muted {
+    color: var(--color-text-muted);
+  }
+}
+
+:root {
+  --color-primary: #4A3728;
+  --color-secondary: #D9CFC1;
+  --color-accent: #B89C7D;
+  --color-background: #F7F4EF;
+  --color-text-primary: #2D241D;
+  --color-text-secondary: #6B5B4B;
+  --color-border: #D8CDBF;
+  --color-white: #FFFFFF;
+
+  --color-brown-dark: var(--color-primary);
+  --color-brown-mid: var(--color-accent);
+  --color-brown-light: var(--color-secondary);
+  --color-cream: var(--color-secondary);
+  --color-cream-light: var(--color-background);
+  --color-site-bg: var(--color-background);
+  --color-card-bg: var(--color-white);
+  --color-text-muted: var(--color-text-secondary);
+  --color-site-border: var(--color-border);
+  --color-footer-bg: var(--color-background);
+  --color-section-hdr: var(--color-primary);
+  --color-gold: var(--color-accent);
+}
+
+@layer base {
+  body {
+    background-color: var(--color-site-bg);
+    color: var(--color-text-primary);
+    @apply antialiased;
+    font-family: 'Inter', sans-serif;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: 'Cinzel', serif;
+    color: var(--color-section-hdr);
+    @apply font-semibold tracking-wide;
+  }
+}
+
+/* Custom premium styles */
+.scholar-gradient-bg {
+  background-color: var(--color-background);
+  background-image:
+    url("/patterns/islamic-pattern.svg"),
+    linear-gradient(135deg, var(--color-background) 0%, var(--color-secondary) 100%);
+  background-repeat: repeat;
+}
+
+.gold-gradient-bg {
+  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-primary) 100%);
+}
+
+.gold-text-glow {
+  text-shadow: 0 0 10px rgba(184, 156, 125, 0.3);
+}
+
+.gold-border {
+  border-color: var(--color-accent);
+}
+
+.gold-accent-hover {
+  transition: all 0.3s ease;
+}
+
+.gold-accent-hover:hover {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.pattern-bg {
+  background-color: var(--color-background);
+  background-image: url("/patterns/islamic-pattern.svg");
+}
+
+/* Islamic pattern overlay */
+.islamic-pattern {
+  background-image: url("/patterns/islamic-pattern.svg");
+}
+
+.islamic-pattern-dark {
+  background-image: url("/patterns/islamic-pattern.svg");
+}
+
+/* Card hover animation */
+.premium-card {
+  background-color: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+  box-shadow: 0 4px 20px -4px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  overflow: hidden;
+  position: relative;
+  will-change: transform, box-shadow;
+  backface-visibility: hidden;
+  transform: translate3d(0, 0, 0);
+  -webkit-font-smoothing: subpixel-antialiased;
+}
+
+.premium-card:hover {
+  box-shadow: 0 4px 20px -4px rgba(0, 0, 0, 0.08);
+  border-color: var(--color-accent);
+}
+
+.title-serif {
+  font-family: 'Playfair Display', serif;
+}
+
+/* Sleek custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(184, 156, 125, 0.4);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-accent);
+}
+
+.custom-drawer-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(184, 156, 125, 0.35) transparent;
+}
+
+.custom-drawer-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-drawer-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-drawer-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(184, 156, 125, 0.35);
+  border-radius: 9999px;
+}
+
+.custom-drawer-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--color-accent);
+}
+
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(184, 156, 125, 0.4) transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(184, 156, 125, 0.4);
+  border-radius: 9999px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary);
+}
+
+/* Hide scrollbar utility for carousels */
+.scrollbar-none::-webkit-scrollbar {
+  display: none !important;
+}
+
+.scrollbar-none {
+  -ms-overflow-style: none !important;
+  /* IE and Edge */
+  scrollbar-width: none !important;
+  /* Firefox */
+}
+
+/* Define Pyami Nastaliq local font with unicode-range for Urdu/Arabic characters */
+@font-face {
+  font-family: 'Pyami Nastaliq';
+  src: local('Pyami Nastaliq'), local('PyamiNastaliq'), local('Payami Nastaleeq'), local('PayamiNastaleeq');
+  unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF;
+}
+
+/* Urdu/RTL typography overrides to inherit Pyami Nastaliq (traditional/elegant) first */
+[dir="rtl"] body,
+[dir="rtl"] {
+  font-family: 'Pyami Nastaliq', 'Payami Nastaleeq', 'Noto Nastaliq Urdu', 'Noto Sans Arabic', 'Inter', sans-serif !important;
+}
+
+[dir="rtl"] h1,
+[dir="rtl"] h2,
+[dir="rtl"] h3,
+[dir="rtl"] h4,
+[dir="rtl"] h5,
+[dir="rtl"] h6,
+[dir="rtl"] .title-serif {
+  font-family: 'Pyami Nastaliq', 'Payami Nastaleeq', 'Noto Nastaliq Urdu', 'Noto Sans Arabic', 'Inter', sans-serif !important;
+}
