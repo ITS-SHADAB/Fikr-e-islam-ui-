@@ -21,7 +21,7 @@ export default function EventCard({ event }) {
   });
 
   const isUpcoming = parsedDate.getTime() > Date.now();
-  const BACKEND_URL = 'https://jamia-madarsha-server.onrender.com';
+  const BACKEND_URL = 'https://fikr-e-islam.onrender.com';
   const placeholderPoster = 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&q=80&w=800';
 
   const getImageSrc = (url) => {

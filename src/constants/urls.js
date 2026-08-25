@@ -1,6 +1,6 @@
 // URLs
 export const LOCAL_URL = "http://localhost:5000";
-export const PROD_URL = "https://jamia-madarsha-server.onrender.com";
+export const PROD_URL = "https://fikr-e-islam.onrender.com";
 
 // Auto detect environment
 export const BACKEND_URL = PROD_URL;

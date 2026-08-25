@@ -38,7 +38,7 @@ export default function LectureCard({ lecture, onPlay }) {
     return match && match[2].length === 11 ? match[2] : null;
   };
 
-  const BACKEND_URL = "https://jamia-madarsha-server.onrender.com";
+  const BACKEND_URL = "https://fikr-e-islam.onrender.com";
   const fallbackThumb =
     "https://images.unsplash.com/photo-1447069387593-a5de0862481e?auto=format&fit=crop&q=80&w=800";
 

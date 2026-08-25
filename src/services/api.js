@@ -1,7 +1,7 @@
 // import axios from 'axios';
 
 // const API = axios.create({
-//   baseURL: 'https://jamia-madarsha-server.onrender.com/api',
+//   baseURL: 'https://fikr-e-islam.onrender.com/api',
 //   withCredentials: true,
 //   headers: {
 //     'Content-Type': 'application/json',
