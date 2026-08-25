@@ -70,14 +70,15 @@ export default function EventCard({ event }) {
         <div className={`flex flex-col flex-grow justify-between ${language === 'ur' ? 'text-right' : 'text-left'}`}>
           <div>
             {/* Title */}
-            <h3 className={`text-base font-bold text-slate-900 group-hover:text-primary transition-colors leading-snug mb-4 font-serif ${language === 'ur' ? 'text-right' : 'text-left'}`}>
+            <h3 className={`text-base font-bold text-slate-900 group-hover:text-primary transition-colors leading-[1.85] mb-3 ${language === 'ur' ? 'text-right' : 'text-left'}`}>
               {title}
             </h3>
 
             {/* Description */}
-            <p className={`text-textPrimary text-sm font-light leading-relaxed line-clamp-3 mb-4 ${language === 'ur' ? 'text-right' : 'text-left'}`}>
+            <p className={`text-textPrimary text-sm font-normal leading-[2.1] line-clamp-3 mb-3 ${language === 'ur' ? 'text-right' : 'text-left'}`}>
               {description}
             </p>
+
           </div>
 
           {/* Time and Location markers */}

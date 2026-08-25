@@ -300,7 +300,7 @@ export default function About() {
                   ].map((tag, idx) => (
                     <div
                       key={idx}
-                      className="bg-[#F3E8DB] hover:bg-[#EBDCCB] text-[#4A2612] border border-[#DFCBB7] rounded-full py-2 px-1 text-center font-bold text-[11px] sm:text-xs transition-colors shadow-2xs font-serif truncate"
+                      className="bg-[#F3E8DB] hover:bg-[#EBDCCB] text-[#4A2612] border border-[#DFCBB7] rounded-full py-1.5 px-2 text-center font-bold text-[11px] sm:text-xs transition-colors shadow-2xs leading-normal"
                     >
                       {tag}
                     </div>
@@ -316,12 +316,13 @@ export default function About() {
                   ].map((tag, idx) => (
                     <div
                       key={idx}
-                      className="bg-[#F3E8DB] hover:bg-[#EBDCCB] text-[#4A2612] border border-[#DFCBB7] rounded-full py-2 px-1 text-center font-bold text-[11px] sm:text-xs transition-colors shadow-2xs font-serif truncate"
+                      className="bg-[#F3E8DB] hover:bg-[#EBDCCB] text-[#4A2612] border border-[#DFCBB7] rounded-full py-1.5 px-2 text-center font-bold text-[11px] sm:text-xs transition-colors shadow-2xs leading-normal"
                     >
                       {tag}
                     </div>
                   ))}
                 </div>
+
               </div>
             </div>
           </div>

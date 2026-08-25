@@ -204,17 +204,12 @@
   /* Firefox */
 }
 
-/* Define Pyami Nastaliq local font with unicode-range for Urdu/Arabic characters */
-@font-face {
-  font-family: 'Pyami Nastaliq';
-  src: local('Pyami Nastaliq'), local('PyamiNastaliq'), local('Payami Nastaleeq'), local('PayamiNastaleeq');
-  unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF;
-}
-
-/* Urdu/RTL typography overrides to inherit Pyami Nastaliq (traditional/elegant) first */
+/* Urdu & Arabic Typography System */
 [dir="rtl"] body,
 [dir="rtl"] {
-  font-family: 'Pyami Nastaliq', 'Payami Nastaleeq', 'Noto Nastaliq Urdu', 'Noto Sans Arabic', 'Inter', sans-serif !important;
+  font-family: 'Noto Nastaliq Urdu', 'Urdu Typesetting', 'Jameel Noori Nastaleeq', 'Noto Naskh Arabic', 'Inter', sans-serif;
+  line-height: 2.1;
+  text-rendering: optimizeLegibility;
 }
 
 [dir="rtl"] h1,
@@ -224,5 +219,33 @@
 [dir="rtl"] h5,
 [dir="rtl"] h6,
 [dir="rtl"] .title-serif {
-  font-family: 'Pyami Nastaliq', 'Payami Nastaleeq', 'Noto Nastaliq Urdu', 'Noto Sans Arabic', 'Inter', sans-serif !important;
+  font-family: 'Noto Nastaliq Urdu', 'Urdu Typesetting', 'Jameel Noori Nastaleeq', 'Noto Naskh Arabic', serif;
+  line-height: 1.85;
 }
+
+/* Dedicated Arabic / Quran / Hadith typography classes */
+.arabic-text,
+.quran-text,
+.hadith-text,
+[lang="ar"] {
+  font-family: 'Noto Naskh Arabic', 'Traditional Arabic', 'Amiri', serif !important;
+  line-height: 1.95;
+  direction: rtl;
+  text-align: right;
+}
+
+/* Urdu specific text class */
+.urdu-text,
+[lang="ur"] {
+  font-family: 'Noto Nastaliq Urdu', 'Urdu Typesetting', 'Jameel Noori Nastaleeq', serif !important;
+  line-height: 2.15;
+  direction: rtl;
+  text-align: right;
+}
+
+/* Prevent mid-word breaking in RTL */
+[dir="rtl"] p,
+[dir="rtl"] span,
+[dir="rtl"] a {
+  overflow-wrap: break-word;
+}

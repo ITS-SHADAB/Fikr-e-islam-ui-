@@ -183,7 +183,7 @@ export default function PublicationCard({ publication }) {
             <Link to={detailUrl} className="block group/title mt-2">
               <h3
                 style={{ color: COLORS.primary }}
-                className="text-lg sm:text-xl font-bold leading-snug mb-2 font-serif group-hover/title:text-accent transition-colors"
+                className="text-lg sm:text-xl font-bold leading-[1.85] mb-2 group-hover/title:text-accent transition-colors"
               >
                 {title}
               </h3>
@@ -222,12 +222,13 @@ export default function PublicationCard({ publication }) {
             {/* Summary / Description (Truncated to 50 characters with ...) */}
             {truncatedSummary && (
               <p
-                className="text-sm leading-relaxed mb-4 font-light"
+                className="text-sm leading-[2.1] mb-4 font-normal"
                 style={{ color: COLORS.textPrimary }}
               >
                 {truncatedSummary}
               </p>
             )}
+
           </div>
 
           {/* Action Buttons: Details, Read Online & Download */}

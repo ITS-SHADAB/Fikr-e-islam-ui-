@@ -488,7 +488,7 @@ export default function ArticleDetail() {
 
               {/* Title */}
               <h1
-                className="text-2xl sm:text-3xl md:text-4xl font-extrabold font-serif leading-tight"
+                className="text-2xl sm:text-3xl md:text-4xl font-bold leading-[1.85] break-words"
                 style={{ color: COLORS.primary }}
               >
                 {title}
@@ -523,7 +523,7 @@ export default function ArticleDetail() {
               {/* Summary Synopsis Box */}
               {summary && (
                 <div
-                  className="p-5 rounded-2xl border text-sm sm:text-base leading-relaxed font-medium italic"
+                  className="p-5 rounded-2xl border text-sm sm:text-base leading-[2.1] font-normal break-words italic"
                   style={{
                     backgroundColor: `${COLORS.secondary}30`,
                     borderColor: `${COLORS.accent}40`,
@@ -538,17 +538,18 @@ export default function ArticleDetail() {
 
               {/* Full Article Content / Body */}
               <div className="space-y-4 pt-2">
-                <h3 className="text-lg font-bold font-serif flex items-center gap-2" style={{ color: COLORS.primary }}>
+                <h3 className="text-lg font-bold flex items-center gap-2" style={{ color: COLORS.primary }}>
                   <Sparkles className="w-4 h-4 text-accent" />
                   <span>{isRTL ? "متنِ مضمون" : "Article Body"}</span>
                 </h3>
                 
                 {content ? (
                   <div
-                    className="prose prose-lg max-w-none text-base sm:text-lg leading-loose font-light whitespace-pre-line"
+                    className="prose prose-lg max-w-none text-base sm:text-lg leading-[2.2] font-normal whitespace-pre-line break-words"
                     style={{ color: COLORS.textPrimary }}
                     dangerouslySetInnerHTML={{ __html: content }}
                   />
+
                 ) : (
                   <p className="text-sm font-light text-slate-500 italic">
                     {isRTL ? "اس مضمون کا مکمل متن جلد شائع کیا جائے گا۔" : "Full text will be published soon."}

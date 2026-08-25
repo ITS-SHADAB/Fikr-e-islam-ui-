@@ -251,24 +251,24 @@ export default function Home() {
           <div
             className={`lg:col-span-7 space-y-6 ${language === "ur" ? "text-right" : "text-left"}`}
           >
-            <span className="inline-flex items-center gap-1.5 bg-secondary border border-border text-textSecondary text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-full leading-none whitespace-nowrap max-w-full break-words">
+            <span className="inline-flex items-center gap-1.5 bg-secondary border border-border text-textSecondary text-xs font-bold px-4 py-2 rounded-full leading-relaxed max-w-full break-words">
               <span className="text-accent text-sm">✦</span>
               {heroTitle}
             </span>
 
             {/* Heading */}
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-primary leading-snug sm:leading-normal tracking-wide break-words [text-wrap:balance] max-w-2xl">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-primary leading-relaxed break-words [text-wrap:balance] max-w-2xl">
               {heroName}
             </h1>
 
             {/* Intro paragraph */}
-            <p className="text-textPrimary text-md sm:text-lg font-light leading-relaxed max-w-3xl px-2 sm:px-3 py-1 break-words [overflow-wrap:anywhere]">
+            <p className="text-textPrimary text-base sm:text-lg font-normal leading-[2.1] max-w-3xl px-1 py-1 break-words">
               {heroIntro}
             </p>
 
             {/* Quote */}
             <div
-              className={`border-accent ${language === "ur" ? "border-r-4 pr-4 sm:pr-5 text-right" : "border-l-4 pl-4 sm:pl-5 text-left"} italic text-sm sm:text-base text-textSecondary font-light leading-loose max-w-lg relative p-4 sm:p-5 break-words [overflow-wrap:anywhere]`}
+              className={`border-accent ${language === "ur" ? "border-r-4 pr-4 sm:pr-5 text-right" : "border-l-4 pl-4 sm:pl-5 text-left"} italic text-sm sm:text-base text-textSecondary font-normal leading-[2.1] max-w-2xl relative p-4 sm:p-5 break-words`}
             >
               {heroMission}
             </div>

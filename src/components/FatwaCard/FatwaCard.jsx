@@ -58,7 +58,7 @@ export default function FatwaCard({ fatwa }) {
       </div>
 
       {/* Rulings Title */}
-      <h3 className="text-md font-bold text-slate-900 group-hover:text-primary transition-colors leading-snug mb-3 flex items-start gap-2">
+      <h3 className="text-md font-bold text-slate-900 group-hover:text-primary transition-colors leading-[1.85] mb-3 flex items-start gap-2">
         <FileText className="w-5 h-5 text-accent shrink-0 mt-0.5" />
         <span className="line-clamp-2">{title}</span>
       </h3>
@@ -68,7 +68,7 @@ export default function FatwaCard({ fatwa }) {
         <span className="block text-xs font-bold text-primary mb-1">
           {language === "en" ? "Question:" : "سوال:"}
         </span>
-        <p className="text-textPrimary text-xs italic line-clamp-2 leading-relaxed">
+        <p className="text-textPrimary text-xs italic line-clamp-2 leading-[2.0]">
           "{question}"
         </p>
       </div>
@@ -78,10 +78,11 @@ export default function FatwaCard({ fatwa }) {
         <span className="block text-xs font-bold text-slate-500 mb-1">
           {language === "en" ? "Fatwa Summary:" : "خلاصہ فتویٰ:"}
         </span>
-        <p className="text-textPrimary text-sm line-clamp-3 leading-relaxed mb-4 font-light">
+        <p className="text-textPrimary text-sm line-clamp-3 leading-[2.1] mb-4 font-normal">
           {plainAnswer}
         </p>
       </div>
+
 
       {/* Action CTA link */}
       <div className="mt-auto pt-2 shrink-0 flex justify-start">

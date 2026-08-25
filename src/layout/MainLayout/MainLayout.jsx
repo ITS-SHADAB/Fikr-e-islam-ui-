@@ -40,11 +40,15 @@ export default function MainLayout() {
   // Apply typography and direction configuration dynamically for Urdu & RTL
   useEffect(() => {
     if (language === 'ur') {
-      document.body.style.fontFamily = "'Pyami Nastaliq', 'Payami Nastaleeq', 'Noto Nastaliq Urdu', 'Noto Sans Arabic', 'Inter', sans-serif";
+      document.body.style.fontFamily = "'Noto Nastaliq Urdu', 'Urdu Typesetting', 'Jameel Noori Nastaleeq', 'Noto Naskh Arabic', serif";
       document.body.dir = 'rtl';
+      document.documentElement.dir = 'rtl';
+      document.documentElement.lang = 'ur';
     } else {
       document.body.style.fontFamily = "'Inter', sans-serif";
       document.body.dir = 'ltr';
+      document.documentElement.dir = 'ltr';
+      document.documentElement.lang = 'en';
     }
   }, [language]);
 

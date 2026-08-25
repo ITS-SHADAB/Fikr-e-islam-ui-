@@ -472,7 +472,7 @@ export default function BookDetail() {
 
               {/* Title */}
               <h1
-                className="text-2xl sm:text-3xl md:text-4xl font-extrabold font-serif leading-tight"
+                className="text-2xl sm:text-3xl md:text-4xl font-bold leading-[1.85] break-words"
                 style={{ color: COLORS.primary }}
               >
                 {title}
@@ -516,7 +516,7 @@ export default function BookDetail() {
               {/* Full Description / Overview */}
               <div className="space-y-3 pt-2">
                 <h3
-                  className="text-lg font-bold font-serif flex items-center gap-2"
+                  className="text-lg font-bold flex items-center gap-2"
                   style={{ color: COLORS.primary }}
                 >
                   <Sparkles className="w-4 h-4 text-accent" />
@@ -527,13 +527,14 @@ export default function BookDetail() {
                   </span>
                 </h3>
                 <div
-                  className="p-6 rounded-2xl border text-base leading-relaxed whitespace-pre-line font-light"
+                  className="p-6 rounded-2xl border text-base leading-[2.2] whitespace-pre-line font-normal break-words"
                   style={{
                     backgroundColor: `${COLORS.background}50`,
                     borderColor: `${COLORS.border}70`,
                     color: COLORS.textPrimary,
                   }}
                 >
+
                   {summary ? (
                     summary.length > 400 ? (
                       <>

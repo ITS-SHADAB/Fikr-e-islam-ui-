@@ -84,14 +84,15 @@ export default function ArticleCard({ article }) {
         </div>
 
         {/* Title */}
-        <h3 className="text-lg font-bold text-slate-900 group-hover:text-primary transition-colors line-clamp-2 leading-snug mb-4">
+        <h3 className="text-lg font-bold text-slate-900 group-hover:text-primary transition-colors line-clamp-2 leading-[1.85] mb-3">
           {title}
         </h3>
 
         {/* Summary Description */}
-        <p className="text-textPrimary text-sm line-clamp-3 leading-relaxed mb-4 font-light">
+        <p className="text-textPrimary text-sm line-clamp-3 leading-[2.1] mb-3 font-normal">
           {summary}
         </p>
+
 
         {/* Read More link */}
         <div className="mt-auto pt-2 justify-start flex">

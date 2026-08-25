@@ -30,7 +30,8 @@ export default {
         'gold': 'var(--color-gold)',
       },
       fontFamily: {
-        urdu: ["'Pyami Nastaliq'", "'Payami Nastaleeq'", "'Noto Nastaliq Urdu'", 'serif'],
+        urdu: ["'Noto Nastaliq Urdu'", "'Urdu Typesetting'", "'Jameel Noori Nastaleeq'", 'serif'],
+        arabic: ["'Noto Naskh Arabic'", "'Traditional Arabic'", "'Amiri'", 'serif'],
       },
     },
   },

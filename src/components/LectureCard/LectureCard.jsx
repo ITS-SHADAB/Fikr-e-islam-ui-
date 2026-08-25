@@ -111,18 +111,19 @@ export default function LectureCard({ lecture, onPlay }) {
         {/* Title */}
         <h3
           style={{ color: COLORS.textPrimary }}
-          className={`text-md font-bold transition-colors leading-snug mb-2 font-serif line-clamp-2 ${language === "ur" ? "text-right" : "text-left"} group-hover:text-[var(--color-primary)]`}
+          className={`text-md font-bold transition-colors leading-[1.85] mb-2 line-clamp-2 ${language === "ur" ? "text-right" : "text-left"} group-hover:text-[var(--color-primary)]`}
         >
           {title}
         </h3>
 
         {/* Description */}
         <p
-          className={`text-xs font-light leading-relaxed line-clamp-2 ${language === "ur" ? "text-right" : "text-left"}`}
+          className={`text-xs font-normal leading-[2.0] line-clamp-2 ${language === "ur" ? "text-right" : "text-left"}`}
           style={{ color: COLORS.textPrimary }}
         >
           {description}
         </p>
+
 
         {/* Play Link Actions */}
         <div

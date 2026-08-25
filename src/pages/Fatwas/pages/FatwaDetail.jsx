@@ -105,10 +105,10 @@ export default function FatwaDetail() {
               
               {/* Header Banner */}
               <div className={`bg-primary islamic-pattern text-white px-6 py-8 sm:px-10 relative border-b border-accent/35 ${language === 'ur' ? 'text-right' : 'text-left'}`}>
-                <span className="bg-primary text-white text-xs font-bold uppercase tracking-widest px-3 py-1 rounded shadow-sm inline-block mb-3 font-serif">
+                <span className="bg-primary text-white text-xs font-bold px-3 py-1 rounded shadow-sm inline-block mb-3">
                   {language === 'ur' ? (FATWA_CATEGORY_TRANSLATIONS[category] || category) : category}
                 </span>
-                <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-white leading-tight font-serif tracking-wide">
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white leading-[1.85] break-words">
                   {title}
                 </h1>
               </div>
@@ -135,23 +135,23 @@ export default function FatwaDetail() {
                 <div className={`mb-8 bg-slate-50 dark:bg-slate-800/60 rounded p-5 sm:p-6 shadow-xs ${
                   language === 'ur' ? 'border-r-4 border-accent dark:border-amber-500 text-right' : 'border-l-4 border-accent dark:border-amber-500 text-left'
                 }`}>
-                  <h2 className="text-sm font-bold text-textPrimary font-serif flex items-center gap-2 mb-3 tracking-wide">
+                  <h2 className="text-sm font-bold text-textPrimary flex items-center gap-2 mb-3">
                     <HelpCircle className="w-5 h-5 text-accent dark:text-amber-500 shrink-0" />
                     {language === 'en' ? 'Question Asked' : 'پوچھا گیا سوال'}
                   </h2>
-                  <p className="text-slate-700 dark:text-slate-300 text-sm italic leading-relaxed font-light">
+                  <p className="text-slate-700 dark:text-slate-300 text-base leading-[2.1] font-normal break-words">
                     "{question}"
                   </p>
                 </div>
      
                 {/* 2. Scholar Answer block */}
                 <div className={language === 'ur' ? 'text-right' : 'text-left'}>
-                  <h2 className={`text-sm font-bold text-slate-800 dark:text-slate-200 font-serif flex items-center gap-2 mb-4 border-b border-slate-100 dark:border-slate-700 pb-2 tracking-wide ${language === 'ur' ? 'text-right' : 'text-left'}`}>
+                  <h2 className={`text-sm font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2 mb-4 border-b border-slate-100 dark:border-slate-700 pb-2 ${language === 'ur' ? 'text-right' : 'text-left'}`}>
                     <FileText className="w-5 h-5 text-accent dark:text-amber-500 shrink-0" />
                     {language === 'en' ? 'Shariah Ruling & Detailed Fatwa' : 'شرعی حکم اور تفصیلی فتویٰ'}
                   </h2>
                   <div
-                    className={`prose max-w-none text-slate-800 dark:text-slate-200 leading-relaxed font-light text-base space-y-4 ${language === 'ur' ? 'text-right' : 'text-left'}`}
+                    className={`prose max-w-none text-slate-800 dark:text-slate-200 leading-[2.2] font-normal text-base space-y-6 break-words ${language === 'ur' ? 'text-right' : 'text-left'}`}
                     dangerouslySetInnerHTML={{ __html: detailedAnswer }}
                   ></div>
 
