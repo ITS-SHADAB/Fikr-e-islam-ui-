@@ -1,34 +1,26 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate, Link } from 'react-router-dom';
-import { HelpCircle, CheckCircle, AlertTriangle, Send, User, Mail, Phone, Lock, ArrowRight, ArrowLeft } from 'lucide-react';
+import {
+  HelpCircle,
+  CheckCircle,
+  AlertTriangle,
+  Send,
+  User,
+  Lock,
+  ArrowRight,
+  ShieldCheck,
+} from 'lucide-react';
 import { submitQuestion } from '@/services';
-import { useSettings } from '@/hooks/useSettings';
-import { Input } from '../../../components/Input';
-import { QA_CATEGORIES } from '@/utils/categories';
-
-/* ── Theme Colors ── */
-const PALETTE = {
-  primary: '#7B654D',      // Elegant brown
-  secondary: '#E5D8CA',    // Light beige
-  background: '#FAF7F2',   // Warm off-white
-  text: '#2D2A26',         // Dark text
-  border: '#E8E2DA',       // Warm border
-  white: '#FFFFFF',
-};
+import { COLORS } from '@/utils/themeColors';
+import { useAuthModal } from '@/context/AuthModalContext';
 
 export default function AskQuestion() {
   const navigate = useNavigate();
-  const { settings } = useSettings();
+  const { openLogin } = useAuthModal();
   const { isAuthenticated, loggedInUser } = useSelector((s) => s.auth);
 
-  const language = settings?.language === 'ur' || settings?.language === 'Urdu' ? 'ur' : 'en';
-
   const [formData, setFormData] = useState({
-    fullName: '',
-    email: '',
-    phoneNumber: '',
-    category: 'General Questions',
     questionTitle: '',
     detailedQuestion: '',
   });
@@ -37,20 +29,6 @@ export default function AskQuestion() {
   const [actionError, setActionError] = useState(null);
   const [success, setSuccess] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
-
-  // Auto-populate logged in user info
-  useEffect(() => {
-    if (isAuthenticated && loggedInUser) {
-      setFormData((prev) => ({
-        ...prev,
-        fullName: loggedInUser.name || '',
-        email: loggedInUser.loginEmail || loggedInUser.email || '',
-        phoneNumber: loggedInUser.loginPhone || loggedInUser.contactPhone || '',
-      }));
-    }
-  }, [isAuthenticated, loggedInUser]);
-
-  const categories = QA_CATEGORIES;
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -62,283 +40,256 @@ export default function AskQuestion() {
     setActionError(null);
 
     if (!isAuthenticated) {
-      navigate('/login');
+      openLogin();
       return;
     }
 
-    if (!formData.fullName || !formData.email || !formData.questionTitle || !formData.detailedQuestion) {
+    if (!formData.questionTitle.trim() || !formData.detailedQuestion.trim()) {
+      setActionError('براہ کرم سوال کا عنوان اور تفصیلی سوال دونوں درج کریں۔');
+      return;
+    }
+
+    if (formData.questionTitle.trim().length > 150) {
+      setActionError('سوال کا عنوان زیادہ سے زیادہ 150 حروف پر مشتمل ہو سکتا ہے۔');
       return;
     }
 
     try {
       setActionLoading(true);
-      const result = await submitQuestion(formData);
+      const result = await submitQuestion({
+        questionTitle: formData.questionTitle.trim(),
+        detailedQuestion: formData.detailedQuestion.trim(),
+      });
       setSuccess(true);
-      setSuccessMsg(result.message || (language === 'en' ? 'Your question has been submitted successfully.' : 'آپ کا سوال کامیابی کے ساتھ جمع کرا دیا گیا ہے۔'));
+      setSuccessMsg(
+        result.message ||
+          'آپ کا سوال کامیابی سے دار الافتاء کو ارسال کر دیا گیا ہے۔ جواب کے بعد آپ کو مطلع کر دیا جائے گا۔'
+      );
       setFormData({
-        fullName: loggedInUser?.name || '',
-        email: loggedInUser?.loginEmail || loggedInUser?.email || '',
-        phoneNumber: loggedInUser?.loginPhone || loggedInUser?.contactPhone || '',
-        category: 'General Questions',
         questionTitle: '',
         detailedQuestion: '',
       });
     } catch (err) {
-      setActionError(err.response?.data?.message || err.message || 'Failed to submit question');
+      setActionError(
+        err?.response?.data?.message || err?.message || 'سوال بھیجنے میں ناکامی ہوئی'
+      );
     } finally {
       setActionLoading(false);
     }
   };
 
-  const t = {
-    en: {
-      askQuestion: "Ask Question",
-      subtitle: "Send your query directly to the scholar/mufti",
-      loginRequired: "You must be signed in to submit a question to the scholar.",
-      loginBtn: "Sign In to Ask a Question",
-      successTitle: "Question Submitted",
-      askAnother: "Ask Another Question",
-      fullName: "Full Name *",
-      email: "Email Address *",
-      phone: "Phone Number (Optional)",
-      category: "Select Category *",
-      title: "Question Title *",
-      titlePlaceholder: "e.g. Zakat calculation on retirement funds",
-      detail: "Detailed Question *",
-      detailPlaceholder: "Provide all relevant details to explain your query to the scholar...",
-      sendBtn: "Send to Scholar",
-      sending: "Sending question...",
-      backPortal: "Back to Official Portal"
-    },
-    ur: {
-      askQuestion: "سوال پوچھیں",
-      subtitle: "اپنا سوال براہِ راست عالم/مفتی صاحب کو ارسال کریں",
-      loginRequired: "عالم صاحب کو سوال ارسال کرنے کے لیے آپ کا لاگ ان ہونا ضروری ہے۔",
-      loginBtn: "سوال پوچھنے کے لیے لاگ ان کریں",
-      successTitle: "سوال موصول ہو گیا",
-      askAnother: "ایک اور سوال پوچھیں",
-      fullName: "مکمل نام *",
-      email: "ای میل ایڈریس *",
-      phone: "فون نمبر (اختیاری)",
-      category: "زمرہ منتخب کریں *",
-      title: "سوال کا عنوان *",
-      titlePlaceholder: "مثال: ریٹائرمنٹ فنڈز پر زکوٰۃ کا حساب",
-      detail: "تفصیلی سوال *",
-      detailPlaceholder: "عالم صاحب کو اپنا مسئلہ سمجھانے کے لیے تمام متعلقہ تفصیلات فراہم کریں...",
-      sendBtn: "عالم صاحب کو بھیجیں",
-      sending: "سوال بھیجا جا رہا ہے...",
-      backPortal: "سرکاری پورٹل پر واپس جائیں"
-    }
-  }[language === 'ur' ? 'ur' : 'en'];
-
   return (
-    <div className={`py-12 min-h-screen ${language === 'ur' ? 'text-right' : 'text-left'}`} style={{ backgroundColor: PALETTE.background }} dir={language === 'ur' ? 'rtl' : 'ltr'}>
-      <div className="w-full px-4 sm:px-8 lg:px-12">
-
+    <div
+      dir="rtl"
+      className="py-8 md:py-12 min-h-screen"
+      style={{ backgroundColor: COLORS.background }}
+    >
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Back Link */}
-        <Link
-          to="/"
-          className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider mb-6 transition-all hover:opacity-85"
-          style={{ color: PALETTE.primary }}
-        >
-          {language === 'en' ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
-          {t.backPortal}
-        </Link>
+        <div className="mb-4">
+          <Link
+            to="/qa"
+            className="inline-flex items-center gap-1.5 text-xs font-bold transition-opacity hover:opacity-85"
+            style={{ color: COLORS.primary }}
+          >
+            <ArrowRight className="w-4 h-4" />
+            تمام سوال و جواب پر واپس جائیں
+          </Link>
+        </div>
 
-        {/* Success Banner */}
+        {/* Success Card */}
         {success ? (
-          <div className="bg-white border rounded-2xl p-10 text-center shadow-xs" style={{ borderColor: PALETTE.border }}>
+          <div
+            className="bg-white border rounded-2xl p-6 sm:p-10 text-center shadow-xs"
+            style={{ borderColor: COLORS.border }}
+          >
             <CheckCircle className="w-16 h-16 text-emerald-600 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold font-serif mb-3" style={{ color: PALETTE.primary }}>
-              {t.successTitle}
+            <h2 className="text-xl sm:text-2xl font-bold font-['Noto_Nastaliq_Urdu'] mb-2" style={{ color: COLORS.primary }}>
+              سوال کامیابی سے موصول ہو گیا
             </h2>
-            <p className="text-slate-700 text-sm leading-relaxed mb-6 font-medium">{successMsg}</p>
-            <button
-              onClick={() => setSuccess(false)}
-              className="px-6 py-2.5 text-white font-bold text-xs uppercase tracking-wider rounded-md transition-all cursor-pointer border-0"
-              style={{ backgroundColor: PALETTE.primary }}
-            >
-              {t.askAnother}
-            </button>
+            <p className="text-slate-700 text-xs sm:text-sm leading-relaxed mb-6 font-medium max-w-md mx-auto">
+              {successMsg}
+            </p>
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              <button
+                type="button"
+                onClick={() => setSuccess(false)}
+                className="px-5 py-2.5 text-white font-bold text-xs uppercase tracking-wider rounded-lg transition-colors cursor-pointer"
+                style={{ backgroundColor: COLORS.primary }}
+              >
+                ایک اور سوال پوچھیں
+              </button>
+              <Link
+                to="/my-details"
+                className="px-5 py-2.5 font-bold text-xs uppercase tracking-wider rounded-lg border transition-colors bg-slate-50 hover:bg-slate-100 text-slate-800"
+                style={{ borderColor: COLORS.border }}
+              >
+                میرے پوچھے گئے سوالات دیکھیں
+              </Link>
+            </div>
           </div>
         ) : (
-          <div className="bg-white border rounded-2xl shadow-xs overflow-hidden" style={{ borderColor: PALETTE.border }}>
-
-            {/* Header Banner */}
+          <div
+            className="bg-white border rounded-2xl shadow-xs overflow-hidden"
+            style={{ borderColor: COLORS.border }}
+          >
+            {/* Header Banner (Font size max text-xl) */}
             <div
-              style={{ backgroundColor: PALETTE.primary, borderColor: PALETTE.border }}
-              className="text-white p-6 sm:p-8 border-b-2 flex items-center gap-4"
+              style={{ backgroundColor: COLORS.primary }}
+              className="text-white p-5 sm:p-7 flex items-center gap-4"
             >
-              <div className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center border border-white/20 shrink-0">
-                <HelpCircle className="w-6 h-6 text-[#E5D8CA]" />
+              <div className="w-11 h-11 bg-white/10 rounded-2xl flex items-center justify-center border border-white/20 shrink-0">
+                <HelpCircle className="w-5 h-5 text-[#E5D8CA]" />
               </div>
               <div>
-                <h1 className="text-xl sm:text-2xl font-bold font-serif">
-                  {t.askQuestion}
-                </h1>
-                <p className="text-xs text-slate-200 mt-1 font-bold">
-                  {t.subtitle}
+                <h1 className="text-lg sm:text-xl font-bold font-['Noto_Nastaliq_Urdu']">سوال پوچھیں</h1>
+                <p className="text-xs text-slate-200 mt-1 font-medium">
+                  اپنا مسئلہ براہِ راست مفتی صاحب کو ارسال کریں اور شرعی رہنمائی حاصل کریں
                 </p>
               </div>
             </div>
 
-            {/* Main authentication block check */}
+            {/* Authentication Guard */}
             {!isAuthenticated ? (
-              <div className="p-8 text-center bg-slate-50/50">
+              <div className="p-8 sm:p-12 text-center bg-slate-50/50">
                 <Lock className="w-12 h-12 mx-auto mb-3 text-slate-400" />
-                <p className="text-sm font-bold text-slate-800 mb-5 leading-relaxed">
-                  {t.loginRequired}
+                <h2 className="text-base font-bold text-slate-800 mb-2">
+                  مفتی صاحب کو سوال ارسال کرنے کے لیے آپ کا لاگ ان ہونا ضروری ہے۔
+                </h2>
+                <p className="text-xs text-slate-500 mb-6 max-w-md mx-auto">
+                  سوالات جمع کرنے اور ان کے جوابات کا باآسانی سراغ لگانے کے لیے آپ کا اکاؤنٹ ہونا ضروری ہے۔
                 </p>
                 <button
-                  onClick={() => navigate('/login')}
-                  className="px-6 py-3 text-white font-bold text-xs uppercase tracking-wider rounded-lg transition-all cursor-pointer border-0"
-                  style={{ backgroundColor: PALETTE.primary }}
+                  type="button"
+                  onClick={openLogin}
+                  className="px-6 py-3 text-white font-bold text-xs uppercase tracking-wider rounded-lg transition-all cursor-pointer shadow-xs"
+                  style={{ backgroundColor: COLORS.primary }}
                 >
-                  {t.loginBtn}
+                  سوال پوچھنے کے لیے لاگ ان کریں
                 </button>
               </div>
             ) : (
-              /* Form Fields (Full width, clean borders, no animations) */
-              <form onSubmit={handleFormSubmit} className="p-6 sm:p-8 space-y-6">
-
+              <form onSubmit={handleFormSubmit} className="p-5 sm:p-8 space-y-5 text-start">
                 {actionError && (
-                  <div className="bg-red-50 border-r-4 border-red-500 p-4 flex items-start gap-2.5 text-red-700 text-xs rounded">
-                    <AlertTriangle className="w-4.5 h-4.5 shrink-0 mt-0.5" />
+                  <div className="bg-red-50 border-r-4 border-red-500 p-4 flex items-start gap-2.5 text-red-700 text-xs rounded-lg">
+                    <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
                     <span className="font-bold">{actionError}</span>
                   </div>
                 )}
 
-                {/* Grid for Name, Email and Phone */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                  {/* Full Name */}
-                  <div>
-                    <label className="block text-xs font-bold text-slate-600 uppercase mb-2">
-                      {t.fullName}
-                    </label>
-                    <div className="flex items-center gap-2 px-3 py-2 border bg-slate-50/80 rounded" style={{ borderColor: PALETTE.border }}>
-                      <User className="w-4 h-4 text-slate-400 shrink-0" />
-                      <input
-                        type="text"
-                        name="fullName"
-                        value={formData.fullName}
-                        onChange={handleInputChange}
-                        required
-                        disabled
-                        className="w-full text-sm outline-none bg-transparent text-slate-700 font-bold"
-                      />
-                    </div>
+                {/* Logged in User Bar */}
+                <div
+                  className="p-3.5 rounded-xl border bg-slate-50/80 flex flex-wrap items-center justify-between gap-3 text-xs"
+                  style={{ borderColor: COLORS.border }}
+                >
+                  <div className="flex items-center gap-2">
+                    <User className="w-4 h-4 text-slate-500" />
+                    <span className="font-bold text-slate-800">{loggedInUser?.name}</span>
+                    {loggedInUser?.email && (
+                      <span className="text-slate-500 hidden sm:inline">({loggedInUser.email})</span>
+                    )}
                   </div>
-
-                  {/* Email */}
-                  <div>
-                    <label className="block text-xs font-bold text-slate-600 uppercase mb-2">
-                      {t.email}
-                    </label>
-                    <div className="flex items-center gap-2 px-3 py-2 border bg-slate-50/80 rounded" style={{ borderColor: PALETTE.border }}>
-                      <Mail className="w-4 h-4 text-slate-400 shrink-0" />
-                      <input
-                        type="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleInputChange}
-                        required
-                        disabled
-                        className="w-full text-sm outline-none bg-transparent text-slate-700 font-bold"
-                      />
-                    </div>
+                  <div className="flex items-center gap-1 text-[11px] text-emerald-700 font-medium bg-emerald-50 px-2 py-0.5 rounded">
+                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>تصدیق شدہ سائل</span>
                   </div>
-
-                  {/* Phone */}
-                  <div>
-                    <label className="block text-xs font-bold text-slate-600 uppercase mb-2">
-                      {t.phone}
-                    </label>
-                    <div className="flex items-center gap-2 px-3 py-2 border rounded bg-white" style={{ borderColor: PALETTE.border }}>
-                      <Phone className="w-4 h-4 text-slate-400 shrink-0" />
-                      <input
-                        type="text"
-                        name="phoneNumber"
-                        value={formData.phoneNumber}
-                        onChange={handleInputChange}
-                        className="w-full text-sm outline-none bg-transparent text-slate-800 font-bold"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Category selection */}
-                <div>
-                  <label className="block text-xs font-bold text-slate-600 uppercase mb-2">
-                    {t.category}
-                  </label>
-                  <select
-                    name="category"
-                    value={formData.category}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-3 py-2.5 text-sm bg-white border rounded outline-none text-slate-700 font-bold focus:border-stone-500 transition-colors"
-                    style={{ borderColor: PALETTE.border }}
-                  >
-                    {categories.map((cat) => (
-                      <option key={cat.value} value={cat.value}>
-                        {language === 'ur' ? cat.labelUr : cat.labelEn}
-                      </option>
-                    ))}
-                  </select>
                 </div>
 
                 {/* Question Title */}
                 <div>
-                  <label className="block text-xs font-bold text-slate-600 uppercase mb-2">
-                    {t.title}
-                  </label>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="block text-xs font-bold text-slate-700 uppercase">
+                      سوال کا عنوان *
+                    </label>
+                    <span
+                      className={`text-[11px] font-medium ${
+                        formData.questionTitle.length > 150 ? 'text-red-500' : 'text-slate-400'
+                      }`}
+                    >
+                      {formData.questionTitle.length}/150
+                    </span>
+                  </div>
                   <input
                     type="text"
                     name="questionTitle"
                     value={formData.questionTitle}
                     onChange={handleInputChange}
+                    maxLength={150}
                     required
-                    placeholder={t.titlePlaceholder}
-                    className="w-full px-3 py-2.5 text-sm bg-white border rounded outline-none text-slate-800 font-bold focus:border-stone-500 transition-colors"
-                    style={{ borderColor: PALETTE.border }}
+                    placeholder="مثال: تجارتی سامان پر زکوٰۃ کا طریقہ کار"
+                    className="w-full px-3.5 py-2.5 text-sm bg-white border rounded-xl outline-none text-slate-800 font-medium focus:border-stone-600 transition-colors shadow-2xs font-['Noto_Nastaliq_Urdu']"
+                    style={{ borderColor: COLORS.border }}
                   />
+                  <p className="text-[11px] text-slate-400 mt-1">
+                    اپنے سوال کا مختصر اور جامع عنوان درج کریں (زیادہ سے زیادہ 150 حروف)
+                  </p>
                 </div>
 
-                {/* Question Detail */}
+                {/* Detailed Question */}
                 <div>
-                  <label className="block text-xs font-bold text-slate-600 uppercase mb-2">
-                    {t.detail}
-                  </label>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="block text-xs font-bold text-slate-700 uppercase">
+                      تفصیلی سوال *
+                    </label>
+                    <span
+                      className={`text-[11px] font-medium ${
+                        formData.detailedQuestion.length > 5000 ? 'text-red-500' : 'text-slate-400'
+                      }`}
+                    >
+                      {formData.detailedQuestion.length}/5000
+                    </span>
+                  </div>
                   <textarea
                     name="detailedQuestion"
                     value={formData.detailedQuestion}
                     onChange={handleInputChange}
+                    maxLength={5000}
                     required
-                    placeholder={t.detailPlaceholder}
+                    placeholder="اپنے مسئلے کی تمام ضروری تفصیلات اور پس منظر واضح طور پر تحریر کریں..."
                     rows={6}
-                    className="w-full px-3 py-2.5 text-sm bg-white border rounded outline-none text-slate-800 font-bold focus:border-stone-500 transition-colors resize-y leading-relaxed"
-                    style={{ borderColor: PALETTE.border }}
+                    className="w-full px-3.5 py-2.5 text-sm bg-white border rounded-xl outline-none text-slate-800 font-medium focus:border-stone-600 transition-colors resize-y leading-relaxed shadow-2xs font-['Noto_Nastaliq_Urdu']"
+                    style={{ borderColor: COLORS.border }}
                   />
+                  <p className="text-[11px] text-slate-400 mt-1">
+                    صحیح شرعی رہنمائی کے لیے تمام ضروری حقائق درج کریں (زیادہ سے زیادہ 5000 حروف)
+                  </p>
                 </div>
 
-                {/* Submit Action */}
+                {/* Guidelines Box */}
+                <div
+                  className="p-4 rounded-xl border bg-[#faf8f5]/80 text-xs space-y-1.5"
+                  style={{ borderColor: COLORS.border }}
+                >
+                  <span className="font-bold block" style={{ color: COLORS.primary }}>
+                    ❖ سوال پوچھنے کے ضروری آداب و ہدایات
+                  </span>
+                  <ul className="list-disc list-inside space-y-1 text-slate-600">
+                    <li>سوال کو صاف اور واضح الفاظ میں تحریر کریں۔</li>
+                    <li>غیر ضروری تفصیلات سے گریز کریں اور مسئلے کے اہم پہلو بیان کریں۔</li>
+                    <li>آپ اپنے پوچھے گئے سوالات کی کیفیت "میری پروفائل" میں جا کر دیکھ سکتے ہیں۔</li>
+                  </ul>
+                </div>
+
+                {/* Submit Button */}
                 <div className="pt-2">
                   <button
                     type="submit"
-                    disabled={actionLoading}
-                    className="w-full flex items-center justify-center gap-2 py-3.5 text-white font-bold rounded shadow-xs transition-colors text-sm disabled:opacity-50 border-0 cursor-pointer"
-                    style={{ backgroundColor: PALETTE.primary }}
+                    disabled={
+                      actionLoading ||
+                      !formData.questionTitle.trim() ||
+                      !formData.detailedQuestion.trim()
+                    }
+                    className="w-full flex items-center justify-center gap-2 py-3.5 text-white font-bold rounded-xl shadow-xs transition-colors text-xs sm:text-sm disabled:opacity-50 border-0 cursor-pointer"
+                    style={{ backgroundColor: COLORS.primary }}
                   >
                     <Send className="w-4 h-4" />
-                    {actionLoading ? t.sending : t.sendBtn}
+                    {actionLoading ? 'سوال بھیجا جا رہا ہے...' : 'مفتی صاحب کو سوال بھیجیں'}
                   </button>
                 </div>
-
               </form>
             )}
           </div>
         )}
-
       </div>
     </div>
   );

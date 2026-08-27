@@ -31,7 +31,7 @@ function RequiredStar() {
 /* ─── Field wrapper ───────────────────────────────────────────────────── */
 function Field({ label, required, hint, error, icon: Icon, children }) {
   return (
-    <div className="space-y-1">
+    <div className="space-y-1 text-left">
       <label className="flex items-center text-[11px] font-bold text-slate-500 uppercase tracking-widest">
         {label}
         {required && <RequiredStar />}
@@ -95,7 +95,7 @@ function PasswordStrength({ password }) {
   ];
 
   return (
-    <div className="px-1 pt-1 space-y-1">
+    <div className="px-1 pt-1 space-y-1 text-left">
       <div className="flex gap-1">
         {[1, 2, 3, 4, 5].map((i) => (
           <div
@@ -115,7 +115,7 @@ function PasswordStrength({ password }) {
   );
 }
 
-export default function Signup() {
+export default function Signup({ isModal = false, onClose, onSwitchToLogin }) {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { isAuthenticated, loading, error, userRole } = useSelector(
@@ -139,10 +139,12 @@ export default function Signup() {
 
   useEffect(() => {
     dispatch(clearAuthError());
-    if (isAuthenticated) {
+    if (isAuthenticated && isModal) {
+      onClose?.();
+    } else if (isAuthenticated && !isModal) {
       navigate("/");
     }
-  }, [isAuthenticated, navigate, dispatch]);
+  }, [isAuthenticated, isModal, onClose, navigate, dispatch]);
 
   const emailRx = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const phoneRx = /^[6-9]\d{9}$/;
@@ -222,7 +224,7 @@ export default function Signup() {
     );
   };
 
-  if (isAuthenticated) {
+  if (isAuthenticated && !isModal) {
     return (
       <Navigate to={userRole === "admin" ? "/admin/dashboard" : "/"} replace />
     );
@@ -231,7 +233,7 @@ export default function Signup() {
   const displayError = localError || error;
 
   return (
-    <>
+    <div dir="ltr" className="text-left font-sans">
       <style>{`
         @keyframes pulse-star {
           0%,100% { opacity:1; transform:scale(1); }
@@ -254,45 +256,37 @@ export default function Signup() {
         .orbit-ring  { animation: ring-orbit 3s linear infinite; transform-origin: center; }
       `}</style>
 
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/40 flex items-center justify-center p-4 py-10 relative overflow-hidden">
-        {/* BG blobs */}
-        <div className="absolute top-[-8%] right-[-8%] w-[500px] h-[500px] bg-primary/5 rounded-full blur-[110px] pointer-events-none" />
-        <div className="absolute bottom-[-8%] left-[-8%] w-[400px] h-[400px] bg-accent/7 rounded-full blur-[100px] pointer-events-none" />
+      <div
+        className={`${
+          isModal
+            ? "py-6 px-4 sm:px-2 max-w-xl mx-auto"
+            : "min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/40 flex items-center justify-center p-4 py-10 relative overflow-hidden"
+        }`}
+      >
+        {!isModal && (
+          <>
+            {/* BG blobs */}
+            <div className="absolute top-[-8%] right-[-8%] w-[500px] h-[500px] bg-primary/5 rounded-full blur-[110px] pointer-events-none" />
+            <div className="absolute bottom-[-8%] left-[-8%] w-[400px] h-[400px] bg-accent/7 rounded-full blur-[100px] pointer-events-none" />
+          </>
+        )}
 
         {/* Card — wider to fit 2-column grid */}
-        <div className="w-full max-w-2xl relative signup-card">
+        <div className="w-full  relative signup-card mx-auto">
           {/* Header */}
-          <div className="text-center mb-7">
-            <div className="inline-flex items-center justify-center w-20 h-20 mb-4 relative">
-              <svg
-                className="absolute inset-0 w-full h-full orbit-ring"
-                viewBox="0 0 80 80"
-              >
-                <circle
-                  cx="40"
-                  cy="40"
-                  r="36"
-                  fill="none"
-                  stroke="#10b981"
-                  strokeWidth="2.5"
-                  strokeDasharray="20 206"
-                  strokeLinecap="round"
-                />
-              </svg>
-              <div className="w-[68px] h-[68px] rounded-full bg-gradient-to-br from-primary to-primary/70 shadow-xl shadow-primary/30 flex items-center justify-center icon-float">
-                <UserPlus className="w-7 h-7 text-white" strokeWidth={2.2} />
-              </div>
-            </div>
-            <h1 className="text-3xl font-extrabold text-slate-800 tracking-tight">
+          <div className="text-center mb-2">
+            <h1 className="text-xl sm:text-xl font-extrabold text-slate-800 tracking-tight">
               Create Account
             </h1>
-            <p className="text-slate-500 text-sm mt-1 font-light">
-              Register to access the Scholar Portal
+            <p className="text-slate-500 text-xs sm:text-sm mt-1 font-light">
+              Register to access your account & services
             </p>
           </div>
 
           {/* Card body */}
-          <div className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl shadow-slate-200/80 border border-white/70 p-8 sm:p-10">
+          <div
+            className={`bg-white/90 rounded-3xl shadow-xl border border-slate-100 p-6 sm:p-8 ${!isModal ? "shadow-2xl shadow-slate-200/80 sm:p-10" : ""}`}
+          >
             {/* Global error */}
             {displayError && (
               <div className="mb-6 bg-red-50 border border-red-200 rounded-xl px-4 py-3 flex items-start gap-2.5 text-red-700 text-xs">
@@ -307,9 +301,13 @@ export default function Signup() {
               </div>
             )}
 
-            <form onSubmit={handleSubmit} noValidate className="space-y-5">
+            <form
+              onSubmit={handleSubmit}
+              noValidate
+              className="space-y-4 sm:space-y-5"
+            >
               {/* ── Row 1: Full Name + Contact Phone ── */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <Field
                   label="Full Name"
                   required
@@ -361,7 +359,7 @@ export default function Signup() {
               </Field>
 
               {/* ── Row 3: Password + Confirm Password ── */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 {/* Password */}
                 <div className="space-y-1">
                   <Field
@@ -383,7 +381,7 @@ export default function Signup() {
                     <button
                       type="button"
                       onClick={() => setShowPass(!showPass)}
-                      className="text-slate-400 hover:text-primary transition-colors shrink-0 focus:outline-none"
+                      className="text-slate-400 hover:text-primary transition-colors shrink-0 focus:outline-none cursor-pointer"
                       aria-label={showPass ? "Hide password" : "Show password"}
                     >
                       {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -417,7 +415,7 @@ export default function Signup() {
                     <button
                       type="button"
                       onClick={() => setShowConfirm(!showConfirm)}
-                      className="text-slate-400 hover:text-primary transition-colors shrink-0 focus:outline-none"
+                      className="text-slate-400 hover:text-primary transition-colors shrink-0 focus:outline-none cursor-pointer"
                       aria-label={
                         showConfirm ? "Hide password" : "Show password"
                       }
@@ -438,7 +436,7 @@ export default function Signup() {
                 id="signup-submit"
                 type="submit"
                 disabled={loading}
-                className="w-full py-3.5 bg-gradient-to-r from-primary to-primary/85 hover:from-primary/90 hover:to-primary text-white font-bold rounded-xl shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-0.5 transition-all duration-200 text-sm tracking-wide flex items-center justify-center gap-2.5 disabled:opacity-60 disabled:pointer-events-none"
+                className="w-full py-3.5 bg-gradient-to-r from-primary to-primary/85 hover:from-primary/90 hover:to-primary text-white font-bold rounded-xl shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-0.5 transition-all duration-200 text-sm tracking-wide flex items-center justify-center gap-2.5 disabled:opacity-60 disabled:pointer-events-none cursor-pointer"
               >
                 {loading ? (
                   <>
@@ -473,32 +471,44 @@ export default function Signup() {
             </form>
 
             {/* Login link */}
-            <p className="mt-6 text-center text-xs text-slate-500">
+            <p className="mt-5 text-center text-xs text-slate-500">
               Already have an account?{" "}
-              <Link
-                to="/login"
-                className="text-primary hover:text-primary/80 font-bold transition-colors underline underline-offset-2"
-              >
-                Sign in here
-              </Link>
+              {isModal && onSwitchToLogin ? (
+                <button
+                  type="button"
+                  onClick={onSwitchToLogin}
+                  className="text-primary hover:text-primary/80 font-bold transition-colors underline underline-offset-2 cursor-pointer inline"
+                >
+                  Sign in here
+                </button>
+              ) : (
+                <Link
+                  to="/login"
+                  className="text-primary hover:text-primary/80 font-bold transition-colors underline underline-offset-2"
+                >
+                  Sign in here
+                </Link>
+              )}
             </p>
           </div>
 
-          {/* Back link */}
-          <div className="mt-5 text-center">
-            <Link
-              to="/"
-              className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-primary transition-colors group font-medium"
-            >
-              <span>Back to Official Portal</span>
-              <ArrowRight
-                size={13}
-                className="group-hover:translate-x-1 transition-transform"
-              />
-            </Link>
-          </div>
+          {/* Back link - only for standalone page */}
+          {!isModal && (
+            <div className="mt-5 text-center">
+              <Link
+                to="/"
+                className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-primary transition-colors group font-medium"
+              >
+                <span>Back to Official Portal</span>
+                <ArrowRight
+                  size={13}
+                  className="group-hover:translate-x-1 transition-transform"
+                />
+              </Link>
+            </div>
+          )}
         </div>
       </div>
-    </>
+    </div>
   );
 }

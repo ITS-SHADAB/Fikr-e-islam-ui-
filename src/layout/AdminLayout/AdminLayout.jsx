@@ -93,7 +93,7 @@ export default function AdminLayout() {
     }
     dispatch(logout());
     toast.success("کامیابی سے لاگ آؤٹ ہو گئے");
-    navigate("/admin/login");
+    navigate("/");
   };
 
   const sidebarW = collapsed ? "w-[68px]" : "w-64";

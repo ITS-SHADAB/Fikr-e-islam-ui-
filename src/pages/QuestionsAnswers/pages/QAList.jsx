@@ -1,29 +1,41 @@
 import React, { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { MessageSquare, ChevronDown, ChevronUp } from 'lucide-react';
+import { useSearchParams, Link, useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import {
+  MessageSquare,
+  Calendar,
+  Eye,
+  Copy,
+  Check,
+  HelpCircle,
+  ChevronDown,
+  Building2,
+  BookOpen,
+  Settings,
+} from 'lucide-react';
 import { getPublicQuestions } from '@/services';
-import { useSettings } from '@/hooks/useSettings';
 import { SectionSidebar } from '@/components';
 import { COLORS } from '@/utils/themeColors';
 import { QA_CATEGORIES, QA_TRANSLATIONS } from '@/utils/categories';
+import toast from 'react-hot-toast';
 
 export default function QAList() {
-  const { settings } = useSettings();
-  const language = settings?.language === 'ur' || settings?.language === 'Urdu' ? 'ur' : 'en';
-  const isRTL = language === 'ur';
-  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const { loggedInUser, userRole } = useSelector((state) => state.auth);
+  const isAdmin = userRole === 'admin' || loggedInUser?.role === 'admin';
+
+  const [searchParams, setSearchParams] = useSearchParams();
   const queryCategory = searchParams.get('category');
 
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
   const [page, setPage] = useState(1);
   const [pages, setPages] = useState(1);
   const [total, setTotal] = useState(0);
 
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('');
-  const [expandedId, setExpandedId] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState(queryCategory || '');
+  const [copiedId, setCopiedId] = useState(null);
 
   useEffect(() => {
     if (queryCategory !== null) {
@@ -35,17 +47,21 @@ export default function QAList() {
 
   const categories = QA_CATEGORIES;
 
-  const loadQuestions = async (pageNum = page, category = selectedCategory, search = searchTerm) => {
+  const loadQuestions = async (pageNum = 1, category = selectedCategory, search = searchTerm) => {
     try {
       setLoading(true);
-      setError(null);
-      const data = await getPublicQuestions({ category, search, page: pageNum, limit: 6 });
+      const data = await getPublicQuestions({
+        category: category || undefined,
+        search: search || undefined,
+        page: pageNum,
+        limit: 8,
+      });
       setQuestions(data.questions || []);
       setPages(data.totalPages || 1);
-      setPage(data.currentPage || 1);
+      setPage(data.currentPage || pageNum);
       setTotal(data.totalQuestions || 0);
     } catch (err) {
-      setError(err.response?.data?.message || err.message || 'Failed to load questions');
+      // Handled silently
     } finally {
       setLoading(false);
     }
@@ -57,186 +73,281 @@ export default function QAList() {
 
   const handleSearchSubmit = (e) => {
     e?.preventDefault();
+    setPage(1);
     loadQuestions(1, selectedCategory, searchTerm);
   };
 
   const handleCategoryChange = (category) => {
     setSelectedCategory(category);
+    setPage(1);
+    if (category) {
+      setSearchParams({ category });
+    } else {
+      setSearchParams({});
+    }
     loadQuestions(1, category, searchTerm);
   };
 
   const handlePageChange = (pageNum) => {
+    setPage(pageNum);
     loadQuestions(pageNum, selectedCategory, searchTerm);
-    window.scrollTo(0, 0);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const toggleExpand = (id) => {
-    setExpandedId(expandedId === id ? null : id);
+  const handleCopyQuestionLink = (e, slug, id) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const url = `${window.location.origin}/qa/${slug}`;
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(url);
+      setCopiedId(id);
+      toast.success('سوال کا لنک کاپی ہو گیا!');
+      setTimeout(() => setCopiedId(null), 2500);
+    }
   };
 
   return (
     <div
-      dir={isRTL ? 'rtl' : 'ltr'}
-      className="bg-background py-6 md:py-8 min-h-screen"
+      dir="rtl"
+      className="py-6 md:py-8 min-h-screen"
       style={{ backgroundColor: COLORS.background }}
     >
       <div className="mx-auto px-4 sm:px-6 lg:px-8">
-
-        {/* Header Title */}
+        {/* Page Header */}
         <div className="mb-6 md:mb-8 text-center">
           <span
-            className="text-xs font-bold uppercase tracking-widest block mb-1 font-serif"
+            className="text-xs font-bold uppercase tracking-widest block mb-1 font-['Noto_Nastaliq_Urdu']"
             style={{ color: COLORS.accent }}
           >
-            {isRTL ? 'باہمی گفتگو' : 'MUTUAL DISCUSSION'}
+            باہمی گفتگو و رہنمائی
           </span>
-          <div className="flex items-center justify-center gap-4 mb-2">
-            <span style={{ color: COLORS.accent }} className="text-2xl select-none">❖</span>
-            <h1
-              className="text-3xl sm:text-4xl font-extrabold font-serif"
-              style={{ color: COLORS.primary }}
-            >
-              {isRTL ? 'سوالات اور جوابات' : 'Questions & Answers'}
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <span style={{ color: COLORS.accent }} className="text-base select-none">❖</span>
+            <h1 className="text-lg sm:text-xl font-extrabold font-['Noto_Nastaliq_Urdu']" style={{ color: COLORS.primary }}>
+              سوالات اور جوابات
             </h1>
-            <span style={{ color: COLORS.accent }} className="text-2xl select-none">❖</span>
+            <span style={{ color: COLORS.accent }} className="text-base select-none">❖</span>
           </div>
           <p className="text-xs sm:text-sm font-light max-w-xl mx-auto" style={{ color: COLORS.textSecondary }}>
-            {isRTL
-              ? 'عوام کی طرف سے پوچھے گئے اور مفتی صاحب کے جواب دیے گئے دینی و فقہی مسائل کا مطالعہ کریں۔'
-              : 'Read religious and jurisprudential inquiries asked by the public and answered by the Mufti.'}
+            عوام کی طرف سے پوچھے گئے اور مفتی صاحب کے جواب دیے گئے دینی و فقہی مسائل کا مطالعہ کریں۔
           </p>
+          <div className="mt-4 flex justify-center">
+            {isAdmin ? (
+              <Link
+                to="/admin/questions"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold border transition-colors shadow-2xs cursor-pointer"
+                style={{
+                  backgroundColor: `${COLORS.primary}10`,
+                  borderColor: `${COLORS.primary}25`,
+                  color: COLORS.primary,
+                }}
+              >
+                <Settings className="w-3.5 h-3.5" />
+                <span>ایڈمن: سوالات کا انتظام کریں</span>
+              </Link>
+            ) : (
+              <Link
+                to="/ask"
+                className="inline-flex items-center gap-2 px-5 py-2 rounded-full text-white text-xs font-bold uppercase tracking-wider shadow-xs hover:opacity-90 transition-opacity"
+                style={{ backgroundColor: COLORS.primary }}
+              >
+                <HelpCircle className="w-3.5 h-3.5 text-[#E5D8CA]" />
+                نیا سوال پوچھیں
+              </Link>
+            )}
+          </div>
         </div>
 
-        {/* ── Two-column layout (Sidebar on Right, Content on Left) ── */}
+        {/* Two-column layout */}
         <div className="flex flex-col lg:flex-row gap-6 items-start">
-
-          {/* ── UNIFIED SIDEBAR (Mobile Sticky on Top + Desktop Sticky on Side) ── */}
+          {/* Sidebar */}
           <SectionSidebar
             searchTerm={searchTerm}
             onSearchChange={setSearchTerm}
             onSearchSubmit={handleSearchSubmit}
             onClearSearch={() => {
               setSearchTerm('');
+              setPage(1);
               loadQuestions(1, selectedCategory, '');
             }}
-            searchPlaceholder={isRTL ? 'سوال و جواب تلاش کریں...' : 'Search Q&A...'}
-            searchLabel={isRTL ? 'سوالات تلاش کریں' : 'Search Questions'}
-            allLabel={isRTL ? 'تمام سوالات' : 'All Questions'}
-            categoriesLabel={isRTL ? 'ابواب و شعبہ جات' : 'Categories'}
+            searchPlaceholder="سوال و جواب تلاش کریں..."
+            searchLabel="سوالات تلاش کریں"
+            allLabel="تمام سوالات"
+            categoriesLabel="ابواب و شعبہ جات"
             categories={categories}
             selectedCategory={selectedCategory}
             onCategoryChange={handleCategoryChange}
-            isRTL={isRTL}
+            isRTL={true}
             icon={MessageSquare}
             totalCount={total}
           />
 
-          {/* ── MAIN: Questions list Accordion ── */}
+          {/* Main Content */}
           <div className="flex-1 min-w-0 w-full">
             {loading ? (
               <div className="flex items-center justify-center py-20">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2" style={{ borderColor: COLORS.primary }} />
+                <div
+                  className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2"
+                  style={{ borderColor: COLORS.primary }}
+                />
               </div>
             ) : questions && questions.length > 0 ? (
               <>
-                <div className="space-y-4 mb-10 text-start">
+                <div className="space-y-4 mb-10">
                   {questions.map((q) => {
-                    const isExpanded = expandedId === q._id;
+                    const categoryLabel = q.category
+                      ? QA_TRANSLATIONS[q.category] || q.category
+                      : 'سوال و جواب';
+
+                    const rawAnswer = q.answerContent || '';
+                    const cleanAnswer = rawAnswer.replace(/<[^>]*>?/gm, '').trim();
+                    const isLong = cleanAnswer.length > 50;
+                    const previewText = isLong
+                      ? cleanAnswer.slice(0, 50) + '...'
+                      : cleanAnswer;
+
                     return (
-                      <div
+                      <article
                         key={q._id}
-                        className="rounded-2xl border shadow-2xs overflow-hidden transition-all duration-300"
+                        onClick={() => navigate(`/qa/${q.slug}`)}
+                        className="relative rounded-2xl border bg-white cursor-pointer overflow-hidden transition-all duration-200 hover:shadow-md"
                         style={{
-                          backgroundColor: COLORS.white,
                           borderColor: COLORS.border,
+                          borderRightWidth: '4px',
+                          borderRightColor: COLORS.primary,
                         }}
                       >
-                        {/* Collapsible Header */}
+                        {/* Absolute Copy Button — top left corner (RTL: visually top-right) */}
                         <button
                           type="button"
-                          onClick={() => toggleExpand(q._id)}
-                          className="w-full p-5 text-start flex items-start justify-between gap-4 hover:bg-slate-50 transition-colors cursor-pointer"
+                          onClick={(e) => handleCopyQuestionLink(e, q.slug, q._id)}
+                          className="absolute top-4 left-4 w-10 h-10 rounded-full flex items-center justify-center text-white shadow-sm transition-transform active:scale-95 cursor-pointer z-10"
+                          style={{ backgroundColor: COLORS.primary }}
+                          title="کاپی لنک"
                         >
-                          <div className="space-y-2">
-                            <div className="flex flex-wrap items-center gap-3">
-                              <span
-                                className="text-[10px] font-bold px-2 py-0.5 rounded-full"
-                                style={{
-                                  backgroundColor: COLORS.secondary,
-                                  color: COLORS.primary,
-                                }}
-                              >
-                                {isRTL ? (QA_TRANSLATIONS[q.category] || q.category) : q.category}
-                              </span>
-                              <span className="text-[11px]" style={{ color: COLORS.textSecondary }}>
-                                {new Date(q.answeredAt || q.updatedAt).toLocaleDateString(isRTL ? 'ur-PK' : 'en-US')}
-                              </span>
-                            </div>
-                            <h3 className="text-sm sm:text-base font-bold leading-snug font-serif" style={{ color: COLORS.primary }}>
-                              {q.questionTitle}
-                            </h3>
-                          </div>
-
-                          <div className="mt-1 shrink-0" style={{ color: COLORS.accent }}>
-                            {isExpanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
-                          </div>
+                          {copiedId === q._id ? (
+                            <Check className="w-4 h-4 text-emerald-300" />
+                          ) : (
+                            <Copy className="w-4 h-4" />
+                          )}
                         </button>
 
-                        {/* Collapsible Content */}
-                        {isExpanded && (
-                          <div className="px-5 pb-5 pt-1 border-t" style={{ borderColor: `${COLORS.border}70`, backgroundColor: `${COLORS.background}50` }}>
+                        {/* Card Body */}
+                        <div className="pt-4 pb-3 pr-4 pl-16 sm:pl-20">
+                          {/* Meta Row: views | date | category */}
+                          <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-3 mb-2 text-[11px] sm:text-xs text-slate-500">
+                            {typeof q.viewCount === 'number' && (
+                              <span className="inline-flex items-center gap-1 font-medium">
+                                <Eye className="w-3.5 h-3.5 text-slate-400" />
+                                {q.viewCount}
+                              </span>
+                            )}
+                            <span className="text-slate-300 select-none">|</span>
+                            <span className="inline-flex items-center gap-1 font-medium">
+                              <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                              {new Date(q.answeredAt || q.createdAt).toLocaleDateString('ur-PK', {
+                                month: 'short',
+                                day: 'numeric',
+                                year: 'numeric',
+                              })}
+                            </span>
+                            <span className="text-slate-300 select-none">|</span>
+                            <span
+                              className="text-[11px] font-bold px-2.5 py-0.5 rounded-full text-slate-800"
+                              style={{ backgroundColor: COLORS.secondary }}
+                            >
+                              {categoryLabel}
+                            </span>
+                          </div>
 
-                            {/* Detailed Question */}
-                            <div
-                              className="p-4 rounded-xl mb-4 text-xs"
+                          {/* Question: سوال badge + title — natural RTL row */}
+                          <div className="flex items-baseline gap-2 mb-2 flex-wrap">
+                            <span
+                              className="inline-flex items-center gap-1 shrink-0 px-2 py-0.5 rounded-md text-[11px] font-bold"
                               style={{
-                                backgroundColor: COLORS.white,
-                                borderRight: isRTL ? `3px solid ${COLORS.accent}` : undefined,
-                                borderLeft: !isRTL ? `3px solid ${COLORS.accent}` : undefined,
+                                backgroundColor: `${COLORS.primary}12`,
+                                color: COLORS.primary,
                               }}
                             >
-                              <span className="block font-bold mb-1.5" style={{ color: COLORS.primary }}>
-                                {isRTL ? 'سوال کی تفصیل:' : 'Question Detail:'}
+                              <HelpCircle className="w-3 h-3" />
+                              سوال
+                            </span>
+                            <h2 className="text-base sm:text-lg md:text-xl font-bold leading-relaxed font-['Noto_Nastaliq_Urdu'] text-slate-900 flex-1">
+                              {q.questionTitle}
+                            </h2>
+                          </div>
+
+                          {/* Answer: جواب badge + snippet — natural RTL row */}
+                          {cleanAnswer && (
+                            <div className="flex items-baseline gap-2 flex-wrap">
+                              <span
+                                className="inline-flex items-center gap-1 shrink-0 px-2 py-0.5 rounded-md text-[11px] font-bold"
+                                style={{
+                                  backgroundColor: `${COLORS.accent}18`,
+                                  color: COLORS.accent,
+                                }}
+                              >
+                                <BookOpen className="w-3 h-3" />
+                                جواب
                               </span>
-                              <p className="italic leading-relaxed" style={{ color: COLORS.textPrimary }}>
-                                "{q.detailedQuestion}"
+                              <p className="text-sm sm:text-base md:text-lg text-slate-600 font-['Noto_Nastaliq_Urdu'] leading-relaxed flex-1">
+                                {previewText}
                               </p>
                             </div>
+                          )}
+                        </div>
 
-                            {/* Detailed Answer */}
-                            <div className="text-sm leading-relaxed p-2">
-                              <span className="block text-xs font-bold mb-2" style={{ color: COLORS.textSecondary }}>
-                                {isRTL ? 'عالم کا جواب:' : 'Scholar Answer:'}
-                              </span>
-                              <div
-                                className="prose prose-sm leading-relaxed font-light whitespace-pre-line"
-                                style={{ color: COLORS.textPrimary }}
-                                dangerouslySetInnerHTML={{ __html: q.answerContent }}
-                              />
-                            </div>
+                        {/* Bottom Footer */}
+                        <div
+                          className="border-t px-4 py-2.5 flex items-center justify-between"
+                          style={{ borderColor: `${COLORS.border}99` }}
+                        >
+                          {/* Left (RTL: right visually) — مزید پڑھیں */}
+                          <button
+                            type="button"
+                            onClick={() => navigate(`/qa/${q.slug}`)}
+                            className="inline-flex items-center gap-1.5 text-xs font-bold rounded-full px-3 py-1.5 border transition-colors cursor-pointer"
+                            style={{
+                              color: COLORS.textSecondary,
+                              borderColor: COLORS.border,
+                              backgroundColor: COLORS.secondary,
+                            }}
+                          >
+                            <ChevronDown className="w-3.5 h-3.5" />
+                            مزید پڑھیں
+                          </button>
+
+                          {/* Right (RTL: left visually) — دار الافتاء */}
+                          <div className="flex items-center gap-1.5 text-[11px] text-slate-400 font-['Noto_Nastaliq_Urdu'] font-medium">
+                            <Building2 className="w-3.5 h-3.5 text-slate-400" />
+                            <span>دار الافتاء و تحقیق</span>
                           </div>
-                        )}
-                      </div>
+                        </div>
+                      </article>
                     );
                   })}
                 </div>
 
-                {/* Pagination Controls */}
+                {/* Pagination */}
                 {pages > 1 && (
                   <div className="flex justify-center items-center gap-1.5 pt-4">
                     <button
                       onClick={() => handlePageChange(Math.max(1, page - 1))}
                       disabled={page === 1}
-                      className="px-3.5 py-1.5 rounded text-xs font-bold border disabled:opacity-40 transition-colors"
-                      style={{ borderColor: COLORS.border, backgroundColor: COLORS.white, color: COLORS.textSecondary }}
+                      className="px-3.5 py-1.5 rounded text-xs font-bold border disabled:opacity-40 transition-colors cursor-pointer"
+                      style={{
+                        borderColor: COLORS.border,
+                        backgroundColor: COLORS.white,
+                        color: COLORS.textSecondary,
+                      }}
                     >
-                      {isRTL ? 'پچھلا' : 'Previous'}
+                      پچھلا
                     </button>
                     {[...Array(pages).keys()].map((pNum) => (
                       <button
                         key={pNum + 1}
                         onClick={() => handlePageChange(pNum + 1)}
-                        className="w-8 h-8 rounded text-xs font-bold border transition-colors"
+                        className="w-8 h-8 rounded text-xs font-bold border transition-colors cursor-pointer"
                         style={{
                           backgroundColor: page === pNum + 1 ? COLORS.primary : COLORS.white,
                           borderColor: page === pNum + 1 ? COLORS.primary : COLORS.border,
@@ -249,28 +360,44 @@ export default function QAList() {
                     <button
                       onClick={() => handlePageChange(Math.min(pages, page + 1))}
                       disabled={page === pages}
-                      className="px-3.5 py-1.5 rounded text-xs font-bold border disabled:opacity-40 transition-colors"
-                      style={{ borderColor: COLORS.border, backgroundColor: COLORS.white, color: COLORS.textSecondary }}
+                      className="px-3.5 py-1.5 rounded text-xs font-bold border disabled:opacity-40 transition-colors cursor-pointer"
+                      style={{
+                        borderColor: COLORS.border,
+                        backgroundColor: COLORS.white,
+                        color: COLORS.textSecondary,
+                      }}
                     >
-                      {isRTL ? 'اگلا' : 'Next'}
+                      اگلا
                     </button>
                   </div>
                 )}
               </>
             ) : (
-              <div className="text-center py-16 rounded-lg border" style={{ backgroundColor: COLORS.white, borderColor: COLORS.border }}>
-                <MessageSquare className="w-12 h-12 mx-auto mb-4" style={{ color: COLORS.accent }} />
-                <h3 className="text-lg font-bold font-serif mb-1" style={{ color: COLORS.textPrimary }}>
-                  {isRTL ? 'کوئی جواب شدہ سوال نہیں ملا' : 'No answered questions found'}
+              <div
+                className="text-center py-16 rounded-2xl border bg-white"
+                style={{ borderColor: COLORS.border }}
+              >
+                <MessageSquare className="w-12 h-12 mx-auto mb-3" style={{ color: COLORS.accent }} />
+                <h3 className="text-lg font-bold font-['Noto_Nastaliq_Urdu'] mb-1" style={{ color: COLORS.textPrimary }}>
+                  کوئی جواب شدہ سوال نہیں ملا
                 </h3>
-                <p className="text-xs" style={{ color: COLORS.textSecondary }}>
-                  {isRTL ? 'براہ کرم تلاش کے الفاظ یا زمرے کے فلٹرز تبدیل کریں۔' : 'Please modify search terms or category filters.'}
+                <p className="text-xs text-slate-500 max-w-sm mx-auto mb-5">
+                  براہ کرم تلاش کے الفاظ یا زمرے کے فلٹرز تبدیل کریں۔
                 </p>
+                {!isAdmin && (
+                  <Link
+                    to="/ask"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-white font-bold text-xs uppercase tracking-wider transition-colors shadow-2xs"
+                    style={{ backgroundColor: COLORS.primary }}
+                  >
+                    <HelpCircle className="w-4 h-4 text-[#E5D8CA]" />
+                    نیا سوال پوچھیں
+                  </Link>
+                )}
               </div>
             )}
           </div>
         </div>
-
       </div>
     </div>
   );

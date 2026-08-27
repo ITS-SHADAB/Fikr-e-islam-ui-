@@ -1,5 +1,5 @@
 // URLs
-export const LOCAL_URL = "http://localhost:5000";
+export const LOCAL_URL = "http://127.0.0.1:5000";
 export const PROD_URL = "https://fikr-e-islam.onrender.com";
 
 // Auto detect environment

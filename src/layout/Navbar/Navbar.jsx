@@ -16,12 +16,14 @@ import { logout } from "@/store/slices/authSlice";
 import { useSettings } from "@/hooks/useSettings";
 import { COLORS } from "@/utils/themeColors";
 import { logoutUser } from "@/services";
+import { useAuthModal } from "@/context/AuthModalContext";
 
 import { CATEGORY_MAP } from "@/utils/categories";
 
 export default function Navbar() {
   const location = useLocation();
   const dispatch = useDispatch();
+  const { openLogin } = useAuthModal();
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [hoveredIndex, setHoveredIndex] = useState(null);
@@ -437,15 +439,16 @@ export default function Navbar() {
                 <HelpCircle className="w-4 h-4" />
                 سوال
               </Link>
-              <Link
-                to="/login"
+              <button
+                type="button"
+                onClick={openLogin}
                 title={
                   language === "en" ? "Login / Signup" : "لاگ ان / سائن اپ"
                 }
-                className="flex items-center justify-center p-2.5 rounded-md border border-slate-200 text-slate-600 hover:bg-slate-100 hover:text-primary transition-all duration-200 shadow-xs"
+                className="flex items-center justify-center p-2.5 rounded-md border border-slate-200 text-slate-600 hover:bg-slate-100 hover:text-primary transition-all duration-200 shadow-xs cursor-pointer"
               >
                 <User className="w-4.5 h-4.5" />
-              </Link>
+              </button>
             </div>
           )}
         </div>
@@ -461,13 +464,14 @@ export default function Navbar() {
             </Link>
           )}
           {!isAuthenticated && userRole !== "admin" && (
-            <Link
-              to="/login"
-              className="p-1.5 rounded-full border border-slate-200 text-slate-600 hover:bg-slate-100 hover:text-primary transition-all duration-200 shadow-xs flex items-center justify-center"
+            <button
+              type="button"
+              onClick={openLogin}
+              className="p-1.5 rounded-full border border-slate-200 text-slate-600 hover:bg-slate-100 hover:text-primary transition-all duration-200 shadow-xs flex items-center justify-center cursor-pointer"
               title={language === "en" ? "Login / Signup" : "لاگ ان / سائن اپ"}
             >
               <User className="w-4 h-4" />
-            </Link>
+            </button>
           )}
           <button
             onClick={() => setIsOpen(!isOpen)}
@@ -708,19 +712,22 @@ export default function Navbar() {
                   </button>
                 </>
               ) : (
-                <Link
-                  to="/login"
-                  onClick={closeMenu}
+                <button
+                  type="button"
+                  onClick={() => {
+                    closeMenu();
+                    openLogin();
+                  }}
                   style={{
                     backgroundColor: COLORS.background,
                     color: COLORS.textSecondary,
                     borderColor: COLORS.border,
                   }}
-                  className="flex items-center justify-center gap-2 w-full px-4 py-2.5 text-sm font-semibold rounded-lg border hover:bg-slate-200 hover:text-[var(--color-primary)] transition-colors shadow-xs"
+                  className="flex items-center justify-center gap-2 w-full px-4 py-2.5 text-sm font-semibold rounded-lg border hover:bg-slate-200 hover:text-[var(--color-primary)] transition-colors shadow-xs cursor-pointer"
                 >
                   <User className="w-4 h-4" />
                   {language === "en" ? "Login / Signup" : "لاگ ان / سائن اپ"}
-                </Link>
+                </button>
               )}
             </div>
           </div>

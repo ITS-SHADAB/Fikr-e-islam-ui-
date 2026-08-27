@@ -158,10 +158,7 @@ export default function HeroSlider() {
     setCurrent(((n % total) + total) % total)
   }, [total])
 
-  useEffect(() => {
-    const t = setInterval(() => goSlide(current + 1), 4500)
-    return () => clearInterval(t)
-  }, [current, goSlide])
+  // Auto-scroll removed
 
   return (
     <section className="relative w-full h-[280px] sm:h-[420px] overflow-hidden bg-primary" aria-label="ہیرو سلائیڈر">

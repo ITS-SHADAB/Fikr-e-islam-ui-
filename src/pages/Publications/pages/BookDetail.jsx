@@ -240,13 +240,13 @@ export default function BookDetail() {
   return (
     <div
       dir={isRTL ? "rtl" : "ltr"}
-      className="min-h-screen py-6 md:py-10"
+      className="min-h-screen py-2 md:py-10"
       style={{ backgroundColor: COLORS.background }}
     >
-      <div className="w-full max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-[1440px] mx-auto px-1 sm:px-6 lg:px-8">
         {/* Breadcrumbs & Navigation Bar */}
         <div
-          className="flex items-center justify-between gap-4 mb-6 flex-wrap pb-4 border-b"
+          className="flex items-center justify-between gap-2 mb-2 sm:mb-6 flex-wrap pb-2 sm:pb-4 border-b"
           style={{ borderColor: `${COLORS.border}80` }}
         >
           <nav className="flex items-center gap-2 text-xs md:text-sm flex-wrap font-medium">
@@ -308,13 +308,13 @@ export default function BookDetail() {
         {/* ══════════════════════════════════════════════════════════════
             FULL PAGE 2-COLUMN LAYOUT
         ══════════════════════════════════════════════════════════════ */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-12">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-2 sm:gap-8 items-start mb-4 sm:mb-12">
           {/* ══════════════════════════════════════════════════════════════
               RIGHT COLUMN (in RTL): Sticky Book Presentation & Metadata Card
           ══════════════════════════════════════════════════════════════ */}
           <div className="lg:col-span-4 lg:sticky lg:top-24 space-y-6">
             <div
-              className="rounded-3xl border shadow-md p-6 sm:p-7 transition-all flex flex-col items-center"
+              className="rounded-2xl border shadow-md p-2 sm:p-7 transition-all flex flex-col items-center"
               style={{
                 backgroundColor: COLORS.white,
                 borderColor: COLORS.border,
@@ -437,10 +437,10 @@ export default function BookDetail() {
           {/* ══════════════════════════════════════════════════════════════
               LEFT / MAIN COLUMN (in RTL): Full Content, Overview, Embedded PDF, Comments
           ══════════════════════════════════════════════════════════════ */}
-          <div className="lg:col-span-8 space-y-8">
+          <div className="lg:col-span-8 space-y-2 sm:space-y-8">
             {/* Main Header & Overview Card */}
             <div
-              className="rounded-3xl border shadow-sm p-6 sm:p-8 md:p-10 space-y-6"
+              className="rounded-2xl border shadow-sm p-2 sm:p-8 md:p-10 space-y-3 sm:space-y-6"
               style={{
                 backgroundColor: COLORS.white,
                 borderColor: COLORS.border,
@@ -472,7 +472,7 @@ export default function BookDetail() {
 
               {/* Title */}
               <h1
-                className="text-2xl sm:text-3xl md:text-4xl font-bold leading-[1.85] break-words"
+                className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold leading-[1.85] break-words"
                 style={{ color: COLORS.primary }}
               >
                 {title}
@@ -481,14 +481,14 @@ export default function BookDetail() {
               {/* Author Row */}
               {author && (
                 <div
-                  className="flex items-center gap-3 p-4 rounded-2xl border"
+                  className="flex items-center gap-2 p-2 sm:p-4 rounded-xl sm:rounded-2xl border"
                   style={{
                     backgroundColor: `${COLORS.background}60`,
                     borderColor: `${COLORS.border}80`,
                   }}
                 >
                   <div
-                    className="w-11 h-11 rounded-full flex items-center justify-center shrink-0 shadow-xs"
+                    className="w-8 h-8 sm:w-11 sm:h-11 rounded-full flex items-center justify-center shrink-0 shadow-xs"
                     style={{
                       backgroundColor: COLORS.primary,
                       color: COLORS.accent,
@@ -504,7 +504,7 @@ export default function BookDetail() {
                       {isRTL ? "مصنف / تالیف" : "Author / Compiler"}
                     </span>
                     <span
-                      className="text-base font-bold"
+                      className="text-sm sm:text-base font-bold"
                       style={{ color: COLORS.textPrimary }}
                     >
                       {author}
@@ -516,7 +516,7 @@ export default function BookDetail() {
               {/* Full Description / Overview */}
               <div className="space-y-3 pt-2">
                 <h3
-                  className="text-lg font-bold flex items-center gap-2"
+                  className="text-sm sm:text-lg font-bold flex items-center gap-2"
                   style={{ color: COLORS.primary }}
                 >
                   <Sparkles className="w-4 h-4 text-accent" />
@@ -527,7 +527,7 @@ export default function BookDetail() {
                   </span>
                 </h3>
                 <div
-                  className="p-6 rounded-2xl border text-base leading-[2.2] whitespace-pre-line font-normal break-words"
+                  className="p-4 sm:p-6 rounded-2xl border text-sm sm:text-base leading-[2.2] whitespace-pre-line font-normal break-words"
                   style={{
                     backgroundColor: `${COLORS.background}50`,
                     borderColor: `${COLORS.border}70`,
@@ -628,13 +628,13 @@ export default function BookDetail() {
                     </div>
                     <div className="text-right">
                       <span
-                        className="text-sm font-bold block font-serif leading-snug"
+                        className="text-xs sm:text-sm font-bold block font-serif leading-snug"
                         style={{ color: COLORS.primary }}
                       >
                         {isRTL ? "تبصرے و آراء" : "Comments"}
                       </span>
                       <span
-                        className="text-[11px]"
+                        className="text-[10px] sm:text-[11px]"
                         style={{ color: COLORS.textSecondary }}
                       >
                         {isRTL
@@ -658,7 +658,7 @@ export default function BookDetail() {
                 {/* Expandable Comments Panel */}
                 {isCommentsOpen && (
                   <div
-                    className="mt-4 rounded-2xl border p-4 sm:p-6"
+                    className="mt-4 rounded-2xl border p-2 sm:p-4"
                     style={{
                       backgroundColor: COLORS.white,
                       borderColor: COLORS.border,

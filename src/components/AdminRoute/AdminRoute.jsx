@@ -1,9 +1,17 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { Navigate, Outlet } from 'react-router-dom';
+import { useAuthModal } from '@/context/AuthModalContext';
 
 export default function AdminRoute() {
   const { isAuthenticated, loading, userRole } = useSelector((state) => state.auth);
+  const { openLogin } = useAuthModal();
+
+  useEffect(() => {
+    if (!loading && (!isAuthenticated || userRole !== 'admin')) {
+      openLogin();
+    }
+  }, [isAuthenticated, loading, userRole]);
 
   if (loading) {
     return (
@@ -13,5 +21,5 @@ export default function AdminRoute() {
     );
   }
 
-  return isAuthenticated && userRole === 'admin' ? <Outlet /> : <Navigate to="/login" replace />;
+  return isAuthenticated && userRole === 'admin' ? <Outlet /> : <Navigate to="/" replace />;
 }

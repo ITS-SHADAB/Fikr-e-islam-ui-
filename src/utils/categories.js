@@ -99,30 +99,68 @@ export const LECTURE_EN_LABELS = LECTURE_CATEGORIES.reduce((acc, c) => {
 }, {});
 
 // ============================================================
-// QA CATEGORIES
+// QA CATEGORIES (Synchronized with Server Model Enum)
 // ============================================================
 export const QA_CATEGORIES = [
-  { value: 'SALAH', labelUr: 'نماز', labelEn: 'SALAH' },
-  { value: 'FASTING', labelUr: 'روزہ', labelEn: 'FASTING' },
-  { value: 'ZAKAT', labelUr: 'زکوٰۃ', labelEn: 'ZAKAT' },
-  { value: 'HAJJ_UMRAH', labelUr: 'حج و عمرہ', labelEn: 'HAJJ & UMRAH' },
-  { value: 'MARRIAGE', labelUr: 'نکاح', labelEn: 'MARRIAGE' },
-  { value: 'DIVORCE', labelUr: 'طلاق', labelEn: 'DIVORCE' },
-  { value: 'BUSINESS', labelUr: 'تجارت', labelEn: 'BUSINESS' },
-  { value: 'FAMILY_ISSUES', labelUr: 'خاندانی امور', labelEn: 'FAMILY ISSUES' },
-  { value: 'EDUCATION', labelUr: 'تعلیم', labelEn: 'EDUCATION' },
-  { value: 'GENERAL_QUESTIONS', labelUr: 'عام معلومات', labelEn: 'GENERAL QUESTIONS' },
+  { value: 'Salah', labelUr: 'نماز', labelEn: 'Salah' },
+  { value: 'Fasting', labelUr: 'روزہ', labelEn: 'Fasting' },
+  { value: 'Zakat', labelUr: 'زکوٰۃ', labelEn: 'Zakat' },
+  { value: 'Hajj & Umrah', labelUr: 'حج و عمرہ', labelEn: 'Hajj & Umrah' },
+  { value: 'Marriage', labelUr: 'نکاح', labelEn: 'Marriage' },
+  { value: 'Divorce', labelUr: 'طلاق', labelEn: 'Divorce' },
+  { value: 'Business', labelUr: 'تجارت', labelEn: 'Business' },
+  { value: 'Family Issues', labelUr: 'خاندانی امور', labelEn: 'Family Issues' },
+  { value: 'Education', labelUr: 'تعلیم', labelEn: 'Education' },
+  { value: 'Aqidah', labelUr: 'عقائد', labelEn: 'Aqidah' },
+  { value: 'Quran', labelUr: 'قرآن کریم', labelEn: 'Quran' },
+  { value: 'Hadith', labelUr: 'حدیث شریف', labelEn: 'Hadith' },
+  { value: 'General', labelUr: 'عام مسائل', labelEn: 'General' },
 ];
 
 export const QA_VALUES = QA_CATEGORIES.map(c => c.value);
-export const QA_TRANSLATIONS = QA_CATEGORIES.reduce((acc, c) => {
-  acc[c.value] = c.labelUr;
-  return acc;
-}, {});
-export const QA_EN_LABELS = QA_CATEGORIES.reduce((acc, c) => {
-  acc[c.value] = c.labelEn;
-  return acc;
-}, {});
+
+export const QA_TRANSLATIONS = {
+  ...QA_CATEGORIES.reduce((acc, c) => {
+    acc[c.value] = c.labelUr;
+    return acc;
+  }, {}),
+  // Legacy uppercase key aliases
+  SALAH: 'نماز',
+  FASTING: 'روزہ',
+  ZAKAT: 'زکوٰۃ',
+  HAJJ_UMRAH: 'حج و عمرہ',
+  MARRIAGE: 'نکاح',
+  DIVORCE: 'طلاق',
+  BUSINESS: 'تجارت',
+  FAMILY_ISSUES: 'خاندانی امور',
+  EDUCATION: 'تعلیم',
+  GENERAL_QUESTIONS: 'عام مسائل',
+  AQIDAH: 'عقائد',
+  QURAN: 'قرآن کریم',
+  HADITH: 'حدیث شریف',
+  GENERAL: 'عام مسائل',
+};
+
+export const QA_EN_LABELS = {
+  ...QA_CATEGORIES.reduce((acc, c) => {
+    acc[c.value] = c.labelEn;
+    return acc;
+  }, {}),
+  SALAH: 'Salah',
+  FASTING: 'Fasting',
+  ZAKAT: 'Zakat',
+  HAJJ_UMRAH: 'Hajj & Umrah',
+  MARRIAGE: 'Marriage',
+  DIVORCE: 'Divorce',
+  BUSINESS: 'Business',
+  FAMILY_ISSUES: 'Family Issues',
+  EDUCATION: 'Education',
+  GENERAL_QUESTIONS: 'General',
+  AQIDAH: 'Aqidah',
+  QURAN: 'Quran',
+  HADITH: 'Hadith',
+  GENERAL: 'General',
+};
 
 // ============================================================
 // BOOK LANGUAGE TRANSLATIONS

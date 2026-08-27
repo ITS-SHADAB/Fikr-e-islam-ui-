@@ -90,7 +90,7 @@ export default function PublicationsList() {
             {/* decorative diamond */}
             <span style={{ color: COLORS.accent }} className="text-2xl select-none">❖</span>
             <h1
-              className="text-3xl sm:text-4xl font-extrabold font-serif"
+              className="text-2xl sm:text-3xl md:text-4xl font-extrabold font-serif"
               style={{ color: COLORS.primary }}
             >
               {isRTL ? 'کتب و مطبوعات' : 'Books & Publications'}
@@ -98,7 +98,7 @@ export default function PublicationsList() {
             <span style={{ color: COLORS.accent }} className="text-2xl select-none">❖</span>
           </div>
 
-          <p className="text-xs sm:text-sm font-light max-w-xl mx-auto" style={{ color: COLORS.textSecondary }}>
+          <p className="text-[11px] sm:text-sm font-light max-w-xl mx-auto" style={{ color: COLORS.textSecondary }}>
             {isRTL
               ? 'گوگل ڈرائیو پر موجود کتابیں، مقالات اور تعلیمی نوٹس حاصل کریں اور ان کا مطالعہ کریں۔'
               : 'Access and study books, articles, and educational notes on Google Drive.'}

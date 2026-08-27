@@ -1,14 +1,15 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { X, Send, BarChart2 } from "lucide-react";
-import { getComments, createComment, deleteComment } from "@/services";
+import {
+  getComments,
+  createComment,
+  deleteComment,
+  updateComment,
+} from "@/services";
 import { ConfirmationBox } from "@/components";
+import { useAuthModal } from "@/context/AuthModalContext";
 import toast from "react-hot-toast";
-
-/* ─────────────────────────────────────────
-   Helpers
-───────────────────────────────────────── */
 
 function formatTimeAgo(dateStr) {
   if (!dateStr) return "";
@@ -16,29 +17,32 @@ function formatTimeAgo(dateStr) {
   const mins = Math.floor(diffMs / 60000);
   const hours = Math.floor(diffMs / 3600000);
   const days = Math.floor(diffMs / 86400000);
-  if (mins < 1) return "now";
-  if (mins < 60) return `${mins}m`;
-  if (hours < 24) return `${hours}h`;
-  if (days < 7) return `${days}d`;
-  return `${Math.floor(days / 7)}w`;
+  const weeks = Math.floor(days / 7);
+  const months = Math.floor(days / 30);
+  const years = Math.floor(days / 365);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins}m ago`;
+  if (hours < 24) return `${hours}h ago`;
+  if (days < 7) return `${days}d ago`;
+  if (weeks < 5) return `${weeks}w ago`;
+  if (months < 12) return `${months}mo ago`;
+  return `${years}y ago`;
 }
 
 function isCurrentUserComment(commentUser, loggedInUser) {
   if (!commentUser || !loggedInUser) return false;
-  const commentUserId = commentUser._id || commentUser;
-  return String(commentUserId) === String(loggedInUser._id);
+  return String(commentUser._id || commentUser) === String(loggedInUser._id);
 }
 
-/* ─────────────────────────────────────────
-   Avatar
-───────────────────────────────────────── */
 const AVATAR_COLORS = [
-  "#3d6b4f",
-  "#7c4da0",
-  "#c0602a",
-  "#2563eb",
-  "#be185d",
-  "#0f766e",
+  "#1a73e8",
+  "#e37400",
+  "#0f9d58",
+  "#d93025",
+  "#7c4dff",
+  "#00897b",
+  "#c2185b",
+  "#6d4c41",
 ];
 
 function getAvatarColor(name = "") {
@@ -57,416 +61,351 @@ function UserAvatar({ user, size = 36 }) {
       : user?.profileImage?.url;
   const color = getAvatarColor(name);
 
-  const style = {
-    width: size,
-    height: size,
-    minWidth: size,
-    borderRadius: "50%",
-    backgroundColor: color,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    color: "#fff",
-    fontWeight: 800,
-    fontSize: Math.round(size * 0.4),
-    overflow: "hidden",
-    flexShrink: 0,
-    userSelect: "none",
-  };
-
   if (imgUrl) {
     return (
-      <img src={imgUrl} alt={name} style={{ ...style, objectFit: "cover" }} />
+      <img
+        src={imgUrl}
+        alt={name}
+        className="rounded-full object-cover shrink-0 select-none"
+        style={{ width: size, height: size, minWidth: size }}
+      />
     );
   }
-  return <div style={style}>{initial}</div>;
-}
 
-/* ─────────────────────────────────────────
-   Heart Button
-───────────────────────────────────────── */
-function HeartButton({ count = 0, liked = false, onToggle }) {
   return (
-    <button
-      type="button"
-      onClick={onToggle}
+    <div
+      className="rounded-full flex items-center justify-center text-white font-bold select-none shrink-0 overflow-hidden"
       style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        gap: 2,
-        background: "none",
-        border: "none",
-        cursor: "pointer",
-        padding: "2px 4px",
-        color: liked ? "#e53e3e" : "#9ca3af",
-        minWidth: 24,
+        width: size,
+        height: size,
+        minWidth: size,
+        fontSize: Math.round(size * 0.44),
+        backgroundColor: color,
+        lineHeight: 1,
       }}
     >
-      <svg
-        width="18"
-        height="18"
-        viewBox="0 0 24 24"
-        fill={liked ? "currentColor" : "none"}
-        stroke="currentColor"
-        strokeWidth="1.8"
-      >
-        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-      </svg>
-      <span
-        style={{
-          fontSize: 11,
-          lineHeight: 1,
-          color: "#6b7280",
-          fontWeight: 500,
-        }}
-      >
-        {count}
+      <span className="leading-none flex items-center justify-center text-center">
+        {initial}
       </span>
-    </button>
-  );
-}
-
-/* ─────────────────────────────────────────
-   Single Comment Row
-───────────────────────────────────────── */
-function CommentRow({
-  comment,
-  isReply = false,
-  isHighlighted = false,
-  onReply,
-  onDelete,
-  canDelete,
-}) {
-  const [liked, setLiked] = useState(false);
-  const [likeCount, setLikeCount] = useState(comment.likes || 0);
-  const isAuthor = comment.user?.role === "admin" || comment.isAuthor;
-
-  const rowStyle = {
-    display: "flex",
-    alignItems: "flex-start",
-    gap: 10,
-    padding: isReply ? "8px 12px 8px 12px" : "10px 16px",
-    backgroundColor: isHighlighted ? "#f0fdf4" : "transparent",
-    borderRadius: isHighlighted ? 8 : 0,
-    position: "relative",
-  };
-
-  const handleLike = () => {
-    setLiked((prev) => {
-      setLikeCount((c) => (prev ? c - 1 : c + 1));
-      return !prev;
-    });
-  };
-
-  return (
-    <div style={rowStyle}>
-      {/* Avatar */}
-      <UserAvatar user={comment.user} size={isReply ? 32 : 36} />
-
-      {/* Body */}
-      <div style={{ flex: 1, minWidth: 0 }}>
-        {/* Header row */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 6,
-            flexWrap: "wrap",
-            marginBottom: 2,
-          }}
-        >
-          <span style={{ fontWeight: 700, fontSize: 13, color: "#111827" }}>
-            {comment.user?.name || "User"}
-          </span>
-          <span style={{ fontSize: 12, color: "#9ca3af" }}>·</span>
-          <span style={{ fontSize: 12, color: "#9ca3af" }}>
-            {formatTimeAgo(comment.createdAt)}
-          </span>
-          {isAuthor && (
-            <span
-              style={{
-                fontSize: 11,
-                fontWeight: 600,
-                color: "#374151",
-                backgroundColor: "#f3f4f6",
-                border: "1px solid #d1d5db",
-                borderRadius: 4,
-                padding: "1px 6px",
-              }}
-            >
-              Author
-            </span>
-          )}
-          {/* Three-dot menu for own / admin */}
-          {canDelete && (
-            <button
-              type="button"
-              onClick={onDelete}
-              style={{
-                marginLeft: "auto",
-                background: "none",
-                border: "none",
-                cursor: "pointer",
-                color: "#9ca3af",
-                padding: "0 4px",
-                fontSize: 18,
-                lineHeight: 1,
-                display: "flex",
-                alignItems: "center",
-                letterSpacing: 1,
-              }}
-              title="Delete comment"
-            >
-              ···
-            </button>
-          )}
-        </div>
-
-        {/* Comment text */}
-        <p
-          style={{
-            fontSize: 13,
-            color: "#1f2937",
-            lineHeight: 1.5,
-            margin: 0,
-            wordBreak: "break-word",
-          }}
-        >
-          {comment.replyToUser?.name && (
-            <span style={{ color: "#2563eb", fontWeight: 600, marginRight: 4 }}>
-              @{comment.replyToUser.name}
-            </span>
-          )}
-          {comment.text}
-        </p>
-
-        {/* Reply link */}
-        <button
-          type="button"
-          onClick={onReply}
-          style={{
-            background: "none",
-            border: "none",
-            padding: 0,
-            fontSize: 12,
-            color: "#6b7280",
-            fontWeight: 600,
-            cursor: "pointer",
-            marginTop: 4,
-          }}
-        >
-          Reply
-        </button>
-      </div>
-
-      {/* Heart */}
-      <HeartButton count={likeCount} liked={liked} onToggle={handleLike} />
     </div>
   );
 }
 
-/* ─────────────────────────────────────────
-   Reply Thread — connected vertical line
-───────────────────────────────────────── */
-function ReplyThread({
-  replies,
-  parentComment,
-  activeReplyId,
-  onReply,
-  onDelete,
-  loggedInUser,
-  isAdmin,
-}) {
-  const [expanded, setExpanded] = useState(false);
-  if (!replies || replies.length === 0) return null;
+function ThreeDotMenu({ onEdit, canEdit, onDelete, canDelete }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
 
-  const LINE_COLOR  = '#c7d2fe'; // indigo-200
-  const LINE_WIDTH  = 2;
-  const INDENT      = 20;         // from left of avatar
+  useEffect(() => {
+    const close = (e) => {
+      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
+    };
+    document.addEventListener("mousedown", close);
+    return () => document.removeEventListener("mousedown", close);
+  }, []);
+
+  if (!canEdit && !canDelete) return null;
 
   return (
-    <div style={{ paddingLeft: 20 }}>
-
-      {/* ── Toggle button ── */}
+    <div ref={ref} className="relative shrink-0">
       <button
         type="button"
-        onClick={() => setExpanded(v => !v)}
-        style={{
-          background: 'none', border: 'none',
-          padding: '2px 0 6px',
-          cursor: 'pointer',
-          display: 'flex', alignItems: 'center', gap: 8,
-          color: '#6366f1', fontSize: 12, fontWeight: 700,
-          letterSpacing: '0.01em',
-        }}
+        onClick={() => setOpen((v) => !v)}
+        className="w-7 h-7 rounded-full flex items-center justify-center text-[#606060] hover:bg-[#f2f2f2] transition-colors"
+        title="More actions"
       >
-        {/* Short horizontal tick */}
-        <span style={{
-          display: 'inline-block',
-          width: 20, height: LINE_WIDTH,
-          background: `linear-gradient(to right, ${LINE_COLOR}, #6366f1)`,
-          borderRadius: 2,
-        }} />
-        {expanded
-          ? 'Hide replies'
-          : `View ${replies.length} ${replies.length === 1 ? 'reply' : 'replies'}`}
+        <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
+          <circle cx="12" cy="5" r="2" />
+          <circle cx="12" cy="12" r="2" />
+          <circle cx="12" cy="19" r="2" />
+        </svg>
       </button>
-
-      {/* ── Connected reply list ── */}
-      {expanded && (
-        <div style={{ position: 'relative' }}>
-
-          {/* Continuous vertical line */}
-          <div style={{
-            position: 'absolute',
-            left: INDENT,
-            top: 0,
-            bottom: 18,           // stops just before last reply's center
-            width: LINE_WIDTH,
-            background: `linear-gradient(to bottom, #6366f1 0%, ${LINE_COLOR} 100%)`,
-            borderRadius: 2,
-          }} />
-
-          {replies.map((reply, idx) => {
-            const isLast  = idx === replies.length - 1;
-            const own     = isCurrentUserComment(reply.user, loggedInUser);
-            const canDel  = Boolean(loggedInUser && (isAdmin || own));
-            const isHl    = activeReplyId === reply._id;
-
-            return (
-              <div key={reply._id} style={{ display: 'flex', alignItems: 'flex-start', marginBottom: 4 }}>
-
-                {/* Connector arm: vertical stub + horizontal dash */}
-                <div style={{ position: 'relative', width: INDENT + 16, flexShrink: 0, alignSelf: 'stretch' }}>
-                  {/* Horizontal branch */}
-                  <div style={{
-                    position: 'absolute',
-                    left: INDENT,
-                    top: 20,          // align with avatar center
-                    width: 16,
-                    height: LINE_WIDTH,
-                    backgroundColor: LINE_COLOR,
-                    borderRadius: '0 2px 2px 0',
-                  }} />
-                  {/* Curved corner for last reply */}
-                  {isLast && (
-                    <div style={{
-                      position: 'absolute',
-                      left: INDENT,
-                      top: 20,
-                      width: 10, height: 10,
-                      borderLeft: `${LINE_WIDTH}px solid ${LINE_COLOR}`,
-                      borderBottom: `${LINE_WIDTH}px solid ${LINE_COLOR}`,
-                      borderBottomLeftRadius: 8,
-                      background: 'transparent',
-                      transform: 'translateY(-100%)',
-                    }} />
-                  )}
-                </div>
-
-                {/* Reply card — takes remaining width */}
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <CommentRow
-                    comment={reply}
-                    isReply
-                    isHighlighted={isHl}
-                    onReply={() => onReply(reply._id, parentComment._id, reply.user)}
-                    onDelete={() => onDelete(reply)}
-                    canDelete={canDel}
-                  />
-                </div>
-              </div>
-            );
-          })}
+      {open && (
+        <div className="absolute right-0 top-[30px] bg-white rounded-lg shadow-[0_2px_12px_rgba(0,0,0,0.18)] z-50 min-w-[140px] overflow-hidden border border-neutral-100 py-1">
+          {canEdit && (
+            <button
+              type="button"
+              onClick={() => {
+                setOpen(false);
+                onEdit();
+              }}
+              className="flex items-center gap-2 w-full px-3.5 py-2 text-left text-xs text-[#0f0f0f] hover:bg-[#f2f2f2] font-medium transition-colors"
+            >
+              <svg
+                className="w-3.5 h-3.5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M12 20h9" />
+                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+              </svg>
+              Edit
+            </button>
+          )}
+          {canDelete && (
+            <button
+              type="button"
+              onClick={() => {
+                setOpen(false);
+                onDelete();
+              }}
+              className="flex items-center gap-2 w-full px-3.5 py-2 text-left text-xs text-red-600 hover:bg-red-50 font-medium transition-colors"
+            >
+              <svg
+                className="w-3.5 h-3.5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <polyline points="3 6 5 6 21 6" />
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+              </svg>
+              Delete
+            </button>
+          )}
         </div>
       )}
     </div>
   );
 }
 
+function CommentRow({
+  comment,
+  isReply = false,
+  onReply,
+  onEdit,
+  onDelete,
+  canEdit,
+  canDelete,
+  isEditing = false,
+  onSaveEdit,
+  onCancelEdit,
+}) {
+  const [editText, setEditText] = useState(comment.text || "");
+  const [isSaving, setIsSaving] = useState(false);
+  const editInputRef = useRef(null);
+  const isAuthor = comment.user?.role === "admin" || comment.isAuthor;
 
-/* ─────────────────────────────────────────
-   Emoji Reaction Bar
-───────────────────────────────────────── */
-const EMOJIS = ["❤️", "🙌", "🔥", "🎉", "😢", "😍", "😮", "😂"];
+  useEffect(() => {
+    if (isEditing) {
+      setEditText(comment.text || "");
+      setTimeout(() => editInputRef.current?.focus(), 50);
+    }
+  }, [isEditing, comment.text]);
 
-function EmojiBar({ onSelect }) {
+  const handleSave = async () => {
+    if (!editText.trim()) return;
+    try {
+      setIsSaving(true);
+      await onSaveEdit(comment._id, editText);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   return (
     <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: 4,
-        padding: "8px 16px",
-        borderTop: "1px solid #f3f4f6",
-        borderBottom: "1px solid #f3f4f6",
-        backgroundColor: "#fff",
-      }}
+      className={`flex items-start ${isReply ? "gap-2 py-1.5 px-3" : "gap-2.5 py-2 px-3"}`}
     >
-      {EMOJIS.map((emoji) => (
-        <button
-          key={emoji}
-          type="button"
-          onClick={() => onSelect && onSelect(emoji)}
-          style={{
-            background: "none",
-            border: "none",
-            cursor: "pointer",
-            fontSize: 22,
-            padding: "2px 4px",
-            borderRadius: 6,
-            transition: "transform 0.15s",
-            lineHeight: 1,
-          }}
-          onMouseEnter={(e) =>
-            (e.currentTarget.style.transform = "scale(1.25)")
-          }
-          onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
-        >
-          {emoji}
-        </button>
-      ))}
+      <UserAvatar user={comment.user} size={isReply ? 22 : 26} />
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-1.5 mb-0.5">
+          <span className="font-semibold text-xs text-[#0f0f0f]">
+            {comment?.user?.name || "User"}
+          </span>
+          {isAuthor && (
+            <span className="text-[10px] font-semibold text-emerald-800 bg-emerald-100 rounded px-1.5 py-0.5 leading-none">
+              Author
+            </span>
+          )}
+          <span className="text-[11px] text-[#909090]">
+            {formatTimeAgo(comment.createdAt)}
+          </span>
+          {comment.updatedAt && comment.updatedAt !== comment.createdAt && (
+            <span className="text-[10px] text-neutral-400 italic leading-none">
+              (edited)
+            </span>
+          )}
+          <div className="ml-auto">
+            <ThreeDotMenu
+              canEdit={canEdit}
+              onEdit={onEdit}
+              canDelete={canDelete}
+              onDelete={onDelete}
+            />
+          </div>
+        </div>
+
+        {isEditing ? (
+          <div className="mt-1 mb-1.5">
+            <input
+              ref={editInputRef}
+              type="text"
+              value={editText}
+              onChange={(e) => setEditText(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSave();
+                }
+                if (e.key === "Escape") onCancelEdit();
+              }}
+              className="w-full bg-[#f9f9f9] border border-[#d3d3d3] rounded-lg px-2.5 py-1.5 text-xs sm:text-[13px] text-[#0f0f0f] outline-none focus:border-neutral-900 transition-colors"
+            />
+            <div className="flex justify-end gap-1.5 mt-1.5">
+              <button
+                type="button"
+                onClick={onCancelEdit}
+                className="px-3 py-1 rounded-full bg-[#f2f2f2] hover:bg-[#e5e5e5] text-xs font-semibold text-[#606060] transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleSave}
+                disabled={isSaving || !editText.trim()}
+                className={`px-3 py-1 rounded-full text-xs font-semibold transition-colors ${
+                  editText.trim()
+                    ? "bg-[#065fd4] hover:bg-[#0551b4] text-white cursor-pointer"
+                    : "bg-[#e5e5e5] text-[#909090] cursor-default"
+                }`}
+              >
+                {isSaving ? "Saving..." : "Save"}
+              </button>
+            </div>
+          </div>
+        ) : (
+          <p className="text-[13px] text-[#0f0f0f] leading-relaxed mb-1 break-words">
+            {comment.replyToUser?.name && (
+              <span className="text-[#065fd4] font-semibold mr-1.5 select-none">
+                @{comment.replyToUser.name}
+              </span>
+            )}
+            {(() => {
+              let displayText = comment.text || "";
+              if (comment.replyToUser?.name) {
+                const prefixRegex = new RegExp(`^@${comment.replyToUser.name}\\s*`, "i");
+                displayText = displayText.replace(prefixRegex, "");
+              }
+              return displayText;
+            })()}
+          </p>
+        )}
+
+        {!isEditing && (
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={onReply}
+              className="px-2.5 py-0.5 rounded-full text-xs font-semibold text-[#606060] hover:bg-[#f2f2f2] transition-colors"
+            >
+              Reply
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
 
-/* ─────────────────────────────────────────
-   Main CommentsSection
-───────────────────────────────────────── */
-export default function CommentsSection({ contentType, contentId, onClose }) {
-  const navigate = useNavigate();
-  const { isAuthenticated, loggedInUser } = useSelector((state) => state.auth);
-  const isAdmin = loggedInUser?.role === "admin";
+function ReplyThread({
+  replies,
+  parentComment,
+  activeReplyId,
+  onReply,
+  onEdit,
+  onDelete,
+  loggedInUser,
+  isAdmin,
+  editingCommentId,
+  onSaveEdit,
+  onCancelEdit,
+}) {
+  const [expanded, setExpanded] = useState(false);
+  if (!replies || replies.length === 0) return null;
 
-  // Comments list
+  return (
+    <div className="pl-11">
+      <button
+        type="button"
+        onClick={() => setExpanded((v) => !v)}
+        className="flex items-center gap-1.5 text-[#065fd4] text-xs sm:text-[13px] font-semibold px-2 py-1 rounded-full hover:bg-[#e8f0fe] mb-0.5 transition-colors"
+      >
+        <svg
+          className={`w-3.5 h-3.5 transition-transform duration-200 ${expanded ? "rotate-180" : ""}`}
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+        >
+          <polyline points="6 9 12 15 18 9" />
+        </svg>
+        {expanded
+          ? "Hide replies"
+          : `${replies.length} ${replies.length === 1 ? "reply" : "replies"}`}
+      </button>
+      {expanded &&
+        replies.map((reply) => {
+          const own = isCurrentUserComment(reply.user, loggedInUser);
+          const canDel = Boolean(loggedInUser && (isAdmin || own));
+          const hasNoReplies = !reply.replies || reply.replies.length === 0;
+          const canEdit = Boolean(
+            loggedInUser && (isAdmin || own) && hasNoReplies
+          );
+          return (
+            <CommentRow
+              key={reply._id}
+              comment={reply}
+              isReply
+              isHighlighted={activeReplyId === reply._id}
+              onReply={() => onReply(reply._id, parentComment._id, reply.user)}
+              onEdit={() => onEdit(reply)}
+              onDelete={() => onDelete(reply)}
+              canEdit={canEdit}
+              canDelete={canDel}
+              isEditing={editingCommentId === reply._id}
+              onSaveEdit={onSaveEdit}
+              onCancelEdit={onCancelEdit}
+            />
+          );
+        })}
+    </div>
+  );
+}
+
+export default function CommentsSection({ contentType, contentId }) {
+  const { openLogin } = useAuthModal();
+  const { loggedInUser, isAuthenticated, userRole } = useSelector(
+    (s) => s.auth
+  );
+  const isAdmin = userRole === "admin";
+
   const [commentsList, setCommentsList] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  // New comment / reply input
+  const [isLoading, setIsLoading] = useState(false);
   const [newCommentText, setNewCommentText] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // Reply state
+  const [inputFocused, setInputFocused] = useState(false);
   const [activeReplyTargetId, setActiveReplyTargetId] = useState(null);
   const [replyParentId, setReplyParentId] = useState(null);
   const [replyToUser, setReplyToUser] = useState(null);
-
-  // Delete confirmation
+  const [editingCommentId, setEditingCommentId] = useState(null);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [commentToDelete, setCommentToDelete] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
-
   const inputRef = useRef(null);
 
-  // ── Fetch comments
   const loadComments = async () => {
     try {
-      const response = await getComments(contentType, contentId);
-      setCommentsList(response.comments || []);
-    } catch (error) {
-      console.warn("Failed to fetch comments", error);
+      const res = await getComments(contentType, contentId);
+      setCommentsList(res.comments || []);
+    } catch (e) {
+      console.warn("Failed to fetch comments", e);
     }
   };
 
@@ -477,11 +416,23 @@ export default function CommentsSection({ contentType, contentId, onClose }) {
     }
   }, [contentType, contentId]);
 
-  // ── Post comment or reply
+  const totalCount = commentsList.reduce(
+    (acc, c) => acc + 1 + (c.replies?.length || 0),
+    0
+  );
+
+  const cancelInput = () => {
+    setInputFocused(false);
+    setNewCommentText("");
+    setActiveReplyTargetId(null);
+    setReplyParentId(null);
+    setReplyToUser(null);
+  };
+
   const handlePostComment = async (e) => {
     e && e.preventDefault();
     if (!isAuthenticated) {
-      navigate("/login");
+      openLogin();
       return;
     }
     const text = newCommentText.trim();
@@ -489,11 +440,9 @@ export default function CommentsSection({ contentType, contentId, onClose }) {
       toast.error("Please write a comment");
       return;
     }
-
     try {
       setIsSubmitting(true);
       if (activeReplyTargetId && replyParentId) {
-        // posting a reply
         await createComment({
           contentType,
           contentId,
@@ -502,36 +451,56 @@ export default function CommentsSection({ contentType, contentId, onClose }) {
           replyToUser: replyToUser?._id || null,
         });
         toast.success("Reply posted!");
-        setActiveReplyTargetId(null);
-        setReplyParentId(null);
-        setReplyToUser(null);
       } else {
         await createComment({ contentType, contentId, text });
         toast.success("Comment posted!");
       }
-      setNewCommentText("");
+      cancelInput();
       await loadComments();
-    } catch (error) {
-      toast.error(error?.response?.data?.message || "Failed to post");
+    } catch (err) {
+      toast.error(err?.response?.data?.message || "Failed to post");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // ── Start reply: pre-fill input with @mention
+  const handleStartEdit = (comment) => {
+    setEditingCommentId(comment._id);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingCommentId(null);
+  };
+
+  const handleSaveEdit = async (commentId, newText) => {
+    const text = newText.trim();
+    if (!text) {
+      toast.error("Comment cannot be empty");
+      return;
+    }
+    try {
+      await updateComment(commentId, { text });
+      toast.success("Comment updated!");
+      setEditingCommentId(null);
+      await loadComments();
+    } catch (err) {
+      toast.error(err?.response?.data?.message || "Failed to update comment");
+    }
+  };
+
   const startReply = (targetId, parentId, user) => {
     if (!isAuthenticated) {
-      navigate("/login");
+      openLogin();
       return;
     }
     setActiveReplyTargetId(targetId);
     setReplyParentId(parentId);
     setReplyToUser(user);
-    setNewCommentText(`@${user?.name || ""} `);
+    setNewCommentText("");
+    setInputFocused(true);
     setTimeout(() => inputRef.current?.focus(), 50);
   };
 
-  // ── Delete
   const handleDeleteRequest = (comment) => {
     setCommentToDelete({ id: comment._id, text: comment.text });
     setIsConfirmOpen(true);
@@ -546,107 +515,41 @@ export default function CommentsSection({ contentType, contentId, onClose }) {
       setIsConfirmOpen(false);
       setCommentToDelete(null);
       await loadComments();
-    } catch (error) {
-      toast.error(error?.response?.data?.message || "Failed to delete");
+    } catch (err) {
+      toast.error(err?.response?.data?.message || "Failed to delete");
     } finally {
       setIsDeleting(false);
     }
   };
 
-  const totalCount = commentsList.reduce(
-    (acc, c) => acc + 1 + (c.replies?.length || 0),
-    0
-  );
-
-  const inputPlaceholder = activeReplyTargetId
-    ? `Replying to @${replyToUser?.name || ""}...`
-    : "Add a comment...";
-
   return (
     <div
       dir="ltr"
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        height: "100%",
-        maxHeight: "100%",
-        backgroundColor: "#fff",
-        fontFamily:
-          "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-        overflow: "hidden",
-        borderRadius: 12,
-        textAlign: "left",
-      }}
+      className="flex flex-col bg-white rounded-lg text-left relative max-h-[480px]"
     >
-      {/* ──────────────────── HEADER ──────────────────── */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          padding: "12px 16px 10px",
-          borderBottom: "1px solid #f3f4f6",
-          flexShrink: 0,
-        }}
-      >
-        {/* Center: title + count */}
-        <div style={{ textAlign: "center" }}>
-          <div
-            style={{
-              maxHeight: 300,
-              overflowY: "auto",
-              overflowX: "hidden",
-              padding: "12px 14px 4px",
-            }}
-          >
-            {totalCount} comments
-          </div>
+      {/* â”€â”€ HEADER: title + count â”€â”€ */}
+      <div className="p-3 pb-2 shrink-0 border-b border-[#f2f2f2]">
+        <div className="flex items-center gap-2.5">
+          <span className="text-[15px] font-semibold text-[#0f0f0f]">
+            Comments
+          </span>
+          {totalCount > 0 && (
+            <span className="text-[13px] text-[#606060]">{totalCount}</span>
+          )}
         </div>
       </div>
 
-      {/* ──────────────────── COMMENTS LIST ──────────────────── */}
-      <div
-        style={{
-          maxHeight: 300,
-          overflowY: "auto",
-          overflowX: "hidden",
-        }}
-      >
+      {/* â”€â”€ COMMENTS LIST (Scrollable Middle) â”€â”€ */}
+      <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-[160px]">
         {isLoading ? (
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              height: 120,
-              gap: 10,
-            }}
-          >
-            <div
-              style={{
-                width: 24,
-                height: 24,
-                border: "2px solid #e5e7eb",
-                borderTopColor: "#374151",
-                borderRadius: "50%",
-                animation: "cs-spin 0.7s linear infinite",
-              }}
-            />
-            <span style={{ fontSize: 12, color: "#6b7280" }}>
-              Loading comments…
-            </span>
+          <div className="flex flex-col items-center justify-center h-28 gap-2">
+            <div className="w-5 h-5 border-2 border-neutral-300 border-t-neutral-900 rounded-full animate-spin" />
+            <span className="text-xs text-[#909090]">Loadingâ€¦</span>
           </div>
         ) : commentsList.length === 0 ? (
-          <div
-            style={{
-              textAlign: "center",
-              padding: "40px 24px",
-              color: "#9ca3af",
-              fontSize: 13,
-            }}
-          >
-            No comments yet. Be the first to comment!
+          <div className="text-center py-8 px-4 text-[#909090] text-[13px]">
+            <div className="text-2xl mb-1.5">ðŸ’¬</div>
+            No comments yet. Be the first!
           </div>
         ) : (
           commentsList.map((parentComment) => {
@@ -656,23 +559,17 @@ export default function CommentsSection({ contentType, contentId, onClose }) {
               loggedInUser
             );
             const canDel = Boolean(loggedInUser && (isAdmin || isOwn));
+            const hasNoReplies =
+              !parentComment.replies || parentComment.replies.length === 0;
+            const canEdit = Boolean(
+              loggedInUser && (isAdmin || isOwn) && hasNoReplies
+            );
 
             return (
               <div key={parentComment._id}>
-                {/* Thin divider */}
-                <div
-                  style={{
-                    height: 1,
-                    backgroundColor: "#f9fafb",
-                    margin: "0 16px",
-                  }}
-                />
-
-                {/* Parent comment */}
                 <CommentRow
                   comment={parentComment}
                   isReply={false}
-                  isHighlighted={false}
                   onReply={() =>
                     startReply(
                       parentComment._id,
@@ -680,20 +577,27 @@ export default function CommentsSection({ contentType, contentId, onClose }) {
                       parentComment.user
                     )
                   }
+                  onEdit={() => handleStartEdit(parentComment)}
                   onDelete={() => handleDeleteRequest(parentComment)}
+                  canEdit={canEdit}
                   canDelete={canDel}
+                  isEditing={editingCommentId === parentComment._id}
+                  onSaveEdit={handleSaveEdit}
+                  onCancelEdit={handleCancelEdit}
                 />
-
-                {/* Replies thread */}
                 {replies.length > 0 && (
                   <ReplyThread
                     replies={replies}
                     parentComment={parentComment}
                     activeReplyId={activeReplyTargetId}
                     onReply={startReply}
+                    onEdit={handleStartEdit}
                     onDelete={handleDeleteRequest}
                     loggedInUser={loggedInUser}
                     isAdmin={isAdmin}
+                    editingCommentId={editingCommentId}
+                    onSaveEdit={handleSaveEdit}
+                    onCancelEdit={handleCancelEdit}
                   />
                 )}
               </div>
@@ -702,100 +606,74 @@ export default function CommentsSection({ contentType, contentId, onClose }) {
         )}
       </div>
 
-      {/* ──────────────────── EMOJI BAR ──────────────────── */}
-      <EmojiBar
-        onSelect={(emoji) => {
-          setNewCommentText((prev) => prev + emoji);
-          inputRef.current?.focus();
-        }}
-      />
-
-      {/* ──────────────────── COMMENT INPUT ──────────────────── */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 10,
-          padding: "10px 16px 12px",
-          borderTop: "1px solid #f3f4f6",
-          backgroundColor: "#fff",
-          flexShrink: 0,
-        }}
-      >
-        {/* Current user avatar */}
-        <UserAvatar user={loggedInUser} size={36} />
-
-        {/* Pill-shaped input */}
-        <div
-          style={{
-            flex: 1,
-            backgroundColor: "#f3f4f6",
-            borderRadius: 24,
-            display: "flex",
-            alignItems: "center",
-            padding: "0 14px",
-            height: 40,
-            border: "1px solid #e5e7eb",
-          }}
-        >
-          <input
-            ref={inputRef}
-            type="text"
-            value={newCommentText}
-            onChange={(e) => setNewCommentText(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                handlePostComment(e);
+      {/* â”€â”€ FIXED BOTTOM ADD COMMENT BAR (YouTube Mobile UI) â”€â”€ */}
+      <div className="sticky bottom-0 bg-white px-2.5 py-2 shrink-0 border-t border-[#e5e5e5] z-10">
+        {activeReplyTargetId && (
+          <div className="mb-2 flex justify-between items-center text-xs text-[#606060]">
+            <span>
+              Replying to{" "}
+              <strong className="text-[#0f0f0f]">@{replyToUser?.name}</strong>
+            </span>
+            <button
+              type="button"
+              onClick={cancelInput}
+              className="text-xs text-[#606060] hover:text-[#0f0f0f] cursor-pointer"
+            >
+              âœ• Cancel
+            </button>
+          </div>
+        )}
+        <div className="flex gap-2 items-center">
+          <UserAvatar user={loggedInUser} size={24} />
+          <div className="flex-1 bg-[#f2f2f2] rounded-full flex items-center px-3 py-1 min-h-[36px]">
+            <input
+              ref={inputRef}
+              type="text"
+              value={newCommentText}
+              onChange={(e) => setNewCommentText(e.target.value)}
+              onFocus={() => setInputFocused(true)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  handlePostComment(e);
+                }
+                if (e.key === "Escape") cancelInput();
+              }}
+              placeholder={
+                activeReplyTargetId
+                  ? `Reply to @${replyToUser?.name || ""}...`
+                  : "Add a comment..."
               }
-              if (e.key === "Escape") {
-                setActiveReplyTargetId(null);
-                setReplyParentId(null);
-                setReplyToUser(null);
-                setNewCommentText("");
-              }
-            }}
-            placeholder={inputPlaceholder}
-            style={{
-              flex: 1,
-              background: "none",
-              border: "none",
-              outline: "none",
-              fontSize: 13,
-              color: "#111827",
-              minWidth: 0,
-            }}
-          />
+              className="flex-1 bg-transparent border-none outline-none text-xs sm:text-[13px] text-[#0f0f0f] placeholder:text-neutral-500"
+            />
+          </div>
+          <button
+            type="button"
+            onClick={handlePostComment}
+            disabled={isSubmitting || !newCommentText.trim()}
+            className={`p-1.5 flex items-center justify-center shrink-0 transition-colors ${
+              newCommentText.trim()
+                ? "text-[#065fd4] hover:text-[#0551b4] cursor-pointer"
+                : "text-[#909090] cursor-default"
+            }`}
+            title="Send"
+          >
+            <svg
+              className="w-5 h-5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <line x1="22" y1="2" x2="11" y2="13" />
+              <polygon points="22 2 15 22 11 13 2 9 22 2" />
+            </svg>
+          </button>
         </div>
-
-        {/* Send button */}
-        <button
-          type="button"
-          onClick={handlePostComment}
-          disabled={isSubmitting || !newCommentText.trim()}
-          style={{
-            background: "none",
-            border: "none",
-            cursor: newCommentText.trim() ? "pointer" : "default",
-            padding: 4,
-            color: newCommentText.trim() ? "#374151" : "#d1d5db",
-            display: "flex",
-            alignItems: "center",
-            transition: "color 0.2s",
-          }}
-        >
-          <Send style={{ width: 22, height: 22 }} />
-        </button>
       </div>
 
-      {/* ── Keyframe for spinner ── */}
-      <style>{`
-        @keyframes cs-spin {
-          to { transform: rotate(360deg); }
-        }
-      `}</style>
-
-      {/* ── Delete Confirmation Dialog ── */}
       <ConfirmationBox
         isOpen={isConfirmOpen}
         onClose={() => {
@@ -806,10 +684,8 @@ export default function CommentsSection({ contentType, contentId, onClose }) {
         title="Delete Comment"
         message={
           commentToDelete?.text
-            ? `Are you sure you want to delete this comment?\n\n"${commentToDelete.text.slice(0, 100)}${
-                commentToDelete.text.length > 100 ? "..." : ""
-              }"`
-            : "Are you sure you want to delete this comment?"
+            ? `Delete this comment?\n\n"${commentToDelete.text.slice(0, 80)}${commentToDelete.text.length > 80 ? "..." : ""}"`
+            : "Delete this comment?"
         }
         type="danger"
         confirmText="Delete"

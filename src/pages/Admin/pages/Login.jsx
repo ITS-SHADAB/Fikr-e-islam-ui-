@@ -28,7 +28,7 @@ function RequiredStar() {
 /* ─── Field wrapper with animated border ─────────────────────────────── */
 function Field({ label, required, hint, error, icon: Icon, children }) {
   return (
-    <div className="space-y-1">
+    <div className="space-y-1 text-left">
       <label className="flex items-center text-[11px] font-bold text-slate-500 uppercase tracking-widest">
         {label}
         {required && <RequiredStar />}
@@ -66,7 +66,7 @@ function Field({ label, required, hint, error, icon: Icon, children }) {
   );
 }
 
-export default function Login() {
+export default function Login({ isModal = false, onClose, onSwitchToSignup }) {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { isAuthenticated, loading, error, userRole } = useSelector(
@@ -82,13 +82,13 @@ export default function Login() {
   });
   const [localError, setLocalError] = useState(null);
 
-  /* Redirect after auth */
+  /* Redirect / Close after auth */
   useEffect(() => {
     dispatch(clearAuthError());
-    // if (isAuthenticated) {
-    //   navigate(userRole === 'admin' ? '/admin/dashboard' : '/');
-    // }
-  }, [isAuthenticated, userRole, navigate, dispatch]);
+    if (isAuthenticated && isModal) {
+      onClose?.();
+    }
+  }, [isAuthenticated, userRole, isModal, onClose, dispatch]);
 
   /* Per-field inline validation */
   const emailRx = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -134,14 +134,14 @@ export default function Login() {
     dispatch(login({ username: identifier.trim(), password }));
   };
 
-  if (isAuthenticated) {
+  if (isAuthenticated && !isModal) {
     return <Navigate to="/" replace />;
   }
 
   const displayError = localError || error;
 
   return (
-    <>
+    <div dir="ltr" className="text-left font-sans">
       {/* keyframe injection */}
       <style>{`
         @keyframes pulse-star {
@@ -165,56 +165,36 @@ export default function Login() {
         .ring-spin  { animation: spin-ring 1.4s linear infinite; }
       `}</style>
 
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 flex items-center justify-center p-4 relative overflow-hidden">
-        {/* Background blobs */}
-        <div className="absolute top-[-10%] right-[-10%] w-[480px] h-[480px] bg-primary/6 rounded-full blur-[100px] pointer-events-none" />
-        <div className="absolute bottom-[-10%] left-[-10%] w-[380px] h-[380px] bg-accent/8 rounded-full blur-[90px] pointer-events-none" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-slate-200/40 rounded-full blur-[120px] pointer-events-none" />
+      <div
+        className={`${
+          isModal
+            ? "py-6 px-4 sm:px-8 max-w-md mx-auto"
+            : "min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 flex items-center justify-center p-4 relative overflow-hidden"
+        }`}
+      >
+        {!isModal && (
+          <>
+            {/* Background blobs */}
+            <div className="absolute top-[-10%] right-[-10%] w-[480px] h-[480px] bg-primary/6 rounded-full blur-[100px] pointer-events-none" />
+            <div className="absolute bottom-[-10%] left-[-10%] w-[380px] h-[380px] bg-accent/8 rounded-full blur-[90px] pointer-events-none" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-slate-200/40 rounded-full blur-[120px] pointer-events-none" />
+          </>
+        )}
 
-        <div className="w-full max-w-md relative login-card">
-          {/* Icon header */}
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-primary to-primary/70 shadow-xl shadow-primary/30 mb-4 icon-float relative">
-              <Lock className="w-8 h-8 text-white" strokeWidth={2.5} />
-              {/* Animated ring */}
-              <svg
-                className="absolute inset-0 w-full h-full -rotate-90"
-                viewBox="0 0 80 80"
-              >
-                <circle
-                  cx="40"
-                  cy="40"
-                  r="36"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeDasharray="226 226"
-                  strokeDashoffset="0"
-                  className="text-white/20"
-                />
-                <circle
-                  cx="40"
-                  cy="40"
-                  r="36"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeDasharray="56 226"
-                  strokeLinecap="round"
-                  className="text-white/70 ring-spin"
-                />
-              </svg>
-            </div>
-            <h1 className="text-3xl font-extrabold text-slate-800 tracking-tight">
+        <div className="w-full max-w-md relative login-card mx-auto">
+          <div className="text-center mb-2">
+            <h1 className="text-xl sm:text-xl font-extrabold text-slate-800 tracking-tight">
               Welcome Back
             </h1>
-            <p className="text-slate-500 text-sm mt-1 font-light">
-              Sign in to access the Admin Portal
+            <p className="text-slate-500 text-xs sm:text-sm mt-1 font-light">
+              Sign in to access your account & services
             </p>
           </div>
 
           {/* Card */}
-          <div className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl shadow-slate-200/80 border border-white/70 p-8">
+          <div
+            className={`bg-white/90 rounded-3xl shadow-xl border border-slate-100 p-6 sm:p-8 ${!isModal ? "shadow-2xl shadow-slate-200/80" : ""}`}
+          >
             {/* Global error */}
             {displayError && (
               <div className="mb-5 bg-red-50 border border-red-200 rounded-xl px-4 py-3 flex items-start gap-2.5 text-red-700 text-xs">
@@ -229,12 +209,16 @@ export default function Login() {
               </div>
             )}
 
-            <form onSubmit={handleSubmit} noValidate className="space-y-5">
+            <form
+              onSubmit={handleSubmit}
+              noValidate
+              className="space-y-4 sm:space-y-5"
+            >
               {/* Identifier */}
               <Field
                 label="Email or Phone"
                 required
-                hint="E.g. admin@portal.com or 9876543210"
+                hint="E.g. user@domain.com or 9876543210"
                 error={fieldErrors.identifier}
                 icon={Mail}
               >
@@ -270,7 +254,7 @@ export default function Login() {
                 <button
                   type="button"
                   onClick={() => setShowPass(!showPass)}
-                  className="text-slate-400 hover:text-primary transition-colors shrink-0 focus:outline-none"
+                  className="text-slate-400 hover:text-primary transition-colors shrink-0 focus:outline-none cursor-pointer"
                   aria-label={showPass ? "Hide password" : "Show password"}
                 >
                   {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -282,7 +266,7 @@ export default function Login() {
                 id="login-submit"
                 type="submit"
                 disabled={loading}
-                className="w-full py-3.5 mt-2 bg-gradient-to-r from-primary to-primary/85 hover:from-primary/90 hover:to-primary text-white font-bold rounded-xl shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-0.5 transition-all duration-200 text-sm tracking-wide flex items-center justify-center gap-2.5 disabled:opacity-60 disabled:pointer-events-none"
+                className="w-full py-3.5 mt-2 bg-gradient-to-r from-primary to-primary/85 hover:from-primary/90 hover:to-primary text-white font-bold rounded-xl shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-0.5 transition-all duration-200 text-sm tracking-wide flex items-center justify-center gap-2.5 disabled:opacity-60 disabled:pointer-events-none cursor-pointer"
               >
                 {loading ? (
                   <>
@@ -317,32 +301,44 @@ export default function Login() {
             </form>
 
             {/* Register link */}
-            <p className="mt-6 text-center text-xs text-slate-500">
+            <p className="mt-5 text-center text-xs text-slate-500">
               Don&apos;t have an account?{" "}
-              <Link
-                to="/signup"
-                className="text-primary hover:text-primary/80 font-bold transition-colors underline underline-offset-2"
-              >
-                Create one here
-              </Link>
+              {isModal && onSwitchToSignup ? (
+                <button
+                  type="button"
+                  onClick={onSwitchToSignup}
+                  className="text-primary hover:text-primary/80 font-bold transition-colors underline underline-offset-2 cursor-pointer inline"
+                >
+                  Create one here
+                </button>
+              ) : (
+                <Link
+                  to="/signup"
+                  className="text-primary hover:text-primary/80 font-bold transition-colors underline underline-offset-2"
+                >
+                  Create one here
+                </Link>
+              )}
             </p>
           </div>
 
-          {/* Back link */}
-          <div className="mt-5 text-center">
-            <Link
-              to="/"
-              className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-primary transition-colors group font-medium"
-            >
-              <span>Back to Official Portal</span>
-              <ArrowRight
-                size={13}
-                className="group-hover:translate-x-1 transition-transform"
-              />
-            </Link>
-          </div>
+          {/* Back link - only for standalone page */}
+          {!isModal && (
+            <div className="mt-5 text-center">
+              <Link
+                to="/"
+                className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-primary transition-colors group font-medium"
+              >
+                <span>Back to Official Portal</span>
+                <ArrowRight
+                  size={13}
+                  className="group-hover:translate-x-1 transition-transform"
+                />
+              </Link>
+            </div>
+          )}
         </div>
       </div>
-    </>
+    </div>
   );
 }

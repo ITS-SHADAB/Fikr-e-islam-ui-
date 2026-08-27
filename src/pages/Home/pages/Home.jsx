@@ -18,7 +18,7 @@ import {
   X,
   Music,
 } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   getArticles,
   getFatwas,
@@ -37,6 +37,7 @@ import {
   PublicationCard,
   EventCard,
 } from "@/components";
+import SeamlessMobileSlider from "../components/SeamlessMobileSlider";
 import { FATWA_TRANSLATIONS, LECTURE_TRANSLATIONS } from "@/utils/categories";
 import AnimatedFeatureCard from "../components/AnimatedFeatureCard";
 import muftiSahebImg from "../../../assets/images/muftiSaheb.png";
@@ -123,18 +124,12 @@ export default function Home() {
   const [publications, setPublications] = useState([]);
   const [lectures, setLectures] = useState([]);
   const [events, setEvents] = useState([]);
-  const [activeFeatureIndex, setActiveFeatureIndex] = useState(0);
-  const [activeArticleIndex, setActiveArticleIndex] = useState(0);
-  const [activeFatwaIndex, setActiveFatwaIndex] = useState(0);
-  const [activeQuestionIndex, setActiveQuestionIndex] = useState(0);
-  const [activeLectureIndex, setActiveLectureIndex] = useState(0);
-  const [activeEventIndex, setActiveEventIndex] = useState(0);
-  const [activePublicationIndex, setActivePublicationIndex] = useState(0);
   const [activeMedia, setActiveMedia] = useState(null);
 
   const getEmbedUrl = (url) => {
-    if (!url) return '';
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    if (!url) return "";
+    const regExp =
+      /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
     const match = url.match(regExp);
     if (match && match[2].length === 11) {
       return `https://www.youtube.com/embed/${match[2]}?autoplay=1`;
@@ -143,7 +138,7 @@ export default function Home() {
   };
 
   const isAudioMedia = (cat) => {
-    return cat === 'Audio Lectures' || cat === 'Bayan Recordings';
+    return cat === "Audio Lectures" || cat === "Bayan Recordings";
   };
 
   const language =
@@ -358,114 +353,23 @@ export default function Home() {
           ))}
         </div>
 
-        {/* Mobile View: Slide One-by-One with on-card arrows */}
-        <div className="sm:hidden flex flex-col items-center gap-5">
-          <div className="w-full relative">
-            {/* The Card */}
-            <motion.div
-              key={activeFeatureIndex}
-              initial={{ opacity: 0, x: language === "ur" ? -30 : 30 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: language === "ur" ? 30 : -30 }}
-              transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-            >
-              <AnimatedFeatureCard
-                icon={FEATURES[activeFeatureIndex].icon}
-                title={FEATURES[activeFeatureIndex].title}
-                description={FEATURES[activeFeatureIndex].description}
-                to={FEATURES[activeFeatureIndex].to}
-              />
-            </motion.div>
-
-            {/* ON-CARD Left Arrow (prev in RTL = ArrowRight) */}
-            <button
-              type="button"
-              aria-label="Previous"
-              disabled={activeFeatureIndex === 0}
-              onClick={() => setActiveFeatureIndex((prev) => prev - 1)}
-              className={`
-                absolute top-1/2 -translate-y-1/2 -left-4 z-20
-                w-9 h-9 flex items-center justify-center rounded-full
-                border shadow-lg backdrop-blur-sm
-                transition-all duration-200
-                ${
-                  activeFeatureIndex === 0
-                    ? "opacity-30 cursor-not-allowed border-border bg-white/70"
-                    : "opacity-100 cursor-pointer border-border bg-white hover:bg-secondary hover:border-accent hover:scale-110"
-                }
-              `}
-              style={{ color: COLORS.primary }}
-            >
-              <ArrowRight className="w-4 h-4" />
-            </button>
-
-            {/* ON-CARD Right Arrow (next in RTL = ArrowLeft) */}
-            <button
-              type="button"
-              aria-label="Next"
-              disabled={activeFeatureIndex === FEATURES.length - 1}
-              onClick={() => setActiveFeatureIndex((prev) => prev + 1)}
-              className={`
-                absolute top-1/2 -translate-y-1/2 -right-4 z-20
-                w-9 h-9 flex items-center justify-center rounded-full
-                border shadow-lg backdrop-blur-sm
-                transition-all duration-200
-                ${
-                  activeFeatureIndex === FEATURES.length - 1
-                    ? "opacity-30 cursor-not-allowed border-border bg-white/70"
-                    : "opacity-100 cursor-pointer border-border bg-white hover:bg-secondary hover:border-accent hover:scale-110"
-                }
-              `}
-              style={{ color: COLORS.primary }}
-            >
-              <ArrowLeft className="w-4 h-4" />
-            </button>
-          </div>
-
-          {/* Dots indicator + bottom arrows row */}
-          <div className="flex items-center gap-5 mt-1">
-            {/* Bottom-left arrow */}
-            <button
-              type="button"
-              disabled={activeFeatureIndex === 0}
-              onClick={() => setActiveFeatureIndex((prev) => prev - 1)}
-              className={`p-2 rounded-full border-2 transition-all duration-200 ${activeFeatureIndex === 0 ? "text-slate-300 border-slate-200 cursor-not-allowed" : "border-primary text-primary hover:bg-secondary"}`}
-            >
-              <ArrowRight className="w-4 h-4" />
-            </button>
-
-            {/* Dots */}
-            <div className="flex items-center gap-2">
-              {FEATURES.map((_, index) => (
-                <button
-                  key={index}
-                  type="button"
-                  aria-label={`Go to card ${index + 1}`}
-                  onClick={() => setActiveFeatureIndex(index)}
-                  className="rounded-full transition-all duration-300"
-                  style={{
-                    width: activeFeatureIndex === index ? "20px" : "8px",
-                    height: "8px",
-                    backgroundColor:
-                      activeFeatureIndex === index
-                        ? COLORS.primary
-                        : COLORS.border,
-                  }}
-                />
-              ))}
-            </div>
-
-            {/* Bottom-right arrow */}
-            <button
-              type="button"
-              disabled={activeFeatureIndex === FEATURES.length - 1}
-              onClick={() => setActiveFeatureIndex((prev) => prev + 1)}
-              className={`p-2 rounded-full border-2 transition-all duration-200 ${activeFeatureIndex === FEATURES.length - 1 ? "text-slate-300 border-slate-200 cursor-not-allowed" : "border-primary text-primary hover:bg-secondary"}`}
-            >
-              <ArrowLeft className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
+        {/* Mobile View: Slide One-by-One with Seamless infinite loop & scale transition */}
+        <SeamlessMobileSlider
+          items={FEATURES}
+          language={language}
+          enableScale={true}
+          duration={700}
+          activeDotColor={COLORS.primary}
+          dotColor={COLORS.border}
+          renderCard={(feature) => (
+            <AnimatedFeatureCard
+              icon={feature.icon}
+              title={feature.title}
+              description={feature.description}
+              to={feature.to}
+            />
+          )}
+        />
       </section>
 
       {/* 2. LATEST ARTICLES */}
@@ -488,106 +392,15 @@ export default function Home() {
               ))}
             </div>
 
-            {/* Mobile: one-by-one slider with on-card arrows */}
-            <div className="sm:hidden flex flex-col items-center gap-5">
-              <div className="w-full relative">
-                <motion.div
-                  key={activeArticleIndex}
-                  initial={{ opacity: 0, x: language === "ur" ? -30 : 30 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-                >
-                  <ArticleCard article={articles[activeArticleIndex]} />
-                </motion.div>
-
-                {/* ON-CARD Left arrow */}
-                <button
-                  type="button"
-                  aria-label="Previous article"
-                  disabled={activeArticleIndex === 0}
-                  onClick={() => setActiveArticleIndex((prev) => prev - 1)}
-                  className={`
-                    absolute top-1/2 -translate-y-1/2 -left-4 z-20
-                    w-9 h-9 flex items-center justify-center rounded-full
-                    border shadow-lg backdrop-blur-sm transition-all duration-200
-                    ${
-                      activeArticleIndex === 0
-                        ? "opacity-30 cursor-not-allowed border-border bg-white/70"
-                        : "opacity-100 cursor-pointer border-border bg-white hover:bg-secondary hover:border-accent hover:scale-110"
-                    }
-                  `}
-                  style={{ color: COLORS.primary }}
-                >
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-
-                {/* ON-CARD Right arrow */}
-                <button
-                  type="button"
-                  aria-label="Next article"
-                  disabled={
-                    activeArticleIndex === articles.slice(0, 3).length - 1
-                  }
-                  onClick={() => setActiveArticleIndex((prev) => prev + 1)}
-                  className={`
-                    absolute top-1/2 -translate-y-1/2 -right-4 z-20
-                    w-9 h-9 flex items-center justify-center rounded-full
-                    border shadow-lg backdrop-blur-sm transition-all duration-200
-                    ${
-                      activeArticleIndex === articles.slice(0, 3).length - 1
-                        ? "opacity-30 cursor-not-allowed border-border bg-white/70"
-                        : "opacity-100 cursor-pointer border-border bg-white hover:bg-secondary hover:border-accent hover:scale-110"
-                    }
-                  `}
-                  style={{ color: COLORS.primary }}
-                >
-                  <ArrowLeft className="w-4 h-4" />
-                </button>
-              </div>
-
-              {/* Dots + bottom arrows */}
-              <div className="flex items-center gap-5 mt-1">
-                <button
-                  type="button"
-                  disabled={activeArticleIndex === 0}
-                  onClick={() => setActiveArticleIndex((prev) => prev - 1)}
-                  className={`p-2 rounded-full border-2 transition-all duration-200 ${activeArticleIndex === 0 ? "text-slate-300 border-slate-200 cursor-not-allowed" : "border-primary text-primary hover:bg-secondary"}`}
-                >
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-
-                <div className="flex items-center gap-2">
-                  {articles.slice(0, 3).map((_, index) => (
-                    <button
-                      key={index}
-                      type="button"
-                      aria-label={`Go to article ${index + 1}`}
-                      onClick={() => setActiveArticleIndex(index)}
-                      className="rounded-full transition-all duration-300"
-                      style={{
-                        width: activeArticleIndex === index ? "20px" : "8px",
-                        height: "8px",
-                        backgroundColor:
-                          activeArticleIndex === index
-                            ? COLORS.primary
-                            : COLORS.border,
-                      }}
-                    />
-                  ))}
-                </div>
-
-                <button
-                  type="button"
-                  disabled={
-                    activeArticleIndex === articles.slice(0, 3).length - 1
-                  }
-                  onClick={() => setActiveArticleIndex((prev) => prev + 1)}
-                  className={`p-2 rounded-full border-2 transition-all duration-200 ${activeArticleIndex === articles.slice(0, 3).length - 1 ? "text-slate-300 border-slate-200 cursor-not-allowed" : "border-primary text-primary hover:bg-secondary"}`}
-                >
-                  <ArrowLeft className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
+            {/* Mobile: one-by-one slider with Seamless infinite swipe */}
+            <SeamlessMobileSlider
+              items={articles.slice(0, 3)}
+              language={language}
+              duration={500}
+              activeDotColor={COLORS.primary}
+              dotColor={COLORS.border}
+              renderCard={(article) => <ArticleCard article={article} />}
+            />
           </>
         ) : (
           <p className="text-slate-400 italic text-center py-6">
@@ -621,106 +434,15 @@ export default function Home() {
                 ))}
               </div>
 
-              {/* Mobile: one-by-one slider with on-card arrows */}
-              <div className="sm:hidden flex flex-col items-center gap-5">
-                <div className="w-full relative">
-                  <motion.div
-                    key={activeFatwaIndex}
-                    initial={{ opacity: 0, x: language === "ur" ? -30 : 30 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-                  >
-                    <FatwaCard fatwa={fatwas[activeFatwaIndex]} />
-                  </motion.div>
-
-                  {/* ON-CARD Left arrow */}
-                  <button
-                    type="button"
-                    aria-label="Previous fatwa"
-                    disabled={activeFatwaIndex === 0}
-                    onClick={() => setActiveFatwaIndex((prev) => prev - 1)}
-                    className={`
-                      absolute top-1/2 -translate-y-1/2 -left-4 z-20
-                      w-9 h-9 flex items-center justify-center rounded-full
-                      border shadow-lg backdrop-blur-sm transition-all duration-200
-                      ${
-                        activeFatwaIndex === 0
-                          ? "opacity-30 cursor-not-allowed border-border bg-white/70"
-                          : "opacity-100 cursor-pointer border-border bg-white hover:bg-secondary hover:border-accent hover:scale-110"
-                      }
-                    `}
-                    style={{ color: COLORS.primary }}
-                  >
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
-
-                  {/* ON-CARD Right arrow */}
-                  <button
-                    type="button"
-                    aria-label="Next fatwa"
-                    disabled={
-                      activeFatwaIndex === fatwas.slice(0, 3).length - 1
-                    }
-                    onClick={() => setActiveFatwaIndex((prev) => prev + 1)}
-                    className={`
-                      absolute top-1/2 -translate-y-1/2 -right-4 z-20
-                      w-9 h-9 flex items-center justify-center rounded-full
-                      border shadow-lg backdrop-blur-sm transition-all duration-200
-                      ${
-                        activeFatwaIndex === fatwas.slice(0, 3).length - 1
-                          ? "opacity-30 cursor-not-allowed border-border bg-white/70"
-                          : "opacity-100 cursor-pointer border-border bg-white hover:bg-secondary hover:border-accent hover:scale-110"
-                      }
-                    `}
-                    style={{ color: COLORS.primary }}
-                  >
-                    <ArrowLeft className="w-4 h-4" />
-                  </button>
-                </div>
-
-                {/* Dots + bottom arrows */}
-                <div className="flex items-center gap-5 mt-1">
-                  <button
-                    type="button"
-                    disabled={activeFatwaIndex === 0}
-                    onClick={() => setActiveFatwaIndex((prev) => prev - 1)}
-                    className={`p-2 rounded-full border-2 transition-all duration-200 ${activeFatwaIndex === 0 ? "text-slate-300 border-slate-200 cursor-not-allowed" : "border-primary text-primary hover:bg-secondary"}`}
-                  >
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
-
-                  <div className="flex items-center gap-2">
-                    {fatwas.slice(0, 3).map((_, index) => (
-                      <button
-                        key={index}
-                        type="button"
-                        aria-label={`Go to fatwa ${index + 1}`}
-                        onClick={() => setActiveFatwaIndex(index)}
-                        className="rounded-full transition-all duration-300"
-                        style={{
-                          width: activeFatwaIndex === index ? "20px" : "8px",
-                          height: "8px",
-                          backgroundColor:
-                            activeFatwaIndex === index
-                              ? COLORS.primary
-                              : COLORS.border,
-                        }}
-                      />
-                    ))}
-                  </div>
-
-                  <button
-                    type="button"
-                    disabled={
-                      activeFatwaIndex === fatwas.slice(0, 3).length - 1
-                    }
-                    onClick={() => setActiveFatwaIndex((prev) => prev + 1)}
-                    className={`p-2 rounded-full border-2 transition-all duration-200 ${activeFatwaIndex === fatwas.slice(0, 3).length - 1 ? "text-slate-300 border-slate-200 cursor-not-allowed" : "border-primary text-primary hover:bg-secondary"}`}
-                  >
-                    <ArrowLeft className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
+              {/* Mobile: one-by-one slider with Seamless infinite swipe */}
+              <SeamlessMobileSlider
+                items={fatwas.slice(0, 3)}
+                language={language}
+                duration={500}
+                activeDotColor={COLORS.primary}
+                dotColor={COLORS.border}
+                renderCard={(fatwa) => <FatwaCard fatwa={fatwa} />}
+              />
             </>
           ) : (
             <p className="text-slate-400 italic text-center py-6">
@@ -793,153 +515,59 @@ export default function Home() {
               ))}
             </div>
 
-            {/* Mobile: one-by-one slider with on-card arrows */}
-            <div className="sm:hidden flex flex-col items-center gap-5">
-              <div className="w-full relative">
-                <motion.div
-                  key={activeQuestionIndex}
-                  initial={{ opacity: 0, x: language === "ur" ? -30 : 30 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+            {/* Mobile: one-by-one slider with Seamless infinite swipe */}
+            <SeamlessMobileSlider
+              items={questions.slice(0, 3)}
+              language={language}
+              duration={500}
+              activeDotColor={COLORS.primary}
+              dotColor={COLORS.border}
+              renderCard={(q) => (
+                <div
+                  className={`premium-card p-6 flex flex-col justify-between min-h-[220px] bg-white ${language === "ur" ? "text-right" : "text-left"} relative overflow-hidden group shadow-sm`}
                 >
-                  {questions[activeQuestionIndex] && (
-                    <div
-                      className={`premium-card p-6 flex flex-col justify-between min-h-[220px] bg-white ${language === "ur" ? "text-right" : "text-left"} relative overflow-hidden group shadow-sm`}
-                    >
-                      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-accent via-primary to-accent" />
+                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-accent via-primary to-accent" />
 
-                      <div>
-                        <div className="flex items-center justify-between text-xs text-slate-500 mb-4">
-                          <span className="bg-secondary text-textSecondary font-bold px-2.5 py-1 rounded-full text-[10px]">
-                            {language === "ur"
-                              ? FATWA_TRANSLATIONS[
-                                  questions[activeQuestionIndex].category
-                                ] || questions[activeQuestionIndex].category
-                              : questions[activeQuestionIndex].category}
-                          </span>
-                          <span>
-                            {new Date(
-                              questions[activeQuestionIndex].answeredAt ||
-                                questions[activeQuestionIndex].updatedAt
-                            ).toLocaleDateString(
-                              language === "ur" ? "ur-PK" : "en-US"
-                            )}
-                          </span>
-                        </div>
-                        <h4 className="text-md font-bold text-slate-900 mb-2 line-clamp-2">
-                          {questions[activeQuestionIndex].questionTitle}
-                        </h4>
-                        <p className="text-slate-700 text-xs italic line-clamp-3 mb-4">
-                          "{questions[activeQuestionIndex].detailedQuestion}"
-                        </p>
-                      </div>
-                      <Link
-                        to={`/qa`}
-                        className="text-xs font-bold text-primary hover:text-accent flex items-center gap-1 group-hover:gap-2 transition-all mt-2"
-                      >
-                        {language === "en"
-                          ? "View Answer"
-                          : "مفتی صاحب کا جواب دیکھیں"}
-                        <span>
-                          {language === "en" ? (
-                            <ArrowRight className="w-3.5 h-3.5" />
-                          ) : (
-                            <ArrowLeft className="w-3.5 h-3.5" />
-                          )}
-                        </span>
-                      </Link>
+                  <div>
+                    <div className="flex items-center justify-between text-xs text-slate-500 mb-4">
+                      <span className="bg-secondary text-textSecondary font-bold px-2.5 py-1 rounded-full text-[10px]">
+                        {language === "ur"
+                          ? FATWA_TRANSLATIONS[q.category] || q.category
+                          : q.category}
+                      </span>
+                      <span>
+                        {new Date(
+                          q.answeredAt || q.updatedAt
+                        ).toLocaleDateString(
+                          language === "ur" ? "ur-PK" : "en-US"
+                        )}
+                      </span>
                     </div>
-                  )}
-                </motion.div>
-
-                {/* ON-CARD Left arrow */}
-                <button
-                  type="button"
-                  aria-label="Previous question"
-                  disabled={activeQuestionIndex === 0}
-                  onClick={() => setActiveQuestionIndex((prev) => prev - 1)}
-                  className={`
-                    absolute top-1/2 -translate-y-1/2 -left-4 z-20
-                    w-9 h-9 flex items-center justify-center rounded-full
-                    border shadow-lg backdrop-blur-sm transition-all duration-200
-                    ${
-                      activeQuestionIndex === 0
-                        ? "opacity-30 cursor-not-allowed border-border bg-white/70"
-                        : "opacity-100 cursor-pointer border-border bg-white hover:bg-secondary hover:border-accent hover:scale-110"
-                    }
-                  `}
-                  style={{ color: COLORS.primary }}
-                >
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-
-                {/* ON-CARD Right arrow */}
-                <button
-                  type="button"
-                  aria-label="Next question"
-                  disabled={
-                    activeQuestionIndex === questions.slice(0, 3).length - 1
-                  }
-                  onClick={() => setActiveQuestionIndex((prev) => prev + 1)}
-                  className={`
-                    absolute top-1/2 -translate-y-1/2 -right-4 z-20
-                    w-9 h-9 flex items-center justify-center rounded-full
-                    border shadow-lg backdrop-blur-sm transition-all duration-200
-                    ${
-                      activeQuestionIndex === questions.slice(0, 3).length - 1
-                        ? "opacity-30 cursor-not-allowed border-border bg-white/70"
-                        : "opacity-100 cursor-pointer border-border bg-white hover:bg-secondary hover:border-accent hover:scale-110"
-                    }
-                  `}
-                  style={{ color: COLORS.primary }}
-                >
-                  <ArrowLeft className="w-4 h-4" />
-                </button>
-              </div>
-
-              {/* Dots + bottom arrows */}
-              <div className="flex items-center gap-5 mt-1">
-                <button
-                  type="button"
-                  disabled={activeQuestionIndex === 0}
-                  onClick={() => setActiveQuestionIndex((prev) => prev - 1)}
-                  className={`p-2 rounded-full border-2 transition-all duration-200 ${activeQuestionIndex === 0 ? "text-slate-300 border-slate-200 cursor-not-allowed" : "border-primary text-primary hover:bg-secondary cursor-pointer"}`}
-                >
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-
-                <div className="flex items-center gap-2">
-                  {questions.slice(0, 3).map((_, index) => (
-                    <button
-                      key={index}
-                      type="button"
-                      aria-label={`Go to question ${index + 1}`}
-                      onClick={() => setActiveQuestionIndex(index)}
-                      className="rounded-full transition-all duration-300 cursor-pointer"
-                      style={{
-                        width: activeQuestionIndex === index ? "20px" : "8px",
-                        height: "8px",
-                        backgroundColor:
-                          activeQuestionIndex === index
-                            ? COLORS.primary
-                            : COLORS.border,
-                      }}
-                    />
-                  ))}
+                    <h4 className="text-md font-bold text-slate-900 mb-2 line-clamp-2">
+                      {q.questionTitle}
+                    </h4>
+                    <p className="text-slate-700 text-xs italic line-clamp-3 mb-4">
+                      "{q.detailedQuestion}"
+                    </p>
+                  </div>
+                  <Link
+                    to={`/qa`}
+                    className="text-xs font-bold text-primary hover:text-accent flex items-center gap-1 group-hover:gap-2 transition-all mt-2"
+                  >
+                    {language === "en"
+                      ? "View Answer"
+                      : "مفتی صاحب کا جواب دیکھیں"}
+                    <span>
+                      {language === "en" ? (
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      ) : (
+                        <ArrowLeft className="w-3.5 h-3.5" />
+                      )}
+                    </span>
+                  </Link>
                 </div>
-
-                <button
-                  type="button"
-                  disabled={
-                    activeQuestionIndex === questions.slice(0, 3).length - 1
-                  }
-                  onClick={() => setActiveQuestionIndex((prev) => prev + 1)}
-                  className={`p-2 rounded-full border-2 transition-all duration-200 ${activeQuestionIndex === questions.slice(0, 3).length - 1 ? "text-slate-300 border-slate-200 cursor-not-allowed" : "border-primary text-primary hover:bg-secondary cursor-pointer"}`}
-                >
-                  <ArrowLeft className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
+              )}
+            />
           </>
         ) : (
           <p className="text-slate-400 italic text-center py-6">
@@ -975,122 +603,15 @@ export default function Home() {
                 ))}
               </div>
 
-              {/* Mobile: One-by-one swap slider with on-card arrows & dots */}
-              <div className="sm:hidden flex flex-col items-center gap-5">
-                <div className="w-full relative">
-                  <motion.div
-                    key={activePublicationIndex}
-                    initial={{ opacity: 0, x: language === "ur" ? -30 : 30 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-                  >
-                    {publications[activePublicationIndex] && (
-                      <PublicationCard
-                        publication={publications[activePublicationIndex]}
-                      />
-                    )}
-                  </motion.div>
-
-                  {/* ON-CARD Left arrow */}
-                  <button
-                    type="button"
-                    aria-label="Previous publication"
-                    disabled={activePublicationIndex === 0}
-                    onClick={() =>
-                      setActivePublicationIndex((prev) => prev - 1)
-                    }
-                    className={`
-                      absolute top-1/2 -translate-y-1/2 -left-3 z-20
-                      w-9 h-9 flex items-center justify-center rounded-full
-                      border shadow-lg backdrop-blur-sm transition-all duration-200
-                      ${
-                        activePublicationIndex === 0
-                          ? "opacity-30 cursor-not-allowed border-border bg-white/70"
-                          : "opacity-100 cursor-pointer border-border bg-white hover:bg-secondary hover:border-accent hover:scale-110"
-                      }
-                    `}
-                    style={{ color: COLORS.primary }}
-                  >
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
-
-                  {/* ON-CARD Right arrow */}
-                  <button
-                    type="button"
-                    aria-label="Next publication"
-                    disabled={
-                      activePublicationIndex ===
-                      Math.min(publications.length, 3) - 1
-                    }
-                    onClick={() =>
-                      setActivePublicationIndex((prev) => prev + 1)
-                    }
-                    className={`
-                      absolute top-1/2 -translate-y-1/2 -right-3 z-20
-                      w-9 h-9 flex items-center justify-center rounded-full
-                      border shadow-lg backdrop-blur-sm transition-all duration-200
-                      ${
-                        activePublicationIndex ===
-                        Math.min(publications.length, 3) - 1
-                          ? "opacity-30 cursor-not-allowed border-border bg-white/70"
-                          : "opacity-100 cursor-pointer border-border bg-white hover:bg-secondary hover:border-accent hover:scale-110"
-                      }
-                    `}
-                    style={{ color: COLORS.primary }}
-                  >
-                    <ArrowLeft className="w-4 h-4" />
-                  </button>
-                </div>
-
-                {/* Dots + Bottom Navigation Controls */}
-                <div className="flex items-center gap-5 mt-1">
-                  <button
-                    type="button"
-                    disabled={activePublicationIndex === 0}
-                    onClick={() =>
-                      setActivePublicationIndex((prev) => prev - 1)
-                    }
-                    className={`p-2 rounded-full border-2 transition-all duration-200 ${activePublicationIndex === 0 ? "text-slate-300 border-slate-200 cursor-not-allowed" : "border-primary text-primary hover:bg-secondary cursor-pointer"}`}
-                  >
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
-
-                  <div className="flex items-center gap-2">
-                    {publications.slice(0, 3).map((_, index) => (
-                      <button
-                        key={index}
-                        type="button"
-                        aria-label={`Go to publication ${index + 1}`}
-                        onClick={() => setActivePublicationIndex(index)}
-                        className="rounded-full transition-all duration-300 cursor-pointer"
-                        style={{
-                          width:
-                            activePublicationIndex === index ? "20px" : "8px",
-                          height: "8px",
-                          backgroundColor:
-                            activePublicationIndex === index
-                              ? COLORS.primary
-                              : COLORS.border,
-                        }}
-                      />
-                    ))}
-                  </div>
-
-                  <button
-                    type="button"
-                    disabled={
-                      activePublicationIndex ===
-                      Math.min(publications.length, 3) - 1
-                    }
-                    onClick={() =>
-                      setActivePublicationIndex((prev) => prev + 1)
-                    }
-                    className={`p-2 rounded-full border-2 transition-all duration-200 ${activePublicationIndex === Math.min(publications.length, 3) - 1 ? "text-slate-300 border-slate-200 cursor-not-allowed" : "border-primary text-primary hover:bg-secondary cursor-pointer"}`}
-                  >
-                    <ArrowLeft className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
+              {/* Mobile: One-by-one Seamless infinite slider */}
+              <SeamlessMobileSlider
+                items={publications.slice(0, 3)}
+                language={language}
+                duration={500}
+                activeDotColor={COLORS.primary}
+                dotColor={COLORS.border}
+                renderCard={(pub) => <PublicationCard publication={pub} />}
+              />
             </>
           ) : (
             <p className="text-slate-400 italic text-center py-6">
@@ -1126,109 +647,20 @@ export default function Home() {
                 ))}
               </div>
 
-              {/* Mobile: one-by-one slider with on-card arrows */}
-              <div className="sm:hidden flex flex-col items-center gap-5">
-                <div className="w-full relative">
-                  <motion.div
-                    key={activeLectureIndex}
-                    initial={{ opacity: 0, x: language === "ur" ? -30 : 30 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-                  >
-                    <LectureCard
-                      lecture={lectures[activeLectureIndex]}
-                      onPlay={(lec) => setActiveMedia(lec)}
-                    />
-                  </motion.div>
-
-                  {/* ON-CARD Left arrow */}
-                  <button
-                    type="button"
-                    aria-label="Previous lecture"
-                    disabled={activeLectureIndex === 0}
-                    onClick={() => setActiveLectureIndex((prev) => prev - 1)}
-                    className={`
-                      absolute top-1/2 -translate-y-1/2 -left-4 z-20
-                      w-9 h-9 flex items-center justify-center rounded-full
-                      border shadow-lg backdrop-blur-sm transition-all duration-200
-                      ${
-                        activeLectureIndex === 0
-                          ? "opacity-30 cursor-not-allowed border-border bg-white/70"
-                          : "opacity-100 cursor-pointer border-border bg-white hover:bg-secondary hover:border-accent hover:scale-110"
-                      }
-                    `}
-                    style={{ color: COLORS.primary }}
-                  >
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
-
-                  {/* ON-CARD Right arrow */}
-                  <button
-                    type="button"
-                    aria-label="Next lecture"
-                    disabled={
-                      activeLectureIndex === lectures.slice(0, 3).length - 1
-                    }
-                    onClick={() => setActiveLectureIndex((prev) => prev + 1)}
-                    className={`
-                      absolute top-1/2 -translate-y-1/2 -right-4 z-20
-                      w-9 h-9 flex items-center justify-center rounded-full
-                      border shadow-lg backdrop-blur-sm transition-all duration-200
-                      ${
-                        activeLectureIndex === lectures.slice(0, 3).length - 1
-                          ? "opacity-30 cursor-not-allowed border-border bg-white/70"
-                          : "opacity-100 cursor-pointer border-border bg-white hover:bg-secondary hover:border-accent hover:scale-110"
-                      }
-                    `}
-                    style={{ color: COLORS.primary }}
-                  >
-                    <ArrowLeft className="w-4 h-4" />
-                  </button>
-                </div>
-
-                {/* Dots + bottom arrows */}
-                <div className="flex items-center gap-5 mt-1">
-                  <button
-                    type="button"
-                    disabled={activeLectureIndex === 0}
-                    onClick={() => setActiveLectureIndex((prev) => prev - 1)}
-                    className={`p-2 rounded-full border-2 transition-all duration-200 ${activeLectureIndex === 0 ? "text-slate-300 border-slate-200 cursor-not-allowed" : "border-primary text-primary hover:bg-secondary"}`}
-                  >
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
-
-                  <div className="flex items-center gap-2">
-                    {lectures.slice(0, 3).map((_, index) => (
-                      <button
-                        key={index}
-                        type="button"
-                        aria-label={`Go to lecture ${index + 1}`}
-                        onClick={() => setActiveLectureIndex(index)}
-                        className="rounded-full transition-all duration-300"
-                        style={{
-                          width: activeLectureIndex === index ? "20px" : "8px",
-                          height: "8px",
-                          backgroundColor:
-                            activeLectureIndex === index
-                              ? COLORS.primary
-                              : COLORS.border,
-                        }}
-                      />
-                    ))}
-                  </div>
-
-                  <button
-                    type="button"
-                    disabled={
-                      activeLectureIndex === lectures.slice(0, 3).length - 1
-                    }
-                    onClick={() => setActiveLectureIndex((prev) => prev + 1)}
-                    className={`p-2 rounded-full border-2 transition-all duration-200 ${activeLectureIndex === lectures.slice(0, 3).length - 1 ? "text-slate-300 border-slate-200 cursor-not-allowed" : "border-primary text-primary hover:bg-secondary"}`}
-                  >
-                    <ArrowLeft className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
+              {/* Mobile: one-by-one Seamless infinite slider */}
+              <SeamlessMobileSlider
+                items={lectures.slice(0, 3)}
+                language={language}
+                duration={500}
+                activeDotColor={COLORS.primary}
+                dotColor={COLORS.border}
+                renderCard={(lec) => (
+                  <LectureCard
+                    lecture={lec}
+                    onPlay={(item) => setActiveMedia(item)}
+                  />
+                )}
+              />
             </>
           ) : (
             <p className="text-slate-400 italic text-center py-6">
@@ -1275,106 +707,15 @@ export default function Home() {
                 ))}
               </div>
 
-              {/* Mobile: one-by-one slider with on-card arrows */}
-              <div className="sm:hidden flex flex-col items-center gap-5">
-                <div className="w-full relative">
-                  <motion.div
-                    key={activeEventIndex}
-                    initial={{ opacity: 0, x: language === "ur" ? -30 : 30 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-                  >
-                    <EventCard event={events[activeEventIndex]} />
-                  </motion.div>
-
-                  {/* ON-CARD Left arrow */}
-                  <button
-                    type="button"
-                    aria-label="Previous event"
-                    disabled={activeEventIndex === 0}
-                    onClick={() => setActiveEventIndex((prev) => prev - 1)}
-                    className={`
-                      absolute top-1/2 -translate-y-1/2 -left-4 z-20
-                      w-9 h-9 flex items-center justify-center rounded-full
-                      border shadow-lg backdrop-blur-sm transition-all duration-200
-                      ${
-                        activeEventIndex === 0
-                          ? "opacity-30 cursor-not-allowed border-border bg-white/70"
-                          : "opacity-100 cursor-pointer border-border bg-white hover:bg-secondary hover:border-accent hover:scale-110"
-                      }
-                    `}
-                    style={{ color: COLORS.primary }}
-                  >
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
-
-                  {/* ON-CARD Right arrow */}
-                  <button
-                    type="button"
-                    aria-label="Next event"
-                    disabled={
-                      activeEventIndex === events.slice(0, 2).length - 1
-                    }
-                    onClick={() => setActiveEventIndex((prev) => prev + 1)}
-                    className={`
-                      absolute top-1/2 -translate-y-1/2 -right-4 z-20
-                      w-9 h-9 flex items-center justify-center rounded-full
-                      border shadow-lg backdrop-blur-sm transition-all duration-200
-                      ${
-                        activeEventIndex === events.slice(0, 2).length - 1
-                          ? "opacity-30 cursor-not-allowed border-border bg-white/70"
-                          : "opacity-100 cursor-pointer border-border bg-white hover:bg-secondary hover:border-accent hover:scale-110"
-                      }
-                    `}
-                    style={{ color: COLORS.primary }}
-                  >
-                    <ArrowLeft className="w-4 h-4" />
-                  </button>
-                </div>
-
-                {/* Dots + bottom arrows */}
-                <div className="flex items-center gap-5 mt-1">
-                  <button
-                    type="button"
-                    disabled={activeEventIndex === 0}
-                    onClick={() => setActiveEventIndex((prev) => prev - 1)}
-                    className={`p-2 rounded-full border-2 transition-all duration-200 ${activeEventIndex === 0 ? "text-slate-300 border-slate-200 cursor-not-allowed" : "border-primary text-primary hover:bg-secondary"}`}
-                  >
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
-
-                  <div className="flex items-center gap-2">
-                    {events.slice(0, 2).map((_, index) => (
-                      <button
-                        key={index}
-                        type="button"
-                        aria-label={`Go to event ${index + 1}`}
-                        onClick={() => setActiveEventIndex(index)}
-                        className="rounded-full transition-all duration-300"
-                        style={{
-                          width: activeEventIndex === index ? "20px" : "8px",
-                          height: "8px",
-                          backgroundColor:
-                            activeEventIndex === index
-                              ? COLORS.primary
-                              : COLORS.border,
-                        }}
-                      />
-                    ))}
-                  </div>
-
-                  <button
-                    type="button"
-                    disabled={
-                      activeEventIndex === events.slice(0, 2).length - 1
-                    }
-                    onClick={() => setActiveEventIndex((prev) => prev + 1)}
-                    className={`p-2 rounded-full border-2 transition-all duration-200 ${activeEventIndex === events.slice(0, 2).length - 1 ? "text-slate-300 border-slate-200 cursor-not-allowed" : "border-primary text-primary hover:bg-secondary"}`}
-                  >
-                    <ArrowLeft className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
+              {/* Mobile: one-by-one Seamless infinite slider */}
+              <SeamlessMobileSlider
+                items={events.slice(0, 2)}
+                language={language}
+                duration={500}
+                activeDotColor={COLORS.primary}
+                dotColor={COLORS.border}
+                renderCard={(event) => <EventCard event={event} />}
+              />
             </>
           ) : (
             <p className="text-slate-400 italic text-center py-6">
@@ -1448,7 +789,8 @@ export default function Home() {
               <div className="flex items-center gap-2">
                 <span className="text-xs font-bold px-2.5 py-1 rounded bg-secondary text-primary font-serif">
                   {language === "ur"
-                    ? LECTURE_TRANSLATIONS[activeMedia.category] || activeMedia.category
+                    ? LECTURE_TRANSLATIONS[activeMedia.category] ||
+                      activeMedia.category
                     : activeMedia.category}
                 </span>
                 <h3 className="font-bold text-slate-800 text-sm sm:text-base font-serif line-clamp-1">
@@ -1474,7 +816,9 @@ export default function Home() {
                   </div>
                   <div className="space-y-1 text-center">
                     <span className="text-xs text-slate-400 font-bold uppercase tracking-wider block font-serif">
-                      {language === "en" ? "Audio lecture is playing" : "آڈیو بیان چل رہا ہے"}
+                      {language === "en"
+                        ? "Audio lecture is playing"
+                        : "آڈیو بیان چل رہا ہے"}
                     </span>
                     <span className="text-slate-200 font-light text-sm line-clamp-1 font-serif">
                       {activeMedia.title}
@@ -1487,7 +831,9 @@ export default function Home() {
                     className="w-full max-w-md mt-2"
                   />
                 </div>
-              ) : activeMedia.videoUrl && (activeMedia.videoUrl.includes("youtube.com") || activeMedia.videoUrl.includes("youtu.be")) ? (
+              ) : activeMedia.videoUrl &&
+                (activeMedia.videoUrl.includes("youtube.com") ||
+                  activeMedia.videoUrl.includes("youtu.be")) ? (
                 <iframe
                   title={activeMedia.title}
                   src={getEmbedUrl(activeMedia.videoUrl)}
@@ -1509,7 +855,9 @@ export default function Home() {
                     rel="noopener noreferrer"
                     className="px-5 py-2.5 bg-primary text-white font-bold text-xs rounded hover:bg-primary/90 transition-all uppercase tracking-wider font-serif"
                   >
-                    {language === "en" ? "Open on External Platform" : "بیرونی پلیٹ فارم پر کھولیں"}
+                    {language === "en"
+                      ? "Open on External Platform"
+                      : "بیرونی پلیٹ فارم پر کھولیں"}
                   </a>
                 </div>
               )}

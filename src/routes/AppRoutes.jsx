@@ -14,6 +14,7 @@ import FatwasList from '../pages/Fatwas/pages/FatwasList';
 import FatwaDetail from '../pages/Fatwas/pages/FatwaDetail';
 import AskQuestion from '../pages/AskQuestion/pages/AskQuestion';
 import QAList from '../pages/QuestionsAnswers/pages/QAList';
+import QADetail from '../pages/QuestionsAnswers/pages/QADetail';
 import PublicationsList from '../pages/Publications/pages/PublicationsList';
 import BookDetail from '../pages/Publications/pages/BookDetail';
 import LecturesList from '../pages/Lectures/pages/LecturesList';
@@ -66,6 +67,8 @@ export default function AppRoutes() {
 
         <Route path="ask" element={<AskQuestion />} />
         <Route path="qa" element={<QAList />} />
+        <Route path="qa/slug/:slug" element={<QADetail />} />
+        <Route path="qa/:slug" element={<QADetail />} />
         <Route path="publications" element={<PublicationsList />} />
         <Route path="publications/slug/:slug" element={<BookDetail />} />
         <Route path="publications/:slug" element={<BookDetail />} />
