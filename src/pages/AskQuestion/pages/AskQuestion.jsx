@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate, Link } from 'react-router-dom';
 import {
@@ -13,12 +13,36 @@ import {
 } from 'lucide-react';
 import { submitQuestion } from '@/services';
 import { COLORS } from '@/utils/themeColors';
-import { useAuthModal } from '@/context/AuthModalContext';
+import Modal from '@/components/Modal/Modal';
+import Login from '@/pages/Admin/pages/Login';
+import Signup from '@/pages/Admin/pages/Signup';
 
 export default function AskQuestion() {
   const navigate = useNavigate();
-  const { openLogin } = useAuthModal();
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authMode, setAuthMode] = useState('login'); // 'login' | 'signup'
+
+  const openLogin = () => {
+    setAuthMode('login');
+    setIsAuthModalOpen(true);
+  };
+
+  const openSignup = () => {
+    setAuthMode('signup');
+    setIsAuthModalOpen(true);
+  };
+
+  const closeAuthModal = () => {
+    setIsAuthModalOpen(false);
+  };
+
   const { isAuthenticated, loggedInUser } = useSelector((s) => s.auth);
+
+  useEffect(() => {
+    if (isAuthenticated && isAuthModalOpen) {
+      setIsAuthModalOpen(false);
+    }
+  }, [isAuthenticated, isAuthModalOpen]);
 
   const [formData, setFormData] = useState({
     questionTitle: '',
@@ -291,6 +315,30 @@ export default function AskQuestion() {
           </div>
         )}
       </div>
+
+      {/* Local Auth Modal using existing Login and Signup in English layout */}
+      <Modal
+        isOpen={isAuthModalOpen}
+        onClose={closeAuthModal}
+        title={authMode === "login" ? "Sign In" : "Create Account"}
+        maxWidth={authMode === "login" ? "max-w-md" : "max-w-xl"}
+        height="max-h-[92vh]"
+        dir="ltr"
+      >
+        {authMode === "login" ? (
+          <Login
+            isModal={true}
+            onClose={closeAuthModal}
+            onSwitchToSignup={() => setAuthMode("signup")}
+          />
+        ) : (
+          <Signup
+            isModal={true}
+            onClose={closeAuthModal}
+            onSwitchToLogin={() => setAuthMode("login")}
+          />
+        )}
+      </Modal>
     </div>
   );
 }

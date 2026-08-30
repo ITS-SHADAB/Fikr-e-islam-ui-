@@ -50,11 +50,11 @@ export function AuthModalProvider({ children }) {
     >
       {children}
 
-      {/* Global Auth Modal using existing Modal, Login, and Signup components in English layout */}
+      {/* Global Auth Modal using existing Login and Signup components in English layout */}
       <Modal
         isOpen={isOpen}
         onClose={closeAuthModal}
-        title={mode === 'login' ? 'Sign In / لاگ ان' : 'Create Account / نیا اکاؤنٹ'}
+        title={mode === 'login' ? 'Sign In' : 'Create Account'}
         maxWidth={mode === 'login' ? 'max-w-lg' : 'max-w-2xl'}
         height="max-h-[92vh]"
         dir="ltr"

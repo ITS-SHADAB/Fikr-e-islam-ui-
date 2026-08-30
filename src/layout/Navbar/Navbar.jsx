@@ -16,14 +16,31 @@ import { logout } from "@/store/slices/authSlice";
 import { useSettings } from "@/hooks/useSettings";
 import { COLORS } from "@/utils/themeColors";
 import { logoutUser } from "@/services";
-import { useAuthModal } from "@/context/AuthModalContext";
+import Modal from "@/components/Modal/Modal";
+import Login from "@/pages/Admin/pages/Login";
+import Signup from "@/pages/Admin/pages/Signup";
 
 import { CATEGORY_MAP } from "@/utils/categories";
 
 export default function Navbar() {
   const location = useLocation();
   const dispatch = useDispatch();
-  const { openLogin } = useAuthModal();
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authMode, setAuthMode] = useState("login"); // "login" | "signup"
+
+  const openLogin = () => {
+    setAuthMode("login");
+    setIsAuthModalOpen(true);
+  };
+
+  const openSignup = () => {
+    setAuthMode("signup");
+    setIsAuthModalOpen(true);
+  };
+
+  const closeAuthModal = () => {
+    setIsAuthModalOpen(false);
+  };
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [hoveredIndex, setHoveredIndex] = useState(null);
@@ -33,6 +50,12 @@ export default function Navbar() {
     (state) => state.auth
   );
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
+
+  useEffect(() => {
+    if (isAuthenticated && isAuthModalOpen) {
+      setIsAuthModalOpen(false);
+    }
+  }, [isAuthenticated, isAuthModalOpen]);
 
   const getInitials = (user) => {
     if (!user) return "U";
@@ -733,6 +756,30 @@ export default function Navbar() {
           </div>
         </div>
       )}
+
+      {/* Local Auth Modal using existing Login and Signup in English layout */}
+      <Modal
+        isOpen={isAuthModalOpen}
+        onClose={closeAuthModal}
+        title={authMode === "login" ? "Sign In" : "Create Account"}
+        maxWidth={authMode === "login" ? "max-w-md" : "max-w-xl"}
+        height="max-h-[92vh]"
+        dir="ltr"
+      >
+        {authMode === "login" ? (
+          <Login
+            isModal={true}
+            onClose={closeAuthModal}
+            onSwitchToSignup={() => setAuthMode("signup")}
+          />
+        ) : (
+          <Signup
+            isModal={true}
+            onClose={closeAuthModal}
+            onSwitchToLogin={() => setAuthMode("login")}
+          />
+        )}
+      </Modal>
     </header>
   );
 }

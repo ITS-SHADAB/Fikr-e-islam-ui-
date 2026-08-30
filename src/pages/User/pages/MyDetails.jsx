@@ -25,7 +25,9 @@ import {
 } from "lucide-react";
 import { getMyComments, getMyQuestions } from "@/services";
 import { COLORS } from "@/utils/themeColors";
-import { useAuthModal } from "@/context/AuthModalContext";
+import Modal from "@/components/Modal/Modal";
+import Login from "@/pages/Admin/pages/Login";
+import Signup from "@/pages/Admin/pages/Signup";
 
 /* ── Helpers ──────────────────────────────────────────────────────────── */
 function fmt(date) {
@@ -383,7 +385,30 @@ function ColHeader({ icon: Icon, title, count, iconBg }) {
    Main Page
 ═══════════════════════════════════════════════════════════════════════ */
 export default function MyDetails() {
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authMode, setAuthMode] = useState("login"); // "login" | "signup"
+
+  const openLogin = () => {
+    setAuthMode("login");
+    setIsAuthModalOpen(true);
+  };
+
+  const openSignup = () => {
+    setAuthMode("signup");
+    setIsAuthModalOpen(true);
+  };
+
+  const closeAuthModal = () => {
+    setIsAuthModalOpen(false);
+  };
+
   const { isAuthenticated, loggedInUser } = useSelector((s) => s.auth);
+
+  useEffect(() => {
+    if (isAuthenticated && isAuthModalOpen) {
+      setIsAuthModalOpen(false);
+    }
+  }, [isAuthenticated, isAuthModalOpen]);
 
   const [comments, setComments] = useState([]);
   const [questions, setQuestions] = useState([]);
@@ -432,6 +457,30 @@ export default function MyDetails() {
             Sign In / لاگ ان
           </button>
         </div>
+
+        {/* Local Auth Modal */}
+        <Modal
+          isOpen={isAuthModalOpen}
+          onClose={closeAuthModal}
+          title={authMode === "login" ? "Sign In" : "Create Account"}
+          maxWidth={authMode === "login" ? "max-w-md" : "max-w-xl"}
+          height="max-h-[92vh]"
+          dir="ltr"
+        >
+          {authMode === "login" ? (
+            <Login
+              isModal={true}
+              onClose={closeAuthModal}
+              onSwitchToSignup={() => setAuthMode("signup")}
+            />
+          ) : (
+            <Signup
+              isModal={true}
+              onClose={closeAuthModal}
+              onSwitchToLogin={() => setAuthMode("login")}
+            />
+          )}
+        </Modal>
       </div>
     );
   }
@@ -576,6 +625,30 @@ export default function MyDetails() {
           </div>
         </div>
       </div>
+
+      {/* Local Auth Modal */}
+      <Modal
+        isOpen={isAuthModalOpen}
+        onClose={closeAuthModal}
+        title={authMode === "login" ? "Sign In" : "Create Account"}
+        maxWidth={authMode === "login" ? "max-w-md" : "max-w-xl"}
+        height="max-h-[92vh]"
+        dir="ltr"
+      >
+        {authMode === "login" ? (
+          <Login
+            isModal={true}
+            onClose={closeAuthModal}
+            onSwitchToSignup={() => setAuthMode("signup")}
+          />
+        ) : (
+          <Signup
+            isModal={true}
+            onClose={closeAuthModal}
+            onSwitchToLogin={() => setAuthMode("login")}
+          />
+        )}
+      </Modal>
     </div>
   );
 }

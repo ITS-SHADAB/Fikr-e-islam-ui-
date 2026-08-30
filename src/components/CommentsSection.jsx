@@ -8,7 +8,9 @@ import {
   updateComment,
 } from "@/services";
 import { ConfirmationBox } from "@/components";
-import { useAuthModal } from "@/context/AuthModalContext";
+import Modal from "@/components/Modal/Modal";
+import Login from "@/pages/Admin/pages/Login";
+import Signup from "@/pages/Admin/pages/Signup";
 import toast from "react-hot-toast";
 
 function formatTimeAgo(dateStr) {
@@ -380,11 +382,33 @@ function ReplyThread({
 }
 
 export default function CommentsSection({ contentType, contentId }) {
-  const { openLogin } = useAuthModal();
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authMode, setAuthMode] = useState("login"); // "login" | "signup"
+
+  const openLogin = () => {
+    setAuthMode("login");
+    setIsAuthModalOpen(true);
+  };
+
+  const openSignup = () => {
+    setAuthMode("signup");
+    setIsAuthModalOpen(true);
+  };
+
+  const closeAuthModal = () => {
+    setIsAuthModalOpen(false);
+  };
+
   const { loggedInUser, isAuthenticated, userRole } = useSelector(
     (s) => s.auth
   );
   const isAdmin = userRole === "admin";
+
+  useEffect(() => {
+    if (isAuthenticated && isAuthModalOpen) {
+      setIsAuthModalOpen(false);
+    }
+  }, [isAuthenticated, isAuthModalOpen]);
 
   const [commentsList, setCommentsList] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -692,6 +716,30 @@ export default function CommentsSection({ contentType, contentId }) {
         cancelText="Cancel"
         isLoading={isDeleting}
       />
+
+      {/* Local Auth Modal using existing Login and Signup in English layout */}
+      <Modal
+        isOpen={isAuthModalOpen}
+        onClose={closeAuthModal}
+        title={authMode === "login" ? "Sign In" : "Create Account"}
+        maxWidth={authMode === "login" ? "max-w-md" : "max-w-xl"}
+        height="max-h-[92vh]"
+        dir="ltr"
+      >
+        {authMode === "login" ? (
+          <Login
+            isModal={true}
+            onClose={closeAuthModal}
+            onSwitchToSignup={() => setAuthMode("signup")}
+          />
+        ) : (
+          <Signup
+            isModal={true}
+            onClose={closeAuthModal}
+            onSwitchToLogin={() => setAuthMode("login")}
+          />
+        )}
+      </Modal>
     </div>
   );
 }

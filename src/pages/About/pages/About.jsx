@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
   BookOpen,
   GraduationCap,
@@ -6,15 +7,30 @@ import {
   Trophy,
   Feather,
   Sparkles,
+  User,
+  CheckCircle,
+  FileText,
+  Bookmark,
+  Scale,
+  MessageSquare,
+  ShieldCheck,
+  Compass,
+  ArrowRight,
+  ArrowLeft,
+  Calendar,
+  Layers,
 } from 'lucide-react';
 import muftiSahebImg from '@/assets/images/muftiSaheb.png';
+import { useSettings } from '@/hooks/useSettings';
+import { COLORS } from '@/utils/themeColors';
 
-// Decorative SVGs matching the design
+// Decorative Watermark SVGs
 const StarburstWatermark = () => (
   <svg
-    className="absolute left-4 bottom-4 w-32 h-32 text-[#8C5D35]/10 pointer-events-none select-none"
+    className="absolute left-3 bottom-3 w-28 h-28 opacity-10 pointer-events-none select-none"
     viewBox="0 0 100 100"
     fill="currentColor"
+    style={{ color: COLORS?.accent }}
   >
     <path
       d="M50 0 L61 39 L100 50 L61 61 L50 100 L39 61 L0 50 L39 39 Z"
@@ -48,35 +64,32 @@ const StarburstWatermark = () => (
 
 const MosqueWatermark = () => (
   <svg
-    className="absolute left-3 bottom-0 w-36 h-28 text-[#8C5D35]/12 pointer-events-none select-none"
+    className="absolute left-3 bottom-0 w-32 h-24 opacity-15 pointer-events-none select-none"
     viewBox="0 0 120 100"
     fill="currentColor"
+    style={{ color: COLORS?.accent }}
   >
-    {/* Main Dome */}
     <path d="M60 15 C48 32 44 45 44 60 L76 60 C76 45 72 32 60 15 Z" />
     <rect x="40" y="60" width="40" height="40" rx="1" />
     <path
       d="M60 70 C54 70 52 75 52 84 L68 84 C68 75 66 70 60 70 Z"
       fill="#FAF5EE"
     />
-    {/* Left Minaret */}
     <rect x="14" y="28" width="8" height="72" />
     <path d="M18 12 L13 28 L23 28 Z" />
-    {/* Right Minaret */}
     <rect x="98" y="28" width="8" height="72" />
     <path d="M102 12 L97 28 L107 28 Z" />
-    {/* Left Small Dome */}
     <path d="M30 45 C24 53 22 58 22 65 L38 65 C38 58 36 53 30 45 Z" />
-    {/* Right Small Dome */}
     <path d="M90 45 C84 53 82 58 82 65 L98 65 C98 58 96 53 90 45 Z" />
   </svg>
 );
 
 const SealWatermark = () => (
   <svg
-    className="absolute left-4 bottom-2 w-28 h-32 text-[#8C5D35]/12 pointer-events-none select-none"
+    className="absolute left-3 bottom-2 w-24 h-28 opacity-15 pointer-events-none select-none"
     viewBox="0 0 100 120"
     fill="currentColor"
+    style={{ color: COLORS?.accent }}
   >
     <circle
       cx="50"
@@ -97,37 +110,24 @@ const SealWatermark = () => (
       strokeDasharray="4 2"
       opacity="0.5"
     />
-    <circle
-      cx="50"
-      cy="45"
-      r="16"
-      fill="currentColor"
-      opacity="0.1"
-    />
-    <path
-      d="M34 74 L22 115 L50 98 L78 115 L66 74 Z"
-      opacity="0.35"
-    />
+    <circle cx="50" cy="45" r="16" fill="currentColor" opacity="0.1" />
+    <path d="M34 74 L22 115 L50 98 L78 115 L66 74 Z" opacity="0.35" />
   </svg>
 );
 
 const QuillWatermark = () => (
   <svg
-    className="absolute left-4 bottom-2 w-28 h-32 text-[#8C5D35]/15 pointer-events-none select-none"
+    className="absolute left-3 bottom-2 w-24 h-28 opacity-15 pointer-events-none select-none"
     viewBox="0 0 100 100"
     fill="currentColor"
+    style={{ color: COLORS?.accent }}
   >
-    {/* Inkpot */}
     <path
       d="M30 65 C30 58 40 55 50 55 C60 55 70 58 70 65 L76 90 C76 94 72 96 50 96 C28 96 24 94 24 90 Z"
       opacity="0.35"
     />
     <ellipse cx="50" cy="55" rx="14" ry="4" opacity="0.6" />
-    {/* Quill Feather */}
-    <path
-      d="M48 60 C54 38 70 14 92 4 C83 26 72 46 48 60 Z"
-      opacity="0.55"
-    />
+    <path d="M48 60 C54 38 70 14 92 4 C83 26 72 46 48 60 Z" opacity="0.55" />
     <path
       d="M48 60 L92 4"
       stroke="currentColor"
@@ -137,281 +137,504 @@ const QuillWatermark = () => (
   </svg>
 );
 
-// Diamond bullet icon
 const DiamondBullet = () => (
-  <span className="text-[#8C5D35] text-xs leading-none shrink-0 select-none">
+  <span
+    className="text-xs leading-none shrink-0 select-none"
+    style={{ color: COLORS?.accent }}
+  >
     ✦
   </span>
 );
 
 export default function About() {
+  const { settings } = useSettings();
+  const language =
+    settings?.language === 'ur' || settings?.language === 'Urdu' ? 'ur' : 'en';
+  const isRTL = language === 'ur';
+
+  const scholarName =
+    settings?.scholarInfo?.fullName ||
+    (isRTL
+      ? 'مفتی فیضان سرور مصباحی حفظہ اللہ'
+      : 'Mufti Faizan Sarwar Misbahi');
+
+  const scholarTitle =
+    settings?.scholarInfo?.title ||
+    (isRTL
+      ? 'استاذ الحدیث و رئیس دار الافتاء'
+      : 'Professor of Hadith & Head of Darul Ifta');
+
+  const scholarPhoto = settings?.scholarInfo?.photo || muftiSahebImg;
+
+  const scholarBio =
+    settings?.scholarInfo?.biography ||
+    (isRTL
+      ? 'جامعہ کے ممتاز عالم، فقیہِ عصر اور محقق۔ علومِ اسلامیہ، فقہ و اصولِ فقہ، تفسیرِ قرآن اور علومِ حدیث میں گہری مہارت کے حامل۔ تدریس، افتاء اور تحقیقی و اصلاحی مقالات کے ذریعے امتِ مسلمہ کی فکری و دینی رہنمائی میں مسلسل مصروفِ عمل ہیں۔'
+      : 'Eminent Islamic scholar, jurist and researcher specializing in Islamic Jurisprudence, Quranic Exegesis, and Hadith sciences. Actively serving the community through teaching, issuing authentic rulings, and authoring research papers.');
+
+  const scholarQuote = isRTL
+    ? 'علمِ دین محض معلومات کا نام نہیں، بلکہ یہ ایک نور ہے جو دلوں کو منور کرتا اور کردار کو سنوارتا ہے۔'
+    : 'Islamic knowledge is not mere information; it is a sacred light that illuminates hearts and refines human character.';
+
   return (
     <div
-      className="min-h-screen bg-[#FBF9F5] py-10 px-4 sm:px-6 lg:px-8 font-sans text-right"
-      dir="rtl"
+      className="min-h-screen py-8 sm:py-12 px-4 sm:px-6 lg:px-8 font-sans"
+      style={{ backgroundColor: COLORS?.background }}
+      dir={isRTL ? 'rtl' : 'ltr'}
     >
-      <div className="max-w-6xl mx-auto space-y-7">
+      <div className="max-w-5xl mx-auto space-y-8">
         {/* ══════════════════════════════════════════════════════════════
-            1. TOP HERO INTRODUCTION BANNER
+            1. HERO SCHOLAR PROFILE BANNER
         ══════════════════════════════════════════════════════════════ */}
-        <div className="bg-[#FAF6F0] border-2 border-[#EBDCCB] rounded-3xl p-6 sm:p-8 md:p-9 shadow-sm relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8 md:gap-10 text-right">
+        <div
+          className="rounded-2xl shadow-lg relative overflow-hidden text-white"
+          style={{
+            background: `linear-gradient(135deg, ${COLORS?.primary} 0%, #20140b 100%)`,
+          }}
+        >
           {/* Subtle Background Pattern */}
-          <div className="absolute inset-0 opacity-[0.03] bg-[radial-gradient(#8C5D35_1.5px,transparent_1.5px)] [background-size:18px_18px] pointer-events-none"></div>
+          <div
+            className="absolute inset-0 opacity-[0.05] pointer-events-none"
+            style={{
+              backgroundImage: `radial-gradient(${COLORS?.accent} 1.5px, transparent 1.5px)`,
+              backgroundSize: '20px 20px',
+            }}
+          />
 
-          {/* Right: Scholar Info & Bio (Renders on the Right in RTL) */}
-          <div className="flex-1 space-y-4 text-right z-10 w-full">
-            {/* Top Row: Subtitle + Book Badge on Top Right */}
-            <div className="flex items-center justify-end gap-3">
-              <span className="text-xs sm:text-sm font-semibold text-[#8C5D35] font-serif">
-                علم کا نور بانٹتے
-              </span>
-              <div className="w-12 h-12 rounded-2xl bg-[#EFE3D3] text-[#5C3417] flex items-center justify-center shadow-xs border border-[#DFCEBA] shrink-0">
-                <BookOpen className="w-6 h-6" />
+          <div className="relative z-10 p-6 sm:p-10 flex flex-col md:flex-row items-center justify-between gap-8">
+            {/* Right/Main: Scholar Info & Typography */}
+            <div className="flex-1 space-y-4 text-start w-full">
+              {/* Badge */}
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider"
+                style={{ backgroundColor: `${COLORS?.accent}30`, color: COLORS?.accent }}
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>{isRTL ? 'سوانح حیات و تعارف' : 'Biography & Scholarly Profile'}</span>
+              </div>
+
+              {/* Scholar Name & Title */}
+              <div className="space-y-1">
+                <h1 className="text-xl sm:text-2xl font-bold font-serif leading-relaxed text-white">
+                  {scholarName}
+                </h1>
+                <p className="text-xs sm:text-sm font-semibold font-serif" style={{ color: COLORS?.accent }}>
+                  {scholarTitle}
+                </p>
+              </div>
+
+              {/* Bio description */}
+              <p className="text-xs sm:text-sm leading-[2.2] font-light text-white/90">
+                {scholarBio}
+              </p>
+
+              {/* Quote Block */}
+              <div
+                className="rounded-xl p-3.5 sm:p-4 text-xs italic leading-relaxed"
+                style={{
+                  backgroundColor: 'rgba(255,255,255,0.08)',
+                  borderRight: isRTL ? `4px solid ${COLORS?.accent}` : undefined,
+                  borderLeft: !isRTL ? `4px solid ${COLORS?.accent}` : undefined,
+                  color: 'rgba(255,255,255,0.9)',
+                }}
+              >
+                "{scholarQuote}"
+              </div>
+
+              {/* Quick Navigation CTAs */}
+              <div className="flex flex-wrap items-center gap-2.5 pt-2">
+                <Link
+                  to="/fatwas"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-transform hover:scale-105"
+                  style={{ backgroundColor: COLORS?.accent, color: '#fff' }}
+                >
+                  <Scale className="w-3.5 h-3.5" />
+                  <span>{isRTL ? 'فتاویٰ دیکھیں' : 'View Fatwas'}</span>
+                </Link>
+                <Link
+                  to="/articles"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold border transition-colors hover:bg-white/10"
+                  style={{ borderColor: 'rgba(255,255,255,0.3)', color: '#fff' }}
+                >
+                  <FileText className="w-3.5 h-3.5" />
+                  <span>{isRTL ? 'علمی مقالات' : 'Read Articles'}</span>
+                </Link>
+                <Link
+                  to="/books"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold border transition-colors hover:bg-white/10"
+                  style={{ borderColor: 'rgba(255,255,255,0.3)', color: '#fff' }}
+                >
+                  <BookOpen className="w-3.5 h-3.5" />
+                  <span>{isRTL ? 'تصنیفات و کتب' : 'Books'}</span>
+                </Link>
               </div>
             </div>
 
-            {/* Scholar Name & Subtitle */}
-            <div className="space-y-1">
-              <h1 className="text-2xl sm:text-3xl font-bold text-[#2C1810] font-serif leading-relaxed">
-                حضرت مولانا سید محمد یوسف بنوری رحمہ اللہ
-              </h1>
-              <p className="text-sm sm:text-base font-semibold text-[#6D4327] font-serif">
-                بانی و شیخ الحدیث جامعہ علوم اسلامیہ
-              </p>
-            </div>
-
-            {/* Ornamental Divider Line */}
-            <div className="flex items-center gap-3 pt-2 pb-1">
-              <div className="flex-1 h-px bg-gradient-to-l from-transparent via-[#D4BEA7] to-transparent"></div>
-              <span className="text-[#8C5D35] text-xs">✤</span>
-              <div className="flex-1 h-px bg-gradient-to-r from-transparent via-[#D4BEA7] to-transparent"></div>
-            </div>
-
-            {/* Sawanih-e-Hayat Heading & Text */}
-            <div className="space-y-1.5 pt-1">
-              <h2 className="text-base sm:text-lg font-bold text-[#2C1810] font-serif">
-                سوانح حیات
-              </h2>
-              <p className="text-xs sm:text-sm text-slate-700 leading-relaxed font-serif font-light">
-                جامعہ العلوم الاسلامیہ علامہ بنوری ٹاؤن، عظیم شخصیت و تصنیف، اور مفسرِ قرآن کی علمی خدمات پوری دنیا میں روشنی ہیں۔
-              </p>
-            </div>
-          </div>
-
-          {/* Left: Scholar Arched Frame (Renders on the Left in RTL) */}
-          <div className="relative w-full md:w-80 lg:w-96 shrink-0 flex items-center justify-center">
-            {/* Arch Silhouette Container */}
-            <div className="relative w-64 sm:w-72 h-80 sm:h-92 rounded-t-full rounded-b-2xl overflow-hidden border-4 border-white shadow-xl bg-gradient-to-b from-[#F2E5D5] to-[#E5D2BE] flex items-end justify-center">
-              {/* Islamic Arch Border Ornament */}
-              <div className="absolute inset-0 border border-[#D8C2AA] rounded-t-full rounded-b-2xl pointer-events-none"></div>
-              <img
-                src={muftiSahebImg}
-                alt="حضرت مولانا سید محمد یوسف بنوری رحمہ اللہ"
-                className="w-full h-full object-cover object-top relative z-10 scale-105 hover:scale-110 transition-transform duration-500"
-              />
+            {/* Left: Scholar Portrait Arched Frame */}
+            <div className="relative w-56 sm:w-64 shrink-0 flex items-center justify-center">
+              <div
+                className="relative w-52 sm:w-60 h-68 sm:h-76 rounded-t-full rounded-b-2xl overflow-hidden border-4 shadow-2xl flex items-end justify-center group"
+                style={{
+                  backgroundColor: COLORS?.secondary,
+                  borderColor: 'rgba(255,255,255,0.25)',
+                }}
+              >
+                <img
+                  src={scholarPhoto}
+                  alt={scholarName}
+                  className="w-full h-full object-cover object-top relative z-10 transition-transform duration-500 group-hover:scale-105"
+                  onError={(e) => {
+                    if (e.currentTarget.src !== muftiSahebImg) {
+                      e.currentTarget.src = muftiSahebImg;
+                    }
+                  }}
+                />
+              </div>
             </div>
           </div>
         </div>
 
         {/* ══════════════════════════════════════════════════════════════
-            2. FOUR MODULAR FEATURE CARDS (2x2 GRID)
+            2. FOUR CORE SCHOLARLY PILLARS (2x2 GRID)
         ══════════════════════════════════════════════════════════════ */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-7">
-          {/* ───────────────────────────────────────────────────────────
-              Card 1: تعلیم اور استاد (Top Right)
-          ─────────────────────────────────────────────────────────── */}
-          <div className="bg-[#FAF6F0] border-2 border-[#EBDCCB] rounded-3xl p-6 sm:p-7 shadow-xs relative overflow-hidden min-h-[290px] flex flex-col justify-between">
-            <StarburstWatermark />
-
-            <div>
-              {/* Header */}
-              <div className="flex items-center justify-between pb-3 mb-4 border-b border-[#E3D0BE]">
-                <div className="flex items-center gap-2">
-                  <h3 className="text-base sm:text-lg font-bold text-[#2C1810] font-serif">
-                    تعلیم اور استاد
-                  </h3>
-                </div>
-                <div className="w-10 h-10 rounded-2xl bg-[#EFE3D3] text-[#5C3417] flex items-center justify-center border border-[#DFCEBA] shrink-0">
-                  <GraduationCap className="w-5 h-5" />
-                </div>
-              </div>
-
-              {/* Bullet List */}
-              <ul className="space-y-2.5 text-xs sm:text-sm text-slate-800 font-serif relative z-10 leading-relaxed">
-                <li className="flex items-center gap-2">
-                  <DiamondBullet />
-                  <span>مدرسہ تعلیم دارالعلوم دیوبند و دیگر مدارس علوم اسلامیہ سے وابستہ</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <DiamondBullet />
-                  <span>پروفیسر عسکری علی تعلیم</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <DiamondBullet />
-                  <span>تخصص فی علوم الحدیث و الفقہ</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <DiamondBullet />
-                  <span>تعلیمی اسناد</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <DiamondBullet />
-                  <span>اجازت فی الحدیث و التفسیر</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <DiamondBullet />
-                  <span>اجازات علوم، عربی، ادب، حدیث</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <DiamondBullet />
-                  <span>رئیس مجلس علمی</span>
-                </li>
-              </ul>
-            </div>
+        <div>
+          <div className="text-center mb-6">
+            <span
+              className="text-xs font-bold uppercase tracking-widest block mb-1 font-serif"
+              style={{ color: COLORS?.accent }}
+            >
+              {isRTL ? 'علمی و فکری خاکہ' : 'ACADEMIC OVERVIEW'}
+            </span>
+            <h2
+              className="text-xl sm:text-2xl font-bold font-serif"
+              style={{ color: COLORS?.primary }}
+            >
+              {isRTL ? 'علمی اسناد، مہارت اور خدمات' : 'Credentials, Expertise & Contributions'}
+            </h2>
           </div>
 
-          {/* ───────────────────────────────────────────────────────────
-              Card 2: مہارت کے شعبے (Top Left)
-          ─────────────────────────────────────────────────────────── */}
-          <div className="bg-[#FAF6F0] border-2 border-[#EBDCCB] rounded-3xl p-6 sm:p-7 shadow-xs relative overflow-hidden min-h-[290px] flex flex-col justify-between">
-            <MosqueWatermark />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
+            {/* Card 1: تعلیم اور اسناد */}
+            <div
+              className="rounded-2xl p-5 sm:p-6 shadow-xs relative overflow-hidden flex flex-col justify-between border"
+              style={{
+                backgroundColor: COLORS?.white,
+                borderColor: COLORS?.border,
+              }}
+            >
+              <StarburstWatermark />
 
-            <div>
-              {/* Header */}
-              <div className="flex items-center justify-between pb-3 mb-5 border-b border-[#E3D0BE]">
-                <div className="flex items-center gap-2">
-                  <h3 className="text-base sm:text-lg font-bold text-[#2C1810] font-serif">
-                    مہارت کے شعبے
+              <div>
+                <div
+                  className="flex items-center justify-between pb-3 mb-4 border-b"
+                  style={{ borderColor: `${COLORS?.border}90` }}
+                >
+                  <h3
+                    className="text-sm sm:text-base font-bold font-serif"
+                    style={{ color: COLORS?.primary }}
+                  >
+                    {isRTL ? 'تعلیم اور اسناد' : 'Education & Sanad'}
                   </h3>
+                  <div
+                    className="w-9 h-9 rounded-xl flex items-center justify-center border shrink-0"
+                    style={{
+                      backgroundColor: COLORS?.secondary,
+                      borderColor: COLORS?.border,
+                      color: COLORS?.primary,
+                    }}
+                  >
+                    <GraduationCap className="w-4 h-4" />
+                  </div>
                 </div>
-                <div className="w-10 h-10 rounded-2xl bg-[#EFE3D3] text-[#5C3417] flex items-center justify-center border border-[#DFCEBA] shrink-0">
-                  <Award className="w-5 h-5" />
+
+                <ul
+                  className="space-y-2.5 text-xs sm:text-sm font-serif relative z-10 leading-relaxed"
+                  style={{ color: COLORS?.textPrimary }}
+                >
+                  <li className="flex items-center gap-2">
+                    <DiamondBullet />
+                    <span>
+                      {isRTL
+                        ? 'درسِ نظامی و عالمیہ سند (علومِ اسلامیہ)'
+                        : 'Dars-e-Nizami (Islamic Sciences Degree)'}
+                    </span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <DiamondBullet />
+                    <span>
+                      {isRTL
+                        ? 'تخصص فی الفقہ و الافتاء (فتویٰ نویسی)'
+                        : 'Specialization in Fiqh & Fatwa issuance'}
+                    </span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <DiamondBullet />
+                    <span>
+                      {isRTL
+                        ? 'تخصص فی علوم الحدیث النبوی الشریف'
+                        : 'Advanced specialization in Hadith sciences'}
+                    </span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <DiamondBullet />
+                    <span>
+                      {isRTL
+                        ? 'اجازت فی الحدیث و التفسیر معتبر شیوخ سے'
+                        : 'Formal Ijazah in Hadith and Tafseer'}
+                    </span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <DiamondBullet />
+                    <span>
+                      {isRTL
+                        ? 'عربی ادب، بلاغت، اصولِ فقہ و منطق کی اسناد'
+                        : 'Certifications in Arabic Literature and Rhetoric'}
+                    </span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            {/* Card 2: مہارت کے شعبے */}
+            <div
+              className="rounded-2xl p-5 sm:p-6 shadow-xs relative overflow-hidden flex flex-col justify-between border"
+              style={{
+                backgroundColor: COLORS?.white,
+                borderColor: COLORS?.border,
+              }}
+            >
+              <MosqueWatermark />
+
+              <div>
+                <div
+                  className="flex items-center justify-between pb-3 mb-4 border-b"
+                  style={{ borderColor: `${COLORS?.border}90` }}
+                >
+                  <h3
+                    className="text-sm sm:text-base font-bold font-serif"
+                    style={{ color: COLORS?.primary }}
+                  >
+                    {isRTL ? 'فقہی و علمی مہارت کے شعبے' : 'Fields of Expertise'}
+                  </h3>
+                  <div
+                    className="w-9 h-9 rounded-xl flex items-center justify-center border shrink-0"
+                    style={{
+                      backgroundColor: COLORS?.secondary,
+                      borderColor: COLORS?.border,
+                      color: COLORS?.primary,
+                    }}
+                  >
+                    <Award className="w-4 h-4" />
+                  </div>
+                </div>
+
+                {/* Skills Tags Grid */}
+                <div className="space-y-2.5 relative z-10 pt-1">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    {[
+                      isRTL ? 'علم الحدیث و رجال' : 'Hadith Sciences',
+                      isRTL ? 'فقہ و اصول فقہ' : 'Islamic Fiqh',
+                      isRTL ? 'تفسیر و علوم قرآن' : 'Quranic Exegesis',
+                      isRTL ? 'دعوت و اصلاح' : 'Dawah & Guidance',
+                      isRTL ? 'عصری معاشی مسائل' : 'Islamic Finance',
+                      isRTL ? 'معاشرتی و عائلی رہنمائی' : 'Family Guidance',
+                    ].map((tag, idx) => (
+                      <div
+                        key={idx}
+                        className="border rounded-xl py-2 px-2 text-center font-bold text-[11px] transition-colors"
+                        style={{
+                          backgroundColor: COLORS?.background,
+                          borderColor: COLORS?.border,
+                          color: COLORS?.primary,
+                        }}
+                      >
+                        {tag}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
+            </div>
 
-              {/* 2 Rows of 3 Rounded Pill Tags */}
-              <div className="space-y-3 relative z-10 pt-2">
-                {/* Row 1 */}
-                <div className="grid grid-cols-3 gap-2 sm:gap-2.5">
-                  {[
-                    'علم الحدیث و رجال',
-                    'فقہ و اصول فقہ',
-                    'تفسیر و علوم القرآن',
-                  ].map((tag, idx) => (
-                    <div
-                      key={idx}
-                      className="bg-[#F3E8DB] hover:bg-[#EBDCCB] text-[#4A2612] border border-[#DFCBB7] rounded-full py-1.5 px-2 text-center font-bold text-[11px] sm:text-xs transition-colors shadow-2xs leading-normal"
-                    >
-                      {tag}
-                    </div>
-                  ))}
+            {/* Card 3: تدریسی و تنظیمی تجربات */}
+            <div
+              className="rounded-2xl p-5 sm:p-6 shadow-xs relative overflow-hidden flex flex-col justify-between border"
+              style={{
+                backgroundColor: COLORS?.white,
+                borderColor: COLORS?.border,
+              }}
+            >
+              <SealWatermark />
+
+              <div>
+                <div
+                  className="flex items-center justify-between pb-3 mb-4 border-b"
+                  style={{ borderColor: `${COLORS?.border}90` }}
+                >
+                  <h3
+                    className="text-sm sm:text-base font-bold font-serif"
+                    style={{ color: COLORS?.primary }}
+                  >
+                    {isRTL ? 'خدمات اور تدریسی تجربات' : 'Academic Contributions'}
+                  </h3>
+                  <div
+                    className="w-9 h-9 rounded-xl flex items-center justify-center border shrink-0"
+                    style={{
+                      backgroundColor: COLORS?.secondary,
+                      borderColor: COLORS?.border,
+                      color: COLORS?.primary,
+                    }}
+                  >
+                    <Trophy className="w-4 h-4" />
+                  </div>
                 </div>
 
-                {/* Row 2 */}
-                <div className="grid grid-cols-3 gap-2 sm:gap-2.5">
-                  {[
-                    'دعوت و اصلاح',
-                    'تعلیم و تربیت',
-                    'فقہ و مسائلِ زمانہ',
-                  ].map((tag, idx) => (
-                    <div
-                      key={idx}
-                      className="bg-[#F3E8DB] hover:bg-[#EBDCCB] text-[#4A2612] border border-[#DFCBB7] rounded-full py-1.5 px-2 text-center font-bold text-[11px] sm:text-xs transition-colors shadow-2xs leading-normal"
-                    >
-                      {tag}
-                    </div>
-                  ))}
+                <ul
+                  className="space-y-2.5 text-xs sm:text-sm font-serif relative z-10 leading-relaxed"
+                  style={{ color: COLORS?.textPrimary }}
+                >
+                  <li className="flex items-center gap-2">
+                    <DiamondBullet />
+                    <span>
+                      {isRTL
+                        ? 'جامعہ کے دار الافتاء میں فتاویٰ نویسی و تصدیق'
+                        : 'Issuance and verification of formal Shariah rulings'}
+                    </span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <DiamondBullet />
+                    <span>
+                      {isRTL
+                        ? 'متعدد دینی مدارس میں کتبِ حدیث و فقہ کی تدریس'
+                        : 'Teaching Hadith & Fiqh at prominent Islamic seminaries'}
+                    </span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <DiamondBullet />
+                    <span>
+                      {isRTL
+                        ? 'ہزاروں سائلین کے مسائل کا بروقت شرعی حل'
+                        : 'Guiding thousands of community members on daily life issues'}
+                    </span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <DiamondBullet />
+                    <span>
+                      {isRTL
+                        ? 'علمی سیمینارز اور تربیتی نشستوں کا انعقاد'
+                        : 'Conducting academic seminars and workshops'}
+                    </span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            {/* Card 4: تصنیفی و تحقیقی کام */}
+            <div
+              className="rounded-2xl p-5 sm:p-6 shadow-xs relative overflow-hidden flex flex-col justify-between border"
+              style={{
+                backgroundColor: COLORS?.white,
+                borderColor: COLORS?.border,
+              }}
+            >
+              <QuillWatermark />
+
+              <div>
+                <div
+                  className="flex items-center justify-between pb-3 mb-4 border-b"
+                  style={{ borderColor: `${COLORS?.border}90` }}
+                >
+                  <h3
+                    className="text-sm sm:text-base font-bold font-serif"
+                    style={{ color: COLORS?.primary }}
+                  >
+                    {isRTL ? 'تحقیق اور تصنیفی خدمات' : 'Publications & Research'}
+                  </h3>
+                  <div
+                    className="w-9 h-9 rounded-xl flex items-center justify-center border shrink-0"
+                    style={{
+                      backgroundColor: COLORS?.secondary,
+                      borderColor: COLORS?.border,
+                      color: COLORS?.primary,
+                    }}
+                  >
+                    <Feather className="w-4 h-4" />
+                  </div>
                 </div>
 
+                <ul
+                  className="space-y-2.5 text-xs sm:text-sm font-serif relative z-10 leading-relaxed"
+                  style={{ color: COLORS?.textPrimary }}
+                >
+                  <li className="flex items-center gap-2">
+                    <DiamondBullet />
+                    <span>
+                      {isRTL
+                        ? 'مختلف موضوعات پر تحقیقی کتب و کتبچے'
+                        : 'Authored research monographs and books'}
+                    </span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <DiamondBullet />
+                    <span>
+                      {isRTL
+                        ? 'فقہی و فکری موضوعات پر علمی مقالات'
+                        : 'Scholarly research papers on jurisprudential issues'}
+                    </span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <DiamondBullet />
+                    <span>
+                      {isRTL
+                        ? 'احادیث کی تخریج و تحقیق کا علمی کام'
+                        : 'Hadith verification and authentication studies'}
+                    </span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <DiamondBullet />
+                    <span>
+                      {isRTL
+                        ? 'اصلاحی دروس، بیانات اور فکری خطبات'
+                        : 'Recorded educational lectures and spiritual guidance'}
+                    </span>
+                  </li>
+                </ul>
               </div>
             </div>
           </div>
+        </div>
 
-          {/* ───────────────────────────────────────────────────────────
-              Card 3: تجربہ اور کامیابیاں (Bottom Right)
-          ─────────────────────────────────────────────────────────── */}
-          <div className="bg-[#FAF6F0] border-2 border-[#EBDCCB] rounded-3xl p-6 sm:p-7 shadow-xs relative overflow-hidden min-h-[270px] flex flex-col justify-between">
-            <SealWatermark />
-
-            <div>
-              {/* Header */}
-              <div className="flex items-center justify-between pb-3 mb-4 border-b border-[#E3D0BE]">
-                <div className="flex items-center gap-2">
-                  <h3 className="text-base sm:text-lg font-bold text-[#2C1810] font-serif">
-                    تجربہ اور کامیابیاں
-                  </h3>
-                </div>
-                <div className="w-10 h-10 rounded-2xl bg-[#EFE3D3] text-[#5C3417] flex items-center justify-center border border-[#DFCEBA] shrink-0">
-                  <Trophy className="w-5 h-5" />
-                </div>
-              </div>
-
-              {/* Bullet List */}
-              <ul className="space-y-3 text-xs sm:text-sm text-slate-800 font-serif relative z-10 leading-relaxed">
-                <li className="flex items-center gap-2">
-                  <DiamondBullet />
-                  <span>مدرسہ جامعہ العلوم الاسلامیہ کے قیام و ترقی میں اہم کردار</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <DiamondBullet />
-                  <span>ہزاروں طلبہ کی تعلیم و تربیت</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <DiamondBullet />
-                  <span>دینی و علمی خدمات پر متعدد اعزازات</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <DiamondBullet />
-                  <span>قوم و ملت کی راہنمائی و رہبری</span>
-                </li>
-              </ul>
+        {/* ══════════════════════════════════════════════════════════════
+            3. SCHOLARLY METHODOLOGY CALLOUT (منہج و اصول)
+        ══════════════════════════════════════════════════════════════ */}
+        <div
+          className="rounded-2xl p-6 sm:p-8 border shadow-xs text-start"
+          style={{
+            backgroundColor: COLORS?.white,
+            borderColor: COLORS?.border,
+          }}
+        >
+          <div className="flex items-center gap-3 mb-3">
+            <div
+              className="w-9 h-9 rounded-xl flex items-center justify-center shadow-xs"
+              style={{ backgroundColor: `${COLORS?.primary}15`, color: COLORS?.primary }}
+            >
+              <Compass className="w-5 h-5" />
             </div>
+            <h3
+              className="text-base sm:text-lg font-bold font-serif"
+              style={{ color: COLORS?.primary }}
+            >
+              {isRTL ? 'علمی و تحقیقی منہج' : 'Academic Methodology'}
+            </h3>
           </div>
-
-          {/* ───────────────────────────────────────────────────────────
-              Card 4: تحقیق اور تحقیقاتی کام (Bottom Left)
-          ─────────────────────────────────────────────────────────── */}
-          <div className="bg-[#FAF6F0] border-2 border-[#EBDCCB] rounded-3xl p-6 sm:p-7 shadow-xs relative overflow-hidden min-h-[270px] flex flex-col justify-between">
-            <QuillWatermark />
-
-            <div>
-              {/* Header */}
-              <div className="flex items-center justify-between pb-3 mb-4 border-b border-[#E3D0BE]">
-                <div className="flex items-center gap-2">
-                  <h3 className="text-base sm:text-lg font-bold text-[#2C1810] font-serif">
-                    تحقیق اور تحقیقاتی کام
-                  </h3>
-                </div>
-                <div className="w-10 h-10 rounded-2xl bg-[#EFE3D3] text-[#5C3417] flex items-center justify-center border border-[#DFCEBA] shrink-0">
-                  <Feather className="w-5 h-5" />
-                </div>
-              </div>
-
-              {/* Bullet List */}
-              <ul className="space-y-2.5 text-xs sm:text-sm text-slate-800 font-serif relative z-10 leading-relaxed">
-                <li className="flex items-center gap-2">
-                  <DiamondBullet />
-                  <span>تحقیق و تالیف</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <DiamondBullet />
-                  <span>شرح جامع ترمذی (معارف السنن)</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <DiamondBullet />
-                  <span>تحقیق و تخریج احادیث</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <DiamondBullet />
-                  <span>دینی و علمی مقالات کی اشاعت</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <DiamondBullet />
-                  <span>خطبات، دروس و تقاریر</span>
-                </li>
-              </ul>
-            </div>
-          </div>
+          <p
+            className="text-xs sm:text-sm leading-[2.3] font-normal"
+            style={{ color: COLORS?.textSecondary }}
+          >
+            {isRTL
+              ? 'قرآن و سنت کی روشنی میں سلفِ صالحین اور ائمۂ اربعہ بالخصوص فقہِ حنفی کے مستند مصادر و مراجع سے اخذ و استنباط، اعتدال و توازن کا التزام، اور دورِ حاضر کے جدید تقاضوں اور پیچیدہ مسائل میں امت کی شرعی رہنمائی دار الافتاء کا بنیادی فکری منہج ہے۔'
+              : 'Our methodology is deeply grounded in the Quran and Sunnah, adhering to the authenticated classical sources of Islamic jurisprudence (Fiqh), practicing moderation, and offering balanced Islamic guidance on modern contemporary challenges.'}
+          </p>
         </div>
       </div>
     </div>

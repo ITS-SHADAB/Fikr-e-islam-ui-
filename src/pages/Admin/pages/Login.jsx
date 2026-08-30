@@ -1,15 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, Link, Navigate } from "react-router-dom";
-import {
-  Lock,
-  Eye,
-  EyeOff,
-  Mail,
-  AlertTriangle,
-  ArrowRight,
-  ShieldCheck,
-} from "lucide-react";
+import { Eye, EyeOff, AlertTriangle, ArrowRight } from "lucide-react";
 import { login, clearAuthError } from "../../../store/slices/authSlice";
 
 /* ─── Animated required asterisk ─────────────────────────────────────── */
@@ -25,16 +17,16 @@ function RequiredStar() {
   );
 }
 
-/* ─── Field wrapper with animated border ─────────────────────────────── */
-function Field({ label, required, hint, error, icon: Icon, children }) {
+/* ─── Field wrapper without prefix icon ───────────────────────────────── */
+function Field({ label, required, hint, error, children }) {
   return (
-    <div className="space-y-1 text-left">
+    <div className="space-y-1 text-left w-full">
       <label className="flex items-center text-[11px] font-bold text-slate-500 uppercase tracking-widest">
         {label}
         {required && <RequiredStar />}
       </label>
       <div
-        className={`relative flex items-center gap-3 rounded-xl px-4 py-3 border-2 bg-white
+        className={`relative flex items-center rounded-xl px-4 py-3 border-2 bg-white
           transition-all duration-200 group
           ${
             error
@@ -42,16 +34,6 @@ function Field({ label, required, hint, error, icon: Icon, children }) {
               : "border-slate-200 focus-within:border-primary focus-within:shadow-md focus-within:shadow-primary/10"
           }`}
       >
-        {Icon && (
-          <Icon
-            size={17}
-            className={`shrink-0 transition-colors duration-200 ${
-              error
-                ? "text-red-400"
-                : "text-slate-400 group-focus-within:text-primary"
-            }`}
-          />
-        )}
         {children}
       </div>
       {hint && !error && (
@@ -141,34 +123,24 @@ export default function Login({ isModal = false, onClose, onSwitchToSignup }) {
   const displayError = localError || error;
 
   return (
-    <div dir="ltr" className="text-left font-sans">
+    <div dir="ltr" className="text-left font-sans w-full">
       {/* keyframe injection */}
       <style>{`
         @keyframes pulse-star {
           0%,100% { opacity:1; transform:scale(1); }
           50%      { opacity:0.5; transform:scale(1.4); }
         }
-        @keyframes float-icon {
-          0%,100% { transform: translateY(0px) rotate(0deg); }
-          33%      { transform: translateY(-6px) rotate(-4deg); }
-          66%      { transform: translateY(-3px) rotate(3deg); }
-        }
-        @keyframes spin-ring {
-          to { stroke-dashoffset: -283; }
-        }
         @keyframes fade-slide-up {
           from { opacity:0; transform:translateY(18px); }
           to   { opacity:1; transform:translateY(0); }
         }
         .login-card { animation: fade-slide-up 0.45s cubic-bezier(.22,1,.36,1) both; }
-        .icon-float { animation: float-icon 3s ease-in-out infinite; }
-        .ring-spin  { animation: spin-ring 1.4s linear infinite; }
       `}</style>
 
       <div
         className={`${
           isModal
-            ? "py-6 px-4 sm:px-8 max-w-md mx-auto"
+            ? "p-6 sm:p-8 w-full"
             : "min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 flex items-center justify-center p-4 relative overflow-hidden"
         }`}
       >
@@ -181,9 +153,15 @@ export default function Login({ isModal = false, onClose, onSwitchToSignup }) {
           </>
         )}
 
-        <div className="w-full max-w-md relative login-card mx-auto">
-          <div className="text-center mb-2">
-            <h1 className="text-xl sm:text-xl font-extrabold text-slate-800 tracking-tight">
+        <div
+          className={`w-full ${
+            !isModal
+              ? "max-w-md relative login-card mx-auto bg-white/90 rounded-3xl shadow-2xl shadow-slate-200/80 border border-slate-100 p-6 sm:p-10"
+              : ""
+          }`}
+        >
+          <div className="text-center mb-5">
+            <h1 className="text-xl sm:text-2xl font-extrabold text-slate-800 tracking-tight">
               Welcome Back
             </h1>
             <p className="text-slate-500 text-xs sm:text-sm mt-1 font-light">
@@ -191,136 +169,123 @@ export default function Login({ isModal = false, onClose, onSwitchToSignup }) {
             </p>
           </div>
 
-          {/* Card */}
-          <div
-            className={`bg-white/90 rounded-3xl shadow-xl border border-slate-100 p-6 sm:p-8 ${!isModal ? "shadow-2xl shadow-slate-200/80" : ""}`}
-          >
-            {/* Global error */}
-            {displayError && (
-              <div className="mb-5 bg-red-50 border border-red-200 rounded-xl px-4 py-3 flex items-start gap-2.5 text-red-700 text-xs">
-                <AlertTriangle
-                  size={15}
-                  className="shrink-0 mt-0.5 text-red-500"
-                />
-                <div>
-                  <span className="font-bold">Error: </span>
-                  {displayError}
-                </div>
+          {/* Global error */}
+          {displayError && (
+            <div className="mb-5 bg-red-50 border border-red-200 rounded-xl px-4 py-3 flex items-start gap-2.5 text-red-700 text-xs">
+              <AlertTriangle
+                size={15}
+                className="shrink-0 mt-0.5 text-red-500"
+              />
+              <div>
+                <span className="font-bold">Error: </span>
+                {displayError}
               </div>
-            )}
+            </div>
+          )}
 
-            <form
-              onSubmit={handleSubmit}
-              noValidate
-              className="space-y-4 sm:space-y-5"
+          <form
+            onSubmit={handleSubmit}
+            noValidate
+            className="space-y-4 sm:space-y-5 w-full"
+          >
+            {/* Identifier */}
+            <Field
+              label="Email or Phone"
+              required
+              hint="E.g. user@domain.com or 9876543210"
+              error={fieldErrors.identifier}
             >
-              {/* Identifier */}
-              <Field
-                label="Email or Phone"
-                required
-                hint="E.g. user@domain.com or 9876543210"
-                error={fieldErrors.identifier}
-                icon={Mail}
-              >
-                <input
-                  id="login-identifier"
-                  type="text"
-                  autoComplete="username"
-                  placeholder="Enter email or phone number"
-                  value={identifier}
-                  onChange={(e) => setIdentifier(e.target.value)}
-                  onBlur={() => handleBlur("identifier")}
-                  className="flex-1 bg-transparent text-sm text-slate-800 placeholder:text-slate-400 outline-none border-none ring-0 min-w-0"
-                />
-              </Field>
+              <input
+                id="login-identifier"
+                type="text"
+                autoComplete="username"
+                placeholder="Enter email or phone number"
+                value={identifier}
+                onChange={(e) => setIdentifier(e.target.value)}
+                onBlur={() => handleBlur("identifier")}
+                className="w-full bg-transparent text-sm text-slate-800 placeholder:text-slate-400 outline-none border-none ring-0 min-w-0"
+              />
+            </Field>
 
-              {/* Password */}
-              <Field
-                label="Password"
-                required
-                error={fieldErrors.password}
-                icon={Lock}
-              >
-                <input
-                  id="login-password"
-                  type={showPass ? "text" : "password"}
-                  autoComplete="current-password"
-                  placeholder="Enter your password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  onBlur={() => handleBlur("password")}
-                  className="flex-1 bg-transparent text-sm text-slate-800 placeholder:text-slate-400 outline-none border-none ring-0 min-w-0"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPass(!showPass)}
-                  className="text-slate-400 hover:text-primary transition-colors shrink-0 focus:outline-none cursor-pointer"
-                  aria-label={showPass ? "Hide password" : "Show password"}
-                >
-                  {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
-                </button>
-              </Field>
-
-              {/* Submit */}
+            {/* Password */}
+            <Field
+              label="Password"
+              required
+              error={fieldErrors.password}
+            >
+              <input
+                id="login-password"
+                type={showPass ? "text" : "password"}
+                autoComplete="current-password"
+                placeholder="Enter your password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                onBlur={() => handleBlur("password")}
+                className="w-full bg-transparent text-sm text-slate-800 placeholder:text-slate-400 outline-none border-none ring-0 min-w-0"
+              />
               <button
-                id="login-submit"
-                type="submit"
-                disabled={loading}
-                className="w-full py-3.5 mt-2 bg-gradient-to-r from-primary to-primary/85 hover:from-primary/90 hover:to-primary text-white font-bold rounded-xl shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-0.5 transition-all duration-200 text-sm tracking-wide flex items-center justify-center gap-2.5 disabled:opacity-60 disabled:pointer-events-none cursor-pointer"
+                type="button"
+                onClick={() => setShowPass(!showPass)}
+                className="text-slate-400 hover:text-primary transition-colors shrink-0 focus:outline-none cursor-pointer ml-2"
+                aria-label={showPass ? "Hide password" : "Show password"}
               >
-                {loading ? (
-                  <>
-                    <svg
-                      className="animate-spin h-4 w-4 text-white"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      />
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.37 0 0 5.37 0 12h4z"
-                      />
-                    </svg>
-                    <span>Authenticating...</span>
-                  </>
-                ) : (
-                  <>
-                    <ShieldCheck size={16} />
-                    <span>Sign In</span>
-                  </>
-                )}
+                {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
-            </form>
+            </Field>
 
-            {/* Register link */}
-            <p className="mt-5 text-center text-xs text-slate-500">
-              Don&apos;t have an account?{" "}
-              {isModal && onSwitchToSignup ? (
-                <button
-                  type="button"
-                  onClick={onSwitchToSignup}
-                  className="text-primary hover:text-primary/80 font-bold transition-colors underline underline-offset-2 cursor-pointer inline"
-                >
-                  Create one here
-                </button>
+            {/* Submit */}
+            <button
+              id="login-submit"
+              type="submit"
+              disabled={loading}
+              className="w-full py-3.5 mt-2 bg-gradient-to-r from-primary to-primary/85 hover:from-primary/90 hover:to-primary text-white font-bold rounded-xl shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-0.5 transition-all duration-200 text-sm tracking-wide flex items-center justify-center gap-2.5 disabled:opacity-60 disabled:pointer-events-none cursor-pointer"
+            >
+              {loading ? (
+                <>
+                  <svg
+                    className="animate-spin h-4 w-4 text-white"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.37 0 0 5.37 0 12h4z"
+                    />
+                  </svg>
+                  <span>Authenticating...</span>
+                </>
               ) : (
-                <Link
-                  to="/signup"
-                  className="text-primary hover:text-primary/80 font-bold transition-colors underline underline-offset-2"
-                >
-                  Create one here
-                </Link>
+                <span>Sign In</span>
               )}
-            </p>
-          </div>
+            </button>
+          </form>
+
+          {/* Register link */}
+          <p className="mt-5 text-center text-xs text-slate-500">
+            Don&apos;t have an account?{" "}
+            {onSwitchToSignup ? (
+              <button
+                type="button"
+                onClick={onSwitchToSignup}
+                className="text-primary hover:text-primary/80 font-bold transition-colors underline underline-offset-2 cursor-pointer inline"
+              >
+                Create one here
+              </button>
+            ) : (
+              <span className="text-primary font-bold">
+                Create one here
+              </span>
+            )}
+          </p>
 
           {/* Back link - only for standalone page */}
           {!isModal && (

@@ -1,100 +1,195 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Calendar, Eye, FileText, ArrowLeft, ArrowRight } from "lucide-react";
+import { Calendar, Eye, Tag, ArrowLeft, ArrowRight, HelpCircle, Scale } from "lucide-react";
 import { useSettings } from "@/hooks/useSettings";
 import { FATWA_CATEGORY_TRANSLATIONS } from "@/utils/categories";
+import { COLORS } from "@/utils/themeColors";
 
 export default function FatwaCard({ fatwa }) {
   const { settings } = useSettings();
   const language =
     settings?.language === "ur" || settings?.language === "Urdu" ? "ur" : "en";
+  const isRTL = language === "ur";
 
-  const {
-    slug,
-    title,
-    category,
-    question,
-    detailedAnswer,
-    publishDate,
-    viewCount,
-  } = fatwa;
+  if (!fatwa) return null;
 
-  const formattedDate = new Date(publishDate).toLocaleDateString(
-    language === "ur" ? "ur-PK" : "en-US",
-    {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    }
-  );
+  const slug = fatwa?.slug;
+  const title = fatwa?.title;
+  const category = fatwa?.category;
+  const question = fatwa?.question;
+  const summary = fatwa?.summary;
+  const publishDate = fatwa?.publishDate;
+  const viewCount = fatwa?.viewCount || 0;
+  const tags = fatwa?.tags || [];
 
-  // Strip HTML tags for answer preview
-  const plainAnswer = detailedAnswer
-    ? detailedAnswer.replace(/<[^>]*>/g, "")
+  const categoryLabel = FATWA_CATEGORY_TRANSLATIONS?.[category] || category || "";
+
+  const formattedDate = publishDate
+    ? new Date(publishDate).toLocaleDateString(isRTL ? "ur-PK" : "en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      })
+    : "";
+
+  // Short preview of the answer from summary
+  const answerPreview = summary
+    ? summary.length > 160
+      ? `${summary.slice(0, 160)}...`
+      : summary
+    : "";
+
+  const questionPreview = question
+    ? question.length > 130
+      ? `${question.slice(0, 130)}...`
+      : question
     : "";
 
   return (
-    <Link
-      to={`/fatwas/${slug}`}
-      className="premium-card p-6 flex flex-col h-full group text-start hover:no-underline text-inherit cursor-pointer"
+    <article
+      dir={isRTL ? "rtl" : "ltr"}
+      className="group flex flex-col rounded-2xl border overflow-hidden transition-all duration-300 hover:shadow-lg"
+      style={{
+        backgroundColor: COLORS?.white,
+        borderColor: COLORS?.border,
+        boxShadow: "0 1px 4px rgba(74,55,40,0.06)",
+      }}
     >
-      {/* Category and stats metadata */}
-      <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-100 shrink-0">
-        <span className="bg-secondary text-textSecondary text-xs font-bold px-2.5 py-1 rounded-full text-[10px]">
-          {language === "ur"
-            ? FATWA_CATEGORY_TRANSLATIONS[category] || category
-            : category}
+      {/* ── Category & Meta Header ── */}
+      <div
+        className="flex items-center justify-between px-4 py-3 border-b"
+        style={{
+          backgroundColor: `${COLORS?.primary}08`,
+          borderColor: `${COLORS?.border}90`,
+        }}
+      >
+        <span
+          className="text-[10px] font-bold px-2.5 py-1 rounded-full"
+          style={{ backgroundColor: COLORS?.secondary, color: COLORS?.primary }}
+        >
+          {categoryLabel}
         </span>
-        <div className="flex items-center gap-3.5 text-xs text-slate-500">
-          <span className="flex items-center gap-1">
-            <Calendar className="w-3.5 h-3.5 text-accent" />
-            {formattedDate}
-          </span>
-          <span className="flex items-center gap-1">
-            <Eye className="w-3.5 h-3.5 text-accent" />
-            {viewCount} {language === "en" ? "views" : "بار دیکھا گیا"}
-          </span>
+        <div
+          className="flex items-center gap-3 text-[11px]"
+          style={{ color: COLORS?.textSecondary }}
+        >
+          {formattedDate && (
+            <span className="flex items-center gap-1">
+              <Calendar className="w-3 h-3" />
+              {formattedDate}
+            </span>
+          )}
+          {viewCount > 0 && (
+            <span className="flex items-center gap-1">
+              <Eye className="w-3 h-3" />
+              {viewCount}
+            </span>
+          )}
         </div>
       </div>
 
-      {/* Rulings Title */}
-      <h3 className="text-md font-bold text-slate-900 group-hover:text-primary transition-colors leading-[1.85] mb-3 flex items-start gap-2">
-        <FileText className="w-5 h-5 text-accent shrink-0 mt-0.5" />
-        <span className="line-clamp-2">{title}</span>
-      </h3>
+      {/* ── Card Body ── */}
+      <div className="flex flex-col flex-1 p-4 sm:p-5 gap-3">
+        {/* Title (Fatwa ruling headline) */}
+        <Link to={`/fatwas/${slug}`}>
+          <h3
+            className="font-bold text-sm sm:text-base leading-[1.85] font-serif line-clamp-2 group-hover:underline"
+            style={{ color: COLORS?.primary }}
+          >
+            <Scale
+              className="w-3.5 h-3.5 inline-block mb-0.5 opacity-70"
+              style={{ color: COLORS?.accent, marginLeft: isRTL ? "6px" : "0", marginRight: !isRTL ? "6px" : "0" }}
+            />
+            {title}
+          </h3>
+        </Link>
 
-      {/* Visitor Question Query */}
-      <div className="bg-slate-50 border-r-2 border-accent p-3 rounded mb-4 shrink-0">
-        <span className="block text-xs font-bold text-primary mb-1">
-          {language === "en" ? "Question:" : "سوال:"}
-        </span>
-        <p className="text-textPrimary text-xs italic line-clamp-2 leading-[2.0]">
-          "{question}"
-        </p>
+        {/* Question block */}
+        {questionPreview && (
+          <div
+            className="rounded-lg p-3"
+            style={{
+              backgroundColor: `${COLORS?.secondary}50`,
+              borderRight: isRTL ? `3px solid ${COLORS?.accent}` : undefined,
+              borderLeft: !isRTL ? `3px solid ${COLORS?.accent}` : undefined,
+            }}
+          >
+            <span
+              className="text-[10px] font-bold block mb-1 flex items-center gap-1"
+              style={{ color: COLORS?.accent }}
+            >
+              <HelpCircle className="w-3 h-3" />
+              {isRTL ? "سوال" : "Question"}
+            </span>
+            <p
+              className="text-xs leading-[1.9] italic"
+              style={{ color: COLORS?.textSecondary }}
+            >
+              "{questionPreview}"
+            </p>
+          </div>
+        )}
+
+        {/* Answer summary */}
+        {answerPreview && (
+          <div>
+            <span
+              className="text-[10px] font-bold block mb-1"
+              style={{ color: COLORS?.textSecondary }}
+            >
+              {isRTL ? "خلاصہ جواب:" : "Summary:"}
+            </span>
+            <p
+              className="text-xs sm:text-sm leading-[2] line-clamp-3"
+              style={{ color: COLORS?.textPrimary }}
+            >
+              {answerPreview}
+            </p>
+          </div>
+        )}
+
+        {/* Tags */}
+        {Array.isArray(tags) && tags.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 mt-auto pt-1">
+            {tags.slice(0, 3).map((tag, idx) => (
+              <span
+                key={idx}
+                className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-md border"
+                style={{
+                  backgroundColor: COLORS?.background,
+                  borderColor: COLORS?.border,
+                  color: COLORS?.textSecondary,
+                }}
+              >
+                <Tag className="w-2.5 h-2.5 opacity-60" />
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
+
+        {/* Footer CTA */}
+        <div
+          className="pt-3 mt-auto border-t flex items-center justify-between"
+          style={{ borderColor: `${COLORS?.border}80` }}
+        >
+          <span className="text-[10px]" style={{ color: COLORS?.textSecondary }}>
+            {isRTL ? "دارالافتاء" : "Darul Ifta"}
+          </span>
+          <Link
+            to={`/fatwas/${slug}`}
+            className="inline-flex items-center gap-1.5 text-xs font-bold transition-colors hover:underline"
+            style={{ color: COLORS?.primary }}
+          >
+            {isRTL ? "مکمل فتویٰ پڑھیں" : "Read Full Fatwa"}
+            {isRTL ? (
+              <ArrowLeft className="w-3.5 h-3.5" />
+            ) : (
+              <ArrowRight className="w-3.5 h-3.5" />
+            )}
+          </Link>
+        </div>
       </div>
-
-      {/* Rulings Answer Snippet */}
-      <div className="flex-grow">
-        <span className="block text-xs font-bold text-slate-500 mb-1">
-          {language === "en" ? "Fatwa Summary:" : "خلاصہ فتویٰ:"}
-        </span>
-        <p className="text-textPrimary text-sm line-clamp-3 leading-[2.1] mb-4 font-normal">
-          {plainAnswer}
-        </p>
-      </div>
-
-
-      {/* Action CTA link */}
-      <div className="mt-auto pt-2 shrink-0 flex justify-start">
-        <span className="inline-flex items-center gap-1 text-sm font-bold text-primary hover:text-accent transition-colors">
-          {language === "en" ? "View Full Fatwa" : "مکمل فتویٰ دیکھیں"}
-          {language === "en" ? (
-            <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-          ) : (
-            <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
-          )}
-        </span>
-      </div>
-    </Link>
+    </article>
   );
 }

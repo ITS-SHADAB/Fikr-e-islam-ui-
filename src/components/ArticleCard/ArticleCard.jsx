@@ -1,127 +1,266 @@
-import PropTypes from "prop-types";
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { Calendar, Eye, ArrowLeft, ArrowRight } from "lucide-react";
-import { useSettings } from "@/hooks/useSettings";
+import PropTypes from "prop-types";
+import { Calendar, Eye, Clock, Tag, BookOpen, FileText } from "lucide-react";
+import { COLORS } from "@/utils/themeColors";
 import { BACKEND_URL } from "@/constants/urls";
 import { ARTICLE_CATEGORY_TRANSLATIONS } from "@/utils/categories";
+import { PdfViewer } from "../PdfViewer";
+
+// Estimated reading time based on summary length
+const getReadingTime = (text = "") => {
+  const words = text?.trim()?.split(/\s+/)?.length || 0;
+  const mins = Math.max(1, Math.ceil(words / 150));
+  return mins;
+};
 
 export default function ArticleCard({ article }) {
-  const { settings } = useSettings();
-  const language =
-    settings?.language === "ur" || settings?.language === "Urdu" ? "ur" : "en";
+  const [isPdfOpen, setIsPdfOpen] = useState(false);
+  const [imgError, setImgError] = useState(false);
 
-  const {
-    title,
-    slug,
-    summary,
-    category,
-    featuredImage,
-    publishDate,
-    viewCount,
-  } = article;
+  if (!article) return null;
 
-  const formattedDate = new Date(publishDate).toLocaleDateString(
-    language === "ur" ? "ur-PK" : "en-US",
-    {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    }
-  );
+  const detailUrl = `/articles/slug/${article?.slug || article?._id}`;
 
-  const placeholderImage =
-    "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=800";
+  const formattedDate = article?.publishDate
+    ? new Date(article?.publishDate).toLocaleDateString("ur-PK", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      })
+    : "";
 
-  // Backend returns featuredImage as { url, public_id } object
-  const getImageSrc = (imgField) => {
-    if (!imgField) return placeholderImage;
-    // Object form from backend: { url, public_id }
-    const url = typeof imgField === "object" ? imgField.url : imgField;
-    if (!url) return placeholderImage;
-    if (url.startsWith("/")) return `${BACKEND_URL}${url}`;
+  const getImageSrc = (img) => {
+    if (!img) return null;
+    const url = typeof img === "object" ? img?.url : img;
+    if (!url) return null;
+    if (url?.startsWith("/")) return `${BACKEND_URL}${url}`;
     return url;
   };
 
+  const pdfUrl =
+    article?.pdf?.url ||
+    (typeof article?.pdf === "string" ? article?.pdf : null);
+  const imageSrc = getImageSrc(article?.featuredImage);
+  const showImage = imageSrc && !imgError;
+
+  const categoryLabel =
+    ARTICLE_CATEGORY_TRANSLATIONS[article?.category] ||
+    article?.category ||
+    "اسلامی مقالات";
+
+  const readingTime = getReadingTime(article?.summary || "");
+  const excerpt = article?.summary
+    ? article?.summary?.length > 200
+      ? `${article?.summary?.slice(0, 200)}...`
+      : article?.summary
+    : "";
+
   return (
-    <Link
-      to={`/articles/${article._id || slug}`}
-      className="premium-card flex flex-col h-full overflow-hidden group hover:no-underline text-inherit cursor-pointer"
-    >
-      {/* Featured Image */}
-      <div className="relative h-52 w-full overflow-hidden bg-secondary shrink-0">
-        <img
-          src={getImageSrc(featuredImage)}
-          alt={title}
-          className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
-          loading="lazy"
-          onError={(e) => {
-            e.currentTarget.onerror = null;
-            e.currentTarget.src = placeholderImage;
-          }}
-        />
-        {/* subtle gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent pointer-events-none" />
-        <div className="absolute top-3 left-3 bg-secondary text-textSecondary text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded shadow-sm">
-          {language === "ur"
-            ? ARTICLE_CATEGORY_TRANSLATIONS[category] || category
-            : category}
-        </div>
-      </div>
+    <>
+      <article
+        dir="rtl"
+        className="group rounded-2xl overflow-hidden border transition-all duration-300 hover:shadow-lg"
+        style={{
+          backgroundColor: COLORS?.white,
+          borderColor: COLORS?.border,
+          boxShadow: "0 1px 4px rgba(74,55,40,0.06)",
+        }}
+      >
+        {/* ── Hero Banner Image ── */}
+        <Link to={detailUrl} className="block relative overflow-hidden" style={{ height: showImage ? "200px" : "0" }}>
+          {showImage && (
+            <>
+              <img
+                src={imageSrc}
+                alt={article?.title || ""}
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                onError={() => setImgError(true)}
+              />
+              {/* Gradient overlay */}
+              <div
+                className="absolute inset-0"
+                style={{
+                  background:
+                    "linear-gradient(to bottom, transparent 40%, rgba(74,55,40,0.55) 100%)",
+                }}
+              />
+              {/* Category badge over image */}
+              <span
+                className="absolute bottom-3 right-3 text-[10px] font-bold px-2.5 py-1 rounded-full"
+                style={{
+                  backgroundColor: COLORS?.accent,
+                  color: COLORS?.white,
+                }}
+              >
+                {categoryLabel}
+              </span>
+            </>
+          )}
+        </Link>
 
-      {/* Card Content */}
-      <div className="p-4 flex flex-col flex-grow text-start">
-        {/* Date and View Statistics */}
-        <div className="flex items-center gap-4 text-xs text-slate-500 mb-4 justify-start">
-          <span className="flex items-center gap-2">
-            <Calendar className="w-5 h-5 text-accent" />
-            {formattedDate}
-          </span>
-          <span className="flex items-center gap-2">
-            <Eye className="w-5 h-5 text-accent" />
-            {viewCount} {language === "en" ? "views" : "بار دیکھا گیا"}
-          </span>
-        </div>
-
-        {/* Title */}
-        <h3 className="text-lg font-bold text-slate-900 group-hover:text-primary transition-colors line-clamp-2 leading-[1.85] mb-3">
-          {title}
-        </h3>
-
-        {/* Summary Description */}
-        <p className="text-textPrimary text-sm line-clamp-3 leading-[2.1] mb-3 font-normal">
-          {summary}
-        </p>
-
-
-        {/* Read More link */}
-        <div className="mt-auto pt-2 justify-start flex">
-          <span className="inline-flex items-center gap-2 text-sm font-bold text-primary hover:text-accent transition-colors">
-            {language === "en" ? "Read Article" : "مضمون پڑھیں"}
-            {language === "en" ? (
-              <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
-            ) : (
-              <ArrowLeft className="w-5 h-5 transition-transform group-hover:-translate-x-1" />
+        {/* ── Card Body ── */}
+        <div className="p-4 sm:p-5 flex flex-col gap-3">
+          {/* Top meta row (category if no image, date, reading time, views) */}
+          <div className="flex items-center justify-between gap-2 flex-wrap">
+            {!showImage && (
+              <span
+                className="text-[10px] font-bold px-2.5 py-0.5 rounded-full"
+                style={{
+                  backgroundColor: `${COLORS?.secondary}`,
+                  color: COLORS?.primary,
+                }}
+              >
+                {categoryLabel}
+              </span>
             )}
-          </span>
+            <div
+              className="flex items-center gap-3 text-[11px] ms-auto"
+              style={{ color: COLORS?.textSecondary }}
+            >
+              {formattedDate && (
+                <span className="flex items-center gap-1">
+                  <Calendar className="w-3 h-3" />
+                  {formattedDate}
+                </span>
+              )}
+              <span className="flex items-center gap-1">
+                <Clock className="w-3 h-3" />
+                {readingTime} دقیقہ مطالعہ
+              </span>
+              {(article?.viewCount || 0) > 0 && (
+                <span className="flex items-center gap-1">
+                  <Eye className="w-3 h-3" />
+                  {article?.viewCount}
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Article Title */}
+          <Link to={detailUrl}>
+            <h2
+              className="font-bold text-base sm:text-lg leading-[1.8] font-serif line-clamp-2 group-hover:underline transition-colors"
+              style={{ color: COLORS?.primary }}
+            >
+              {article?.title}
+            </h2>
+          </Link>
+
+          {/* Excerpt */}
+          {excerpt && (
+            <p
+              className="text-xs sm:text-sm leading-[2] line-clamp-3"
+              style={{ color: COLORS?.textSecondary }}
+            >
+              {excerpt}
+            </p>
+          )}
+
+          {/* Tags */}
+          {Array.isArray(article?.tags) && article?.tags?.length > 0 && (
+            <div className="flex flex-wrap gap-1.5">
+              {article?.tags?.slice(0, 3)?.map((tag, idx) => (
+                <span
+                  key={idx}
+                  className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-md"
+                  style={{
+                    backgroundColor: `${COLORS?.background}`,
+                    border: `1px solid ${COLORS?.border}`,
+                    color: COLORS?.textSecondary,
+                  }}
+                >
+                  <Tag className="w-2.5 h-2.5 opacity-60" />
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
+
+          {/* Divider */}
+          <div
+            className="border-t pt-3 flex items-center justify-between gap-3"
+            style={{ borderColor: `${COLORS?.border}80` }}
+          >
+            {/* Author */}
+            <div className="flex items-center gap-2">
+              <div
+                className="w-7 h-7 rounded-full flex items-center justify-center shrink-0"
+                style={{
+                  backgroundColor: `${COLORS?.primary}15`,
+                }}
+              >
+                <BookOpen
+                  className="w-3.5 h-3.5"
+                  style={{ color: COLORS?.primary }}
+                />
+              </div>
+              <span
+                className="text-[11px] font-semibold line-clamp-1"
+                style={{ color: COLORS?.textSecondary }}
+              >
+                {article?.author || "مفتی فیضان سرور مصباحی"}
+              </span>
+            </div>
+
+            {/* Actions */}
+            <div className="flex items-center gap-2">
+              {pdfUrl && (
+                <button
+                  type="button"
+                  onClick={() => setIsPdfOpen(true)}
+                  className="text-[10px] font-bold px-2.5 py-1.5 rounded-lg border transition-colors cursor-pointer"
+                  style={{
+                    borderColor: COLORS?.border,
+                    color: COLORS?.textSecondary,
+                    backgroundColor: COLORS?.background,
+                  }}
+                >
+                  <FileText className="w-3 h-3 inline-block me-1 -mt-0.5" />
+                  PDF
+                </button>
+              )}
+              <Link
+                to={detailUrl}
+                className="text-[11px] font-bold px-3 py-1.5 rounded-lg text-white transition-opacity hover:opacity-90"
+                style={{ backgroundColor: COLORS?.primary }}
+              >
+                مضمون پڑھیں ←
+              </Link>
+            </div>
+          </div>
         </div>
-      </div>
-    </Link>
+      </article>
+
+      {isPdfOpen && pdfUrl && (
+        <PdfViewer
+          url={pdfUrl}
+          title={article?.title}
+          isModal={true}
+          onClose={() => setIsPdfOpen(false)}
+        />
+      )}
+    </>
   );
 }
 
 ArticleCard.propTypes = {
   article: PropTypes.shape({
-    title: PropTypes.string.isRequired,
-    slug: PropTypes.string.isRequired,
-    summary: PropTypes.string.isRequired,
-    category: PropTypes.string.isRequired,
-    // Backend returns featuredImage as { url, public_id } object
+    _id: PropTypes.string,
+    title: PropTypes.string,
+    slug: PropTypes.string,
+    summary: PropTypes.string,
+    category: PropTypes.string,
     featuredImage: PropTypes.oneOfType([
       PropTypes.string,
-      PropTypes.shape({ url: PropTypes.string, public_id: PropTypes.string }),
+      PropTypes.shape({ url: PropTypes.string }),
     ]),
-    publishDate: PropTypes.string.isRequired,
-    viewCount: PropTypes.number.isRequired,
-  }).isRequired,
+    pdf: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.shape({ url: PropTypes.string }),
+    ]),
+    publishDate: PropTypes.string,
+    viewCount: PropTypes.number,
+    tags: PropTypes.arrayOf(PropTypes.string),
+  }),
 };

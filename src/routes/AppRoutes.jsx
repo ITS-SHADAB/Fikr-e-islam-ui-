@@ -2,7 +2,7 @@ import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 
 // Layout Imports
-import { MainLayout, AuthLayout } from '@/layout';
+import { MainLayout } from '@/layout';
 import AdminLayout from '@/layout/AdminLayout';
 
 // Public Page Imports
@@ -25,8 +25,6 @@ import MyDetails from '../pages/User/pages/MyDetails';
 // import YouTubeVideos from '../pages/YouTubeVideos/YouTubeVideos';
 
 // Admin Page Imports
-import Login from '../pages/Admin/pages/Login';
-import Signup from '../pages/Admin/pages/Signup';
 import Dashboard from '../pages/Admin/pages/Dashboard';
 import ManageArticles from '../pages/Admin/pages/ManageArticles';
 import ManageFatwas from '../pages/Admin/pages/ManageFatwas';
@@ -45,13 +43,6 @@ import { AdminRoute } from '@/components';
 export default function AppRoutes() {
   return (
     <Routes>
-
-      {/* ── Authentication pages (English + LTR, no Navbar/Footer) ── */}
-      <Route element={<AuthLayout />}>
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-      </Route>
-
       {/* ── Public site (Urdu + RTL, has Navbar + Footer) ── */}
       <Route path="/" element={<MainLayout />}>
         <Route index element={<Home />} />
