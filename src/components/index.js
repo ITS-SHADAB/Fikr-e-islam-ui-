@@ -36,3 +36,4 @@ export { default as CommentsSection } from "./CommentsSection";
 export * from "./Modal";
 export * from "./ConfirmationBox";
 export * from "./SectionSidebar";
+export * from "./Loader";

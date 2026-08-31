@@ -36,6 +36,7 @@ import {
   LectureCard,
   PublicationCard,
   EventCard,
+  SectionLoader,
 } from "@/components";
 import SeamlessMobileSlider from "../components/SeamlessMobileSlider";
 import { FATWA_TRANSLATIONS, LECTURE_TRANSLATIONS } from "@/utils/categories";
@@ -119,20 +120,35 @@ function StaticCounter({ value, label }) {
 export default function Home() {
   const { settings } = useSettings();
   const [articles, setArticles] = useState([]);
+  const [isLoadingArticles, setIsLoadingArticles] = useState(true);
+
   const [fatwas, setFatwas] = useState([]);
+  const [isLoadingFatwas, setIsLoadingFatwas] = useState(true);
+
   const [questions, setQuestions] = useState([]);
+  const [isLoadingQuestions, setIsLoadingQuestions] = useState(true);
+
   const [publications, setPublications] = useState([]);
+  const [isLoadingPublications, setIsLoadingPublications] = useState(true);
+
   const [lectures, setLectures] = useState([]);
+  const [isLoadingLectures, setIsLoadingLectures] = useState(true);
+
   const [events, setEvents] = useState([]);
+  const [isLoadingEvents, setIsLoadingEvents] = useState(true);
+
   const [activeMedia, setActiveMedia] = useState(null);
 
   const getEmbedUrl = (url) => {
     if (!url) return "";
     const regExp =
-      /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+      /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|shorts\/|&v=)([^#&?]*).*/;
     const match = url.match(regExp);
     if (match && match[2].length === 11) {
-      return `https://www.youtube.com/embed/${match[2]}?autoplay=1`;
+      return `https://www.youtube.com/embed/${match[2]}?autoplay=1&rel=0`;
+    }
+    if (url.includes("facebook.com") || url.includes("fb.watch")) {
+      return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=0`;
     }
     return url;
   };
@@ -152,40 +168,47 @@ export default function Home() {
   ];
 
   useEffect(() => {
-    const loadHomeData = async () => {
-      try {
-        const [
-          articlesData,
-          fatwasData,
-          questionsData,
-          publicationsData,
-          lecturesData,
-          eventsData,
-        ] = await Promise.all([
-          getArticles({ limit: 3 }),
-          getFatwas({ limit: 3 }),
-          getPublicQuestions({ limit: 3 }),
-          getPublications(),
-          getLectures(),
-          getEvents(),
-        ]);
-        setArticles(
-          Array.isArray(articlesData?.articles) ? articlesData.articles : []
-        );
-        setFatwas(Array.isArray(fatwasData?.fatwas) ? fatwasData.fatwas : []);
-        setQuestions(
-          Array.isArray(questionsData?.questions) ? questionsData.questions : []
-        );
-        setPublications(
-          Array.isArray(publicationsData?.books) ? publicationsData.books : []
-        );
-        setLectures(Array.isArray(lecturesData) ? lecturesData : []);
-        setEvents(Array.isArray(eventsData) ? eventsData : []);
-      } catch (err) {
-        console.error("Error loading homepage data:", err);
-      }
-    };
-    loadHomeData();
+    // 1. Load Articles
+    setIsLoadingArticles(true);
+    getArticles({ limit: 3 })
+      .then((data) => setArticles(Array.isArray(data?.articles) ? data.articles : []))
+      .catch((err) => console.error("Error loading articles:", err))
+      .finally(() => setIsLoadingArticles(false));
+
+    // 2. Load Fatwas
+    setIsLoadingFatwas(true);
+    getFatwas({ limit: 3 })
+      .then((data) => setFatwas(Array.isArray(data?.fatwas) ? data.fatwas : []))
+      .catch((err) => console.error("Error loading fatwas:", err))
+      .finally(() => setIsLoadingFatwas(false));
+
+    // 3. Load Questions
+    setIsLoadingQuestions(true);
+    getPublicQuestions({ limit: 3 })
+      .then((data) => setQuestions(Array.isArray(data?.questions) ? data.questions : []))
+      .catch((err) => console.error("Error loading questions:", err))
+      .finally(() => setIsLoadingQuestions(false));
+
+    // 4. Load Publications
+    setIsLoadingPublications(true);
+    getPublications()
+      .then((data) => setPublications(Array.isArray(data?.books) ? data.books : []))
+      .catch((err) => console.error("Error loading publications:", err))
+      .finally(() => setIsLoadingPublications(false));
+
+    // 5. Load Lectures
+    setIsLoadingLectures(true);
+    getLectures()
+      .then((data) => setLectures(Array.isArray(data) ? data : []))
+      .catch((err) => console.error("Error loading lectures:", err))
+      .finally(() => setIsLoadingLectures(false));
+
+    // 6. Load Events
+    setIsLoadingEvents(true);
+    getEvents()
+      .then((data) => setEvents(Array.isArray(data) ? data : []))
+      .catch((err) => console.error("Error loading events:", err))
+      .finally(() => setIsLoadingEvents(false));
   }, []);
 
   const heroName = settings?.homepageSettings?.heroName || "";
@@ -223,7 +246,7 @@ export default function Home() {
         language === "en"
           ? "Read and download books on various topics."
           : "مختلف موضوعات پر مشتمل کتابوں کا مطالعہ کریں اور ڈاؤن لوڈ کریں۔",
-      to: "/books",
+      to: "/publications",
     },
     {
       icon: Users,
@@ -381,7 +404,9 @@ export default function Home() {
           linkLabel={language === "en" ? "All Articles" : "تمام مقالات"}
         />
 
-        {articles && articles.length > 0 ? (
+        {isLoadingArticles ? (
+          <SectionLoader type="article" count={3} />
+        ) : articles && articles.length > 0 ? (
           <>
             {/* Desktop: grid */}
             <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -423,7 +448,9 @@ export default function Home() {
             linkLabel={language === "en" ? "All Rulings" : "تمام احکام"}
           />
 
-          {fatwas && fatwas.length > 0 ? (
+          {isLoadingFatwas ? (
+            <SectionLoader type="fatwa" count={3} />
+          ) : fatwas && fatwas.length > 0 ? (
             <>
               {/* Desktop: grid */}
               <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -463,56 +490,63 @@ export default function Home() {
           linkLabel={language === "en" ? "All Questions" : "تمام سوالات"}
         />
 
-        {questions && questions.length > 0 ? (
+        {isLoadingQuestions ? (
+          <SectionLoader type="qa" count={3} />
+        ) : questions && questions.length > 0 ? (
           <>
             {/* Desktop: grid */}
             <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {questions.slice(0, 3).map((q) => (
-                <div
-                  key={q._id}
-                  className={`premium-card p-6 flex flex-col justify-between h-full bg-white ${language === "ur" ? "text-right" : "text-left"} relative overflow-hidden group`}
-                >
-                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-accent via-primary to-accent" />
+              {questions.slice(0, 3).map((q) => {
+                const qaDetailUrl = `/qa/${q.slug || q._id}`;
+                return (
+                  <div
+                    key={q._id}
+                    className={`premium-card p-6 flex flex-col justify-between h-full bg-white ${language === "ur" ? "text-right" : "text-left"} relative overflow-hidden group`}
+                  >
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-accent via-primary to-accent" />
 
-                  <div>
-                    <div className="flex items-center justify-between text-xs text-slate-500 mb-4">
-                      <span className="bg-secondary text-textSecondary font-bold px-2.5 py-1 rounded-full text-[10px]">
-                        {language === "ur"
-                          ? FATWA_TRANSLATIONS[q.category] || q.category
-                          : q.category}
-                      </span>
+                    <div>
+                      <div className="flex items-center justify-between text-xs text-slate-500 mb-4">
+                        <span className="bg-secondary text-textSecondary font-bold px-2.5 py-1 rounded-full text-[10px]">
+                          {language === "ur"
+                            ? FATWA_TRANSLATIONS[q.category] || q.category
+                            : q.category}
+                        </span>
+                        <span>
+                          {new Date(
+                            q.answeredAt || q.updatedAt
+                          ).toLocaleDateString(
+                            language === "ur" ? "ur-PK" : "en-US"
+                          )}
+                        </span>
+                      </div>
+                      <Link to={qaDetailUrl} className="block group-hover:underline">
+                        <h4 className="text-md font-bold text-slate-900 mb-2 line-clamp-2">
+                          {q.questionTitle}
+                        </h4>
+                      </Link>
+                      <p className="text-slate-700 text-xs italic line-clamp-3 mb-4">
+                        "{q.detailedQuestion}"
+                      </p>
+                    </div>
+                    <Link
+                      to={qaDetailUrl}
+                      className="text-xs font-bold text-primary hover:text-accent flex items-center gap-1 group-hover:gap-2 transition-all"
+                    >
+                      {language === "en"
+                        ? "View Answer"
+                        : "مفتی صاحب کا جواب دیکھیں"}
                       <span>
-                        {new Date(
-                          q.answeredAt || q.updatedAt
-                        ).toLocaleDateString(
-                          language === "ur" ? "ur-PK" : "en-US"
+                        {language === "en" ? (
+                          <ArrowRight className="w-3.5 h-3.5" />
+                        ) : (
+                          <ArrowLeft className="w-3.5 h-3.5" />
                         )}
                       </span>
-                    </div>
-                    <h4 className="text-md font-bold text-slate-900 mb-2 line-clamp-2">
-                      {q.questionTitle}
-                    </h4>
-                    <p className="text-slate-700 text-xs italic line-clamp-3 mb-4">
-                      "{q.detailedQuestion}"
-                    </p>
+                    </Link>
                   </div>
-                  <Link
-                    to={`/qa`}
-                    className="text-xs font-bold text-primary hover:text-accent flex items-center gap-1 group-hover:gap-2 transition-all"
-                  >
-                    {language === "en"
-                      ? "View Answer"
-                      : "مفتی صاحب کا جواب دیکھیں"}
-                    <span>
-                      {language === "en" ? (
-                        <ArrowRight className="w-3.5 h-3.5" />
-                      ) : (
-                        <ArrowLeft className="w-3.5 h-3.5" />
-                      )}
-                    </span>
-                  </Link>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             {/* Mobile: one-by-one slider with Seamless infinite swipe */}
@@ -522,51 +556,56 @@ export default function Home() {
               duration={500}
               activeDotColor={COLORS.primary}
               dotColor={COLORS.border}
-              renderCard={(q) => (
-                <div
-                  className={`premium-card p-6 flex flex-col justify-between min-h-[220px] bg-white ${language === "ur" ? "text-right" : "text-left"} relative overflow-hidden group shadow-sm`}
-                >
-                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-accent via-primary to-accent" />
+              renderCard={(q) => {
+                const qaDetailUrl = `/qa/${q.slug || q._id}`;
+                return (
+                  <div
+                    className={`premium-card p-6 flex flex-col justify-between min-h-[220px] bg-white ${language === "ur" ? "text-right" : "text-left"} relative overflow-hidden group shadow-sm`}
+                  >
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-accent via-primary to-accent" />
 
-                  <div>
-                    <div className="flex items-center justify-between text-xs text-slate-500 mb-4">
-                      <span className="bg-secondary text-textSecondary font-bold px-2.5 py-1 rounded-full text-[10px]">
-                        {language === "ur"
-                          ? FATWA_TRANSLATIONS[q.category] || q.category
-                          : q.category}
-                      </span>
+                    <div>
+                      <div className="flex items-center justify-between text-xs text-slate-500 mb-4">
+                        <span className="bg-secondary text-textSecondary font-bold px-2.5 py-1 rounded-full text-[10px]">
+                          {language === "ur"
+                            ? FATWA_TRANSLATIONS[q.category] || q.category
+                            : q.category}
+                        </span>
+                        <span>
+                          {new Date(
+                            q.answeredAt || q.updatedAt
+                          ).toLocaleDateString(
+                            language === "ur" ? "ur-PK" : "en-US"
+                          )}
+                        </span>
+                      </div>
+                      <Link to={qaDetailUrl} className="block">
+                        <h4 className="text-md font-bold text-slate-900 mb-2 line-clamp-2">
+                          {q.questionTitle}
+                        </h4>
+                      </Link>
+                      <p className="text-slate-700 text-xs italic line-clamp-3 mb-4">
+                        "{q.detailedQuestion}"
+                      </p>
+                    </div>
+                    <Link
+                      to={qaDetailUrl}
+                      className="text-xs font-bold text-primary hover:text-accent flex items-center gap-1 group-hover:gap-2 transition-all mt-2"
+                    >
+                      {language === "en"
+                        ? "View Answer"
+                        : "مفتی صاحب کا جواب دیکھیں"}
                       <span>
-                        {new Date(
-                          q.answeredAt || q.updatedAt
-                        ).toLocaleDateString(
-                          language === "ur" ? "ur-PK" : "en-US"
+                        {language === "en" ? (
+                          <ArrowRight className="w-3.5 h-3.5" />
+                        ) : (
+                          <ArrowLeft className="w-3.5 h-3.5" />
                         )}
                       </span>
-                    </div>
-                    <h4 className="text-md font-bold text-slate-900 mb-2 line-clamp-2">
-                      {q.questionTitle}
-                    </h4>
-                    <p className="text-slate-700 text-xs italic line-clamp-3 mb-4">
-                      "{q.detailedQuestion}"
-                    </p>
+                    </Link>
                   </div>
-                  <Link
-                    to={`/qa`}
-                    className="text-xs font-bold text-primary hover:text-accent flex items-center gap-1 group-hover:gap-2 transition-all mt-2"
-                  >
-                    {language === "en"
-                      ? "View Answer"
-                      : "مفتی صاحب کا جواب دیکھیں"}
-                    <span>
-                      {language === "en" ? (
-                        <ArrowRight className="w-3.5 h-3.5" />
-                      ) : (
-                        <ArrowLeft className="w-3.5 h-3.5" />
-                      )}
-                    </span>
-                  </Link>
-                </div>
-              )}
+                );
+              }}
             />
           </>
         ) : (
@@ -592,7 +631,9 @@ export default function Home() {
             linkLabel={language === "en" ? "View All" : "سب دیکھیں"}
           />
 
-          {publications && publications.length > 0 ? (
+          {isLoadingPublications ? (
+            <SectionLoader type="publication" count={3} layout="list" />
+          ) : publications && publications.length > 0 ? (
             <>
               {/* Desktop: Show all 3 publication cards in one list */}
               <div className="hidden sm:flex sm:flex-col sm:gap-6">
@@ -633,7 +674,9 @@ export default function Home() {
             linkLabel={language === "en" ? "View All" : "سب دیکھیں"}
           />
 
-          {lectures && lectures.length > 0 ? (
+          {isLoadingLectures ? (
+            <SectionLoader type="lecture" count={3} />
+          ) : lectures && lectures.length > 0 ? (
             <>
               {/* Desktop: grid */}
               <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -696,7 +739,9 @@ export default function Home() {
             </Link>
           </div>
 
-          {events && events.length > 0 ? (
+          {isLoadingEvents ? (
+            <SectionLoader type="event" count={2} layout="list" />
+          ) : events && events.length > 0 ? (
             <>
               {/* Desktop: stacked list */}
               <div className="hidden sm:block space-y-4">
@@ -773,34 +818,48 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Video / Audio Player Modal */}
+      {/* Embedded Player Media Modal */}
       {activeMedia && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs animate-fade-in"
           onClick={() => setActiveMedia(null)}
+          dir={language === "ur" ? "rtl" : "ltr"}
         >
           <div
-            className="bg-white rounded-2xl overflow-hidden shadow-2xl w-full max-w-4xl border border-border"
+            className="rounded-3xl border-2 shadow-2xl overflow-hidden w-full max-w-4xl relative flex flex-col"
+            style={{
+              backgroundColor: COLORS.white,
+              borderColor: COLORS.accent,
+            }}
             onClick={(e) => e.stopPropagation()}
-            dir={language === "ur" ? "rtl" : "ltr"}
           >
             {/* Modal Header */}
-            <div className="flex items-center justify-between p-4 border-b border-slate-100 bg-slate-50">
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-bold px-2.5 py-1 rounded bg-secondary text-primary font-serif">
-                  {language === "ur"
-                    ? LECTURE_TRANSLATIONS[activeMedia.category] ||
-                      activeMedia.category
-                    : activeMedia.category}
+            <div
+              className="px-5 py-4 flex items-center justify-between border-b"
+              style={{
+                backgroundColor: COLORS.primary,
+                borderColor: `${COLORS.accent}40`,
+              }}
+            >
+              <div className="flex items-center gap-2.5 overflow-hidden pe-3">
+                <span
+                  className="text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider shrink-0"
+                  style={{
+                    backgroundColor: COLORS.accent,
+                    color: COLORS.white,
+                  }}
+                >
+                  {LECTURE_TRANSLATIONS[activeMedia.category] ||
+                    activeMedia.category}
                 </span>
-                <h3 className="font-bold text-slate-800 text-sm sm:text-base font-serif line-clamp-1">
+                <h3 className="font-bold text-sm sm:text-base font-serif text-white truncate">
                   {activeMedia.title}
                 </h3>
               </div>
               <button
                 type="button"
                 onClick={() => setActiveMedia(null)}
-                className="p-1.5 rounded-full hover:bg-slate-200 text-slate-500 transition-colors cursor-pointer"
+                className="p-1.5 rounded-full text-white/80 hover:text-white hover:bg-white/10 cursor-pointer shrink-0 transition-colors"
                 aria-label="Close modal"
               >
                 <X className="w-5 h-5" />
@@ -810,12 +869,21 @@ export default function Home() {
             {/* Media Player Viewport */}
             <div className="relative aspect-video w-full bg-black flex items-center justify-center">
               {isAudioMedia(activeMedia.category) ? (
-                <div className="flex flex-col items-center justify-center gap-4 p-8 w-full">
-                  <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center border-2 border-accent">
-                    <Music className="w-8 h-8 text-accent" />
+                <div className="flex flex-col items-center justify-center gap-4 p-8 w-full bg-gradient-to-b from-slate-900 to-slate-950 text-center">
+                  <div
+                    className="w-16 h-16 rounded-full flex items-center justify-center border-2 border-accent shadow-2xl animate-pulse"
+                    style={{
+                      backgroundColor: COLORS.primary,
+                      color: COLORS.accent,
+                    }}
+                  >
+                    <Music className="w-8 h-8" />
                   </div>
-                  <div className="space-y-1 text-center">
-                    <span className="text-xs text-slate-400 font-bold uppercase tracking-wider block font-serif">
+                  <div className="space-y-1 text-center max-w-md">
+                    <span
+                      className="text-xs font-bold uppercase tracking-wider block font-serif"
+                      style={{ color: COLORS.accent }}
+                    >
                       {language === "en"
                         ? "Audio lecture is playing"
                         : "آڈیو بیان چل رہا ہے"}
@@ -825,18 +893,20 @@ export default function Home() {
                     </span>
                   </div>
                   <audio
-                    src={activeMedia.videoUrl}
+                    src={activeMedia.videoUrl || activeMedia.url || activeMedia.audioUrl}
                     controls
                     autoPlay
-                    className="w-full max-w-md mt-2"
+                    className="w-full max-w-md mt-2 rounded-xl"
                   />
                 </div>
               ) : activeMedia.videoUrl &&
                 (activeMedia.videoUrl.includes("youtube.com") ||
-                  activeMedia.videoUrl.includes("youtu.be")) ? (
+                  activeMedia.videoUrl.includes("youtu.be") ||
+                  activeMedia.videoUrl.includes("facebook.com") ||
+                  activeMedia.videoUrl.includes("fb.watch")) ? (
                 <iframe
                   title={activeMedia.title}
-                  src={getEmbedUrl(activeMedia.videoUrl)}
+                  src={getEmbedUrl(activeMedia.videoUrl || activeMedia.url)}
                   className="w-full h-full border-none"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
@@ -853,7 +923,8 @@ export default function Home() {
                     href={activeMedia.videoUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="px-5 py-2.5 bg-primary text-white font-bold text-xs rounded hover:bg-primary/90 transition-all uppercase tracking-wider font-serif"
+                    className="px-5 py-2.5 text-white font-bold text-xs rounded-xl hover:opacity-90 transition-all uppercase tracking-wider font-serif shadow-sm"
+                    style={{ backgroundColor: COLORS.primary }}
                   >
                     {language === "en"
                       ? "Open on External Platform"

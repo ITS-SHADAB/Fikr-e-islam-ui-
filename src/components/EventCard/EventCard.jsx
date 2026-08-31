@@ -131,7 +131,7 @@ export default function EventCard({ event, isCompact = false }) {
             <span
               className="text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider shadow-2xs"
               style={{
-                backgroundColor: isUpcoming ? '#059669' : '#64748b',
+                backgroundColor: isUpcoming ? (COLORS?.primary || '#4A3728') : '#64748b',
                 color: '#ffffff',
               }}
             >
@@ -181,10 +181,10 @@ export default function EventCard({ event, isCompact = false }) {
               <span
                 className="hidden md:inline-flex items-center gap-1 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider text-white shadow-xs"
                 style={{
-                  backgroundColor: isUpcoming ? '#059669' : '#64748b',
+                  backgroundColor: isUpcoming ? (COLORS?.primary || '#4A3728') : '#64748b',
                 }}
               >
-                <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-300 animate-pulse" />
                 <span>
                   {isUpcoming
                     ? isRTL

@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import { useParams, Link } from "react-router-dom";
 import {
   Calendar,
   Eye,
@@ -20,21 +20,21 @@ import {
   MessageSquare,
   Maximize2,
   Minimize2,
-} from 'lucide-react';
-import { getFatwaBySlug, getFatwas } from '@/services';
-import { useSettings } from '@/hooks/useSettings';
-import { FatwaCard, PdfViewer } from '@/components';
-import CommentsSection from '@/components/CommentsSection';
-import { FATWA_CATEGORY_TRANSLATIONS } from '@/utils/categories';
-import { COLORS } from '@/utils/themeColors';
-import toast from 'react-hot-toast';
+} from "lucide-react";
+import { getFatwaBySlug, getFatwas } from "@/services";
+import { useSettings } from "@/hooks/useSettings";
+import { FatwaCard, PdfViewer } from "@/components";
+import CommentsSection from "@/components/CommentsSection";
+import { FATWA_CATEGORY_TRANSLATIONS } from "@/utils/categories";
+import { COLORS } from "@/utils/themeColors";
+import toast from "react-hot-toast";
 
 export default function FatwaDetail() {
   const { slug } = useParams();
   const { settings } = useSettings();
   const language =
-    settings?.language === 'ur' || settings?.language === 'Urdu' ? 'ur' : 'en';
-  const isRTL = language === 'ur';
+    settings?.language === "ur" || settings?.language === "Urdu" ? "ur" : "en";
+  const isRTL = language === "ur";
 
   const [fatwa, setFatwa] = useState(null);
   const [related, setRelated] = useState([]);
@@ -50,7 +50,7 @@ export default function FatwaDetail() {
       try {
         setLoading(true);
         setError(null);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        window.scrollTo({ top: 0, behavior: "smooth" });
 
         let activeSlug = slug;
 
@@ -80,14 +80,14 @@ export default function FatwaDetail() {
             );
             setRelated(others?.slice(0, 3) || []);
           } catch (rErr) {
-            console.warn('Failed to load related fatwas', rErr);
+            console.warn("Failed to load related fatwas", rErr);
           }
         }
       } catch (err) {
         setError(
           err?.response?.data?.message ||
             err?.message ||
-            (isRTL ? 'فتویٰ لوڈ کرنے میں ناکامی' : 'Failed to load fatwa')
+            (isRTL ? "فتویٰ لوڈ کرنے میں ناکامی" : "Failed to load fatwa")
         );
       } finally {
         setLoading(false);
@@ -97,26 +97,26 @@ export default function FatwaDetail() {
     if (slug) loadFatwa();
   }, [slug, isRTL]);
 
-  const shareUrl = typeof window !== 'undefined' ? window?.location?.href : '';
+  const shareUrl = typeof window !== "undefined" ? window?.location?.href : "";
 
   const handleShare = (platform) => {
     const urls = {
       whatsapp: `https://api.whatsapp.com/send?text=${encodeURIComponent(
-        (fatwa?.title || '') + ' - ' + shareUrl
+        (fatwa?.title || "") + " - " + shareUrl
       )}`,
       twitter: `https://twitter.com/intent/tweet?url=${encodeURIComponent(
         shareUrl
-      )}&text=${encodeURIComponent(fatwa?.title || '')}`,
+      )}&text=${encodeURIComponent(fatwa?.title || "")}`,
     };
     if (urls[platform]) {
-      window.open(urls[platform], '_blank', 'width=600,height=400');
+      window.open(urls[platform], "_blank", "width=600,height=400");
     }
   };
 
   const copyLink = () => {
     navigator?.clipboard?.writeText(shareUrl);
     setCopied(true);
-    toast.success(isRTL ? 'لنک کاپی ہو گیا!' : 'Link copied!');
+    toast.success(isRTL ? "لنک کاپی ہو گیا!" : "Link copied!");
     setTimeout(() => setCopied(false), 2000);
   };
 
@@ -134,7 +134,7 @@ export default function FatwaDetail() {
           className="text-sm font-medium"
           style={{ color: COLORS?.textSecondary }}
         >
-          {isRTL ? 'فتویٰ لوڈ ہو رہا ہے...' : 'Loading fatwa...'}
+          {isRTL ? "فتویٰ لوڈ ہو رہا ہے..." : "Loading fatwa..."}
         </span>
       </div>
     );
@@ -145,7 +145,7 @@ export default function FatwaDetail() {
       <div
         className="min-h-screen flex flex-col items-center justify-center p-6 text-center"
         style={{ backgroundColor: COLORS?.background }}
-        dir={isRTL ? 'rtl' : 'ltr'}
+        dir={isRTL ? "rtl" : "ltr"}
       >
         <FileText
           className="w-16 h-16 mb-4 opacity-30"
@@ -155,7 +155,7 @@ export default function FatwaDetail() {
           className="text-2xl font-bold font-serif mb-2"
           style={{ color: COLORS?.textPrimary }}
         >
-          {isRTL ? 'فتویٰ دستیاب نہیں' : 'Fatwa Not Found'}
+          {isRTL ? "فتویٰ دستیاب نہیں" : "Fatwa Not Found"}
         </h2>
         <p
           className="text-sm max-w-md mb-6"
@@ -163,41 +163,41 @@ export default function FatwaDetail() {
         >
           {error ||
             (isRTL
-              ? 'مطلوبہ فتویٰ موجود نہیں ہے یا ہٹا دیا گیا ہے۔'
-              : 'The requested fatwa does not exist or has been removed.')}
+              ? "مطلوبہ فتویٰ موجود نہیں ہے یا ہٹا دیا گیا ہے۔"
+              : "The requested fatwa does not exist or has been removed.")}
         </p>
         <Link
           to="/fatwas"
           className="px-6 py-2.5 rounded-xl font-bold text-white text-sm"
           style={{ backgroundColor: COLORS?.primary }}
         >
-          {isRTL ? 'تمام فتاویٰ' : 'All Fatwas'}
+          {isRTL ? "تمام فتاویٰ" : "All Fatwas"}
         </Link>
       </div>
     );
   }
 
   const pdfUrl =
-    fatwa?.pdf?.url || (typeof fatwa?.pdf === 'string' ? fatwa?.pdf : null);
+    fatwa?.pdf?.url || (typeof fatwa?.pdf === "string" ? fatwa?.pdf : null);
   const categoryLabel =
     FATWA_CATEGORY_TRANSLATIONS?.[fatwa?.category] ||
     fatwa?.category ||
-    (isRTL ? 'عام مسائل' : 'General');
+    (isRTL ? "عام مسائل" : "General");
 
   const formattedDate = fatwa?.publishDate
     ? new Date(fatwa?.publishDate).toLocaleDateString(
-        isRTL ? 'ur-PK' : 'en-US',
+        isRTL ? "ur-PK" : "en-US",
         {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric',
+          year: "numeric",
+          month: "long",
+          day: "numeric",
         }
       )
-    : '';
+    : "";
 
   return (
     <div
-      dir={isRTL ? 'rtl' : 'ltr'}
+      dir={isRTL ? "rtl" : "ltr"}
       style={{ backgroundColor: COLORS?.background }}
     >
       {/* ══════════════════════════════════════════════════════════════
@@ -213,25 +213,19 @@ export default function FatwaDetail() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-6">
           <nav
             className="flex items-center gap-1.5 text-xs font-medium flex-wrap"
-            style={{ color: 'rgba(255,255,255,0.7)' }}
+            style={{ color: "rgba(255,255,255,0.7)" }}
           >
-            <Link
-              to="/"
-              className="hover:text-white transition-colors"
-            >
-              {isRTL ? 'صفحہ اول' : 'Home'}
+            <Link to="/" className="hover:text-white transition-colors">
+              {isRTL ? "صفحہ اول" : "Home"}
             </Link>
             <span>/</span>
-            <Link
-              to="/fatwas"
-              className="hover:text-white transition-colors"
-            >
-              {isRTL ? 'فتاویٰ' : 'Fatwas'}
+            <Link to="/fatwas" className="hover:text-white transition-colors">
+              {isRTL ? "فتاویٰ" : "Fatwas"}
             </Link>
             <span>/</span>
             <Link
               to={`/fatwas?category=${encodeURIComponent(
-                fatwa?.category || ''
+                fatwa?.category || ""
               )}`}
               className="hover:text-white transition-colors"
             >
@@ -252,28 +246,28 @@ export default function FatwaDetail() {
             </span>
           </div>
 
-          <h1
-            className="text-xl sm:text-2xl font-bold font-serif leading-[1.8] text-white mb-3"
-          >
+          <h1 className="text-xl sm:text-2xl font-bold font-serif leading-[1.8] text-white mb-3">
             {fatwa?.title}
           </h1>
 
           {/* Meta Bar */}
           <div
             className="flex flex-wrap items-center gap-4 text-xs font-medium"
-            style={{ color: 'rgba(255,255,255,0.8)' }}
+            style={{ color: "rgba(255,255,255,0.8)" }}
           >
             {formattedDate && (
               <span className="flex items-center gap-1.5">
                 <Calendar className="w-3.5 h-3.5 text-accent" />
-                <span>{isRTL ? 'تاریخ صدور:' : 'Issued:'} {formattedDate}</span>
+                <span>
+                  {isRTL ? "تاریخ صدور:" : "Issued:"} {formattedDate}
+                </span>
               </span>
             )}
             {(fatwa?.viewCount || 0) > 0 && (
               <span className="flex items-center gap-1.5">
                 <Eye className="w-3.5 h-3.5 text-accent" />
                 <span>
-                  {fatwa?.viewCount} {isRTL ? 'بار دیکھا گیا' : 'views'}
+                  {fatwa?.viewCount} {isRTL ? "بار دیکھا گیا" : "views"}
                 </span>
               </span>
             )}
@@ -282,7 +276,7 @@ export default function FatwaDetail() {
                 className="w-2 h-2 rounded-full inline-block"
                 style={{ backgroundColor: COLORS?.accent }}
               />
-              <span>{isRTL ? 'دار الافتاء و التحقیق' : 'Darul Ifta'}</span>
+              <span>{isRTL ? "دار الافتاء و التحقیق" : "Darul Ifta"}</span>
             </span>
           </div>
         </div>
@@ -303,7 +297,7 @@ export default function FatwaDetail() {
             style={{
               borderColor: COLORS?.border,
               color: COLORS?.primary,
-              backgroundColor: 'rgba(255,255,255,0.7)',
+              backgroundColor: "rgba(255,255,255,0.7)",
             }}
           >
             {isRTL ? (
@@ -311,7 +305,7 @@ export default function FatwaDetail() {
             ) : (
               <ArrowLeft className="w-3.5 h-3.5" />
             )}
-            <span>{isRTL ? 'تمام فتاویٰ کی فہرست' : 'All Fatwas'}</span>
+            <span>{isRTL ? "تمام فتاویٰ کی فہرست" : "All Fatwas"}</span>
           </Link>
 
           <div className="flex items-center gap-2">
@@ -328,20 +322,28 @@ export default function FatwaDetail() {
               ) : (
                 <Copy className="w-3.5 h-3.5" />
               )}
-              <span>{copied ? (isRTL ? 'کاپی ہو گیا!' : 'Copied!') : (isRTL ? 'لنک کاپی' : 'Copy')}</span>
+              <span>
+                {copied
+                  ? isRTL
+                    ? "کاپی ہو گیا!"
+                    : "Copied!"
+                  : isRTL
+                    ? "لنک کاپی"
+                    : "Copy"}
+              </span>
             </button>
 
             <button
-              onClick={() => handleShare('whatsapp')}
+              onClick={() => handleShare("whatsapp")}
               className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl border cursor-pointer transition-colors"
               style={{
-                borderColor: '#bbf7d0',
-                color: '#15803d',
-                backgroundColor: '#f0fdf4',
+                borderColor: "#bbf7d0",
+                color: "#15803d",
+                backgroundColor: "#f0fdf4",
               }}
             >
               <Share2 className="w-3.5 h-3.5" />
-              <span>{isRTL ? 'واٹس ایپ' : 'WhatsApp'}</span>
+              <span>{isRTL ? "واٹس ایپ" : "WhatsApp"}</span>
             </button>
 
             <button
@@ -351,7 +353,7 @@ export default function FatwaDetail() {
                 borderColor: COLORS?.border,
                 color: COLORS?.textSecondary,
               }}
-              title={isRTL ? 'پرنٹ کریں' : 'Print'}
+              title={isRTL ? "پرنٹ کریں" : "Print"}
             >
               <Printer className="w-3.5 h-3.5" />
             </button>
@@ -383,7 +385,7 @@ export default function FatwaDetail() {
                 className="text-xs font-bold uppercase tracking-wider block font-serif"
                 style={{ color: COLORS?.primary }}
               >
-                {isRTL ? 'سائل کا دریافت کردہ سوال' : 'Question Asked'}
+                {isRTL ? "سائل کا دریافت کردہ سوال" : "Question Asked"}
               </span>
             </div>
           </div>
@@ -423,8 +425,8 @@ export default function FatwaDetail() {
                 style={{ color: COLORS?.primary }}
               >
                 {isRTL
-                  ? 'الجواب وباللہ التوفیق (شرعی فتویٰ)'
-                  : 'Shariah Ruling & Fatwa'}
+                  ? "الجواب وباللہ التوفیق (شرعی فتویٰ)"
+                  : "Shariah Ruling & Fatwa"}
               </h2>
             </div>
 
@@ -443,8 +445,8 @@ export default function FatwaDetail() {
           >
             {fatwa?.summary ||
               (isRTL
-                ? 'تفصیلی فتویٰ کا متن درج نہیں ہے۔'
-                : 'No fatwa summary available.')}
+                ? "تفصیلی فتویٰ کا متن درج نہیں ہے۔"
+                : "No fatwa summary available.")}
           </div>
 
           {/* Concluding Signature */}
@@ -455,11 +457,16 @@ export default function FatwaDetail() {
               color: COLORS?.textSecondary,
             }}
           >
-            <span className="font-serif font-bold" style={{ color: COLORS?.primary }}>
+            <span
+              className="font-serif font-bold"
+              style={{ color: COLORS?.primary }}
+            >
               واللہ تعالٰی اعلم بالصواب
             </span>
             <span>
-              {isRTL ? 'دار الافتاء — جامعہ دار العلوم' : 'Darul Ifta — Islamic Jurisprudence Council'}
+              {isRTL
+                ? "دار الافتاء — جامعہ دار العلوم"
+                : "Darul Ifta — Islamic Jurisprudence Council"}
             </span>
           </div>
         </div>
@@ -478,7 +485,11 @@ export default function FatwaDetail() {
               style={{ color: COLORS?.primary }}
             >
               <Bookmark className="w-4 h-4 text-accent" />
-              <span>{isRTL ? 'علمی حوالہ جات و کتبِ فقہ' : 'Academic References & Sources'}</span>
+              <span>
+                {isRTL
+                  ? "علمی حوالہ جات و کتبِ فقہ"
+                  : "Academic References & Sources"}
+              </span>
             </h3>
             <ul className="list-disc list-inside space-y-2 text-xs sm:text-sm text-slate-700">
               {fatwa?.references?.map((ref, idx) => (
@@ -525,12 +536,14 @@ export default function FatwaDetail() {
                   className="font-bold text-base font-serif mb-1"
                   style={{ color: COLORS?.primary }}
                 >
-                  {isRTL ? 'مہر و دستخط شدہ فتویٰ (PDF)' : 'Official Signed Fatwa (PDF)'}
+                  {isRTL
+                    ? "مہر و دستخط شدہ فتویٰ (PDF)"
+                    : "Official Signed Fatwa (PDF)"}
                 </h3>
                 <p className="text-xs" style={{ color: COLORS?.textSecondary }}>
                   {isRTL
-                    ? 'دارالافتاء کا جاری کردہ اصل مہر شدہ فتویٰ آن لائن دیکھیں یا ڈاؤن لوڈ کریں۔'
-                    : 'View or download the official stamped fatwa document in PDF format.'}
+                    ? "دارالافتاء کا جاری کردہ اصل مہر شدہ فتویٰ آن لائن دیکھیں یا ڈاؤن لوڈ کریں۔"
+                    : "View or download the official stamped fatwa document in PDF format."}
                 </p>
               </div>
 
@@ -542,7 +555,7 @@ export default function FatwaDetail() {
                   style={{ backgroundColor: COLORS?.primary }}
                 >
                   <ExternalLink className="w-3.5 h-3.5 text-accent" />
-                  <span>{isRTL ? 'آن لائن پڑھیں' : 'Read Online'}</span>
+                  <span>{isRTL ? "آن لائن پڑھیں" : "Read Online"}</span>
                 </button>
 
                 <button
@@ -554,7 +567,7 @@ export default function FatwaDetail() {
                     color: COLORS?.primary,
                     backgroundColor: showEmbeddedPdf
                       ? `${COLORS?.secondary}50`
-                      : 'transparent',
+                      : "transparent",
                   }}
                 >
                   {showEmbeddedPdf ? (
@@ -565,11 +578,11 @@ export default function FatwaDetail() {
                   <span>
                     {showEmbeddedPdf
                       ? isRTL
-                        ? 'قاری بند کریں'
-                        : 'Hide Reader'
+                        ? "قاری بند کریں"
+                        : "Hide Reader"
                       : isRTL
-                      ? 'صفحہ پر پڑھیں'
-                      : 'Read Here'}
+                        ? "صفحہ پر پڑھیں"
+                        : "Read Here"}
                   </span>
                 </button>
 
@@ -585,7 +598,7 @@ export default function FatwaDetail() {
                   }}
                 >
                   <Download className="w-3.5 h-3.5" />
-                  <span>{isRTL ? 'ڈاؤن لوڈ' : 'Download'}</span>
+                  <span>{isRTL ? "ڈاؤن لوڈ" : "Download"}</span>
                 </a>
               </div>
             </div>
@@ -594,13 +607,9 @@ export default function FatwaDetail() {
             {showEmbeddedPdf && (
               <div
                 className="mt-5 rounded-xl overflow-hidden border"
-                style={{ height: '700px', borderColor: COLORS?.border }}
+                style={{ height: "700px", borderColor: COLORS?.border }}
               >
-                <PdfViewer
-                  url={pdfUrl}
-                  title={fatwa?.title}
-                  isModal={false}
-                />
+                <PdfViewer url={pdfUrl} title={fatwa?.title} isModal={false} />
               </div>
             )}
           </div>
@@ -621,7 +630,7 @@ export default function FatwaDetail() {
             style={{
               borderBottom: isCommentsOpen
                 ? `1px solid ${COLORS?.border}`
-                : 'none',
+                : "none",
             }}
           >
             <div className="flex items-center gap-3">
@@ -641,7 +650,7 @@ export default function FatwaDetail() {
                   className="text-sm font-bold block font-serif"
                   style={{ color: COLORS?.primary }}
                 >
-                  {isRTL ? 'تبصرے و آراء' : 'Comments & Discussion'}
+                  {isRTL ? "تبصرے و آراء" : "Comments & Discussion"}
                 </span>
                 <span
                   className="text-[11px]"
@@ -649,17 +658,17 @@ export default function FatwaDetail() {
                 >
                   {isRTL
                     ? isCommentsOpen
-                      ? 'تبصرے بند کریں'
-                      : 'تبصرہ لکھیں اور آراء دیکھیں'
+                      ? "تبصرے بند کریں"
+                      : "تبصرہ لکھیں اور آراء دیکھیں"
                     : isCommentsOpen
-                    ? 'Hide comments'
-                    : 'View and post comments'}
+                      ? "Hide comments"
+                      : "View and post comments"}
                 </span>
               </div>
             </div>
             <ChevronDown
               className={`w-4 h-4 transition-transform duration-300 shrink-0 ${
-                isCommentsOpen ? 'rotate-180' : ''
+                isCommentsOpen ? "rotate-180" : ""
               }`}
               style={{ color: COLORS?.textSecondary }}
             />
@@ -691,14 +700,14 @@ export default function FatwaDetail() {
                   className="w-1.5 h-5 rounded-full"
                   style={{ backgroundColor: COLORS?.accent }}
                 />
-                <span>{isRTL ? 'متعلقہ فتاویٰ' : 'Related Fatwas'}</span>
+                <span>{isRTL ? "متعلقہ فتاویٰ" : "Related Fatwas"}</span>
               </h2>
               <Link
                 to="/fatwas"
                 className="text-xs font-bold hover:underline"
                 style={{ color: COLORS?.accent }}
               >
-                {isRTL ? 'سب دیکھیں ←' : 'View All →'}
+                {isRTL ? "سب دیکھیں ←" : "View All →"}
               </Link>
             </div>
 

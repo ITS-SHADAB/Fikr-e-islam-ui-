@@ -301,14 +301,14 @@ export default function EventsList() {
             <div
               className="px-3.5 py-1.5 rounded-xl border-2 text-xs font-bold shadow-xs"
               style={{
-                backgroundColor: 'rgba(5,150,105,0.25)',
-                borderColor: '#10b981',
+                backgroundColor: `${COLORS?.primary}15`,
+                borderColor: COLORS?.accent,
                 color: '#ffffff',
               }}
             >
-              <span className="w-2 h-2 rounded-full bg-emerald-400 inline-block me-1.5 animate-pulse" />
+              <span className="w-2 h-2 rounded-full bg-amber-400 inline-block me-1.5 animate-pulse" />
               <span>{isRTL ? 'آنے والی مجالس:' : 'Upcoming:'} </span>
-              <span className="text-emerald-300 ms-1 font-black">
+              <span className="text-amber-300 ms-1 font-black">
                 {upcomingEvents?.length || 0}
               </span>
             </div>

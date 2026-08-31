@@ -534,7 +534,6 @@ export default function BookDetail() {
                     color: COLORS.textPrimary,
                   }}
                 >
-
                   {summary ? (
                     summary.length > 400 ? (
                       <>
@@ -942,7 +941,10 @@ export default function BookDetail() {
                     <div className="flex items-center gap-3.5 sm:gap-4 mb-3">
                       <div
                         className="w-14 h-18 sm:w-16 sm:h-20 rounded-xl overflow-hidden shrink-0 shadow-xs border flex items-center justify-center p-1"
-                        style={{ backgroundColor: COLORS.primary, borderColor: `${COLORS.accent}40` }}
+                        style={{
+                          backgroundColor: COLORS.primary,
+                          borderColor: `${COLORS.accent}40`,
+                        }}
                       >
                         {relCoverSrc ? (
                           <img
