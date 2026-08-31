@@ -107,17 +107,12 @@ export default function SeamlessMobileSlider({
                   transform: enableScale
                     ? isActive
                       ? "scale(1)"
-                      : "scale(0.84)"
+                      : "scale(0.88)"
                     : "none",
-                  opacity: enableScale ? (isActive ? 1 : 0.45) : 1,
-                  filter: enableScale
-                    ? isActive
-                      ? "blur(0px)"
-                      : "blur(0.5px)"
-                    : "none",
+                  opacity: enableScale ? (isActive ? 1 : 0.6) : 1,
                   transition:
                     enableScale && withTransition
-                      ? `all ${duration}ms cubic-bezier(0.25, 1, 0.5, 1)`
+                      ? `transform ${duration}ms cubic-bezier(0.25, 1, 0.5, 1), opacity ${duration}ms ease`
                       : "none",
                 }}
                 dir={language === "ur" ? "rtl" : "ltr"}

@@ -17,6 +17,8 @@ import {
   ChevronDown,
   X,
   Music,
+  Feather,
+  Video,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -105,15 +107,81 @@ function ScholarPhotoPlaceholder() {
   );
 }
 
-// Static counter for stats
-function StaticCounter({ value, label }) {
+// Statistics Counter Section Component (Matching Reference Mockup - Compact & Full Width)
+function StatisticsSection({ stats }) {
   return (
-    <div className="text-center">
-      <p className="text-3xl font-extrabold text-primary">{value}+</p>
-      <p className="text-xs text-textSecondary font-semibold uppercase tracking-widest mt-1">
-        {label}
-      </p>
-    </div>
+    <section className="py-3 sm:py-4.5 bg-background border-b border-border relative select-none">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Outer Warm Beige Islamic Panel Frame */}
+        <div className="bg-gradient-to-b from-[#FAF7F2] via-[#FFFDF9] to-[#F5EFE6] rounded-2xl sm:rounded-3xl border border-[#E2D6C5] p-2.5 sm:p-3.5 lg:p-4 shadow-[0_4px_16px_rgba(74,55,40,0.04)]">
+          
+          {/* 4 Cards Grid: 2x2 on mobile, 4-col on desktop */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 lg:gap-3.5">
+            {stats.map((stat, index) => {
+              const Icon = stat.icon;
+              return (
+                <div
+                  key={index}
+                  className="relative bg-gradient-to-b from-white via-[#FCFAF6] to-[#F8F3EA] rounded-xl sm:rounded-2xl border border-[#E4D7C6] p-2.5 sm:py-3.5 sm:px-3 lg:py-4 lg:px-4 flex flex-col items-center justify-center text-center shadow-[0_2px_6px_rgba(74,55,40,0.03)] hover:shadow-[0_4px_12px_rgba(74,55,40,0.07)] hover:border-[#C5A880] transition-all duration-300 group overflow-hidden"
+                >
+                  {/* Top-Left Subtle Islamic Lattice Accent */}
+                  <svg
+                    className="absolute top-0 left-0 w-12 h-12 sm:w-14 sm:h-14 text-[#C5A880] opacity-20 pointer-events-none select-none z-0"
+                    viewBox="0 0 60 60"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="0.75"
+                  >
+                    <path d="M0 0 L60 0 C60 25 35 60 0 60 Z" fill="currentColor" fillOpacity="0.03" />
+                    <path d="M0 15 C20 15 45 35 45 60" />
+                    <path d="M0 30 C15 30 30 45 30 60" />
+                    <line x1="15" y1="0" x2="60" y2="45" strokeWidth="0.5" strokeDasharray="1.5 1.5" />
+                    <polygon points="25,12 28,15 25,18 22,15" strokeWidth="0.6" />
+                  </svg>
+
+                  {/* Dark Brown Circle Badge with Light Outer Ring */}
+                  <div className="relative z-10 w-9 h-9 sm:w-10 sm:h-10 lg:w-11 lg:h-11 rounded-full bg-[#4A3728] text-[#F7F4EF] flex items-center justify-center ring-3 sm:ring-4 ring-[#EFE7DC] border border-[#C5A880]/60 shadow-[0_2px_6px_rgba(74,55,40,0.15)] mb-1.5 sm:mb-2 transition-transform duration-300 group-hover:scale-105 shrink-0">
+                    <Icon className="w-4 h-4 sm:w-4.5 sm:h-4.5 lg:w-5 lg:h-5 text-[#F7F4EF]" />
+                  </div>
+
+                  {/* Prominent Number */}
+                  <div className="relative z-10 text-xl sm:text-2xl lg:text-[26px] font-extrabold text-[#2D241D] leading-none mb-1 tracking-tight flex items-center justify-center">
+                    <span>{stat.value}</span>
+                    <span className="text-[#B89C7D] font-bold text-base sm:text-lg lg:text-xl ms-0.5 select-none leading-none">
+                      +
+                    </span>
+                  </div>
+
+                  {/* Urdu Label */}
+                  <p className="relative z-10 text-xs sm:text-[13px] font-bold text-[#5A4838] leading-snug mb-1.5">
+                    {stat.label}
+                  </p>
+
+                  {/* Under-Card Flourish with 8-Petal Rosette */}
+                  <div className="relative z-10 flex items-center justify-center gap-1.5 w-full select-none pointer-events-none opacity-80">
+                    <span className="h-[1px] w-5 sm:w-6 bg-gradient-to-r from-transparent to-[#C5A880]/70" />
+                    <svg
+                      className="w-3 h-3 text-[#B89C7D] shrink-0"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                    >
+                      <circle cx="12" cy="12" r="2.5" fill="currentColor" />
+                      <path d="M12 2 L12 22 M2 12 L22 12 M5 5 L19 19 M5 19 L19 5" strokeWidth="1" />
+                      <circle cx="12" cy="12" r="7" strokeWidth="0.75" strokeDasharray="1 2" />
+                    </svg>
+                    <span className="h-[1px] w-5 sm:w-6 bg-gradient-to-l from-transparent to-[#C5A880]/70" />
+                  </div>
+
+                </div>
+              );
+            })}
+          </div>
+
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -161,10 +229,26 @@ export default function Home() {
     settings?.language === "ur" || settings?.language === "Urdu" ? "ur" : "en";
 
   const stats = [
-    { value: 500, label: language === "en" ? "Articles" : "مقالات" },
-    { value: 1000, label: language === "en" ? "Fatwas" : "فتاویٰ" },
-    { value: 300, label: language === "en" ? "Lectures" : "بیانات" },
-    { value: 50, label: language === "en" ? "Publications" : "مطبوعات" },
+    {
+      value: 1000,
+      label: language === "en" ? "Fatwas" : "فتاویٰ",
+      icon: Feather,
+    },
+    {
+      value: 500,
+      label: language === "en" ? "Articles" : "مقالات",
+      icon: Users,
+    },
+    {
+      value: 50,
+      label: language === "en" ? "Publications" : "مطبوعات",
+      icon: BookOpen,
+    },
+    {
+      value: 300,
+      label: language === "en" ? "Lectures" : "بیانات",
+      icon: Video,
+    },
   ];
 
   useEffect(() => {
@@ -260,7 +344,7 @@ export default function Home() {
   ];
 
   return (
-    <div className="bg-background min-h-screen relative overflow-x-hidden">
+    <div className="bg-background min-h-screen relative">
       {/* 1. HERO SECTION  Testing comments
        */}
       <section className="scholar-gradient-bg relative overflow-hidden py-20 border-b-2 border-border">
@@ -346,31 +430,38 @@ export default function Home() {
       </section>
 
       {/* Stats Section */}
-      <section className="py-8 border-b border-border bg-white">
-        <div className="mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {stats.map((stat, index) => (
-              <StaticCounter
-                key={index}
-                value={stat.value}
-                label={stat.label}
-              />
-            ))}
-          </div>
-        </div>
-      </section>
+      <StatisticsSection stats={stats} />
 
       {/* FEATURE CARDS SECTION */}
-      <section className="py-12 mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-12 sm:py-16 mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Section Heading & Subtitle */}
+        <div className="text-center mb-10">
+          <div className="inline-flex items-center justify-center gap-3 mb-2.5">
+            <span className="h-px w-10 sm:w-16 bg-gradient-to-r from-transparent via-[#C5A880] to-[#C5A880]/40" />
+            <span className="w-2 h-2 rotate-45 border border-[#C5A880] bg-[#FAF6F0]" />
+            <h2 className="text-2xl sm:text-3xl lg:text-3.5xl font-bold text-primary px-2">
+              {language === "en" ? "Our Services" : "ہماری خدمات"}
+            </h2>
+            <span className="w-2 h-2 rotate-45 border border-[#C5A880] bg-[#FAF6F0]" />
+            <span className="h-px w-10 sm:w-16 bg-gradient-to-l from-transparent via-[#C5A880] to-[#C5A880]/40" />
+          </div>
+          <p className="text-sm sm:text-base text-textSecondary font-normal leading-relaxed max-w-xl mx-auto">
+            {language === "en"
+              ? "Gain knowledge, ask questions, and receive authentic guidance"
+              : "علم حاصل کریں، سوال پوچھیں اور مستند رہنمائی حاصل کریں"}
+          </p>
+        </div>
+
         {/* Desktop View: Grid */}
-        <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {FEATURES.map((feature) => (
+        <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {FEATURES.map((feature, idx) => (
             <div key={feature.title}>
               <AnimatedFeatureCard
                 icon={feature.icon}
                 title={feature.title}
                 description={feature.description}
                 to={feature.to}
+                index={idx}
               />
             </div>
           ))}
@@ -384,12 +475,13 @@ export default function Home() {
           duration={700}
           activeDotColor={COLORS.primary}
           dotColor={COLORS.border}
-          renderCard={(feature) => (
+          renderCard={(feature, idx) => (
             <AnimatedFeatureCard
               icon={feature.icon}
               title={feature.title}
               description={feature.description}
               to={feature.to}
+              index={idx}
             />
           )}
         />
