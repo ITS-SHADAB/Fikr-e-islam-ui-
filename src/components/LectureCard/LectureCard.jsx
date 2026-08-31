@@ -1,53 +1,56 @@
 import React from "react";
-import { Play, Video, Music, Calendar } from "lucide-react";
+import PropTypes from "prop-types";
+import { Play, Video, Music, Calendar, ExternalLink, User } from "lucide-react";
 import { useSettings } from "@/hooks/useSettings";
 import { COLORS } from "@/utils/themeColors";
 import { LECTURE_CATEGORY_TRANSLATIONS } from "@/utils/categories";
+import { BACKEND_URL } from "@/constants/urls";
 
 export default function LectureCard({ lecture, onPlay }) {
   const { settings } = useSettings();
   const language =
     settings?.language === "ur" || settings?.language === "Urdu" ? "ur" : "en";
+  const isRTL = language === "ur";
+
+  if (!lecture) return null;
 
   const { title, description, category, videoUrl, thumbnail, publishDate } =
     lecture;
 
-  const formattedDate = new Date(publishDate).toLocaleDateString(
-    language === "ur" ? "ur-PK" : "en-US",
-    {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    }
-  );
+  const formattedDate = publishDate
+    ? new Date(publishDate).toLocaleDateString(isRTL ? "ur-PK" : "en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      })
+    : "";
+
+  const isAudio =
+    category === "Audio Lectures" || category === "Bayan Recordings";
 
   const getMediaIcon = (styleObj = { color: COLORS.accent }) => {
-    switch (category) {
-      case "Audio Lectures":
-      case "Bayan Recordings":
-        return <Music className="w-4 h-4" style={styleObj} />;
-      default:
-        return <Video className="w-4 h-4" style={styleObj} />;
+    if (isAudio) {
+      return <Music className="w-3.5 h-3.5" style={styleObj} />;
     }
+    return <Video className="w-3.5 h-3.5" style={styleObj} />;
   };
 
   const getYoutubeId = (url) => {
+    if (!url) return null;
     const regExp =
-      /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+      /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|shorts\/|&v=)([^#&?]*).*/;
     const match = url.match(regExp);
     return match && match[2].length === 11 ? match[2] : null;
   };
 
-  const BACKEND_URL = "https://fikr-e-islam.onrender.com";
   const fallbackThumb =
-    "https://images.unsplash.com/photo-1447069387593-a5de0862481e?auto=format&fit=crop&q=80&w=800";
+    "https://images.unsplash.com/photo-1542816417-0983c9c9ad53?auto=format&fit=crop&q=80&w=800";
 
   const getThumbnailUrl = () => {
     if (thumbnail) {
       if (thumbnail.startsWith("/")) return `${BACKEND_URL}${thumbnail}`;
       return thumbnail;
     }
-    // Auto generate YouTube thumbnail if YouTube link is detected
     const ytId = getYoutubeId(videoUrl);
     if (ytId) {
       return `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`;
@@ -55,13 +58,24 @@ export default function LectureCard({ lecture, onPlay }) {
     return fallbackThumb;
   };
 
+  const categoryLabel =
+    LECTURE_CATEGORY_TRANSLATIONS[category] || category || (isRTL ? "خطاب" : "Lecture");
+
   return (
     <div
-      onClick={() => onPlay(lecture)}
-      className={`premium-card shadow-sm overflow-hidden flex flex-col h-full group cursor-pointer ${language === "ur" ? "text-right" : "text-left"}`}
+      dir={isRTL ? "rtl" : "ltr"}
+      className="group rounded-2xl overflow-hidden border flex flex-col justify-between transition-all duration-300 hover:shadow-lg"
+      style={{
+        backgroundColor: COLORS.white,
+        borderColor: COLORS.border,
+        boxShadow: "0 1px 4px rgba(74,55,40,0.06)",
+      }}
     >
       {/* Thumbnail with Play Overlay */}
-      <div className="relative h-44 w-full bg-slate-800 shrink-0 overflow-hidden">
+      <div
+        className="relative h-48 w-full bg-slate-900 shrink-0 overflow-hidden cursor-pointer"
+        onClick={() => onPlay && onPlay(lecture)}
+      >
         <img
           src={getThumbnailUrl()}
           alt={title}
@@ -73,81 +87,118 @@ export default function LectureCard({ lecture, onPlay }) {
           }}
         />
 
-        {/* Play Button Overlay */}
-        <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/35 transition-all">
+        {/* Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+
+        {/* Play Button Center Overlay */}
+        <div className="absolute inset-0 flex items-center justify-center bg-black/15 group-hover:bg-black/30 transition-all">
           <button
-            onClick={() => onPlay(lecture)}
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              if (onPlay) onPlay(lecture);
+            }}
             style={{ backgroundColor: COLORS.primary }}
-            className="w-12 h-12 rounded-full text-white flex items-center justify-center shadow-lg transform transition-transform group-hover:scale-110 focus:outline-none theme-hover-bg-accent"
+            className="w-12 h-12 rounded-full text-white flex items-center justify-center shadow-xl transform transition-transform group-hover:scale-110 cursor-pointer border-2 border-white/30"
             aria-label="Play Lecture"
           >
-            <Play className="w-5 h-5 fill-current ml-0.5" />
+            <Play className={`w-5 h-5 fill-current ${isRTL ? "-mr-0.5" : "-ml-0.5"}`} />
           </button>
         </div>
 
-        {/* Media Type Badge */}
+        {/* Category Badge over Thumbnail */}
         <div
           style={{
-            backgroundColor: COLORS.secondary,
-            color: COLORS.textSecondary,
+            backgroundColor: isAudio ? COLORS.secondary : COLORS.primary,
+            color: isAudio ? COLORS.primary : COLORS.white,
           }}
-          className={`absolute bottom-3 ${language === "ur" ? "right-3" : "left-3"} text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1 shadow`}
+          className={`absolute bottom-3 ${isRTL ? "right-3" : "left-3"} text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1.5 shadow-md`}
         >
-          {getMediaIcon({ color: COLORS.textSecondary })}
-          {language === "ur"
-            ? LECTURE_CATEGORY_TRANSLATIONS[category] || category
-            : category}
+          {getMediaIcon({ color: isAudio ? COLORS.primary : COLORS.accent })}
+          <span>{categoryLabel}</span>
         </div>
       </div>
 
-      {/* Card Content */}
-      <div className="p-4 flex flex-col flex-grow">
-        {/* Date */}
-        <div className="flex items-center gap-1.5 text-xs text-slate-500 mb-2 justify-start">
-          <Calendar className="w-3.5 h-3.5" style={{ color: COLORS.accent }} />
-          {formattedDate}
+      {/* Card Content Body */}
+      <div className="p-4 sm:p-5 flex flex-col flex-1 justify-between gap-3">
+        <div>
+          {/* Meta: Date & Speaker */}
+          <div className="flex items-center justify-between text-xs mb-2.5" style={{ color: COLORS.textSecondary }}>
+            {formattedDate && (
+              <span className="flex items-center gap-1 font-medium">
+                <Calendar className="w-3.5 h-3.5" style={{ color: COLORS.accent }} />
+                {formattedDate}
+              </span>
+            )}
+            <span className="flex items-center gap-1 font-semibold" style={{ color: COLORS.primary }}>
+              <User className="w-3.5 h-3.5" style={{ color: COLORS.accent }} />
+              {isRTL ? "مفتی فیضان سرور مصباحی" : "Mufti Faizan Sarwar"}
+            </span>
+          </div>
+
+          {/* Title */}
+          <h3
+            onClick={() => onPlay && onPlay(lecture)}
+            className="font-bold text-base sm:text-lg font-serif leading-[1.8] line-clamp-2 cursor-pointer transition-colors group-hover:text-accent mb-2"
+            style={{ color: COLORS.primary }}
+          >
+            {title}
+          </h3>
+
+          {/* Description */}
+          {description && (
+            <p
+              className="text-xs sm:text-sm font-normal leading-[2] line-clamp-2 mb-3"
+              style={{ color: COLORS.textSecondary }}
+            >
+              {description}
+            </p>
+          )}
         </div>
 
-        {/* Title */}
-        <h3
-          style={{ color: COLORS.textPrimary }}
-          className={`text-md font-bold transition-colors leading-[1.85] mb-2 line-clamp-2 ${language === "ur" ? "text-right" : "text-left"} group-hover:text-[var(--color-primary)]`}
-        >
-          {title}
-        </h3>
-
-        {/* Description */}
-        <p
-          className={`text-xs font-normal leading-[2.0] line-clamp-2 ${language === "ur" ? "text-right" : "text-left"}`}
-          style={{ color: COLORS.textPrimary }}
-        >
-          {description}
-        </p>
-
-
-        {/* Play Link Actions */}
+        {/* Actions Footer */}
         <div
-          className={`mt-auto pt-3 flex items-center justify-between border-t border-slate-100 ${language === "ur" ? "text-right" : "text-left"}`}
+          className="pt-3 border-t flex items-center justify-between gap-2"
+          style={{ borderColor: `${COLORS.border}80` }}
         >
           <button
-            onClick={() => onPlay(lecture)}
-            style={{ color: COLORS.primary }}
-            className="text-xs font-bold transition-colors theme-hover-text-accent"
+            type="button"
+            onClick={() => onPlay && onPlay(lecture)}
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold text-white transition-opacity hover:opacity-90 shadow-2xs cursor-pointer"
+            style={{ backgroundColor: COLORS.primary }}
           >
-            {language === "en" ? "Listen/Watch Now" : "ابھی سنیں/دیکھیں"}
+            <Play className="w-3 h-3 fill-current" />
+            <span>{isAudio ? (isRTL ? "آڈیو سنیں" : "Listen Audio") : (isRTL ? "ویڈیو دیکھیں" : "Watch Video")}</span>
           </button>
 
-          <a
-            href={videoUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={(e) => e.stopPropagation()}
-            className="text-[10px] text-slate-500 hover:text-slate-700 underline"
-          >
-            {language === "en" ? "Open Link" : "اصل لنک کھولیں"}
-          </a>
+          {videoUrl && (
+            <a
+              href={videoUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              className="inline-flex items-center gap-1 text-[11px] font-semibold hover:underline"
+              style={{ color: COLORS.textSecondary }}
+            >
+              <span>{isRTL ? "اصل لنک" : "Original Link"}</span>
+              <ExternalLink className="w-3 h-3" />
+            </a>
+          )}
         </div>
       </div>
     </div>
   );
 }
+
+LectureCard.propTypes = {
+  lecture: PropTypes.shape({
+    _id: PropTypes.string,
+    title: PropTypes.string.isRequired,
+    description: PropTypes.string,
+    category: PropTypes.string,
+    videoUrl: PropTypes.string,
+    thumbnail: PropTypes.string,
+    publishDate: PropTypes.string,
+  }).isRequired,
+  onPlay: PropTypes.func,
+};

@@ -55,8 +55,8 @@ API.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       // Clear stale credentials so isAuthenticated resets to false
-      localStorage.removeItem('adminToken');
-      localStorage.removeItem('adminInfo');
+      localStorage.removeItem("adminToken");
+      localStorage.removeItem("adminInfo");
     }
 
     return Promise.reject(error);

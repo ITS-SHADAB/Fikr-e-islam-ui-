@@ -83,7 +83,10 @@ export default function ArticleDetail() {
           setRelatedArticles(data.related);
         } else if (articleData?.category) {
           try {
-            const allRes = await getArticles({ category: articleData?.category, limit: 4 });
+            const allRes = await getArticles({
+              category: articleData?.category,
+              limit: 4,
+            });
             const others = (allRes?.articles || [])?.filter(
               (a) => a?._id !== articleData?._id
             );
@@ -110,7 +113,8 @@ export default function ArticleDetail() {
       whatsapp: `https://api.whatsapp.com/send?text=${encodeURIComponent((article?.title || "") + " - " + shareUrl)}`,
       twitter: `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(article?.title || "")}`,
     };
-    if (urls[platform]) window.open(urls[platform], "_blank", "width=600,height=400");
+    if (urls[platform])
+      window.open(urls[platform], "_blank", "width=600,height=400");
   };
 
   const copyLink = () => {
@@ -123,12 +127,22 @@ export default function ArticleDetail() {
   /* ── Loading State ── */
   if (loading) {
     return (
-      <div className="min-h-screen" style={{ backgroundColor: COLORS?.background }}>
+      <div
+        className="min-h-screen"
+        style={{ backgroundColor: COLORS?.background }}
+      >
         {/* Hero skeleton */}
-        <div className="w-full h-72 sm:h-96 animate-pulse" style={{ backgroundColor: COLORS?.secondary }} />
+        <div
+          className="w-full h-72 sm:h-96 animate-pulse"
+          style={{ backgroundColor: COLORS?.secondary }}
+        />
         <div className="max-w-3xl mx-auto px-4 py-10 space-y-4">
           {[80, 60, 100, 100, 70].map((w, i) => (
-            <div key={i} className="h-4 rounded animate-pulse" style={{ width: `${w}%`, backgroundColor: COLORS?.border }} />
+            <div
+              key={i}
+              className="h-4 rounded animate-pulse"
+              style={{ width: `${w}%`, backgroundColor: COLORS?.border }}
+            />
           ))}
         </div>
       </div>
@@ -143,12 +157,24 @@ export default function ArticleDetail() {
         style={{ backgroundColor: COLORS?.background }}
         dir={isRTL ? "rtl" : "ltr"}
       >
-        <FileText className="w-16 h-16 mb-4 opacity-30" style={{ color: COLORS?.primary }} />
-        <h2 className="text-2xl font-bold font-serif mb-2" style={{ color: COLORS?.textPrimary }}>
+        <FileText
+          className="w-16 h-16 mb-4 opacity-30"
+          style={{ color: COLORS?.primary }}
+        />
+        <h2
+          className="text-2xl font-bold font-serif mb-2"
+          style={{ color: COLORS?.textPrimary }}
+        >
           {isRTL ? "مضمون دستیاب نہیں" : "Article Not Found"}
         </h2>
-        <p className="text-sm max-w-md mb-6" style={{ color: COLORS?.textSecondary }}>
-          {error || (isRTL ? "مطلوبہ مضمون موجود نہیں یا ہٹا دیا گیا ہے۔" : "The article was not found or removed.")}
+        <p
+          className="text-sm max-w-md mb-6"
+          style={{ color: COLORS?.textSecondary }}
+        >
+          {error ||
+            (isRTL
+              ? "مطلوبہ مضمون موجود نہیں یا ہٹا دیا گیا ہے۔"
+              : "The article was not found or removed.")}
         </p>
         <Link
           to="/articles"
@@ -161,23 +187,32 @@ export default function ArticleDetail() {
     );
   }
 
-  const pdfUrl = article?.pdf?.url || (typeof article?.pdf === "string" ? article?.pdf : null);
+  const pdfUrl =
+    article?.pdf?.url ||
+    (typeof article?.pdf === "string" ? article?.pdf : null);
   const featuredImageSrc = getImageSrc(article?.featuredImage);
   const showHeroImage = featuredImageSrc && !heroImgError;
   const categoryLabel =
-    ARTICLE_CATEGORY_TRANSLATIONS[article?.category] || article?.category || (isRTL ? "اسلامی مقالات" : "Islamic Articles");
+    ARTICLE_CATEGORY_TRANSLATIONS[article?.category] ||
+    article?.category ||
+    (isRTL ? "اسلامی مقالات" : "Islamic Articles");
   const formattedDate = article?.publishDate
-    ? new Date(article?.publishDate).toLocaleDateString(isRTL ? "ur-PK" : "en-US", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      })
+    ? new Date(article?.publishDate).toLocaleDateString(
+        isRTL ? "ur-PK" : "en-US",
+        {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        }
+      )
     : "";
   const readingTime = getReadingTime(article?.summary || "");
 
   return (
-    <div dir={isRTL ? "rtl" : "ltr"} style={{ backgroundColor: COLORS?.background }}>
-
+    <div
+      dir={isRTL ? "rtl" : "ltr"}
+      style={{ backgroundColor: COLORS?.background }}
+    >
       {/* ══════════════════════════════════════════════════════════════
           HERO SECTION — Full-width banner with overlay or solid color
       ══════════════════════════════════════════════════════════════ */}
@@ -208,12 +243,21 @@ export default function ArticleDetail() {
 
         {/* ── Breadcrumb (top) ── */}
         <div className="relative z-10 px-4 sm:px-8 pt-5">
-          <nav className="flex items-center gap-1.5 text-xs font-medium flex-wrap" style={{ color: "rgba(255,255,255,0.65)" }}>
-            <Link to="/" className="hover:text-white transition-colors">{isRTL ? "صفحہ اول" : "Home"}</Link>
+          <nav
+            className="flex items-center gap-1.5 text-xs font-medium flex-wrap"
+            style={{ color: "rgba(255,255,255,0.65)" }}
+          >
+            <Link to="/" className="hover:text-white transition-colors">
+              {isRTL ? "صفحہ اول" : "Home"}
+            </Link>
             <span>/</span>
-            <Link to="/articles" className="hover:text-white transition-colors">{isRTL ? "مقالات" : "Articles"}</Link>
+            <Link to="/articles" className="hover:text-white transition-colors">
+              {isRTL ? "مقالات" : "Articles"}
+            </Link>
             <span>/</span>
-            <span className="text-white font-semibold truncate max-w-xs">{categoryLabel}</span>
+            <span className="text-white font-semibold truncate max-w-xs">
+              {categoryLabel}
+            </span>
           </nav>
         </div>
 
@@ -236,7 +280,10 @@ export default function ArticleDetail() {
           </h1>
 
           {/* Article Meta Row */}
-          <div className="flex flex-wrap items-center gap-3 sm:gap-5 text-xs font-medium" style={{ color: "rgba(255,255,255,0.75)" }}>
+          <div
+            className="flex flex-wrap items-center gap-3 sm:gap-5 text-xs font-medium"
+            style={{ color: "rgba(255,255,255,0.75)" }}
+          >
             {/* Author */}
             <div className="flex items-center gap-1.5">
               <div
@@ -272,7 +319,6 @@ export default function ArticleDetail() {
           ARTICLE BODY — max-width readable column
       ══════════════════════════════════════════════════════════════ */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
-
         {/* ── Action Toolbar ── */}
         <div
           className="flex flex-wrap items-center justify-between gap-3 pb-6 mb-8 border-b"
@@ -281,9 +327,17 @@ export default function ArticleDetail() {
           <Link
             to="/articles"
             className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-2 rounded-lg border transition-colors hover:bg-white"
-            style={{ borderColor: COLORS?.border, color: COLORS?.primary, backgroundColor: "rgba(255,255,255,0.7)" }}
+            style={{
+              borderColor: COLORS?.border,
+              color: COLORS?.primary,
+              backgroundColor: "rgba(255,255,255,0.7)",
+            }}
           >
-            {isRTL ? <ArrowRight className="w-3.5 h-3.5" /> : <ArrowLeft className="w-3.5 h-3.5" />}
+            {isRTL ? (
+              <ArrowRight className="w-3.5 h-3.5" />
+            ) : (
+              <ArrowLeft className="w-3.5 h-3.5" />
+            )}
             {isRTL ? "تمام مقالات" : "All Articles"}
           </Link>
 
@@ -291,10 +345,23 @@ export default function ArticleDetail() {
             <button
               onClick={copyLink}
               className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg border cursor-pointer hover:bg-white transition-colors"
-              style={{ borderColor: COLORS?.border, color: COLORS?.textSecondary }}
+              style={{
+                borderColor: COLORS?.border,
+                color: COLORS?.textSecondary,
+              }}
             >
-              {copied ? <Check className="w-3.5 h-3.5 text-green-600" /> : <Copy className="w-3.5 h-3.5" />}
-              {copied ? (isRTL ? "کاپی!" : "Copied!") : (isRTL ? "لنک کاپی" : "Copy")}
+              {copied ? (
+                <Check className="w-3.5 h-3.5 text-green-600" />
+              ) : (
+                <Copy className="w-3.5 h-3.5" />
+              )}
+              {copied
+                ? isRTL
+                  ? "کاپی!"
+                  : "Copied!"
+                : isRTL
+                  ? "لنک کاپی"
+                  : "Copy"}
             </button>
             <button
               onClick={() => handleShare("whatsapp")}
@@ -311,7 +378,10 @@ export default function ArticleDetail() {
             <button
               onClick={() => window?.print()}
               className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg border cursor-pointer hover:bg-white transition-colors"
-              style={{ borderColor: COLORS?.border, color: COLORS?.textSecondary }}
+              style={{
+                borderColor: COLORS?.border,
+                color: COLORS?.textSecondary,
+              }}
             >
               <Printer className="w-3.5 h-3.5" />
             </button>
@@ -328,9 +398,7 @@ export default function ArticleDetail() {
               borderTopColor: "transparent",
               borderBottomColor: "transparent",
               borderLeftColor: "transparent",
-              border: isRTL
-                ? `0 0 0 4px ${COLORS?.accent}`
-                : undefined,
+              border: isRTL ? `0 0 0 4px ${COLORS?.accent}` : undefined,
               borderRight: isRTL ? `4px solid ${COLORS?.accent}` : undefined,
               borderLeft: !isRTL ? `4px solid ${COLORS?.accent}` : undefined,
             }}
@@ -368,7 +436,10 @@ export default function ArticleDetail() {
         {article?.references?.length > 0 && (
           <div
             className="rounded-xl p-5 mb-8 border"
-            style={{ backgroundColor: COLORS?.white, borderColor: COLORS?.border }}
+            style={{
+              backgroundColor: COLORS?.white,
+              borderColor: COLORS?.border,
+            }}
           >
             <h3
               className="text-sm font-bold font-serif mb-3 flex items-center gap-2"
@@ -400,7 +471,10 @@ export default function ArticleDetail() {
         {pdfUrl && (
           <div
             className="rounded-2xl border p-5 sm:p-6 mb-8"
-            style={{ backgroundColor: COLORS?.white, borderColor: COLORS?.border }}
+            style={{
+              backgroundColor: COLORS?.white,
+              borderColor: COLORS?.border,
+            }}
           >
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div>
@@ -431,13 +505,23 @@ export default function ArticleDetail() {
                   style={{
                     borderColor: COLORS?.accent,
                     color: COLORS?.primary,
-                    backgroundColor: showEmbeddedPdf ? `${COLORS?.secondary}50` : "transparent",
+                    backgroundColor: showEmbeddedPdf
+                      ? `${COLORS?.secondary}50`
+                      : "transparent",
                   }}
                 >
-                  {showEmbeddedPdf ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
+                  {showEmbeddedPdf ? (
+                    <Minimize2 className="w-3.5 h-3.5" />
+                  ) : (
+                    <Maximize2 className="w-3.5 h-3.5" />
+                  )}
                   {showEmbeddedPdf
-                    ? (isRTL ? "قاری بند کریں" : "Hide Reader")
-                    : (isRTL ? "یہاں پڑھیں" : "Read Here")}
+                    ? isRTL
+                      ? "قاری بند کریں"
+                      : "Hide Reader"
+                    : isRTL
+                      ? "یہاں پڑھیں"
+                      : "Read Here"}
                 </button>
                 <a
                   href={pdfUrl}
@@ -445,7 +529,10 @@ export default function ArticleDetail() {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-2 px-4 py-2.5 text-xs font-semibold rounded-xl border cursor-pointer transition-colors hover:bg-slate-50"
-                  style={{ borderColor: COLORS?.border, color: COLORS?.textSecondary }}
+                  style={{
+                    borderColor: COLORS?.border,
+                    color: COLORS?.textSecondary,
+                  }}
                 >
                   <Download className="w-3.5 h-3.5" />
                   {isRTL ? "ڈاؤن لوڈ" : "Download"}
@@ -459,7 +546,11 @@ export default function ArticleDetail() {
                 className="mt-5 rounded-xl overflow-hidden border"
                 style={{ height: "700px", borderColor: COLORS?.border }}
               >
-                <PdfViewer url={pdfUrl} title={article?.title} isModal={false} />
+                <PdfViewer
+                  url={pdfUrl}
+                  title={article?.title}
+                  isModal={false}
+                />
               </div>
             )}
           </div>
@@ -470,32 +561,51 @@ export default function ArticleDetail() {
         ══════════════════════════════════════════════════════════════ */}
         <div
           className="rounded-2xl border overflow-hidden mb-8"
-          style={{ backgroundColor: COLORS?.white, borderColor: COLORS?.border }}
+          style={{
+            backgroundColor: COLORS?.white,
+            borderColor: COLORS?.border,
+          }}
         >
           <button
             type="button"
             onClick={() => setIsCommentsOpen((v) => !v)}
             className="w-full flex items-center justify-between gap-3 px-5 py-4 cursor-pointer transition-colors hover:bg-slate-50"
-            style={{ borderBottom: isCommentsOpen ? `1px solid ${COLORS?.border}` : "none" }}
+            style={{
+              borderBottom: isCommentsOpen
+                ? `1px solid ${COLORS?.border}`
+                : "none",
+            }}
           >
             <div className="flex items-center gap-3">
               <div
                 className="w-9 h-9 rounded-xl flex items-center justify-center"
                 style={{
-                  backgroundColor: isCommentsOpen ? COLORS?.primary : `${COLORS?.primary}12`,
+                  backgroundColor: isCommentsOpen
+                    ? COLORS?.primary
+                    : `${COLORS?.primary}12`,
                   color: isCommentsOpen ? COLORS?.accent : COLORS?.primary,
                 }}
               >
                 <MessageSquare className="w-4 h-4" />
               </div>
               <div className="text-right">
-                <span className="text-sm font-bold block font-serif" style={{ color: COLORS?.primary }}>
+                <span
+                  className="text-sm font-bold block font-serif"
+                  style={{ color: COLORS?.primary }}
+                >
                   {isRTL ? "تبصرے و آراء" : "Comments & Feedback"}
                 </span>
-                <span className="text-[11px]" style={{ color: COLORS?.textSecondary }}>
+                <span
+                  className="text-[11px]"
+                  style={{ color: COLORS?.textSecondary }}
+                >
                   {isRTL
-                    ? isCommentsOpen ? "تبصرے بند کریں" : "تبصرہ لکھیں"
-                    : isCommentsOpen ? "Hide comments" : "View & add comments"}
+                    ? isCommentsOpen
+                      ? "تبصرے بند کریں"
+                      : "تبصرہ لکھیں"
+                    : isCommentsOpen
+                      ? "Hide comments"
+                      : "View & add comments"}
                 </span>
               </div>
             </div>
@@ -548,13 +658,17 @@ export default function ArticleDetail() {
               {relatedArticles?.map((relArt) => {
                 const relImg = getImageSrc(relArt?.featuredImage);
                 const relCategory =
-                  ARTICLE_CATEGORY_TRANSLATIONS[relArt?.category] || relArt?.category;
+                  ARTICLE_CATEGORY_TRANSLATIONS[relArt?.category] ||
+                  relArt?.category;
                 return (
                   <Link
                     key={relArt?._id}
                     to={`/articles/slug/${relArt?.slug || relArt?._id}`}
                     className="group rounded-xl overflow-hidden border transition-all hover:shadow-md"
-                    style={{ backgroundColor: COLORS?.white, borderColor: COLORS?.border }}
+                    style={{
+                      backgroundColor: COLORS?.white,
+                      borderColor: COLORS?.border,
+                    }}
                   >
                     {/* Related article thumbnail */}
                     <div
@@ -575,12 +689,16 @@ export default function ArticleDetail() {
                       <div
                         className="absolute inset-0"
                         style={{
-                          background: "linear-gradient(to top, rgba(30,15,5,0.75) 0%, transparent 60%)",
+                          background:
+                            "linear-gradient(to top, rgba(30,15,5,0.75) 0%, transparent 60%)",
                         }}
                       />
                       <span
                         className="absolute bottom-2 right-2 text-[9px] font-bold px-2 py-0.5 rounded-full"
-                        style={{ backgroundColor: COLORS?.accent, color: "#fff" }}
+                        style={{
+                          backgroundColor: COLORS?.accent,
+                          color: "#fff",
+                        }}
                       >
                         {relCategory}
                       </span>

@@ -135,58 +135,38 @@ export default function Navbar() {
     {
       label: language === "en" ? "Home" : "صفحہ اول",
       href: "/",
-      hasDropdown: false,
     },
     {
       label: language === "en" ? "About" : "تعارف",
       href: "/about",
-      hasDropdown: false,
     },
     {
       label: language === "en" ? "Fatwas" : "فقہ و فتاویٰ",
       href: "/fatwas",
-      hasDropdown: true,
-      hasCategories: true,
-      categories: CATEGORY_MAP.fatwas,
     },
     {
       label: language === "en" ? "Publications" : "کتب و رسائل",
       href: "/publications",
-      hasDropdown: true,
-      hasCategories: true,
-      categories: CATEGORY_MAP.publications,
     },
     {
       label: language === "en" ? "Articles" : "مضامین و مقالات",
       href: "/articles",
-      hasDropdown: true,
-      hasCategories: true,
-      categories: CATEGORY_MAP.articles,
     },
     {
       label: language === "en" ? "Lectures" : "خطبات",
       href: "/lectures",
-      hasDropdown: true,
-      hasCategories: true,
-      categories: CATEGORY_MAP.lectures,
     },
-    // { label: language === "en" ? "Videos" : "ویڈیوز", href: "/youtube-videos", hasDropdown: false },
     {
       label: language === "en" ? "Q&A" : "سوال و جواب",
       href: "/qa",
-      hasDropdown: true,
-      hasCategories: true,
-      categories: CATEGORY_MAP.qa,
     },
     {
       label: language === "en" ? "Events" : "پروگرام",
       href: "/events",
-      hasDropdown: false,
     },
     {
       label: language === "en" ? "Contact" : "رابطہ",
       href: "/contact",
-      hasDropdown: false,
     },
   ];
 
@@ -250,97 +230,6 @@ export default function Navbar() {
                   >
                     <span>{item.label}</span>
                   </Link>
-
-                  {/* Floating Submenu Dropdown Panel */}
-                  <AnimatePresence>
-                    {isHovered && item.hasDropdown && (
-                      <motion.div
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
-                        transition={{ duration: 0.28, ease: "easeOut" }}
-                        style={{
-                          backgroundColor: COLORS.primary,
-                          borderColor: COLORS.accent,
-                          zIndex: 9999,
-                        }}
-                        className={`absolute ${
-                          language === "ur"
-                            ? "right-0 text-right"
-                            : "left-0 text-left"
-                        } top-full w-[360px] shadow-2xl border-x border-b overflow-hidden rounded-none mt-0`}
-                      >
-                        <ul className="divide-y divide-[rgba(184,156,125,0.18)] max-h-[50vh] overflow-y-auto custom-scrollbar">
-                          {item.hasCategories ? (
-                            <>
-                              <li>
-                                <Link
-                                  to={item.href}
-                                  className="flex items-center px-6 h-[64px] text-[15px] font-medium text-white transition-all duration-300 hover:bg-[rgba(255,255,255,0.06)]"
-                                  style={{
-                                    borderRight:
-                                      language === "ur"
-                                        ? `4px solid ${COLORS.accent}`
-                                        : "none",
-                                    borderLeft:
-                                      language === "en"
-                                        ? `4px solid ${COLORS.accent}`
-                                        : "none",
-                                  }}
-                                >
-                                  {language === "ur"
-                                    ? "تمام موضوعات"
-                                    : "All Topics"}
-                                </Link>
-                              </li>
-                              {item.categories.map((cat) => {
-                                const isSubActive = location.search.includes(
-                                  cat.value
-                                );
-                                return (
-                                  <li key={cat.value}>
-                                    <Link
-                                      to={`${item.href}?category=${encodeURIComponent(cat.value)}`}
-                                      style={{
-                                        color: isSubActive
-                                          ? COLORS.accent
-                                          : COLORS.white,
-                                      }}
-                                      className="flex items-center px-6 h-[64px] text-[15px] font-medium transition-all duration-300 hover:bg-[rgba(255,255,255,0.06)]"
-                                    >
-                                      {language === "ur"
-                                        ? cat.labelUr
-                                        : cat.labelEn}
-                                    </Link>
-                                  </li>
-                                );
-                              })}
-                            </>
-                          ) : (
-                            item.dropdownItems.map((sub) => {
-                              const isSubActive =
-                                location.pathname === sub.href;
-                              return (
-                                <li key={sub.label}>
-                                  <Link
-                                    to={sub.href}
-                                    style={{
-                                      color: isSubActive
-                                        ? COLORS.accent
-                                        : COLORS.white,
-                                    }}
-                                    className="flex items-center px-6 h-[64px] text-[15px] font-medium transition-all duration-300 hover:bg-[rgba(255,255,255,0.06)]"
-                                  >
-                                    {sub.label}
-                                  </Link>
-                                </li>
-                              );
-                            })
-                          )}
-                        </ul>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
                 </div>
                 {index < allItems.length - 1 && (
                   <div
@@ -542,128 +431,29 @@ export default function Navbar() {
 
             {/* Scrollable Nav List */}
             <nav className="flex-1 overflow-y-auto my-3 py-1 pe-1 custom-drawer-scrollbar flex flex-col gap-1.5">
-              {allItems.map((item, index) => {
+              {allItems.map((item) => {
                 const isActive =
                   location.pathname === item.href ||
                   (item.href !== "/" &&
                     location.pathname.startsWith(item.href));
 
-                if (!item.hasDropdown) {
-                  return (
-                    <Link
-                      key={item.label}
-                      to={item.href}
-                      onClick={closeMenu}
-                      style={
-                        isActive
-                          ? {
-                              backgroundColor: COLORS.secondary,
-                              color: COLORS.primary,
-                            }
-                          : { color: COLORS.textSecondary }
-                      }
-                      className={`px-3.5 py-2.5 rounded-lg text-base font-medium transition-all ${isActive ? "font-bold shadow-xs" : "hover:bg-slate-100/80 hover:text-slate-900"}`}
-                    >
-                      {item.label}
-                    </Link>
-                  );
-                }
-
-                const isDropdownOpen = mobileOpenDropdown === index;
                 return (
-                  <div key={item.label} className="flex flex-col">
-                    <button
-                      onClick={() =>
-                        setMobileOpenDropdown(isDropdownOpen ? null : index)
-                      }
-                      style={{ color: COLORS.textSecondary }}
-                      className={`flex items-center justify-between px-3.5 py-2.5 rounded-lg text-base font-medium transition-all hover:bg-slate-100/80 hover:text-slate-900 ${isDropdownOpen ? "bg-slate-50 font-semibold" : ""}`}
-                    >
-                      <span>{item.label}</span>
-                      <span
-                        className={`text-[10px] transition-transform duration-200 ${isDropdownOpen ? "rotate-180" : ""}`}
-                        style={{ color: COLORS.accent }}
-                      >
-                        ▼
-                      </span>
-                    </button>
-                    <AnimatePresence>
-                      {isDropdownOpen && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: "auto", opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          className="overflow-hidden"
-                        >
-                          <ul
-                            style={{
-                              backgroundColor: COLORS.primary,
-                              borderColor: COLORS.accent,
-                            }}
-                            className="mt-1.5 mx-1 rounded-lg border overflow-hidden divide-y divide-[rgba(184,156,125,0.18)] shadow-sm"
-                          >
-                            {item.hasCategories ? (
-                              <>
-                                <li>
-                                  <Link
-                                    to={item.href}
-                                    onClick={closeMenu}
-                                    className={`block py-2.5 px-4 text-sm font-semibold text-white transition-colors hover:bg-[rgba(255,255,255,0.08)] ${language === "ur" ? "text-right" : "text-left"}`}
-                                  >
-                                    {"تمام موضوعات"}
-                                  </Link>
-                                </li>
-                                {item.categories.map((cat) => {
-                                  const isSubActive = location.search.includes(
-                                    cat.value
-                                  );
-                                  return (
-                                    <li key={cat.value}>
-                                      <Link
-                                        to={`${item.href}?category=${encodeURIComponent(cat.value)}`}
-                                        onClick={closeMenu}
-                                        style={{
-                                          color: isSubActive
-                                            ? COLORS.accent
-                                            : COLORS.white,
-                                        }}
-                                        className={`block py-2.5 px-4 text-sm font-medium transition-colors hover:bg-[rgba(255,255,255,0.08)] ${language === "ur" ? "text-right" : "text-left"}`}
-                                      >
-                                        {language === "ur"
-                                          ? cat.labelUr
-                                          : cat.labelEn}
-                                      </Link>
-                                    </li>
-                                  );
-                                })}
-                              </>
-                            ) : (
-                              item.dropdownItems?.map((sub) => {
-                                const isSubActive =
-                                  location.pathname === sub.href;
-                                return (
-                                  <li key={sub.label}>
-                                    <Link
-                                      to={sub.href}
-                                      onClick={closeMenu}
-                                      style={{
-                                        color: isSubActive
-                                          ? COLORS.accent
-                                          : COLORS.white,
-                                      }}
-                                      className={`block py-2.5 px-4 text-sm font-medium transition-colors hover:bg-[rgba(255,255,255,0.08)] ${language === "ur" ? "text-right" : "text-left"}`}
-                                    >
-                                      {sub.label}
-                                    </Link>
-                                  </li>
-                                );
-                              })
-                            )}
-                          </ul>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
+                  <Link
+                    key={item.label}
+                    to={item.href}
+                    onClick={closeMenu}
+                    style={
+                      isActive
+                        ? {
+                            backgroundColor: COLORS.secondary,
+                            color: COLORS.primary,
+                          }
+                        : { color: COLORS.textSecondary }
+                    }
+                    className={`px-3.5 py-2.5 rounded-lg text-base font-medium transition-all ${isActive ? "font-bold shadow-xs" : "hover:bg-slate-100/80 hover:text-slate-900"}`}
+                  >
+                    {item.label}
+                  </Link>
                 );
               })}
             </nav>

@@ -63,6 +63,7 @@ export default function AppRoutes() {
         <Route path="publications" element={<PublicationsList />} />
         <Route path="publications/slug/:slug" element={<BookDetail />} />
         <Route path="publications/:slug" element={<BookDetail />} />
+        <Route path="books" element={<PublicationsList />} />
         <Route path="books/slug/:slug" element={<BookDetail />} />
         <Route path="books/:slug" element={<BookDetail />} />
         <Route path="lectures" element={<LecturesList />} />

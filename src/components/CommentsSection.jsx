@@ -292,7 +292,10 @@ function CommentRow({
             {(() => {
               let displayText = comment.text || "";
               if (comment.replyToUser?.name) {
-                const prefixRegex = new RegExp(`^@${comment.replyToUser.name}\\s*`, "i");
+                const prefixRegex = new RegExp(
+                  `^@${comment.replyToUser.name}\\s*`,
+                  "i"
+                );
                 displayText = displayText.replace(prefixRegex, "");
               }
               return displayText;
