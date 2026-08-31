@@ -12,5 +12,8 @@ export function getLocaleDateTime(timestamp, whatFor = "") {
 
     if (whatFor === "date") return date;
     if (whatFor === "time") return time;
+
     return { date, time };
 }
+
+// check
