@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { useSettings } from '@/hooks/useSettings';
-import { Navbar, Footer } from '@/layout';
+import { Navbar, Footer, Header } from '@/layout';
 import { COLORS } from '@/utils/themeColors';
 
 export const fontFamilies = {
@@ -188,8 +188,8 @@ export default function MainLayout() {
 
   return (
     <div className="flex flex-col min-h-screen bg-background relative">
-      {/* Premium header navigation */}
-      <Navbar />
+      {/* Unified Connected Header & Navbar Component */}
+      <Header />
 
       {/* Main page content area */}
       <main className={pageTransitionClass}>

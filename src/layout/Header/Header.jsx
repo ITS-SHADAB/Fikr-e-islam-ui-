@@ -1,246 +1,903 @@
-import React, { useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
-import { NAV_ITEMS } from '@/constants/navigation'
-import { SITE } from '@/data/siteData'
-import { LogoSeal } from '@/layout';
-import { Input } from '@/components';
-import { COLORS } from '@/utils/themeColors'
+import React, { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Menu,
+  X,
+  Home,
+  Search,
+  User,
+  HelpCircle,
+  LogOut,
+  LayoutDashboard,
+  Settings,
+  ChevronDown,
+} from "lucide-react";
+import { logout } from "@/store/slices/authSlice";
+import { useSettings } from "@/hooks/useSettings";
+import { logoutUser } from "@/services";
+import Modal from "@/components/Modal/Modal";
+import Login from "@/pages/Admin/pages/Login";
+import Signup from "@/pages/Admin/pages/Signup";
+
+/* ─── Corner Botanical Arabesque Branch SVG ─── */
+function CornerArabesque({ className = "" }) {
+  return (
+    <svg
+      viewBox="0 0 120 120"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={`text-[#C5A572] pointer-events-none select-none ${className}`}
+    >
+      {/* Outer corner line */}
+      <path
+        d="M3 116 L3 24 C3 12 12 3 24 3 L116 3"
+        stroke="currentColor"
+        strokeWidth="1.1"
+        strokeLinecap="round"
+      />
+      {/* Inner dotted border */}
+      <path
+        d="M8 112 L8 28 C8 17 17 8 28 8 L112 8"
+        stroke="currentColor"
+        strokeWidth="0.7"
+        strokeDasharray="2.5 2.5"
+        opacity="0.6"
+      />
+
+      {/* Main blooming branch vine */}
+      <path
+        d="M6 100 C12 62 38 34 76 14 C90 8 106 6 114 6"
+        stroke="currentColor"
+        strokeWidth="1"
+        strokeLinecap="round"
+        fill="none"
+      />
+      
+      {/* Secondary vine stems */}
+      <path
+        d="M20 78 C28 58 48 42 70 34"
+        stroke="currentColor"
+        strokeWidth="0.75"
+        fill="none"
+      />
+      <path
+        d="M40 52 C52 40 68 32 88 26"
+        stroke="currentColor"
+        strokeWidth="0.7"
+        fill="none"
+      />
+
+      {/* Foliage / Leaves */}
+      <path d="M12 90 C16 82 24 82 24 90 C24 98 16 98 12 90 Z" fill="currentColor" opacity="0.65" />
+      <path d="M6 82 C14 78 18 84 14 92 C10 88 6 82 6 82 Z" fill="currentColor" opacity="0.55" />
+      <path d="M22 68 C28 62 36 64 34 72 C28 72 22 68 22 68 Z" fill="currentColor" opacity="0.7" />
+
+      {/* 4-Petal Flower Florets */}
+      <g transform="translate(94, 16) scale(0.85)">
+        <circle cx="0" cy="0" r="1.5" fill="#4A3728" />
+        <ellipse cx="0" cy="-4.5" rx="1.8" ry="3.5" fill="currentColor" />
+        <ellipse cx="0" cy="4.5" rx="1.8" ry="3.5" fill="currentColor" />
+        <ellipse cx="-4.5" cy="0" rx="3.5" ry="1.8" fill="currentColor" />
+        <ellipse cx="4.5" cy="0" rx="3.5" ry="1.8" fill="currentColor" />
+        <circle cx="3.2" cy="-3.2" r="0.9" fill="currentColor" opacity="0.8" />
+        <circle cx="-3.2" cy="-3.2" r="0.9" fill="currentColor" opacity="0.8" />
+        <circle cx="3.2" cy="3.2" r="0.9" fill="currentColor" opacity="0.8" />
+        <circle cx="-3.2" cy="3.2" r="0.9" fill="currentColor" opacity="0.8" />
+      </g>
+
+      <g transform="translate(58, 38) scale(0.75)">
+        <circle cx="0" cy="0" r="1.5" fill="#4A3728" />
+        <ellipse cx="0" cy="-4" rx="1.6" ry="3" fill="currentColor" />
+        <ellipse cx="0" cy="4.5" rx="1.6" ry="3" fill="currentColor" />
+        <ellipse cx="-4" cy="0" rx="3" ry="1.6" fill="currentColor" />
+        <ellipse cx="4" cy="0" rx="3" ry="1.6" fill="currentColor" />
+      </g>
+
+      {/* Corner tip diamond floret */}
+      <polygon points="14,14 17,10 20,14 17,18" fill="currentColor" />
+      <circle cx="17" cy="14" r="1" fill="#4A3728" />
+    </svg>
+  );
+}
+
+/* ─── 8-Petal Rosette Medallion SVG ─── */
+function RosetteMedallion({ className = "" }) {
+  return (
+    <svg
+      className={`text-[#C5A572] ${className}`}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+    >
+      <circle cx="12" cy="12" r="2.2" fill="#4A3728" />
+      <path d="M12 2 C12.8 4.5 13.5 6.5 12 8 C10.5 6.5 11.2 4.5 12 2 Z" />
+      <path d="M12 22 C12.8 19.5 13.5 17.5 12 16 C10.5 17.5 11.2 19.5 12 22 Z" />
+      <path d="M2 12 C4.5 12.8 6.5 13.5 8 12 C6.5 10.5 4.5 11.2 2 12 Z" />
+      <path d="M22 12 C19.5 12.8 17.5 13.5 16 12 C17.5 10.5 19.5 11.2 22 12 Z" />
+      <path d="M4.9 4.9 C7.2 6.3 8.7 8.1 8 9.5 C6.7 9 5.3 7.3 4.9 4.9 Z" />
+      <path d="M19.1 19.1 C16.8 17.7 15.3 15.9 16 14.5 C17.3 15 18.7 16.7 19.1 19.1 Z" />
+      <path d="M19.1 4.9 C17.7 7.2 15.9 8.7 14.5 8 C15 6.7 16.7 5.3 19.1 4.9 Z" />
+      <path d="M4.9 19.1 C6.3 16.8 8.1 15.3 9.5 16 C9 17.3 7.3 18.7 4.9 19.1 Z" />
+    </svg>
+  );
+}
 
 export default function Header() {
-  const location = useLocation()
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [activeDropdownIndex, setActiveDropdownIndex] = useState(null)
+  const location = useLocation();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-  const toggleMobileMenu = () => {
-    setMobileMenuOpen(!mobileMenuOpen)
-  }
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authMode, setAuthMode] = useState("login"); // "login" | "signup"
+  const [isOpen, setIsOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [showProfileDropdown, setShowProfileDropdown] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const searchInputRef = useRef(null);
 
-  const toggleDropdown = (index, e) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setActiveDropdownIndex(activeDropdownIndex === index ? null : index)
-  }
+  // Scroll listener for fixed / sticky header effect
+  useEffect(() => {
+    let ticking = false;
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const isPast = window.scrollY > 15;
+          setScrolled((prev) => (prev !== isPast ? isPast : prev));
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
 
-  const closeMobileMenu = () => {
-    setMobileMenuOpen(false)
-    setActiveDropdownIndex(null)
-  }
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const { isAuthenticated, loggedInUser, userRole } = useSelector(
+    (state) => state.auth
+  );
+  const { settings } = useSettings();
+  const language =
+    settings?.language === "ur" || settings?.language === "Urdu" ? "ur" : "en";
+  const isUrdu = language === "ur";
+
+  const openLogin = () => {
+    setAuthMode("login");
+    setIsAuthModalOpen(true);
+  };
+
+  const closeAuthModal = () => {
+    setIsAuthModalOpen(false);
+  };
+
+  useEffect(() => {
+    if (isAuthenticated && isAuthModalOpen) {
+      setIsAuthModalOpen(false);
+    }
+  }, [isAuthenticated, isAuthModalOpen]);
+
+  // Click outside profile dropdown
+  useEffect(() => {
+    if (!showProfileDropdown) return;
+    const clickAway = () => setShowProfileDropdown(false);
+    window.addEventListener("click", clickAway);
+    return () => window.removeEventListener("click", clickAway);
+  }, [showProfileDropdown]);
+
+  // Escape key & focus for search popover
+  useEffect(() => {
+    if (!isSearchOpen) return;
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        setIsSearchOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    if (searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isSearchOpen]);
+
+  // Body scroll locking when mobile drawer is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
+
+  const closeMenu = () => {
+    setIsOpen(false);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logoutUser();
+    } catch (err) {
+      console.warn("API logout failed, clearing local state anyway", err);
+    }
+    dispatch(logout());
+    closeMenu();
+    window.location.reload();
+  };
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    if (!searchQuery.trim()) return;
+    navigate(`/articles?search=${encodeURIComponent(searchQuery.trim())}`);
+    setIsSearchOpen(false);
+    setSearchQuery("");
+  };
+
+  const getInitials = (user) => {
+    if (!user) return "U";
+    const name = user.name;
+    const email = user.loginEmail;
+
+    if (name && name.trim()) {
+      if (!name.includes("@")) {
+        return name
+          .trim()
+          .split(/\s+/)
+          .map((word) => word[0])
+          .join("")
+          .toUpperCase()
+          .slice(0, 2);
+      }
+    }
+
+    if (email && email.trim()) {
+      const username = email.split("@")[0];
+      return username
+        .split(/[._-]/)
+        .filter(Boolean)
+        .map((word) => word[0])
+        .join("")
+        .toUpperCase()
+        .slice(0, 2);
+    }
+
+    if (user.loginPhone) {
+      return user.loginPhone.slice(-3);
+    }
+
+    return "U";
+  };
+
+  // Exact navigation items matching the reference screenshot verbatim
+  const navLinks = [
+    {
+      label: isUrdu ? "تعارف" : "About",
+      href: "/about",
+    },
+    {
+      label: isUrdu ? "فتاویٰ" : "Fatwas",
+      href: "/fatwas",
+    },
+    {
+      label: isUrdu ? "سوال وجواب" : "Q&A",
+      href: "/qa",
+    },
+    {
+      label: isUrdu ? "مقالات" : "Articles",
+      href: "/articles",
+      hasDropdown: true,
+    },
+    {
+      label: isUrdu ? "کتب ورسائل" : "Publications",
+      href: "/publications",
+    },
+    {
+      label: isUrdu ? "خطبات" : "Lectures",
+      href: "/lectures",
+    },
+    {
+      label: isUrdu ? "پروگرام" : "Events",
+      href: "/events",
+    },
+    {
+      label: isUrdu ? "رابطہ" : "Contact",
+      href: "/contact",
+    },
+  ];
+
+  // Mobile navigation items
+  const allMobileItems = [
+    {
+      label: isUrdu ? "صفحہ اول" : "Home",
+      href: "/",
+      icon: Home,
+    },
+    ...navLinks,
+  ];
+
+  const isHomeActive = location.pathname === "/";
 
   return (
-    <header 
-      style={{ backgroundColor: COLORS.white, borderBottomColor: COLORS.border }}
-      className="border-b px-4 md:px-7 sticky top-0 z-40 shadow-sm font-serif"
+    <div
+      className={`w-full sticky top-0 z-40 transition-all duration-300 select-none ${
+        scrolled
+          ? "py-1 sm:py-1.5 bg-[#FAF7F2]/95 shadow-sm"
+          : "pt-1.5 sm:pt-2.5 pb-1 sm:pb-2 bg-transparent"
+      } px-2 sm:px-4 md:px-6`}
+      dir="rtl"
     >
-      <div className="max-w-[1440px] mx-auto h-[80px] md:h-[100px] flex items-center justify-between gap-2 md:gap-4">
+      <div className="max-w-[1360px] mx-auto">
+        
+        {/* ══════════════════════════════════════════════════════════════
+            ONE SINGLE CONNECTED HEADER COMPONENT (Non-Sticky, Minimum Height)
+            ══════════════════════════════════════════════════════════════ */}
+        <header className="relative w-full rounded-2xl sm:rounded-3xl border border-[#9A7E56]/60 bg-[#21150F] text-[#FAF7F2] shadow-[0_6px_24px_rgba(25,16,10,0.18)] overflow-hidden">
+          
+          {/* ────────────────────────────────────────────────────────────
+              1. TOP CREAM BRANDING AREA (Warm Ivory with Radial Illumination)
+              ──────────────────────────────────────────────────────────── */}
+          <div className="relative w-full bg-[radial-gradient(ellipse_at_top,_#FFFDF9_0%,_#FAF6ED_45%,_#F2E7D5_100%)] text-[#22160F] pt-2 sm:pt-2.5 pb-1 sm:pb-1.5 px-3 sm:px-8 overflow-hidden">
+            
+            {/* Outer Inset Decorative Frame */}
+            <div className="absolute inset-1 sm:inset-1.5 rounded-[12px] sm:rounded-[18px] border border-[#D4BC96]/40 pointer-events-none" />
+            {/* Inner Fine Dotted Accent Frame */}
+            <div className="absolute inset-2 sm:inset-2.5 rounded-[10px] sm:rounded-[15px] border border-[#DFC8A4]/25 border-dashed pointer-events-none opacity-60" />
 
-        {/* Hamburger Menu Button (Leftmost in RTL / Visually Left) */}
-        <button
-          onClick={toggleMobileMenu}
-          style={{ borderColor: COLORS.border, backgroundColor: COLORS.background }}
-          className="flex lg:hidden flex-col justify-center items-center w-10 h-10 border rounded transition-colors focus:outline-none theme-hover-bg-secondary"
-          aria-label="مینو"
-        >
-          <span style={{ backgroundColor: COLORS.primary }} className={`block w-6 h-0.5 transition-all duration-300 ${mobileMenuOpen ? 'rotate-45 translate-y-1.5' : ''}`}></span>
-          <span style={{ backgroundColor: COLORS.primary }} className={`block w-6 h-0.5 my-1 transition-all duration-300 ${mobileMenuOpen ? 'opacity-0' : ''}`}></span>
-          <span style={{ backgroundColor: COLORS.primary }} className={`block w-6 h-0.5 transition-all duration-300 ${mobileMenuOpen ? '-rotate-45 -translate-y-1.5' : ''}`}></span>
-        </button>
-
-        {/* Search — leftmost in Desktop, responsive width on smaller devices */}
-        <div 
-          style={{ borderColor: COLORS.border, backgroundColor: COLORS.white }}
-          className="flex items-center border h-[36px] md:h-[38px] shrink-0 overflow-hidden"
-        >
-          <button 
-            style={{ backgroundColor: COLORS.white, borderRight: `1px solid ${COLORS.border}`, color: COLORS.textSecondary }}
-            className="border-none w-[36px] md:w-[38px] h-[36px] md:h-[38px] flex items-center justify-center text-[15px] hover:bg-gray-50 transition-colors"
-          >
-            🔍
-          </button>
-          <Input
-            type="text"
-            placeholder="تلاش..."
-            style={{ color: COLORS.textPrimary }}
-            inputClassName="border-none outline-none px-2 md:px-3.5 text-[13px] md:text-[14px] w-[80px] sm:w-[120px] md:w-[170px] direction-rtl bg-transparent font-[inherit] placeholder:text-textSecondary/50"
-            aria-label="تلاش"
-            border=""
-          />
-        </div>
-
-        {/* Navigation — center (Desktop Only) */}
-        <nav className="hidden lg:flex flex-1 justify-center h-full" aria-label="مرکزی نیویگیشن">
-          <ul className="flex items-stretch h-[100px]">
-            {NAV_ITEMS.map((item) => {
-              const isActive = location.pathname === item.href || 
-                               (item.href !== '/' && location.pathname.startsWith(item.href))
-
-              return (
-                <li key={item.label} className="relative group flex items-stretch">
-                  <Link
-                    to={item.hasDropdown && item.dropdownItems ? item.dropdownItems[0].href : item.href}
-                    style={isActive ? { color: COLORS.primary } : { color: COLORS.textPrimary }}
-                    className={`nav-link flex items-center gap-1.5 px-[14px] xl:px-[18px] text-[18px] xl:text-[19px] whitespace-nowrap h-[100px] ${isActive ? 'active' : ''}`}
-                  >
-                    {item.label}
-                    {item.hasDropdown && (
-                      <span style={{ color: COLORS.accent }} className="text-[11px] select-none transition-transform group-hover:rotate-180">
-                        ‹
-                      </span>
-                    )}
-                  </Link>
-
-                  {/* Dropdown menu */}
-                  {item.hasDropdown && item.dropdownItems && (
-                    <div 
-                      style={{ backgroundColor: COLORS.primary, borderTopColor: COLORS.accent }}
-                      className="absolute right-0 top-[100px] hidden group-hover:block border-t-2 shadow-xl min-w-[320px] z-[100] text-right"
-                    >
-                      <ul className="py-1">
-                        {item.dropdownItems.map((subItem, idx) => {
-                          const isSubActive = location.pathname === subItem.href
-
-                          return (
-                            <li key={idx} style={{ borderBottomColor: COLORS.border }} className="border-b last:border-none">
-                              <Link
-                                to={subItem.href}
-                                style={isSubActive ? { backgroundColor: COLORS.accent, color: COLORS.white } : { color: COLORS.white }}
-                                className="block px-6 py-3.5 text-[16px] transition-colors leading-relaxed whitespace-normal theme-hover-bg-accent"
-                              >
-                                {subItem.label}
-                              </Link>
-                            </li>
-                          )
-                        })}
-                      </ul>
-                    </div>
-                  )}
-                </li>
-              )
-            })}
-          </ul>
-        </nav>
-
-        {/* Logo — rightmost in RTL */}
-        <Link to="/" className="flex items-center gap-2 md:gap-3.5 shrink-0 hover:opacity-95 transition-opacity max-w-[60%] sm:max-w-none">
-          <div className="leading-[1.2] sm:leading-[1.35] text-right">
-            <span style={{ color: COLORS.primary }} className="block text-[18px] sm:text-[24px] md:text-[30px] font-bold leading-[1.2] whitespace-nowrap overflow-hidden text-ellipsis">
-              {SITE.nameArabic}
-            </span>
-            <span style={{ color: COLORS.accent }} className="block text-[9px] sm:text-[11px] md:text-[13px] mt-0.5 whitespace-nowrap overflow-hidden text-ellipsis">
-              {SITE.nameUrdu}
-            </span>
-          </div>
-          <div className="w-[50px] h-[50px] md:w-[76px] md:h-[76px] flex items-center justify-center shrink-0">
-            <div className="md:hidden">
-              <LogoSeal size={50} />
-            </div>
-            <div className="hidden md:block">
-              <LogoSeal size={76} />
-            </div>
-          </div>
-        </Link>
-
-      </div>
-
-      {/* Mobile Drawer Overlay */}
-      <div
-        className={`fixed inset-0 z-[1000] bg-black bg-opacity-50 transition-opacity duration-300 lg:hidden ${
-          mobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
-        }`}
-        onClick={closeMobileMenu}
-      >
-        <div
-          style={{ backgroundColor: COLORS.primary }}
-          className={`fixed top-0 right-0 h-full w-[80%] max-w-[350px] text-white z-[1001] shadow-2xl transition-transform duration-300 transform ${
-            mobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
-          }`}
-          onClick={(e) => e.stopPropagation()}
-        >
-          {/* Drawer Header */}
-          <div 
-            style={{ borderBottomColor: COLORS.border, backgroundColor: COLORS.accent }}
-            className="flex items-center justify-between p-5 border-b"
-          >
-            <span style={{ color: COLORS.secondary }} className="font-bold text-[18px]">مینو</span>
-            <button
-              onClick={closeMobileMenu}
-              className="text-white hover:text-red-500 text-[24px] leading-none focus:outline-none transition-colors"
+            {/* Subtle Islamic Geometric Pattern Watermark */}
+            <svg
+              className="absolute inset-0 w-full h-full opacity-[0.04] pointer-events-none text-[#5A3F28]"
+              xmlns="http://www.w3.org/2000/svg"
             >
-              &times;
-            </button>
+              <defs>
+                <pattern
+                  id="islamic-star-pattern"
+                  width="44"
+                  height="44"
+                  patternUnits="userSpaceOnUse"
+                >
+                  <path
+                    d="M22 0 L27 16 L44 22 L27 28 L22 44 L17 28 L0 22 L17 16 Z"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="0.9"
+                  />
+                  <circle cx="22" cy="22" r="5" fill="none" stroke="currentColor" strokeWidth="0.7" />
+                </pattern>
+              </defs>
+              <rect width="100%" height="100%" fill="url(#islamic-star-pattern)" />
+            </svg>
+
+            {/* Top Elevated Arch / Pediment Line with Diamond Tips */}
+            <div className="w-full max-w-[920px] mx-auto mb-0.5 pointer-events-none opacity-50 flex items-center justify-center">
+              <svg viewBox="0 0 920 14" preserveAspectRatio="none" className="w-full h-2.5 sm:h-3 text-[#C5A572]">
+                <path
+                  d="M 20 10 L 340 10 L 370 3 L 550 3 L 580 10 L 900 10"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.1"
+                />
+                <circle cx="370" cy="3" r="1.5" fill="currentColor" />
+                <circle cx="550" cy="3" r="1.5" fill="currentColor" />
+              </svg>
+            </div>
+
+            {/* Top Corner Botanical Arabesque Branch Ornaments */}
+            <CornerArabesque className="absolute top-0 left-0 w-11 h-11 sm:w-15 sm:h-15 lg:w-18 lg:h-18 opacity-80" />
+            <CornerArabesque className="absolute top-0 right-0 w-11 h-11 sm:w-15 sm:h-15 lg:w-18 lg:h-18 -scale-x-100 opacity-80" />
+
+            {/* Center Calligraphic Branding Content — Ultra-Compact & Tight Vertical Rhythm */}
+            <div className="relative z-10 flex flex-col items-center justify-center text-center max-w-2xl mx-auto py-0">
+              
+              {/* Bismillah with Gold Diamond Florets */}
+              <div
+                style={{ fontFamily: "'Payami Quran', 'Noto Naskh Arabic', serif" }}
+                className="flex items-center justify-center gap-1.5 text-[11px] sm:text-[12px] lg:text-[13px] text-[#3F2B1D] font-medium leading-none mb-0"
+              >
+                <span className="text-[#C5A572] text-[9px] sm:text-[10px] select-none leading-none">❖</span>
+                <span className="tracking-wide">بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْم</span>
+                <span className="text-[#C5A572] text-[9px] sm:text-[10px] select-none leading-none">❖</span>
+              </div>
+
+              {/* Scholar Main Calligraphic Name Title */}
+              <Link
+                to="/"
+                className="group block transition-transform duration-200 hover:scale-[1.01] my-0 py-0"
+              >
+                <h1
+                  style={{ fontFamily: "'Payami Quran', 'Noto Naskh Arabic', serif" }}
+                  className="text-2xl sm:text-3xl md:text-3.5xl lg:text-[37px] xl:text-[39px] font-bold text-[#160B04] leading-[1.08] tracking-tight group-hover:text-[#4A3728] transition-colors my-0 py-0"
+                >
+                  مفتی فیضان سرور مصباحی
+                </h1>
+              </Link>
+
+              {/* Subtitle / Designation with Payami Nastaleeq font and Gold Florets */}
+              <div
+                style={{ fontFamily: "'Payami Nastaleeq', 'Noto Nastaliq Urdu', serif" }}
+                className="flex items-center justify-center gap-1.5 text-[11.5px] sm:text-[13px] lg:text-[14px] font-medium text-[#523B29] leading-none mt-0"
+              >
+                <span className="h-[1px] w-5 sm:w-9 bg-gradient-to-r from-transparent to-[#C5A572] hidden xs:inline-block" />
+                <span className="text-[#C5A572] text-[8.5px] sm:text-[9.5px] select-none">❖</span>
+                <span className="tracking-wide">قاضی شریعت و ترجمان اہل سنت</span>
+                <span className="text-[#C5A572] text-[8.5px] sm:text-[9.5px] select-none">❖</span>
+                <span className="h-[1px] w-5 sm:w-9 bg-gradient-to-l from-transparent to-[#C5A572] hidden xs:inline-block" />
+              </div>
+
+            </div>
+
           </div>
 
-          {/* Drawer Content */}
-          <nav className="overflow-y-auto h-[calc(100%-80px)] p-4 text-right custom-drawer-scrollbar">
-            <ul className="space-y-2">
-              {NAV_ITEMS.map((item, index) => {
-                const isActive = location.pathname === item.href || 
-                                 (item.href !== '/' && location.pathname.startsWith(item.href))
-                const isDropdownOpen = activeDropdownIndex === index
+          {/* ────────────────────────────────────────────────────────────
+              2. THE DEEPER S-CURVED TRANSITION & ROSETTE MEDALLION
+                 (Pronounced Graceful Curves + Synchronized Gold Border)
+              ──────────────────────────────────────────────────────────── */}
+          <div className="relative w-full -mt-2.5 sm:-mt-3.5 z-20 pointer-events-none">
+            <svg
+              viewBox="0 0 1200 48"
+              preserveAspectRatio="none"
+              className="w-full h-6 sm:h-7 lg:h-8.5 block"
+            >
+              <defs>
+                <linearGradient id="goldCurveGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stopColor="#A88B58" stopOpacity="0.9" />
+                  <stop offset="25%" stopColor="#C5A87C" stopOpacity="1" />
+                  <stop offset="50%" stopColor="#DFC8A4" stopOpacity="1" />
+                  <stop offset="75%" stopColor="#C5A87C" stopOpacity="1" />
+                  <stop offset="100%" stopColor="#A88B58" stopOpacity="0.9" />
+                </linearGradient>
+              </defs>
 
-                return (
-                  <li key={item.label} style={{ borderBottomColor: COLORS.border }} className="border-b last:border-none pb-2">
-                    {item.hasDropdown ? (
-                      <div>
-                        {/* Parent trigger link */}
-                        <div className="flex items-center justify-between py-3 px-2">
-                          <button
-                            onClick={(e) => toggleDropdown(index, e)}
-                            style={{ color: COLORS.accent, backgroundColor: COLORS.primary, transform: isDropdownOpen ? 'rotate(90deg)' : 'rotate(0deg)' }}
-                            className="text-[14px] w-8 h-8 flex items-center justify-center rounded focus:outline-none transition-transform"
-                          >
-                            ‹
-                          </button>
-                          <Link
-                            to={item.dropdownItems ? item.dropdownItems[0].href : item.href}
-                            onClick={closeMobileMenu}
-                            style={{ color: isActive ? COLORS.accent : COLORS.white }}
-                            className="text-[19px] font-semibold text-right flex-1"
-                          >
-                            {item.label}
-                          </Link>
-                        </div>
+              {/* Dark chocolate fill connecting directly into navbar */}
+              <path
+                d="M 0 0 L 205 0 C 250 0 280 34 335 34 L 865 34 C 920 34 950 0 995 0 L 1200 0 L 1200 48 L 0 48 Z"
+                fill="#21150F"
+              />
 
-                        {/* Dropdown Items list */}
-                        {isDropdownOpen && item.dropdownItems && (
-                          <ul 
-                            style={{ backgroundColor: COLORS.primary, borderRightColor: COLORS.accent }}
-                            className="mt-2 p-2 space-y-1 rounded border-r-2"
-                          >
-                            {item.dropdownItems.map((subItem, sIdx) => {
-                              const isSubActive = location.pathname === subItem.href
-                              return (
-                                <li key={sIdx}>
-                                  <Link
-                                    to={subItem.href}
-                                    onClick={closeMobileMenu}
-                                    style={{ color: isSubActive ? COLORS.secondary : COLORS.white }}
-                                    className="block p-2 text-[16px] text-right hover:opacity-80 transition-opacity"
-                                  >
-                                    {subItem.label}
-                                  </Link>
-                                </li>
-                              )
-                            })}
-                          </ul>
-                        )}
-                      </div>
-                    ) : (
+              {/* Ambient curve shadow */}
+              <path
+                d="M 0 0 L 205 0 C 250 0 280 34 335 34 L 865 34 C 920 34 950 0 995 0 L 1200 0"
+                stroke="#000000"
+                strokeWidth="2.5"
+                fill="none"
+                opacity="0.25"
+              />
+
+              {/* Primary Antique Gold S-curve Line (Deeper & Prominent) */}
+              <path
+                d="M 0 0 L 205 0 C 250 0 280 34 335 34 L 865 34 C 920 34 950 0 995 0 L 1200 0"
+                stroke="url(#goldCurveGrad)"
+                strokeWidth="1.5"
+                fill="none"
+              />
+
+              {/* Secondary fine inner accent line */}
+              <path
+                d="M 0 2.5 L 205 2.5 C 248 2.5 278 36.5 335 36.5 L 865 36.5 C 922 36.5 952 2.5 995 2.5 L 1200 2.5"
+                stroke="#DFC8A4"
+                strokeWidth="0.75"
+                strokeDasharray="4 3"
+                fill="none"
+                opacity="0.45"
+              />
+            </svg>
+
+            {/* Central Rosette Medallion with Diamond Side Florets */}
+            <div className="absolute left-1/2 -translate-x-1/2 bottom-0 translate-y-1/2 flex items-center justify-center gap-1.5">
+              <span className="text-[#C5A572] text-[7px] sm:text-[8px] opacity-80">◆</span>
+              <RosetteMedallion className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#C5A572] drop-shadow-xs" />
+              <span className="text-[#C5A572] text-[7px] sm:text-[8px] opacity-80">◆</span>
+            </div>
+          </div>
+
+          {/* ────────────────────────────────────────────────────────────
+              3. LOWER DARK-BROWN NAVBAR
+                 (Wings raised on left & right, links centered in floor)
+              ──────────────────────────────────────────────────────────── */}
+          <nav
+            className="relative z-20 w-full bg-[#21150F] px-3 sm:px-5 pt-0 pb-1.5 sm:pb-2 flex items-center justify-between min-h-[38px] sm:min-h-[42px]"
+            aria-label="مرکزی نیویگیشن"
+          >
+            {/* ── RIGHT SIDE (RTL START): Search Icon + Home Pill Button ── */}
+            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 -mt-2.5 sm:-mt-3">
+              {/* Inline Expandable Search Box with Instant Close Response */}
+              <div className="relative flex items-center z-30">
+                {isSearchOpen ? (
+                  <div
+                    className="relative flex items-center bg-[#21150F] border border-[#A88B58] rounded-full px-2 py-0.5 shadow-md animate-in fade-in zoom-in-95 duration-150"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <form onSubmit={handleSearchSubmit} className="flex items-center">
+                      <button
+                        type="submit"
+                        className="text-[#C5A572] hover:text-[#D4AF37] transition-colors p-1 cursor-pointer flex items-center justify-center"
+                        title={isUrdu ? "تلاش کریں" : "Submit search"}
+                      >
+                        <Search className="w-3.5 h-3.5" />
+                      </button>
+                      <input
+                        ref={searchInputRef}
+                        type="text"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder={isUrdu ? "تلاش کریں..." : "Search..."}
+                        className="w-32 sm:w-44 md:w-52 bg-transparent text-xs text-[#FAF7F2] placeholder-[#A88B58]/60 focus:outline-none text-right font-normal px-1"
+                        dir={isUrdu ? "rtl" : "ltr"}
+                      />
+                    </form>
+                    <button
+                      type="button"
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setIsSearchOpen(false);
+                      }}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setIsSearchOpen(false);
+                      }}
+                      className="w-5 h-5 flex items-center justify-center rounded-full text-[#A88B58] hover:text-[#FAF7F2] hover:bg-white/10 transition-colors cursor-pointer mr-0.5"
+                      title={isUrdu ? "بند کریں" : "Close"}
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setIsSearchOpen(true)}
+                    className="w-7.5 h-7.5 sm:w-8 sm:h-8 rounded-full border border-[#A88B58] bg-[#21150F] text-[#FAF7F2] hover:text-[#E5C687] hover:border-[#D4AF37] hover:scale-105 active:scale-95 transition-all flex items-center justify-center shadow-xs cursor-pointer"
+                    title={isUrdu ? "تلاش کریں" : "Search"}
+                    aria-label="تلاش"
+                  >
+                    <Search className="w-3.5 h-3.5 text-[#FAF7F2]" />
+                  </button>
+                )}
+              </div>
+
+              {/* Home Pill Button (صفحہ اول with Home Icon & Chevron) */}
+              <Link
+                to="/"
+                className={`rounded-full px-2.5 sm:px-3 py-1 flex items-center gap-1.5 text-[12px] sm:text-[13px] font-semibold transition-all duration-200 shrink-0 border ${
+                  isHomeActive
+                    ? "border-[#D4AF37] bg-[#2E1E14] text-[#FAF7F2] shadow-[0_0_10px_rgba(184,156,125,0.22)]"
+                    : "border-[#A88B58] bg-[#21150F] text-[#FAF7F2]/90 hover:border-[#D4AF37] hover:text-[#FAF7F2] hover:bg-[#2E1E14]"
+                }`}
+              >
+                <Home className="w-3.5 h-3.5 text-[#FAF7F2]" />
+                <span>{isUrdu ? "صفحہ اول" : "Home"}</span>
+                <ChevronDown className="w-3 h-3 text-[#A88B58] opacity-75" />
+              </Link>
+            </div>
+
+            {/* ── CENTER (DESKTOP): Navigation Links with Antique Gold Separators ── */}
+            <div className="hidden lg:flex items-center justify-center flex-1 mx-2 xl:mx-3 pt-0.5">
+              <div className="flex items-center flex-nowrap gap-0.5 xl:gap-1">
+                {navLinks.map((item, index) => {
+                  const isActive =
+                    location.pathname === item.href ||
+                    (item.href !== "/" && location.pathname.startsWith(item.href));
+
+                  return (
+                    <React.Fragment key={item.href}>
                       <Link
                         to={item.href}
-                        onClick={closeMobileMenu}
-                        style={{ color: isActive ? COLORS.accent : COLORS.white }}
-                        className="block py-3 px-2 text-[19px] font-semibold"
+                        className={`px-2 xl:px-2.5 py-0.5 text-[13px] xl:text-[14px] whitespace-nowrap transition-all duration-200 select-none flex items-center gap-1 ${
+                          isActive
+                            ? "text-[#E5C687] font-bold"
+                            : "text-[#FAF7F2]/90 hover:text-[#E5C687] font-medium"
+                        }`}
                       >
-                        {item.label}
+                        <span>{item.label}</span>
+                        {item.hasDropdown && (
+                          <ChevronDown className="w-3 h-3 text-[#A88B58] opacity-80 inline-block" />
+                        )}
                       </Link>
+
+                      {/* Thin Vertical Gold Separator */}
+                      {index < navLinks.length - 1 && (
+                        <div className="w-[1px] h-3 xl:h-3.5 bg-[#A88B58]/35 self-center mx-0.5 xl:mx-1 shrink-0" />
+                      )}
+                    </React.Fragment>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* ── LEFT SIDE (RTL END): Member & Login Buttons / Mobile Toggle ── */}
+            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 -mt-2.5 sm:-mt-3">
+              {/* Member Button (ممبر بنیں) */}
+              <Link
+                to="/ask"
+                className="hidden md:flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-full text-xs sm:text-[12px] font-semibold text-[#FAF7F2] border border-[#A88B58] bg-[#21150F] hover:bg-[#2E1E14] hover:border-[#D4AF37] transition-all shrink-0"
+              >
+                <HelpCircle className="w-3.5 h-3.5 text-[#B89C7D]" />
+                <span>{isUrdu ? "ممبر بنیں" : "Member"}</span>
+              </Link>
+
+              {/* Profile / Login Button */}
+              {isAuthenticated || userRole === "admin" ? (
+                <div className="relative" onClick={(e) => e.stopPropagation()}>
+                  <button
+                    type="button"
+                    onClick={() => setShowProfileDropdown(!showProfileDropdown)}
+                    className="rounded-full border border-[#A88B58] bg-[#21150F] text-[#FAF7F2] px-2.5 py-0.5 flex items-center gap-1.5 text-xs font-semibold hover:bg-[#2E1E14] transition-all cursor-pointer shadow-xs"
+                  >
+                    <div className="w-5 h-5 rounded-full bg-[#B89C7D] text-[#22160F] font-bold text-[10px] flex items-center justify-center shrink-0">
+                      {getInitials(loggedInUser)}
+                    </div>
+                    <span className="hidden sm:inline max-w-[90px] truncate">
+                      {loggedInUser?.name?.split(" ")[0] || (isUrdu ? "پروفائل" : "Profile")}
+                    </span>
+                    <ChevronDown className="w-3 h-3 text-[#B89C7D]" />
+                  </button>
+
+                  {/* Profile Dropdown */}
+                  <AnimatePresence>
+                    {showProfileDropdown && (
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.95, y: -6 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.95, y: -6 }}
+                        transition={{ duration: 0.16 }}
+                        style={{ zIndex: 9999 }}
+                        className={`absolute ${isUrdu ? "left-0 text-right" : "right-0 text-left"} top-full mt-2 w-64 bg-[#231710] border border-[#A88B58]/60 rounded-2xl shadow-2xl p-4 transition-all`}
+                      >
+                        <div className="flex flex-col gap-1 pb-3 border-b border-[#A88B58]/25">
+                          <span className="font-bold text-[#FAF7F2] text-sm">
+                            {loggedInUser?.name}
+                          </span>
+                          <span className="text-xs text-[#FAF7F2]/60 font-mono truncate">
+                            {loggedInUser?.loginEmail || loggedInUser?.loginPhone || "-"}
+                          </span>
+                          <span className="self-start mt-1 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-[#B89C7D]/20 text-[#B89C7D] rounded-full border border-[#B89C7D]/30">
+                            {loggedInUser?.role || "user"}
+                          </span>
+                        </div>
+
+                        <Link
+                          to="/my-details"
+                          onClick={() => setShowProfileDropdown(false)}
+                          className="mt-2.5 flex items-center gap-2 w-full px-3 py-2 text-xs font-bold text-[#FAF7F2] hover:text-[#D4AF37] bg-[#2E1E14] hover:bg-[#382519] rounded-xl border border-[#A88B58]/30 transition-colors"
+                        >
+                          <User className="w-3.5 h-3.5 text-[#B89C7D]" />
+                          {isUrdu ? "میری تفصیلات" : "My Details"}
+                        </Link>
+
+                        {userRole === "admin" && (
+                          <>
+                            <Link
+                              to="/admin/dashboard"
+                              onClick={() => setShowProfileDropdown(false)}
+                              className="mt-2 flex items-center gap-2 w-full px-3 py-2 text-xs font-bold text-[#FAF7F2] hover:text-[#D4AF37] bg-[#2E1E14] hover:bg-[#382519] rounded-xl border border-[#A88B58]/30 transition-colors"
+                            >
+                              <LayoutDashboard className="w-3.5 h-3.5 text-[#B89C7D]" />
+                              {isUrdu ? "ڈیش بورڈ" : "Admin Dashboard"}
+                            </Link>
+                            <Link
+                              to="/admin/settings"
+                              onClick={() => setShowProfileDropdown(false)}
+                              className="mt-2 flex items-center gap-2 w-full px-3 py-2 text-xs font-bold text-[#FAF7F2] hover:text-[#D4AF37] bg-[#2E1E14] hover:bg-[#382519] rounded-xl border border-[#A88B58]/30 transition-colors"
+                            >
+                              <Settings className="w-3.5 h-3.5 text-[#B89C7D]" />
+                              {isUrdu ? "ویب سائٹ کی ترتیبات" : "Website Settings"}
+                            </Link>
+                          </>
+                        )}
+
+                        <button
+                          type="button"
+                          onClick={handleLogout}
+                          className="mt-3 flex items-center justify-center gap-2 w-full px-3 py-2 text-xs font-bold text-red-300 hover:text-red-200 bg-red-950/40 hover:bg-red-900/50 rounded-xl border border-red-800/40 transition-colors cursor-pointer"
+                        >
+                          <LogOut className="w-3.5 h-3.5 text-red-400" />
+                          {isUrdu ? "لاگ آؤٹ" : "Logout"}
+                        </button>
+                      </motion.div>
                     )}
-                  </li>
-                )
-              })}
-            </ul>
+                  </AnimatePresence>
+                </div>
+              ) : (
+                /* Login Pill Button (لاگ ان with User Icon) */
+                <button
+                  type="button"
+                  onClick={openLogin}
+                  className="rounded-full border border-[#A88B58] bg-[#21150F] text-[#FAF7F2] px-2.5 sm:px-3 py-1 flex items-center gap-1.5 text-xs sm:text-[12.5px] font-semibold hover:bg-[#2E1E14] hover:border-[#D4AF37] hover:text-[#FAF7F2] transition-all duration-200 cursor-pointer shadow-xs"
+                  title={isUrdu ? "لاگ ان / سائن اپ" : "Login / Signup"}
+                >
+                  <User className="w-3.5 h-3.5 text-[#FAF7F2]" />
+                  <span>{isUrdu ? "لاگ ان" : "Login"}</span>
+                </button>
+              )}
+
+              {/* Mobile Hamburger Toggle */}
+              <button
+                type="button"
+                onClick={() => setIsOpen(!isOpen)}
+                className="lg:hidden w-7.5 h-7.5 sm:w-8 sm:h-8 rounded-full border border-[#9A7E56]/75 bg-[#281B13]/95 text-[#FAF7F2] flex items-center justify-center hover:bg-[#342318] hover:border-[#D4AF37] transition-all cursor-pointer"
+                aria-label="Toggle Menu"
+              >
+                {isOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+              </button>
+            </div>
           </nav>
-        </div>
+
+        </header>
       </div>
-    </header>
-  )
+
+      {/* ────────────────────────────────────────────────────────────
+          RESPONSIVE MOBILE DRAWER (Rendered in Portal for 100% Reliability)
+          ──────────────────────────────────────────────────────────── */}
+      {typeof document !== "undefined" &&
+        createPortal(
+          <AnimatePresence>
+            {isOpen && (
+              <div
+                className="lg:hidden fixed inset-0 z-[99999] bg-black/70 backdrop-blur-xs transition-opacity duration-300"
+                onClick={closeMenu}
+              >
+                <motion.div
+                  initial={{ x: isUrdu ? "100%" : "-100%" }}
+                  animate={{ x: 0 }}
+                  exit={{ x: isUrdu ? "100%" : "-100%" }}
+                  transition={{ type: "tween", duration: 0.25 }}
+                  className={`fixed top-0 ${
+                    isUrdu ? "right-0 border-l" : "left-0 border-r"
+                  } h-full max-h-[100dvh] w-[300px] max-w-[88vw] bg-gradient-to-b from-[#21150F] via-[#271A12] to-[#1E130D] border-[#A88B58]/40 shadow-2xl flex flex-col text-[#FAF7F2] z-[100000]`}
+                  onClick={(e) => e.stopPropagation()}
+                  dir={isUrdu ? "rtl" : "ltr"}
+                >
+                  {/* Drawer Header */}
+                  <div className="flex items-center justify-between px-5 py-3.5 border-b border-[#A88B58]/30 shrink-0 bg-[#21150F]">
+                    <span className="font-bold text-lg text-[#E5C687]">
+                      {isUrdu ? "مینو" : "Navigation"}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={closeMenu}
+                      className="p-1.5 rounded-full text-[#FAF7F2]/80 hover:bg-[#342318] hover:text-[#FAF7F2] transition-colors cursor-pointer"
+                      aria-label="Close navigation"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+
+                  {/* Drawer Scrollable Body */}
+                  <div className="flex-1 overflow-y-auto overscroll-contain px-4 py-3.5 custom-drawer-scrollbar flex flex-col gap-3">
+                    {/* Mobile Search Field */}
+                    <form onSubmit={handleSearchSubmit} className="shrink-0">
+                      <div className="relative flex items-center">
+                        <input
+                          type="text"
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          placeholder={isUrdu ? "تلاش کریں..." : "Search..."}
+                          className="w-full bg-[#1A100B] border border-[#A88B58]/40 rounded-xl px-3.5 py-2 pl-9 text-sm text-[#FAF7F2] placeholder-[#A88B58]/60 focus:outline-none focus:border-[#D4AF37] text-right font-normal"
+                          dir={isUrdu ? "rtl" : "ltr"}
+                        />
+                        <button
+                          type="submit"
+                          className="absolute left-2.5 text-[#A88B58] hover:text-[#D4AF37] cursor-pointer"
+                        >
+                          <Search className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </form>
+
+                    {/* Navigation Links */}
+                    <nav className="flex flex-col gap-1.5 shrink-0">
+                      {allMobileItems.map((item) => {
+                        const isActive =
+                          location.pathname === item.href ||
+                          (item.href !== "/" && location.pathname.startsWith(item.href));
+
+                        return (
+                          <Link
+                            key={item.href}
+                            to={item.href}
+                            onClick={closeMenu}
+                            className={`px-3.5 py-2.5 rounded-xl text-[15px] sm:text-base transition-all flex items-center gap-2.5 ${
+                              isActive
+                                ? "bg-[#382519] text-[#E5C687] font-bold border border-[#A88B58]/40 shadow-xs"
+                                : "text-[#FAF7F2]/90 hover:bg-[#2F1E15] hover:text-[#E5C687] font-medium"
+                            }`}
+                          >
+                            {item.icon && <item.icon className="w-4 h-4 text-[#B89C7D]" />}
+                            <span>{item.label}</span>
+                          </Link>
+                        );
+                      })}
+                    </nav>
+
+                    {/* Bottom Auth Section */}
+                    <div className="pt-3 border-t border-[#A88B58]/30 flex flex-col gap-2 shrink-0 pb-6 mt-1">
+                      <Link
+                        to="/ask"
+                        onClick={closeMenu}
+                        className="flex items-center justify-center gap-2 w-full px-3.5 py-2.5 text-xs font-bold text-[#20140D] bg-[#B89C7D] hover:bg-[#D4AF37] rounded-xl shadow-sm transition-colors"
+                      >
+                        <HelpCircle className="w-4 h-4" />
+                        {isUrdu ? "ممبر بنیں / سوال پوچھیں" : "Member / Ask Question"}
+                      </Link>
+
+                      {isAuthenticated || userRole === "admin" ? (
+                        <>
+                          <Link
+                            to="/my-details"
+                            onClick={closeMenu}
+                            className="flex items-center justify-center gap-2 w-full px-3.5 py-2 text-xs font-bold text-[#FAF7F2] bg-[#2E1E14] hover:bg-[#382519] rounded-xl border border-[#A88B58]/30 transition-colors"
+                          >
+                            <User className="w-3.5 h-3.5 text-[#B89C7D]" />
+                            {isUrdu ? "میری تفصیلات" : "My Details"}
+                          </Link>
+                          {userRole === "admin" && (
+                            <Link
+                              to="/admin/dashboard"
+                              onClick={closeMenu}
+                              className="flex items-center justify-center gap-2 w-full px-3.5 py-2 text-xs font-bold text-[#FAF7F2] bg-[#2E1E14] hover:bg-[#382519] rounded-xl border border-[#A88B58]/30 transition-colors"
+                            >
+                              <LayoutDashboard className="w-3.5 h-3.5 text-[#B89C7D]" />
+                              {isUrdu ? "ڈیش بورڈ" : "Dashboard"}
+                            </Link>
+                          )}
+                          <button
+                            type="button"
+                            onClick={handleLogout}
+                            className="flex items-center justify-center gap-2 w-full px-3.5 py-2 text-xs font-bold text-red-300 bg-red-950/40 hover:bg-red-900/50 rounded-xl border border-red-800/40 transition-colors cursor-pointer"
+                          >
+                            <LogOut className="w-3.5 h-3.5" />
+                            {isUrdu ? "لاگ آؤٹ" : "Logout"}
+                          </button>
+                        </>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            closeMenu();
+                            openLogin();
+                          }}
+                          className="flex items-center justify-center gap-2 w-full px-3.5 py-2.5 text-xs font-bold text-[#FAF7F2] bg-[#2E1E14] hover:bg-[#382519] rounded-xl border border-[#A88B58]/40 transition-colors cursor-pointer"
+                        >
+                          <User className="w-3.5 h-3.5 text-[#B89C7D]" />
+                          {isUrdu ? "لاگ ان / سائن اپ" : "Login / Signup"}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </motion.div>
+              </div>
+            )}
+          </AnimatePresence>,
+          document.body
+        )}
+
+      {/* Local Auth Modal for Login & Signup */}
+      <Modal
+        isOpen={isAuthModalOpen}
+        onClose={closeAuthModal}
+        title={authMode === "login" ? "Sign In" : "Create Account"}
+        maxWidth={authMode === "login" ? "max-w-md" : "max-w-xl"}
+        height="max-h-[92vh]"
+        dir="ltr"
+      >
+        {authMode === "login" ? (
+          <Login
+            isModal={true}
+            onClose={closeAuthModal}
+            onSwitchToSignup={() => setAuthMode("signup")}
+          />
+        ) : (
+          <Signup
+            isModal={true}
+            onClose={closeAuthModal}
+            onSwitchToLogin={() => setAuthMode("login")}
+          />
+        )}
+      </Modal>
+    </div>
+  );
 }
