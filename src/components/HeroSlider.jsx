@@ -176,7 +176,7 @@ export default function HeroSlider() {
               <SlideSeal />
             </div>
             {/* Slide title */}
-            <div className="absolute bottom-10 sm:bottom-14 right-4 left-4 sm:left-auto sm:right-20 z-[4] text-[24px] sm:text-[38px] text-white/90 text-center sm:text-right drop-shadow-[0_2px_12px_rgba(0,0,0,0.7)]" style={{ fontFamily: "'Pyami Nastaliq', 'Payami Nastaleeq', 'Noto Nastaliq Urdu', serif" }}>
+            <div className="absolute bottom-10 sm:bottom-14 right-4 left-4 sm:left-auto sm:right-20 z-[4] text-[24px] sm:text-[38px] text-white/90 text-center sm:text-right drop-shadow-[0_2px_12px_rgba(0,0,0,0.7)]" style={{ fontFamily: "'Payami Nastaleeq', 'Noto Nastaliq Urdu', serif" }}>
               {title}
             </div>
           </div>

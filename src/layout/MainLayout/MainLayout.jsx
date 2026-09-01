@@ -40,7 +40,7 @@ export default function MainLayout() {
   // Apply typography and direction configuration dynamically for Urdu & RTL
   useEffect(() => {
     if (language === 'ur') {
-      document.body.style.fontFamily = "'Noto Nastaliq Urdu', 'Urdu Typesetting', 'Jameel Noori Nastaleeq', 'Noto Naskh Arabic', serif";
+      document.body.style.fontFamily = "'Payami Nastaleeq', 'Noto Nastaliq Urdu', 'Urdu Typesetting', 'Jameel Noori Nastaleeq', 'Noto Naskh Arabic', serif";
       document.body.dir = 'rtl';
       document.documentElement.dir = 'rtl';
       document.documentElement.lang = 'ur';

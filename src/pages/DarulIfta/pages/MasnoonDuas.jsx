@@ -34,7 +34,7 @@ export default function MasnoonDuas() {
           {duas.map((dua, i) => (
             <div key={i} className="bg-background border border-border p-6 rounded-sm shadow-sm">
               <h4 className="text-[20px] font-bold text-accent border-b pb-2 mb-3">{dua.title}</h4>
-              <p className="text-[24px] font-serif text-primary text-center my-4 leading-normal select-all">
+              <p className="text-[24px] quran-font text-primary text-center my-4 leading-normal select-all">
                 {dua.arabic}
               </p>
               <p className="text-[16px] text-textSecondary leading-relaxed bg-gray-50 p-3.5 border-r-4 border-accent mt-2">

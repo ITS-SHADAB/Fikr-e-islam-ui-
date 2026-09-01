@@ -431,7 +431,7 @@ export default function FatwaDetail() {
             </div>
 
             <span
-              className="text-xs font-serif font-semibold italic"
+              className="text-sm quran-font font-semibold"
               style={{ color: COLORS?.accent }}
             >
               بسم الله الرحمن الرحيم

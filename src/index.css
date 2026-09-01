@@ -1,3 +1,22 @@
+/* ═════════════════════════════════════════════════════════════════════
+   Custom Typography: Payami Nastaleeq (Urdu) & Payami Quran (Arabic)
+   ═════════════════════════════════════════════════════════════════════ */
+@font-face {
+  font-family: 'Payami Nastaleeq';
+  src: url('./assets/fonts/Payami Nastaleeq.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Payami Quran';
+  src: url('./assets/fonts/Payami QuranFont.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -200,12 +219,19 @@
   /* Firefox */
 }
 
-/* Urdu & Arabic Typography System */
+/* ═════════════════════════════════════════════════════════════════════
+   Urdu & Arabic Typography System
+   ═════════════════════════════════════════════════════════════════════ */
 [dir="rtl"] body,
-[dir="rtl"] {
-  font-family: 'Noto Nastaliq Urdu', 'Urdu Typesetting', 'Jameel Noori Nastaleeq', 'Noto Naskh Arabic', 'Inter', sans-serif;
-  line-height: 2.1;
+[dir="rtl"],
+.urdu-font,
+.urdu-text,
+[lang="ur"] {
+  font-family: 'Payami Nastaleeq', 'Noto Nastaliq Urdu', 'Urdu Typesetting', 'Jameel Noori Nastaleeq', 'Noto Naskh Arabic', 'Inter', sans-serif;
+  font-size: 1.055rem;
+  line-height: 2.2;
   text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
 }
 
 [dir="rtl"] h1,
@@ -215,26 +241,35 @@
 [dir="rtl"] h5,
 [dir="rtl"] h6,
 [dir="rtl"] .title-serif {
-  font-family: 'Noto Nastaliq Urdu', 'Urdu Typesetting', 'Jameel Noori Nastaleeq', 'Noto Naskh Arabic', serif;
-  line-height: 1.85;
+  font-family: 'Payami Nastaleeq', 'Noto Nastaliq Urdu', 'Urdu Typesetting', 'Jameel Noori Nastaleeq', 'Noto Naskh Arabic', serif;
+  line-height: 1.95;
 }
 
-/* Dedicated Arabic / Quran / Hadith typography classes */
-.arabic-text,
+/* Slightly enhance readability of paragraphs and general text in RTL */
+[dir="rtl"] p {
+  font-size: 1.04em;
+  line-height: 2.25;
+}
+
+/* Dedicated Quranic Typography Class (Uses Payami Quran font exclusively for Quran verses) */
+.quran-font,
 .quran-text,
-.hadith-text,
-[lang="ar"] {
-  font-family: 'Noto Naskh Arabic', 'Traditional Arabic', 'Amiri', serif !important;
-  line-height: 1.95;
+[lang="quran"],
+.quranic-verse {
+  font-family: 'Payami Quran', 'Noto Naskh Arabic', 'Traditional Arabic', 'Amiri', serif !important;
+  font-size: 1.15em;
+  line-height: 2.4;
   direction: rtl;
   text-align: right;
+  letter-spacing: 0;
 }
 
-/* Urdu specific text class */
-.urdu-text,
-[lang="ur"] {
-  font-family: 'Noto Nastaliq Urdu', 'Urdu Typesetting', 'Jameel Noori Nastaleeq', serif !important;
-  line-height: 2.15;
+/* General Arabic Typography Class */
+.arabic-text,
+[lang="ar"] {
+  font-family: 'Noto Naskh Arabic', 'Traditional Arabic', 'Amiri', serif !important;
+  font-size: 1.08em;
+  line-height: 2.1;
   direction: rtl;
   text-align: right;
 }
@@ -244,4 +279,4 @@
 [dir="rtl"] span,
 [dir="rtl"] a {
   overflow-wrap: break-word;
-}
+}
