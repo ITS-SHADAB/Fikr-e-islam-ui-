@@ -122,7 +122,7 @@ export default function FatwaCard({ fatwa }) {
               {isRTL ? "سوال" : "Question"}
             </span>
             <p
-              className="text-xs leading-[1.9] italic"
+              className="text-xs leading-[1.9]"
               style={{ color: COLORS?.textSecondary }}
             >
               "{questionPreview}"

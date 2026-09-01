@@ -168,7 +168,7 @@ export default function QAList() {
                         <span className="block font-bold text-primary dark:text-accent mb-1.5">
                           {language === 'en' ? 'Question Detail:' : 'سوال کی تفصیل:'}
                         </span>
-                        <p className="text-slate-700 dark:text-slate-300 italic leading-relaxed">
+                        <p className="text-slate-700 dark:text-slate-300 leading-relaxed">
                           "{q.detailedQuestion}"
                         </p>
                       </div>

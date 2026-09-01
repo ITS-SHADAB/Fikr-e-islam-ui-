@@ -8,7 +8,7 @@ export default function Preface() {
       subtitle="جامعہ العلوم الاسلامیہ بنوری ٹاؤن کے قیام کے مقاصد اور تاریخی پس منظر"
     >
       <div className="space-y-6">
-        <p className="italic text-[20px] text-textSecondary font-semibold text-center my-6">
+        <p className="quran-font text-[22px] text-textSecondary font-semibold text-center my-6">
           "بِسمِ اللہِ الرَّحمٰنِ الرَّحِیمِ · الحمد للہ رب العالمین والصلوٰۃ والسلام علی سید الانبیاء والمرسلین"
         </p>
 

@@ -176,7 +176,7 @@ export function PdfViewer({ url, title = 'Document', type = 'auto', isModal = fa
               ) : (
                 <FileText className="w-12 h-12 text-slate-650 mb-2 animate-pulse" />
               )}
-              <p className="text-sm italic font-serif">No document loaded</p>
+              <p className="text-sm font-serif">No document loaded</p>
             </div>
           )}
         </div>

@@ -229,7 +229,7 @@ export default function About() {
 
               {/* Quote Block */}
               <div
-                className="rounded-xl p-3.5 sm:p-4 text-xs italic leading-relaxed"
+                className="rounded-xl p-3.5 sm:p-4 text-xs leading-relaxed"
                 style={{
                   backgroundColor: 'rgba(255,255,255,0.08)',
                   borderRight: isRTL ? `4px solid ${COLORS?.accent}` : undefined,

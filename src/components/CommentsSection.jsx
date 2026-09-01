@@ -230,7 +230,7 @@ function CommentRow({
             {formatTimeAgo(comment.createdAt)}
           </span>
           {comment.updatedAt && comment.updatedAt !== comment.createdAt && (
-            <span className="text-[10px] text-neutral-400 italic leading-none">
+            <span className="text-[10px] text-neutral-400 leading-none">
               (edited)
             </span>
           )}

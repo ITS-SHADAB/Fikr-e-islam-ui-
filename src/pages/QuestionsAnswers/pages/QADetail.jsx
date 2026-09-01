@@ -309,7 +309,7 @@ export default function QADetail() {
                 </h2>
               </div>
               <blockquote
-                className="text-xs sm:text-sm leading-relaxed text-slate-800 p-4 rounded-xl border bg-white font-['Noto_Nastaliq_Urdu'] italic shadow-2xs"
+                className="text-xs sm:text-sm leading-relaxed text-slate-800 p-4 rounded-xl border bg-white shadow-2xs"
                 style={{
                   borderColor: COLORS.border,
                   borderRightWidth: '3.5px',

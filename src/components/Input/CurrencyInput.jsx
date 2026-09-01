@@ -187,7 +187,7 @@ const CurrencyInput = ({
 
       <div className="flex justify-between">
         {!showTooltip && formatValue && capitalizedWords && (
-          <div className="text-xs text-gray-600 italic">{capitalizedWords}</div>
+          <div className="text-xs text-gray-600">{capitalizedWords}</div>
         )}
 
         {!readOnly && limit !== undefined && (

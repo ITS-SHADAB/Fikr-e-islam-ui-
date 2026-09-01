@@ -834,7 +834,7 @@ export default function BookDetail() {
                     </>
                   ) : (
                     <div
-                      className="col-span-full py-3 px-4 rounded-xl border text-center text-xs italic font-medium"
+                      className="col-span-full py-3 px-4 rounded-xl border text-center text-xs font-medium"
                       style={{
                         borderColor: COLORS.border,
                         color: COLORS.textSecondary,

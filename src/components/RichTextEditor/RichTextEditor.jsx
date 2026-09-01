@@ -123,7 +123,7 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Write c
         {isPreview ? (
           <div
             className="prose prose-sm max-w-none p-3.5 overflow-y-auto max-h-[350px] min-h-[250px] border border-transparent leading-relaxed"
-            dangerouslySetInnerHTML={{ __html: value || '<p className="text-slate-400 italic">No content to preview.</p>' }}
+            dangerouslySetInnerHTML={{ __html: value || '<p className="text-slate-400">No content to preview.</p>' }}
           ></div>
         ) : (
           <textarea

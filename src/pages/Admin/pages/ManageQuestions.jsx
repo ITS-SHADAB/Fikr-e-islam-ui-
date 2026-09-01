@@ -778,7 +778,7 @@ export default function ManageQuestions() {
                   </h4>
                 </div>
                 <blockquote
-                  className="bg-[#FAF8F5] border rounded-lg p-3 text-[11px] sm:text-xs text-slate-800 leading-relaxed font-['Noto_Nastaliq_Urdu'] italic"
+                  className="bg-[#FAF8F5] border rounded-lg p-3 text-[11px] sm:text-xs text-slate-800 leading-relaxed"
                   style={{
                     borderColor: '#E8E1D9',
                     borderRightWidth: '3px',

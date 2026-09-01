@@ -280,3 +280,15 @@
 [dir="rtl"] a {
   overflow-wrap: break-word;
 }
+
+/* ═════════════════════════════════════════════════════════════════════
+   Disable italics globally across the entire website
+   ═════════════════════════════════════════════════════════════════════ */
+*,
+*::before,
+*::after,
+.italic,
+i,
+em {
+  font-style: normal !important;
+}

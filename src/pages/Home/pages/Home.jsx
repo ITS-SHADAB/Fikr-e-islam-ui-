@@ -370,7 +370,7 @@ export default function Home() {
 
             {/* Quote */}
             <div
-              className={`border-accent ${language === "ur" ? "border-r-4 pr-4 sm:pr-5 text-right" : "border-l-4 pl-4 sm:pl-5 text-left"} italic text-sm sm:text-base text-textSecondary font-normal leading-[2.1] max-w-2xl relative p-4 sm:p-5 break-words`}
+              className={`border-accent ${language === "ur" ? "border-r-4 pr-4 sm:pr-5 text-right" : "border-l-4 pl-4 sm:pl-5 text-left"} text-sm sm:text-base text-textSecondary font-normal leading-[2.1] max-w-2xl relative p-4 sm:p-5 break-words`}
             >
               {heroMission}
             </div>
@@ -520,7 +520,7 @@ export default function Home() {
             />
           </>
         ) : (
-          <p className="text-slate-400 italic text-center py-6">
+          <p className="text-slate-400 text-center py-6">
             {language === "en"
               ? "No articles available."
               : "کوئی مضمون دستیاب نہیں ہے۔"}
@@ -564,7 +564,7 @@ export default function Home() {
               />
             </>
           ) : (
-            <p className="text-slate-400 italic text-center py-6">
+            <p className="text-slate-400 text-center py-6">
               {language === "en"
                 ? "No fatwas available."
                 : "کوئی فتویٰ دستیاب نہیں ہے۔"}
@@ -617,7 +617,7 @@ export default function Home() {
                           {q.questionTitle}
                         </h4>
                       </Link>
-                      <p className="text-slate-700 text-xs italic line-clamp-3 mb-4">
+                      <p className="text-slate-700 text-xs line-clamp-3 mb-4">
                         "{q.detailedQuestion}"
                       </p>
                     </div>
@@ -676,7 +676,7 @@ export default function Home() {
                           {q.questionTitle}
                         </h4>
                       </Link>
-                      <p className="text-slate-700 text-xs italic line-clamp-3 mb-4">
+                      <p className="text-slate-700 text-xs line-clamp-3 mb-4">
                         "{q.detailedQuestion}"
                       </p>
                     </div>
@@ -701,7 +701,7 @@ export default function Home() {
             />
           </>
         ) : (
-          <p className="text-slate-400 italic text-center py-6">
+          <p className="text-slate-400 text-center py-6">
             {language === "en"
               ? "No answered questions available."
               : "کوئی جواب شدہ سوال دستیاب نہیں ہے۔"}
@@ -747,7 +747,7 @@ export default function Home() {
               />
             </>
           ) : (
-            <p className="text-slate-400 italic text-center py-6">
+            <p className="text-slate-400 text-center py-6">
               {language === "en"
                 ? "No publications available."
                 : "کوئی مطبوعہ دستیاب نہیں ہے۔"}
@@ -798,7 +798,7 @@ export default function Home() {
               />
             </>
           ) : (
-            <p className="text-slate-400 italic text-center py-6">
+            <p className="text-slate-400 text-center py-6">
               {language === "en"
                 ? "No bayans available."
                 : "کوئی بیان دستیاب نہیں ہے۔"}
@@ -855,7 +855,7 @@ export default function Home() {
               />
             </>
           ) : (
-            <p className="text-slate-400 italic text-center py-6">
+            <p className="text-slate-400 text-center py-6">
               {language === "en"
                 ? "No scheduled programs."
                 : "کوئی طے شدہ پروگرام نہیں ہے۔"}

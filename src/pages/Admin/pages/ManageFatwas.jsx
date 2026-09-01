@@ -721,7 +721,7 @@ export default function ManageFatwas() {
                           <span>دیکھیں</span>
                         </button>
                       ) : (
-                        <span className="text-[10px] text-slate-400 italic">
+                        <span className="text-[10px] text-slate-400">
                           موجود نہیں
                         </span>
                       );

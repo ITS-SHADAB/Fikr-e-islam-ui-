@@ -267,7 +267,7 @@ export default function PublicationCard({ publication }) {
               </>
             ) : (
               <span
-                className="text-xs italic"
+                className="text-xs"
                 style={{ color: COLORS.textSecondary }}
               >
                 پی ڈی ایف دستیاب نہیں

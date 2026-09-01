@@ -260,7 +260,7 @@ export default function FatwasList() {
               )}
               {searchTerm && (
                 <span
-                  className="ms-2 italic"
+                  className="ms-2"
                   style={{ color: COLORS?.textSecondary }}
                 >
                   ("{searchTerm}")
