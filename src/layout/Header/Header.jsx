@@ -55,7 +55,7 @@ function CornerArabesque({ className = "" }) {
         strokeLinecap="round"
         fill="none"
       />
-      
+
       {/* Secondary vine stems */}
       <path
         d="M20 78 C28 58 48 42 70 34"
@@ -325,31 +325,31 @@ export default function Header() {
     <div
       className={`w-full sticky top-0 z-40 transition-all duration-300 select-none ${
         scrolled
-          ? "py-1 sm:py-1.5 bg-[#FAF7F2]/95 shadow-sm"
+          ? "py-1 sm:py-1.5 bg-[#F3E3D8]/95 shadow-sm"
           : "pt-1.5 sm:pt-2.5 pb-1 sm:pb-2 bg-transparent"
       } px-2 sm:px-4 md:px-6`}
       dir="rtl"
     >
       <div className="max-w-[1360px] mx-auto">
-        
+
         {/* ══════════════════════════════════════════════════════════════
-            ONE SINGLE CONNECTED HEADER COMPONENT (Non-Sticky, Minimum Height)
+            ONE SINGLE CONNECTED HEADER COMPONENT (#F7F1E8 + #2B2118)
             ══════════════════════════════════════════════════════════════ */}
-        <header className="relative w-full rounded-2xl sm:rounded-3xl border border-[#9A7E56]/60 bg-[#21150F] text-[#FAF7F2] shadow-[0_6px_24px_rgba(25,16,10,0.18)] overflow-hidden">
-          
+        <header className="relative w-full rounded-2xl sm:rounded-3xl border border-[#A8793E] bg-[#2B2118] text-[#F7F1E8] shadow-[0_6px_24px_rgba(43,33,24,0.18)] overflow-hidden">
+
           {/* ────────────────────────────────────────────────────────────
-              1. TOP CREAM BRANDING AREA (Warm Ivory with Radial Illumination)
+              1. TOP CREAM BRANDING AREA (#F7F1E8 with Fine Gold Accents #A8793E)
               ──────────────────────────────────────────────────────────── */}
-          <div className="relative w-full bg-[radial-gradient(ellipse_at_top,_#FFFDF9_0%,_#FAF6ED_45%,_#F2E7D5_100%)] text-[#22160F] pt-2 sm:pt-2.5 pb-1 sm:pb-1.5 px-3 sm:px-8 overflow-hidden">
-            
+          <div className="relative w-full bg-[#F7F1E8] text-[#2A211A] pt-1.5 sm:pt-2 pb-0 px-3 sm:px-8 overflow-hidden">
+
             {/* Outer Inset Decorative Frame */}
-            <div className="absolute inset-1 sm:inset-1.5 rounded-[12px] sm:rounded-[18px] border border-[#D4BC96]/40 pointer-events-none" />
+            <div className="absolute inset-1 sm:inset-1.5 rounded-[12px] sm:rounded-[18px] border border-[#A8793E]/40 pointer-events-none" />
             {/* Inner Fine Dotted Accent Frame */}
-            <div className="absolute inset-2 sm:inset-2.5 rounded-[10px] sm:rounded-[15px] border border-[#DFC8A4]/25 border-dashed pointer-events-none opacity-60" />
+            <div className="absolute inset-2 sm:inset-2.5 rounded-[10px] sm:rounded-[15px] border border-[#A8793E]/25 border-dashed pointer-events-none opacity-60" />
 
             {/* Subtle Islamic Geometric Pattern Watermark */}
             <svg
-              className="absolute inset-0 w-full h-full opacity-[0.04] pointer-events-none text-[#5A3F28]"
+              className="absolute inset-0 w-full h-full opacity-[0.045] pointer-events-none text-[#A8793E]"
               xmlns="http://www.w3.org/2000/svg"
             >
               <defs>
@@ -372,8 +372,8 @@ export default function Header() {
             </svg>
 
             {/* Top Elevated Arch / Pediment Line with Diamond Tips */}
-            <div className="w-full max-w-[920px] mx-auto mb-0.5 pointer-events-none opacity-50 flex items-center justify-center">
-              <svg viewBox="0 0 920 14" preserveAspectRatio="none" className="w-full h-2.5 sm:h-3 text-[#C5A572]">
+            <div className="w-full max-w-[920px] mx-auto mb-0 pointer-events-none opacity-40 flex items-center justify-center">
+              <svg viewBox="0 0 920 14" preserveAspectRatio="none" className="w-full h-2.5 sm:h-3 text-[#A8793E]">
                 <path
                   d="M 20 10 L 340 10 L 370 3 L 550 3 L 580 10 L 900 10"
                   fill="none"
@@ -386,30 +386,30 @@ export default function Header() {
             </div>
 
             {/* Top Corner Botanical Arabesque Branch Ornaments */}
-            <CornerArabesque className="absolute top-0 left-0 w-11 h-11 sm:w-15 sm:h-15 lg:w-18 lg:h-18 opacity-80" />
-            <CornerArabesque className="absolute top-0 right-0 w-11 h-11 sm:w-15 sm:h-15 lg:w-18 lg:h-18 -scale-x-100 opacity-80" />
+            <CornerArabesque className="absolute top-0 left-0 w-11 h-11 sm:w-15 sm:h-15 lg:w-18 lg:h-18 opacity-85 text-[#A8793E]" />
+            <CornerArabesque className="absolute top-0 right-0 w-11 h-11 sm:w-15 sm:h-15 lg:w-18 lg:h-18 -scale-x-100 opacity-85 text-[#A8793E]" />
 
-            {/* Center Calligraphic Branding Content — Ultra-Compact & Tight Vertical Rhythm */}
+            {/* Center Calligraphic Branding Content */}
             <div className="relative z-10 flex flex-col items-center justify-center text-center max-w-2xl mx-auto py-0">
-              
+
               {/* Bismillah with Gold Diamond Florets */}
               <div
                 style={{ fontFamily: "'Payami Quran', 'Noto Naskh Arabic', serif" }}
-                className="flex items-center justify-center gap-1.5 text-[11px] sm:text-[12px] lg:text-[13px] text-[#3F2B1D] font-medium leading-none mb-0"
+                className="flex items-center justify-center gap-1.5 text-[10.5px] sm:text-[11.5px] lg:text-[12.5px] text-[#2A211A] font-medium leading-none mb-0 select-none"
               >
-                <span className="text-[#C5A572] text-[9px] sm:text-[10px] select-none leading-none">❖</span>
+                <span className="text-[#A8793E] text-[8.5px] sm:text-[9.5px] select-none leading-none">❖</span>
                 <span className="tracking-wide">بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْم</span>
-                <span className="text-[#C5A572] text-[9px] sm:text-[10px] select-none leading-none">❖</span>
+                <span className="text-[#A8793E] text-[8.5px] sm:text-[9.5px] select-none leading-none">❖</span>
               </div>
 
               {/* Scholar Main Calligraphic Name Title */}
               <Link
                 to="/"
-                className="group block transition-transform duration-200 hover:scale-[1.01] my-0 py-0"
+                className="group block transition-transform duration-200 hover:scale-[1.01] -mt-1 sm:-mt-1.5 -mb-0.5 sm:-mb-1 py-0"
               >
                 <h1
                   style={{ fontFamily: "'Payami Quran', 'Noto Naskh Arabic', serif" }}
-                  className="text-2xl sm:text-3xl md:text-3.5xl lg:text-[37px] xl:text-[39px] font-bold text-[#160B04] leading-[1.08] tracking-tight group-hover:text-[#4A3728] transition-colors my-0 py-0"
+                  className="text-2xl sm:text-3xl md:text-3.5xl lg:text-[36px] xl:text-[38px] font-bold text-[#2A211A] leading-[1] tracking-tight group-hover:text-[#5C4433] transition-colors my-0 py-0"
                 >
                   مفتی فیضان سرور مصباحی
                 </h1>
@@ -418,13 +418,13 @@ export default function Header() {
               {/* Subtitle / Designation with Payami Nastaleeq font and Gold Florets */}
               <div
                 style={{ fontFamily: "'Payami Nastaleeq', 'Noto Nastaliq Urdu', serif" }}
-                className="flex items-center justify-center gap-1.5 text-[11.5px] sm:text-[13px] lg:text-[14px] font-medium text-[#523B29] leading-none mt-0"
+                className="flex items-center justify-center gap-1.5 text-[11px] sm:text-[12px] lg:text-[13px] font-medium text-[#2A211A] leading-none mt-0 select-none"
               >
-                <span className="h-[1px] w-5 sm:w-9 bg-gradient-to-r from-transparent to-[#C5A572] hidden xs:inline-block" />
-                <span className="text-[#C5A572] text-[8.5px] sm:text-[9.5px] select-none">❖</span>
+                <span className="h-[1px] w-5 sm:w-9 bg-gradient-to-r from-transparent to-[#A8793E] hidden xs:inline-block" />
+                <span className="text-[#A8793E] text-[8px] sm:text-[9px] select-none">❖</span>
                 <span className="tracking-wide">قاضی شریعت و ترجمان اہل سنت</span>
-                <span className="text-[#C5A572] text-[8.5px] sm:text-[9.5px] select-none">❖</span>
-                <span className="h-[1px] w-5 sm:w-9 bg-gradient-to-l from-transparent to-[#C5A572] hidden xs:inline-block" />
+                <span className="text-[#A8793E] text-[8px] sm:text-[9px] select-none">❖</span>
+                <span className="h-[1px] w-5 sm:w-9 bg-gradient-to-l from-transparent to-[#A8793E] hidden xs:inline-block" />
               </div>
 
             </div>
@@ -433,9 +433,9 @@ export default function Header() {
 
           {/* ────────────────────────────────────────────────────────────
               2. THE DEEPER S-CURVED TRANSITION & ROSETTE MEDALLION
-                 (Pronounced Graceful Curves + Synchronized Gold Border)
+                 (Synchronized Antique Gold Border #A8793E & Dark Walnut Fill #2B2118)
               ──────────────────────────────────────────────────────────── */}
-          <div className="relative w-full -mt-2.5 sm:-mt-3.5 z-20 pointer-events-none">
+          <div className="relative w-full -mt-3 sm:-mt-4 z-20 pointer-events-none">
             <svg
               viewBox="0 0 1200 48"
               preserveAspectRatio="none"
@@ -443,18 +443,18 @@ export default function Header() {
             >
               <defs>
                 <linearGradient id="goldCurveGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="#A88B58" stopOpacity="0.9" />
+                  <stop offset="0%" stopColor="#A8793E" stopOpacity="0.9" />
                   <stop offset="25%" stopColor="#C5A87C" stopOpacity="1" />
                   <stop offset="50%" stopColor="#DFC8A4" stopOpacity="1" />
                   <stop offset="75%" stopColor="#C5A87C" stopOpacity="1" />
-                  <stop offset="100%" stopColor="#A88B58" stopOpacity="0.9" />
+                  <stop offset="100%" stopColor="#A8793E" stopOpacity="0.9" />
                 </linearGradient>
               </defs>
 
               {/* Dark chocolate fill connecting directly into navbar */}
               <path
                 d="M 0 0 L 205 0 C 250 0 280 34 335 34 L 865 34 C 920 34 950 0 995 0 L 1200 0 L 1200 48 L 0 48 Z"
-                fill="#21150F"
+                fill="#2B2118"
               />
 
               {/* Ambient curve shadow */}
@@ -466,7 +466,7 @@ export default function Header() {
                 opacity="0.25"
               />
 
-              {/* Primary Antique Gold S-curve Line (Deeper & Prominent) */}
+              {/* Primary Antique Gold S-curve Line (Matching Outer Frame Border) */}
               <path
                 d="M 0 0 L 205 0 C 250 0 280 34 335 34 L 865 34 C 920 34 950 0 995 0 L 1200 0"
                 stroke="url(#goldCurveGrad)"
@@ -487,18 +487,18 @@ export default function Header() {
 
             {/* Central Rosette Medallion with Diamond Side Florets */}
             <div className="absolute left-1/2 -translate-x-1/2 bottom-0 translate-y-1/2 flex items-center justify-center gap-1.5">
-              <span className="text-[#C5A572] text-[7px] sm:text-[8px] opacity-80">◆</span>
-              <RosetteMedallion className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#C5A572] drop-shadow-xs" />
-              <span className="text-[#C5A572] text-[7px] sm:text-[8px] opacity-80">◆</span>
+              <span className="text-[#A8793E] text-[7px] sm:text-[8px] opacity-85">◆</span>
+              <RosetteMedallion className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#A8793E] drop-shadow-xs" />
+              <span className="text-[#A8793E] text-[7px] sm:text-[8px] opacity-85">◆</span>
             </div>
           </div>
 
           {/* ────────────────────────────────────────────────────────────
-              3. LOWER DARK-BROWN NAVBAR
+              3. LOWER DARK-BROWN NAVBAR (#2B2118)
                  (Wings raised on left & right, links centered in floor)
               ──────────────────────────────────────────────────────────── */}
           <nav
-            className="relative z-20 w-full bg-[#21150F] px-3 sm:px-5 pt-0 pb-1.5 sm:pb-2 flex items-center justify-between min-h-[38px] sm:min-h-[42px]"
+            className="relative z-20 w-full bg-[#2B2118] px-3 sm:px-5 pt-0 pb-1.5 sm:pb-2 flex items-center justify-between min-h-[38px] sm:min-h-[42px]"
             aria-label="مرکزی نیویگیشن"
           >
             {/* ── RIGHT SIDE (RTL START): Search Icon + Home Pill Button ── */}
@@ -507,13 +507,13 @@ export default function Header() {
               <div className="relative flex items-center z-30">
                 {isSearchOpen ? (
                   <div
-                    className="relative flex items-center bg-[#21150F] border border-[#A88B58] rounded-full px-2 py-0.5 shadow-md animate-in fade-in zoom-in-95 duration-150"
+                    className="relative flex items-center bg-[#2B2118] border border-[#A8793E] rounded-full px-2 py-0.5 shadow-md animate-in fade-in zoom-in-95 duration-150"
                     onClick={(e) => e.stopPropagation()}
                   >
                     <form onSubmit={handleSearchSubmit} className="flex items-center">
                       <button
                         type="submit"
-                        className="text-[#C5A572] hover:text-[#D4AF37] transition-colors p-1 cursor-pointer flex items-center justify-center"
+                        className="text-[#A8793E] hover:text-[#DFC8A4] transition-colors p-1 cursor-pointer flex items-center justify-center"
                         title={isUrdu ? "تلاش کریں" : "Submit search"}
                       >
                         <Search className="w-3.5 h-3.5" />
@@ -524,7 +524,7 @@ export default function Header() {
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         placeholder={isUrdu ? "تلاش کریں..." : "Search..."}
-                        className="w-32 sm:w-44 md:w-52 bg-transparent text-xs text-[#FAF7F2] placeholder-[#A88B58]/60 focus:outline-none text-right font-normal px-1"
+                        className="w-32 sm:w-44 md:w-52 bg-transparent text-xs text-[#F7F1E8] placeholder-[#A8793E]/70 focus:outline-none text-right font-normal px-1"
                         dir={isUrdu ? "rtl" : "ltr"}
                       />
                     </form>
@@ -540,7 +540,7 @@ export default function Header() {
                         e.stopPropagation();
                         setIsSearchOpen(false);
                       }}
-                      className="w-5 h-5 flex items-center justify-center rounded-full text-[#A88B58] hover:text-[#FAF7F2] hover:bg-white/10 transition-colors cursor-pointer mr-0.5"
+                      className="w-5 h-5 flex items-center justify-center rounded-full text-[#A8793E] hover:text-[#F7F1E8] hover:bg-white/10 transition-colors cursor-pointer mr-0.5"
                       title={isUrdu ? "بند کریں" : "Close"}
                     >
                       <X className="w-3.5 h-3.5" />
@@ -550,11 +550,11 @@ export default function Header() {
                   <button
                     type="button"
                     onClick={() => setIsSearchOpen(true)}
-                    className="w-7.5 h-7.5 sm:w-8 sm:h-8 rounded-full border border-[#A88B58] bg-[#21150F] text-[#FAF7F2] hover:text-[#E5C687] hover:border-[#D4AF37] hover:scale-105 active:scale-95 transition-all flex items-center justify-center shadow-xs cursor-pointer"
+                    className="w-7.5 h-7.5 sm:w-8 sm:h-8 rounded-full border border-[#A8793E] bg-[#2B2118] text-[#F7F1E8] hover:text-[#DFC8A4] hover:border-[#DFC8A4] hover:scale-105 active:scale-95 transition-all flex items-center justify-center shadow-xs cursor-pointer"
                     title={isUrdu ? "تلاش کریں" : "Search"}
                     aria-label="تلاش"
                   >
-                    <Search className="w-3.5 h-3.5 text-[#FAF7F2]" />
+                    <Search className="w-3.5 h-3.5 text-[#F7F1E8]" />
                   </button>
                 )}
               </div>
@@ -562,15 +562,14 @@ export default function Header() {
               {/* Home Pill Button (صفحہ اول with Home Icon & Chevron) */}
               <Link
                 to="/"
-                className={`rounded-full px-2.5 sm:px-3 py-1 flex items-center gap-1.5 text-[12px] sm:text-[13px] font-semibold transition-all duration-200 shrink-0 border ${
-                  isHomeActive
-                    ? "border-[#D4AF37] bg-[#2E1E14] text-[#FAF7F2] shadow-[0_0_10px_rgba(184,156,125,0.22)]"
-                    : "border-[#A88B58] bg-[#21150F] text-[#FAF7F2]/90 hover:border-[#D4AF37] hover:text-[#FAF7F2] hover:bg-[#2E1E14]"
-                }`}
+                className={`rounded-full px-2.5 sm:px-3 py-1 flex items-center gap-1.5 text-[12px] sm:text-[13px] font-semibold transition-all duration-200 shrink-0 border ${isHomeActive
+                    ? "border-[#A8793E] bg-[#3D2E22] text-[#F7F1E8] shadow-[0_0_10px_rgba(168,121,62,0.25)]"
+                    : "border-[#A8793E] bg-[#2B2118] text-[#F7F1E8]/90 hover:border-[#DFC8A4] hover:text-[#F7F1E8] hover:bg-[#3D2E22]"
+                  }`}
               >
-                <Home className="w-3.5 h-3.5 text-[#FAF7F2]" />
+                <Home className="w-3.5 h-3.5 text-[#F7F1E8]" />
                 <span>{isUrdu ? "صفحہ اول" : "Home"}</span>
-                <ChevronDown className="w-3 h-3 text-[#A88B58] opacity-75" />
+                <ChevronDown className="w-3 h-3 text-[#A8793E] opacity-80" />
               </Link>
             </div>
 
@@ -586,21 +585,20 @@ export default function Header() {
                     <React.Fragment key={item.href}>
                       <Link
                         to={item.href}
-                        className={`px-2 xl:px-2.5 py-0.5 text-[13px] xl:text-[14px] whitespace-nowrap transition-all duration-200 select-none flex items-center gap-1 ${
-                          isActive
-                            ? "text-[#E5C687] font-bold"
-                            : "text-[#FAF7F2]/90 hover:text-[#E5C687] font-medium"
-                        }`}
+                        className={`px-2 xl:px-2.5 py-0.5 text-[13px] xl:text-[14px] whitespace-nowrap transition-all duration-200 select-none flex items-center gap-1 ${isActive
+                            ? "text-[#DFC8A4] font-bold"
+                            : "text-[#F7F1E8]/90 hover:text-[#DFC8A4] font-medium"
+                          }`}
                       >
                         <span>{item.label}</span>
                         {item.hasDropdown && (
-                          <ChevronDown className="w-3 h-3 text-[#A88B58] opacity-80 inline-block" />
+                          <ChevronDown className="w-3 h-3 text-[#A8793E] opacity-80 inline-block" />
                         )}
                       </Link>
 
                       {/* Thin Vertical Gold Separator */}
                       {index < navLinks.length - 1 && (
-                        <div className="w-[1px] h-3 xl:h-3.5 bg-[#A88B58]/35 self-center mx-0.5 xl:mx-1 shrink-0" />
+                        <div className="w-[1px] h-3 xl:h-3.5 bg-[#A8793E]/40 self-center mx-0.5 xl:mx-1 shrink-0" />
                       )}
                     </React.Fragment>
                   );
@@ -613,9 +611,9 @@ export default function Header() {
               {/* Member Button (ممبر بنیں) */}
               <Link
                 to="/ask"
-                className="hidden md:flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-full text-xs sm:text-[12px] font-semibold text-[#FAF7F2] border border-[#A88B58] bg-[#21150F] hover:bg-[#2E1E14] hover:border-[#D4AF37] transition-all shrink-0"
+                className="hidden md:flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-full text-xs sm:text-[12px] font-semibold text-[#F7F1E8] border border-[#A8793E] bg-[#2B2118] hover:bg-[#3D2E22] hover:border-[#DFC8A4] transition-all shrink-0"
               >
-                <HelpCircle className="w-3.5 h-3.5 text-[#B89C7D]" />
+                <HelpCircle className="w-3.5 h-3.5 text-[#A8793E]" />
                 <span>{isUrdu ? "ممبر بنیں" : "Member"}</span>
               </Link>
 
@@ -625,15 +623,15 @@ export default function Header() {
                   <button
                     type="button"
                     onClick={() => setShowProfileDropdown(!showProfileDropdown)}
-                    className="rounded-full border border-[#A88B58] bg-[#21150F] text-[#FAF7F2] px-2.5 py-0.5 flex items-center gap-1.5 text-xs font-semibold hover:bg-[#2E1E14] transition-all cursor-pointer shadow-xs"
+                    className="rounded-full border border-[#A8793E] bg-[#2B2118] text-[#F7F1E8] px-2.5 py-0.5 flex items-center gap-1.5 text-xs font-semibold hover:bg-[#3D2E22] transition-all cursor-pointer shadow-xs"
                   >
-                    <div className="w-5 h-5 rounded-full bg-[#B89C7D] text-[#22160F] font-bold text-[10px] flex items-center justify-center shrink-0">
+                    <div className="w-5 h-5 rounded-full bg-[#A8793E] text-[#2B2118] font-bold text-[10px] flex items-center justify-center shrink-0">
                       {getInitials(loggedInUser)}
                     </div>
                     <span className="hidden sm:inline max-w-[90px] truncate">
                       {loggedInUser?.name?.split(" ")[0] || (isUrdu ? "پروفائل" : "Profile")}
                     </span>
-                    <ChevronDown className="w-3 h-3 text-[#B89C7D]" />
+                    <ChevronDown className="w-3 h-3 text-[#A8793E]" />
                   </button>
 
                   {/* Profile Dropdown */}
@@ -645,16 +643,16 @@ export default function Header() {
                         exit={{ opacity: 0, scale: 0.95, y: -6 }}
                         transition={{ duration: 0.16 }}
                         style={{ zIndex: 9999 }}
-                        className={`absolute ${isUrdu ? "left-0 text-right" : "right-0 text-left"} top-full mt-2 w-64 bg-[#231710] border border-[#A88B58]/60 rounded-2xl shadow-2xl p-4 transition-all`}
+                        className={`absolute ${isUrdu ? "left-0 text-right" : "right-0 text-left"} top-full mt-2 w-64 bg-[#2B2118] border border-[#A8793E] rounded-2xl shadow-2xl p-4 transition-all`}
                       >
-                        <div className="flex flex-col gap-1 pb-3 border-b border-[#A88B58]/25">
-                          <span className="font-bold text-[#FAF7F2] text-sm">
+                        <div className="flex flex-col gap-1 pb-3 border-b border-[#A8793E]/30">
+                          <span className="font-bold text-[#F7F1E8] text-sm">
                             {loggedInUser?.name}
                           </span>
-                          <span className="text-xs text-[#FAF7F2]/60 font-mono truncate">
+                          <span className="text-xs text-[#F7F1E8]/60 font-mono truncate">
                             {loggedInUser?.loginEmail || loggedInUser?.loginPhone || "-"}
                           </span>
-                          <span className="self-start mt-1 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-[#B89C7D]/20 text-[#B89C7D] rounded-full border border-[#B89C7D]/30">
+                          <span className="self-start mt-1 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-[#A8793E]/25 text-[#DFC8A4] rounded-full border border-[#A8793E]/40">
                             {loggedInUser?.role || "user"}
                           </span>
                         </div>
@@ -662,9 +660,9 @@ export default function Header() {
                         <Link
                           to="/my-details"
                           onClick={() => setShowProfileDropdown(false)}
-                          className="mt-2.5 flex items-center gap-2 w-full px-3 py-2 text-xs font-bold text-[#FAF7F2] hover:text-[#D4AF37] bg-[#2E1E14] hover:bg-[#382519] rounded-xl border border-[#A88B58]/30 transition-colors"
+                          className="mt-2.5 flex items-center gap-2 w-full px-3 py-2 text-xs font-bold text-[#F7F1E8] hover:text-[#DFC8A4] bg-[#3D2E22] hover:bg-[#4D3A2C] rounded-xl border border-[#A8793E]/40 transition-colors"
                         >
-                          <User className="w-3.5 h-3.5 text-[#B89C7D]" />
+                          <User className="w-3.5 h-3.5 text-[#A8793E]" />
                           {isUrdu ? "میری تفصیلات" : "My Details"}
                         </Link>
 
@@ -673,17 +671,17 @@ export default function Header() {
                             <Link
                               to="/admin/dashboard"
                               onClick={() => setShowProfileDropdown(false)}
-                              className="mt-2 flex items-center gap-2 w-full px-3 py-2 text-xs font-bold text-[#FAF7F2] hover:text-[#D4AF37] bg-[#2E1E14] hover:bg-[#382519] rounded-xl border border-[#A88B58]/30 transition-colors"
+                              className="mt-2 flex items-center gap-2 w-full px-3 py-2 text-xs font-bold text-[#F7F1E8] hover:text-[#DFC8A4] bg-[#3D2E22] hover:bg-[#4D3A2C] rounded-xl border border-[#A8793E]/40 transition-colors"
                             >
-                              <LayoutDashboard className="w-3.5 h-3.5 text-[#B89C7D]" />
+                              <LayoutDashboard className="w-3.5 h-3.5 text-[#A8793E]" />
                               {isUrdu ? "ڈیش بورڈ" : "Admin Dashboard"}
                             </Link>
                             <Link
                               to="/admin/settings"
                               onClick={() => setShowProfileDropdown(false)}
-                              className="mt-2 flex items-center gap-2 w-full px-3 py-2 text-xs font-bold text-[#FAF7F2] hover:text-[#D4AF37] bg-[#2E1E14] hover:bg-[#382519] rounded-xl border border-[#A88B58]/30 transition-colors"
+                              className="mt-2 flex items-center gap-2 w-full px-3 py-2 text-xs font-bold text-[#F7F1E8] hover:text-[#DFC8A4] bg-[#3D2E22] hover:bg-[#4D3A2C] rounded-xl border border-[#A8793E]/40 transition-colors"
                             >
-                              <Settings className="w-3.5 h-3.5 text-[#B89C7D]" />
+                              <Settings className="w-3.5 h-3.5 text-[#A8793E]" />
                               {isUrdu ? "ویب سائٹ کی ترتیبات" : "Website Settings"}
                             </Link>
                           </>
@@ -706,10 +704,10 @@ export default function Header() {
                 <button
                   type="button"
                   onClick={openLogin}
-                  className="rounded-full border border-[#A88B58] bg-[#21150F] text-[#FAF7F2] px-2.5 sm:px-3 py-1 flex items-center gap-1.5 text-xs sm:text-[12.5px] font-semibold hover:bg-[#2E1E14] hover:border-[#D4AF37] hover:text-[#FAF7F2] transition-all duration-200 cursor-pointer shadow-xs"
+                  className="rounded-full border border-[#A8793E] bg-[#2B2118] text-[#F7F1E8] px-2.5 sm:px-3 py-1 flex items-center gap-1.5 text-xs sm:text-[12.5px] font-semibold hover:bg-[#3D2E22] hover:border-[#DFC8A4] hover:text-[#F7F1E8] transition-all duration-200 cursor-pointer shadow-xs"
                   title={isUrdu ? "لاگ ان / سائن اپ" : "Login / Signup"}
                 >
-                  <User className="w-3.5 h-3.5 text-[#FAF7F2]" />
+                  <User className="w-3.5 h-3.5 text-[#F7F1E8]" />
                   <span>{isUrdu ? "لاگ ان" : "Login"}</span>
                 </button>
               )}
@@ -718,7 +716,7 @@ export default function Header() {
               <button
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
-                className="lg:hidden w-7.5 h-7.5 sm:w-8 sm:h-8 rounded-full border border-[#9A7E56]/75 bg-[#281B13]/95 text-[#FAF7F2] flex items-center justify-center hover:bg-[#342318] hover:border-[#D4AF37] transition-all cursor-pointer"
+                className="lg:hidden w-7.5 h-7.5 sm:w-8 sm:h-8 rounded-full border border-[#A8793E] bg-[#2B2118] text-[#F7F1E8] flex items-center justify-center hover:bg-[#3D2E22] hover:border-[#DFC8A4] transition-all cursor-pointer"
                 aria-label="Toggle Menu"
               >
                 {isOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
@@ -745,21 +743,20 @@ export default function Header() {
                   animate={{ x: 0 }}
                   exit={{ x: isUrdu ? "100%" : "-100%" }}
                   transition={{ type: "tween", duration: 0.25 }}
-                  className={`fixed top-0 ${
-                    isUrdu ? "right-0 border-l" : "left-0 border-r"
-                  } h-full max-h-[100dvh] w-[300px] max-w-[88vw] bg-gradient-to-b from-[#21150F] via-[#271A12] to-[#1E130D] border-[#A88B58]/40 shadow-2xl flex flex-col text-[#FAF7F2] z-[100000]`}
+                  className={`fixed top-0 ${isUrdu ? "right-0 border-l" : "left-0 border-r"
+                    } h-full max-h-[100dvh] w-[300px] max-w-[88vw] bg-gradient-to-b from-[#2B2118] via-[#33261C] to-[#241A13] border-[#A8793E]/40 shadow-2xl flex flex-col text-[#F7F1E8] z-[100000]`}
                   onClick={(e) => e.stopPropagation()}
                   dir={isUrdu ? "rtl" : "ltr"}
                 >
                   {/* Drawer Header */}
-                  <div className="flex items-center justify-between px-5 py-3.5 border-b border-[#A88B58]/30 shrink-0 bg-[#21150F]">
-                    <span className="font-bold text-lg text-[#E5C687]">
+                  <div className="flex items-center justify-between px-5 py-3.5 border-b border-[#A8793E]/30 shrink-0 bg-[#2B2118]">
+                    <span className="font-bold text-lg text-[#DFC8A4]">
                       {isUrdu ? "مینو" : "Navigation"}
                     </span>
                     <button
                       type="button"
                       onClick={closeMenu}
-                      className="p-1.5 rounded-full text-[#FAF7F2]/80 hover:bg-[#342318] hover:text-[#FAF7F2] transition-colors cursor-pointer"
+                      className="p-1.5 rounded-full text-[#F7F1E8]/80 hover:bg-[#3D2E22] hover:text-[#F7F1E8] transition-colors cursor-pointer"
                       aria-label="Close navigation"
                     >
                       <X className="w-5 h-5" />
@@ -776,12 +773,12 @@ export default function Header() {
                           value={searchQuery}
                           onChange={(e) => setSearchQuery(e.target.value)}
                           placeholder={isUrdu ? "تلاش کریں..." : "Search..."}
-                          className="w-full bg-[#1A100B] border border-[#A88B58]/40 rounded-xl px-3.5 py-2 pl-9 text-sm text-[#FAF7F2] placeholder-[#A88B58]/60 focus:outline-none focus:border-[#D4AF37] text-right font-normal"
+                          className="w-full bg-[#1E1610] border border-[#A8793E]/40 rounded-xl px-3.5 py-2 pl-9 text-sm text-[#F7F1E8] placeholder-[#A8793E]/60 focus:outline-none focus:border-[#DFC8A4] text-right font-normal"
                           dir={isUrdu ? "rtl" : "ltr"}
                         />
                         <button
                           type="submit"
-                          className="absolute left-2.5 text-[#A88B58] hover:text-[#D4AF37] cursor-pointer"
+                          className="absolute left-2.5 text-[#A8793E] hover:text-[#DFC8A4] cursor-pointer"
                         >
                           <Search className="w-4 h-4" />
                         </button>
@@ -800,13 +797,12 @@ export default function Header() {
                             key={item.href}
                             to={item.href}
                             onClick={closeMenu}
-                            className={`px-3.5 py-2.5 rounded-xl text-[15px] sm:text-base transition-all flex items-center gap-2.5 ${
-                              isActive
-                                ? "bg-[#382519] text-[#E5C687] font-bold border border-[#A88B58]/40 shadow-xs"
-                                : "text-[#FAF7F2]/90 hover:bg-[#2F1E15] hover:text-[#E5C687] font-medium"
-                            }`}
+                            className={`px-3.5 py-2.5 rounded-xl text-[15px] sm:text-base transition-all flex items-center gap-2.5 ${isActive
+                                ? "bg-[#3D2E22] text-[#DFC8A4] font-bold border border-[#A8793E]/40 shadow-xs"
+                                : "text-[#F7F1E8]/90 hover:bg-[#33261C] hover:text-[#DFC8A4] font-medium"
+                              }`}
                           >
-                            {item.icon && <item.icon className="w-4 h-4 text-[#B89C7D]" />}
+                            {item.icon && <item.icon className="w-4 h-4 text-[#A8793E]" />}
                             <span>{item.label}</span>
                           </Link>
                         );
@@ -814,11 +810,11 @@ export default function Header() {
                     </nav>
 
                     {/* Bottom Auth Section */}
-                    <div className="pt-3 border-t border-[#A88B58]/30 flex flex-col gap-2 shrink-0 pb-6 mt-1">
+                    <div className="pt-3 border-t border-[#A8793E]/30 flex flex-col gap-2 shrink-0 pb-6 mt-1">
                       <Link
                         to="/ask"
                         onClick={closeMenu}
-                        className="flex items-center justify-center gap-2 w-full px-3.5 py-2.5 text-xs font-bold text-[#20140D] bg-[#B89C7D] hover:bg-[#D4AF37] rounded-xl shadow-sm transition-colors"
+                        className="flex items-center justify-center gap-2 w-full px-3.5 py-2.5 text-xs font-bold text-[#2B2118] bg-[#A8793E] hover:bg-[#DFC8A4] rounded-xl shadow-sm transition-colors"
                       >
                         <HelpCircle className="w-4 h-4" />
                         {isUrdu ? "ممبر بنیں / سوال پوچھیں" : "Member / Ask Question"}
@@ -829,18 +825,18 @@ export default function Header() {
                           <Link
                             to="/my-details"
                             onClick={closeMenu}
-                            className="flex items-center justify-center gap-2 w-full px-3.5 py-2 text-xs font-bold text-[#FAF7F2] bg-[#2E1E14] hover:bg-[#382519] rounded-xl border border-[#A88B58]/30 transition-colors"
+                            className="flex items-center justify-center gap-2 w-full px-3.5 py-2 text-xs font-bold text-[#F7F1E8] bg-[#3D2E22] hover:bg-[#4D3A2C] rounded-xl border border-[#A8793E]/30 transition-colors"
                           >
-                            <User className="w-3.5 h-3.5 text-[#B89C7D]" />
+                            <User className="w-3.5 h-3.5 text-[#A8793E]" />
                             {isUrdu ? "میری تفصیلات" : "My Details"}
                           </Link>
                           {userRole === "admin" && (
                             <Link
                               to="/admin/dashboard"
                               onClick={closeMenu}
-                              className="flex items-center justify-center gap-2 w-full px-3.5 py-2 text-xs font-bold text-[#FAF7F2] bg-[#2E1E14] hover:bg-[#382519] rounded-xl border border-[#A88B58]/30 transition-colors"
+                              className="flex items-center justify-center gap-2 w-full px-3.5 py-2 text-xs font-bold text-[#F7F1E8] bg-[#3D2E22] hover:bg-[#4D3A2C] rounded-xl border border-[#A8793E]/30 transition-colors"
                             >
-                              <LayoutDashboard className="w-3.5 h-3.5 text-[#B89C7D]" />
+                              <LayoutDashboard className="w-3.5 h-3.5 text-[#A8793E]" />
                               {isUrdu ? "ڈیش بورڈ" : "Dashboard"}
                             </Link>
                           )}
@@ -860,10 +856,10 @@ export default function Header() {
                             closeMenu();
                             openLogin();
                           }}
-                          className="flex items-center justify-center gap-2 w-full px-3.5 py-2.5 text-xs font-bold text-[#FAF7F2] bg-[#2E1E14] hover:bg-[#382519] rounded-xl border border-[#A88B58]/40 transition-colors cursor-pointer"
+                          className="flex items-center justify-center gap-2 w-full px-3.5 py-2.5 text-xs font-bold text-[#F7F1E8] bg-[#3D2E22] hover:bg-[#4D3A2C] rounded-xl border border-[#A8793E]/40 shadow-sm transition-colors cursor-pointer"
                         >
-                          <User className="w-3.5 h-3.5 text-[#B89C7D]" />
-                          {isUrdu ? "لاگ ان / سائن اپ" : "Login / Signup"}
+                          <User className="w-4 h-4 text-[#A8793E]" />
+                          {isUrdu ? "لاگ ان کریں" : "Login / Signup"}
                         </button>
                       )}
                     </div>

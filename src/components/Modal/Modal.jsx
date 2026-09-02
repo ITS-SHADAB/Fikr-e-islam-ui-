@@ -21,15 +21,15 @@ export default function Modal({
       className="fixed inset-0 z-[999] flex items-center justify-center bg-slate-900/80 backdrop-blur-sm p-3 sm:p-4 animate-in fade-in duration-200 text-left"
     >
       <div
-        className={`bg-white dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden w-full ${maxWidth} ${height} relative flex flex-col ${className}`}
+        className={`bg-card-bg rounded-2xl border border-border shadow-2xl overflow-hidden w-full ${maxWidth} ${height} relative flex flex-col ${className}`}
       >
         {/* Modal Header */}
-        <div className="bg-primary text-white px-5 py-3.5 flex items-center justify-between border-b border-accent/35 shrink-0">
+        <div className="bg-primary text-[#F7F1E8] px-5 py-3.5 flex items-center justify-between border-b border-border shrink-0">
           <h3 className="font-bold text-sm sm:text-md font-serif line-clamp-1">{title}</h3>
           <button
             type="button"
             onClick={onClose}
-            className="p-1 rounded-lg text-white/80 hover:text-white hover:bg-white/10 focus:outline-none cursor-pointer transition-colors"
+            className="p-1 rounded-lg text-[#F7F1E8]/80 hover:text-[#F7F1E8] hover:bg-white/10 focus:outline-none cursor-pointer transition-colors"
             aria-label="Close"
           >
             <X className="w-5 h-5" />
@@ -37,7 +37,7 @@ export default function Modal({
         </div>
 
         {/* Modal Body */}
-        <div className="flex-1 w-full h-full min-h-0 bg-white overflow-y-auto">
+        <div className="flex-1 w-full h-full min-h-0 bg-card-bg overflow-y-auto">
           {children}
         </div>
       </div>

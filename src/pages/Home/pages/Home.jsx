@@ -105,16 +105,14 @@ function ScholarPhotoPlaceholder() {
       </div>
     </div>
   );
-}
-
-// Statistics Counter Section Component (Matching Reference Mockup - Compact & Full Width)
+}// Statistics Counter Section Component (Matching Reference Mockup - Compact & Full Width)
 function StatisticsSection({ stats }) {
   return (
     <section className="py-3 sm:py-4.5 bg-background border-b border-border relative select-none">
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Outer Warm Beige Islamic Panel Frame */}
-        <div className="bg-gradient-to-b from-[#FAF7F2] via-[#FFFDF9] to-[#F5EFE6] rounded-2xl sm:rounded-3xl border border-[#E2D6C5] p-2.5 sm:p-3.5 lg:p-4 shadow-[0_4px_16px_rgba(74,55,40,0.04)]">
-          
+        <div className="bg-[#F7F1E8] rounded-2xl sm:rounded-3xl border border-[#A8793E]/40 p-2.5 sm:p-3.5 lg:p-4 shadow-[0_4px_16px_rgba(43,33,24,0.06)]">
+
           {/* 4 Cards Grid: 2x2 on mobile, 4-col on desktop */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 lg:gap-3.5">
             {stats.map((stat, index) => {
@@ -122,11 +120,11 @@ function StatisticsSection({ stats }) {
               return (
                 <div
                   key={index}
-                  className="relative bg-gradient-to-b from-white via-[#FCFAF6] to-[#F8F3EA] rounded-xl sm:rounded-2xl border border-[#E4D7C6] p-2.5 sm:py-3.5 sm:px-3 lg:py-4 lg:px-4 flex flex-col items-center justify-center text-center shadow-[0_2px_6px_rgba(74,55,40,0.03)] hover:shadow-[0_4px_12px_rgba(74,55,40,0.07)] hover:border-[#C5A880] transition-all duration-300 group overflow-hidden"
+                  className="relative bg-[#F7F1E8] rounded-xl sm:rounded-2xl border border-[#A8793E]/35 p-2.5 sm:py-3.5 sm:px-3 lg:py-4 lg:px-4 flex flex-col items-center justify-center text-center shadow-[0_2px_6px_rgba(43,33,24,0.04)] hover:shadow-[0_4px_12px_rgba(43,33,24,0.09)] hover:border-[#A8793E] transition-all duration-300 group overflow-hidden"
                 >
                   {/* Top-Left Subtle Islamic Lattice Accent */}
                   <svg
-                    className="absolute top-0 left-0 w-12 h-12 sm:w-14 sm:h-14 text-[#C5A880] opacity-20 pointer-events-none select-none z-0"
+                    className="absolute top-0 left-0 w-12 h-12 sm:w-14 sm:h-14 text-[#A8793E] opacity-20 pointer-events-none select-none z-0"
                     viewBox="0 0 60 60"
                     fill="none"
                     stroke="currentColor"
@@ -140,28 +138,28 @@ function StatisticsSection({ stats }) {
                   </svg>
 
                   {/* Dark Brown Circle Badge with Light Outer Ring */}
-                  <div className="relative z-10 w-9 h-9 sm:w-10 sm:h-10 lg:w-11 lg:h-11 rounded-full bg-[#4A3728] text-[#F7F4EF] flex items-center justify-center ring-3 sm:ring-4 ring-[#EFE7DC] border border-[#C5A880]/60 shadow-[0_2px_6px_rgba(74,55,40,0.15)] mb-1.5 sm:mb-2 transition-transform duration-300 group-hover:scale-105 shrink-0">
-                    <Icon className="w-4 h-4 sm:w-4.5 sm:h-4.5 lg:w-5 lg:h-5 text-[#F7F4EF]" />
+                  <div className="relative z-10 w-9 h-9 sm:w-10 sm:h-10 lg:w-11 lg:h-11 rounded-full bg-[#2B2118] text-[#F7F1E8] flex items-center justify-center ring-3 sm:ring-4 ring-[#F3E3D8] border border-[#A8793E]/60 shadow-[0_2px_6px_rgba(43,33,24,0.15)] mb-1.5 sm:mb-2 transition-transform duration-300 group-hover:scale-105 shrink-0">
+                    <Icon className="w-4 h-4 sm:w-4.5 sm:h-4.5 lg:w-5 lg:h-5 text-[#F7F1E8]" />
                   </div>
 
                   {/* Prominent Number */}
-                  <div className="relative z-10 text-xl sm:text-2xl lg:text-[26px] font-extrabold text-[#2D241D] leading-none mb-1 tracking-tight flex items-center justify-center">
+                  <div className="relative z-10 text-xl sm:text-2xl lg:text-[26px] font-extrabold text-[#2A211A] leading-none mb-1 tracking-tight flex items-center justify-center">
                     <span>{stat.value}</span>
-                    <span className="text-[#B89C7D] font-bold text-base sm:text-lg lg:text-xl ms-0.5 select-none leading-none">
+                    <span className="text-[#A8793E] font-bold text-base sm:text-lg lg:text-xl ms-0.5 select-none leading-none">
                       +
                     </span>
                   </div>
 
                   {/* Urdu Label */}
-                  <p className="relative z-10 text-xs sm:text-[13px] font-bold text-[#5A4838] leading-snug mb-1.5">
+                  <p className="relative z-10 text-xs sm:text-[13px] font-bold text-[#2A211A] leading-snug mb-1.5">
                     {stat.label}
                   </p>
 
                   {/* Under-Card Flourish with 8-Petal Rosette */}
                   <div className="relative z-10 flex items-center justify-center gap-1.5 w-full select-none pointer-events-none opacity-80">
-                    <span className="h-[1px] w-5 sm:w-6 bg-gradient-to-r from-transparent to-[#C5A880]/70" />
+                    <span className="h-[1px] w-5 sm:w-6 bg-gradient-to-r from-transparent to-[#A8793E]/70" />
                     <svg
-                      className="w-3 h-3 text-[#B89C7D] shrink-0"
+                      className="w-3 h-3 text-[#A8793E] shrink-0"
                       viewBox="0 0 24 24"
                       fill="none"
                       stroke="currentColor"
@@ -171,14 +169,13 @@ function StatisticsSection({ stats }) {
                       <path d="M12 2 L12 22 M2 12 L22 12 M5 5 L19 19 M5 19 L19 5" strokeWidth="1" />
                       <circle cx="12" cy="12" r="7" strokeWidth="0.75" strokeDasharray="1 2" />
                     </svg>
-                    <span className="h-[1px] w-5 sm:w-6 bg-gradient-to-l from-transparent to-[#C5A880]/70" />
+                    <span className="h-[1px] w-5 sm:w-6 bg-gradient-to-l from-transparent to-[#A8793E]/70" />
                   </div>
 
                 </div>
               );
             })}
           </div>
-
         </div>
       </div>
     </section>
@@ -394,11 +391,10 @@ export default function Home() {
                 <div key={index}>
                   <Link
                     to={btn.to}
-                    className={`px-6 py-3 ${
-                      btn.primary
+                    className={`px-6 py-3 ${btn.primary
                         ? "bg-primary hover:bg-primary/90 text-white shadow-md hover:shadow-lg"
                         : "bg-transparent border-2 border-border text-textSecondary hover:bg-background"
-                    } font-bold rounded transition-all flex items-center gap-2 text-sm font-serif leading-none whitespace-nowrap`}
+                      } font-bold rounded transition-all flex items-center gap-2 text-sm font-serif leading-none whitespace-nowrap`}
                   >
                     {btn.icon && <btn.icon className="w-4.5 h-4.5" />}
                     {btn.label}

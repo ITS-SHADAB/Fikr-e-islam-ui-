@@ -36,27 +36,27 @@
 }
 
 :root {
-  --color-primary: #4A3728;
-  --color-secondary: #D9CFC1;
-  --color-accent: #B89C7D;
-  --color-background: #F7F4EF;
-  --color-text-primary: #2D241D;
-  --color-text-secondary: #6B5B4B;
-  --color-border: #D8CDBF;
-  --color-white: #FFFFFF;
+  --color-primary: #2B2118;        /* Navbar #2B2118 */
+  --color-secondary: #F3E3D8;      /* Website Background #F3E3D8 */
+  --color-accent: #A8793E;         /* Gold Accents #A8793E */
+  --color-background: #F3E3D8;     /* Website Background #F3E3D8 */
+  --color-text-primary: #2A211A;   /* Main Text #2A211A */
+  --color-text-secondary: #685545; /* Secondary Text #685545 */
+  --color-border: #A8793E;         /* Gold Border #A8793E */
+  --color-white: #F7F1E8;          /* Light Card Surfaces #F7F1E8 */
 
-  --color-brown-dark: var(--color-primary);
-  --color-brown-mid: var(--color-accent);
-  --color-brown-light: var(--color-secondary);
-  --color-cream: var(--color-secondary);
-  --color-cream-light: var(--color-background);
-  --color-site-bg: var(--color-background);
-  --color-card-bg: var(--color-white);
-  --color-text-muted: var(--color-text-secondary);
-  --color-site-border: var(--color-border);
-  --color-footer-bg: var(--color-background);
-  --color-section-hdr: var(--color-primary);
-  --color-gold: var(--color-accent);
+  --color-brown-dark: #2B2118;     /* Navbar #2B2118 */
+  --color-brown-mid: #A8793E;      /* Gold #A8793E */
+  --color-brown-light: #F3E3D8;    /* Website Background #F3E3D8 */
+  --color-cream: #F7F1E8;          /* Header / Cards #F7F1E8 */
+  --color-cream-light: #F7F1E8;
+  --color-site-bg: #F3E3D8;        /* Website Background #F3E3D8 */
+  --color-card-bg: #F7F1E8;        /* Cards #F7F1E8 */
+  --color-text-muted: #685545;
+  --color-site-border: #A8793E;
+  --color-footer-bg: #2B2118;
+  --color-section-hdr: #2A211A;
+  --color-gold: #A8793E;
 }
 
 @layer base {

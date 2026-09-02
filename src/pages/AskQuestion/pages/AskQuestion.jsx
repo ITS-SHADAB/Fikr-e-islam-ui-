@@ -154,20 +154,20 @@ export default function AskQuestion() {
           </div>
         ) : (
           <div
-            className="bg-white border rounded-2xl shadow-xs overflow-hidden"
+            className="bg-card-bg border rounded-2xl shadow-xs overflow-hidden"
             style={{ borderColor: COLORS.border }}
           >
             {/* Header Banner (Font size max text-xl) */}
             <div
               style={{ backgroundColor: COLORS.primary }}
-              className="text-white p-5 sm:p-7 flex items-center gap-4"
+              className="text-[#F7F1E8] p-5 sm:p-7 flex items-center gap-4"
             >
               <div className="w-11 h-11 bg-white/10 rounded-2xl flex items-center justify-center border border-white/20 shrink-0">
-                <HelpCircle className="w-5 h-5 text-[#E5D8CA]" />
+                <HelpCircle className="w-5 h-5 text-[#A8793E]" />
               </div>
               <div>
                 <h1 className="text-lg sm:text-xl font-bold font-['Noto_Nastaliq_Urdu']">سوال پوچھیں</h1>
-                <p className="text-xs text-slate-200 mt-1 font-medium">
+                <p className="text-xs text-[#DFC8A4] mt-1 font-medium">
                   اپنا مسئلہ براہِ راست مفتی صاحب کو ارسال کریں اور شرعی رہنمائی حاصل کریں
                 </p>
               </div>
@@ -175,7 +175,7 @@ export default function AskQuestion() {
 
             {/* Authentication Guard */}
             {!isAuthenticated ? (
-              <div className="p-8 sm:p-12 text-center bg-slate-50/50">
+              <div className="p-8 sm:p-12 text-center bg-secondary/30">
                 <Lock className="w-12 h-12 mx-auto mb-3 text-slate-400" />
                 <h2 className="text-base font-bold text-slate-800 mb-2">
                   مفتی صاحب کو سوال ارسال کرنے کے لیے آپ کا لاگ ان ہونا ضروری ہے۔
@@ -203,17 +203,17 @@ export default function AskQuestion() {
 
                 {/* Logged in User Bar */}
                 <div
-                  className="p-3.5 rounded-xl border bg-slate-50/80 flex flex-wrap items-center justify-between gap-3 text-xs"
+                  className="p-3.5 rounded-xl border bg-secondary/40 flex flex-wrap items-center justify-between gap-3 text-xs"
                   style={{ borderColor: COLORS.border }}
                 >
                   <div className="flex items-center gap-2">
                     <User className="w-4 h-4 text-slate-500" />
-                    <span className="font-bold text-slate-800">{loggedInUser?.name}</span>
+                    <span className="font-bold text-[#2A211A]">{loggedInUser?.name}</span>
                     {loggedInUser?.email && (
                       <span className="text-slate-500 hidden sm:inline">({loggedInUser.email})</span>
                     )}
                   </div>
-                  <div className="flex items-center gap-1 text-[11px] text-emerald-700 font-medium bg-emerald-50 px-2 py-0.5 rounded">
+                  <div className="flex items-center gap-1 text-[11px] text-emerald-700 font-medium bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
                     <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
                     <span>تصدیق شدہ سائل</span>
                   </div>
@@ -222,7 +222,7 @@ export default function AskQuestion() {
                 {/* Question Title */}
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
-                    <label className="block text-xs font-bold text-slate-700 uppercase">
+                    <label className="block text-xs font-bold text-[#2A211A] uppercase">
                       سوال کا عنوان *
                     </label>
                     <span
@@ -241,10 +241,10 @@ export default function AskQuestion() {
                     maxLength={150}
                     required
                     placeholder="مثال: تجارتی سامان پر زکوٰۃ کا طریقہ کار"
-                    className="w-full px-3.5 py-2.5 text-sm bg-white border rounded-xl outline-none text-slate-800 font-medium focus:border-stone-600 transition-colors shadow-2xs font-['Noto_Nastaliq_Urdu']"
+                    className="w-full px-3.5 py-2.5 text-sm bg-white border rounded-xl outline-none text-[#2A211A] font-medium focus:border-stone-600 transition-colors shadow-2xs font-['Noto_Nastaliq_Urdu']"
                     style={{ borderColor: COLORS.border }}
                   />
-                  <p className="text-[11px] text-slate-400 mt-1">
+                  <p className="text-[11px] text-slate-500 mt-1">
                     اپنے سوال کا مختصر اور جامع عنوان درج کریں (زیادہ سے زیادہ 150 حروف)
                   </p>
                 </div>
@@ -252,7 +252,7 @@ export default function AskQuestion() {
                 {/* Detailed Question */}
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
-                    <label className="block text-xs font-bold text-slate-700 uppercase">
+                    <label className="block text-xs font-bold text-[#2A211A] uppercase">
                       تفصیلی سوال *
                     </label>
                     <span
@@ -271,23 +271,23 @@ export default function AskQuestion() {
                     required
                     placeholder="اپنے مسئلے کی تمام ضروری تفصیلات اور پس منظر واضح طور پر تحریر کریں..."
                     rows={6}
-                    className="w-full px-3.5 py-2.5 text-sm bg-white border rounded-xl outline-none text-slate-800 font-medium focus:border-stone-600 transition-colors resize-y leading-relaxed shadow-2xs font-['Noto_Nastaliq_Urdu']"
+                    className="w-full px-3.5 py-2.5 text-sm bg-white border rounded-xl outline-none text-[#2A211A] font-medium focus:border-stone-600 transition-colors resize-y leading-relaxed shadow-2xs font-['Noto_Nastaliq_Urdu']"
                     style={{ borderColor: COLORS.border }}
                   />
-                  <p className="text-[11px] text-slate-400 mt-1">
+                  <p className="text-[11px] text-slate-500 mt-1">
                     صحیح شرعی رہنمائی کے لیے تمام ضروری حقائق درج کریں (زیادہ سے زیادہ 5000 حروف)
                   </p>
                 </div>
 
                 {/* Guidelines Box */}
                 <div
-                  className="p-4 rounded-xl border bg-[#faf8f5]/80 text-xs space-y-1.5"
+                  className="p-4 rounded-xl border bg-secondary/30 text-xs space-y-1.5"
                   style={{ borderColor: COLORS.border }}
                 >
                   <span className="font-bold block" style={{ color: COLORS.primary }}>
                     ❖ سوال پوچھنے کے ضروری آداب و ہدایات
                   </span>
-                  <ul className="list-disc list-inside space-y-1 text-slate-600">
+                  <ul className="list-disc list-inside space-y-1 text-slate-700">
                     <li>سوال کو صاف اور واضح الفاظ میں تحریر کریں۔</li>
                     <li>غیر ضروری تفصیلات سے گریز کریں اور مسئلے کے اہم پہلو بیان کریں۔</li>
                     <li>آپ اپنے پوچھے گئے سوالات کی کیفیت "میری پروفائل" میں جا کر دیکھ سکتے ہیں۔</li>

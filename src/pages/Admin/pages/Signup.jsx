@@ -252,7 +252,7 @@ export default function Signup({ isModal = false, onClose, onSwitchToLogin }) {
         className={`${
           isModal
             ? "p-6 sm:p-8 w-full"
-            : "min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/40 flex items-center justify-center p-4 py-10 relative overflow-hidden"
+            : "min-h-screen bg-background flex items-center justify-center p-4 py-10 relative overflow-hidden"
         }`}
       >
         {!isModal && (
@@ -267,7 +267,7 @@ export default function Signup({ isModal = false, onClose, onSwitchToLogin }) {
         <div
           className={`w-full ${
             !isModal
-              ? "max-w-xl relative signup-card mx-auto bg-white/90 rounded-3xl shadow-2xl shadow-slate-200/80 border border-slate-100 p-6 sm:p-10"
+              ? "max-w-xl relative signup-card mx-auto bg-card-bg rounded-3xl shadow-2xl border border-border/40 p-6 sm:p-10"
               : ""
           }`}
         >

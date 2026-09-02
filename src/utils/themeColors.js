@@ -1,17 +1,18 @@
 export const COLORS = {
-  primary: "#4A3728",      // Dark Brown
-  secondary: "#D9CFC1",    // Light Beige
-  accent: "#B89C7D",       // Soft Gold Brown
-  background: "#F7F4EF",   // Warm Off White
-  textPrimary: "#2D241D",  // Dark Text
-  textSecondary: "#6B5B4B",
-  border: "#D8CDBF",
-  white: "#FFFFFF",
+  primary: "#2B2118",      // Navbar: #2B2118
+  secondary: "#F3E3D8",    // Website Background: #F3E3D8
+  accent: "#A8793E",       // Gold Accents: #A8793E
+  background: "#F3E3D8",   // Website Background: #F3E3D8
+  cardBg: "#F7F1E8",       // Header / Cards: #F7F1E8
+  textPrimary: "#2A211A",  // Main Text: #2A211A
+  textSecondary: "#685545",// Secondary Text: #685545
+  border: "#A8793E",       // Gold Border: #A8793E
+  white: "#F7F1E8",        // Light Card Surfaces: #F7F1E8
 
-  color1: "#4A3728",
-  color2: "#D9CFC1",
-  color3: "#B89C7D",
-  color4: "#F7F4EF",
+  color1: "#2B2118",
+  color2: "#F3E3D8",
+  color3: "#A8793E",
+  color4: "#F7F1E8",
 
   // Semantic & Utility Colors
   error: "#DE350B",
@@ -41,18 +42,18 @@ if (typeof document !== "undefined") {
   root.style.setProperty("--color-teal", COLORS.teal);
   root.style.setProperty("--color-gray-light", COLORS.grayLight);
 
-  // Set the specific legacy variables that components might expect in CSS
+  // Set specific variables that components expect
   root.style.setProperty("--color-brown-dark", COLORS.primary);
   root.style.setProperty("--color-brown-mid", COLORS.accent);
   root.style.setProperty("--color-brown-light", COLORS.secondary);
-  root.style.setProperty("--color-cream", COLORS.secondary);
-  root.style.setProperty("--color-cream-light", COLORS.background);
+  root.style.setProperty("--color-cream", COLORS.cardBg);
+  root.style.setProperty("--color-cream-light", COLORS.cardBg);
   root.style.setProperty("--color-site-bg", COLORS.background);
-  root.style.setProperty("--color-card-bg", COLORS.white);
+  root.style.setProperty("--color-card-bg", COLORS.cardBg);
   root.style.setProperty("--color-text-muted", COLORS.textSecondary);
   root.style.setProperty("--color-site-border", COLORS.border);
-  root.style.setProperty("--color-footer-bg", COLORS.background);
-  root.style.setProperty("--color-section-hdr", COLORS.primary);
+  root.style.setProperty("--color-footer-bg", COLORS.primary);
+  root.style.setProperty("--color-section-hdr", COLORS.textPrimary);
   root.style.setProperty("--color-gold", COLORS.accent);
 }
 

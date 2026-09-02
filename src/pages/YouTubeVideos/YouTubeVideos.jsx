@@ -50,7 +50,7 @@ export default function YouTubeVideos() {
 
         {/* Header Hero Section */}
         {connection ? (
-          <div className="premium-card p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-6 bg-slate-50 border border-slate-100 rounded-2xl shadow-xs">
+          <div className="premium-card p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-6 bg-card-bg border border-border/40 rounded-2xl shadow-xs">
             <div className={`flex flex-col sm:flex-row items-center gap-5 w-full md:w-auto ${language === 'ur' ? 'sm:flex-row-reverse text-right' : 'sm:flex-row text-left'}`}>
               {connection.channelThumbnail ? (
                 <img
@@ -68,7 +68,7 @@ export default function YouTubeVideos() {
                 <span className="text-[10px] font-bold text-red-600 bg-red-50 border border-red-100 px-2 py-0.5 rounded-full uppercase tracking-wider inline-flex items-center gap-1">
                   <Youtube size={10} /> {language === 'en' ? 'Official Channel' : 'آفیشل چینل'}
                 </span>
-                <h1 className="text-2xl font-black text-slate-800 font-serif leading-none">
+                <h1 className="text-2xl font-black text-[#2A211A] font-serif leading-none">
                   {connection.channelName}
                 </h1>
                 <div className={`flex flex-wrap items-center justify-center sm:justify-start gap-4 text-xs text-slate-500 mt-1 ${language === 'ur' ? 'sm:flex-row-reverse' : ''}`}>
@@ -100,10 +100,10 @@ export default function YouTubeVideos() {
             <span className="text-xs font-bold text-accent dark:text-amber-500 uppercase tracking-widest block mb-1">
               {language === 'en' ? 'VIDEO GALLERY' : 'ویڈیو گیلری'}
             </span>
-            <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-800 tracking-wide font-serif">
+            <h1 className="text-3xl sm:text-4xl font-extrabold text-[#2A211A] tracking-wide font-serif">
               {language === 'en' ? 'Islamic Video Lectures' : 'اسلامی ویڈیو بیانات'}
             </h1>
-            <p className="text-slate-500 text-sm font-light mt-2 max-w-md mx-auto">
+            <p className="text-slate-600 text-sm font-light mt-2 max-w-md mx-auto">
               {language === 'en' ? 'Watch video lessons, Quranic explanations and sermons directly from the official channel.' : 'آفیشل چینل کے خطابات، قرآنی تشریحات اور ہفتہ وار ویڈیو بیانات یہاں دیکھیں۔'}
             </p>
           </div>
@@ -121,7 +121,7 @@ export default function YouTubeVideos() {
               <div
                 key={video._id}
                 onClick={() => setActiveVideo(video)}
-                className="group cursor-pointer rounded-2xl overflow-hidden border border-slate-150 bg-white shadow-xs transition-all duration-300 hover:shadow-md hover:-translate-y-1 flex flex-col"
+                className="group cursor-pointer rounded-2xl overflow-hidden border border-border/40 bg-card-bg shadow-xs transition-all duration-300 hover:shadow-md hover:border-border flex flex-col"
               >
                 {/* Thumbnail */}
                 <div className="aspect-video relative bg-slate-900 overflow-hidden flex-shrink-0">
@@ -151,10 +151,10 @@ export default function YouTubeVideos() {
 
                 {/* Content Details */}
                 <div className="p-4 flex flex-col flex-1 text-start">
-                  <h3 className="text-sm font-bold text-slate-800 line-clamp-2 leading-relaxed font-serif group-hover:text-red-600 transition-colors flex-1">
+                  <h3 className="text-sm font-bold text-[#2A211A] line-clamp-2 leading-relaxed font-serif group-hover:text-red-600 transition-colors flex-1">
                     {video.title}
                   </h3>
-                  <div className="flex items-center gap-3 text-[10px] text-slate-400 font-medium mt-4 pt-3 border-t border-slate-100">
+                  <div className="flex items-center gap-3 text-[10px] text-slate-500 font-medium mt-4 pt-3 border-t border-border/30">
                     <span className="flex items-center gap-1">
                       <Calendar size={11} />
                       {new Date(video.uploadedAt).toLocaleDateString(language === 'ur' ? 'ur-PK' : 'en-US')}
@@ -165,9 +165,9 @@ export default function YouTubeVideos() {
             ))}
           </div>
         ) : (
-          <div className="text-center py-24 text-slate-400 border border-dashed rounded-2xl p-8 bg-slate-50 border-slate-200 max-w-lg mx-auto">
-            <Youtube className="w-14 h-14 mx-auto text-slate-350 mb-4" />
-            <h3 className="text-md font-bold text-slate-700">{language === 'en' ? 'No Videos Found' : 'کوئی ویڈیو نہیں ملی'}</h3>
+          <div className="text-center py-24 text-slate-500 border border-dashed rounded-2xl p-8 bg-card-bg border-border/40 max-w-lg mx-auto">
+            <Youtube className="w-14 h-14 mx-auto text-slate-400 mb-4" />
+            <h3 className="text-md font-bold text-[#2A211A]">{language === 'en' ? 'No Videos Found' : 'کوئی ویڈیو نہیں ملی'}</h3>
             <p className="text-xs text-slate-500 font-light mt-1">
               {language === 'en' ? 'The channel videos list is currently empty. Please check back later.' : 'چینل کی ویڈیو گیلری اس وقت خالی ہے۔ براہ کرم بعد میں دوبارہ چیک کریں۔'}
             </p>

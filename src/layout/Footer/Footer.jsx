@@ -22,23 +22,23 @@ export default function Footer() {
 
   return (
     <footer
-      style={{ backgroundColor: COLORS.background, color: COLORS.textPrimary, borderColor: COLORS.border }}
-      className="islamic-pattern relative border-t-2 pt-16 pb-8"
+      style={{ backgroundColor: "#2B2118", color: "#F7F1E8", borderColor: "#A8793E" }}
+      className="islamic-pattern relative border-t-2 pt-14 pb-8"
     >
       {/* Metallic Gold Accent Top Line */}
-      <div className="absolute top-0 left-0 right-0 h-1" style={{ backgroundColor: COLORS.accent }}></div>
+      <div className="absolute top-0 left-0 right-0 h-1" style={{ backgroundColor: "#A8793E" }}></div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12" dir={language === 'ur' ? 'rtl' : 'ltr'}>
 
         {/* Column 1: Biography / Mission */}
         <div className={language === 'ur' ? 'text-right' : 'text-left'}>
           <div className="flex items-center gap-2 mb-4 justify-start">
-            <BookOpen className="w-6 h-6" style={{ color: COLORS.primary }} />
-            <span className="text-lg font-bold tracking-wide" style={{ color: COLORS.primary }}>
+            <BookOpen className="w-6 h-6" style={{ color: "#A8793E" }} />
+            <span className="text-lg font-bold tracking-wide" style={{ color: "#F7F1E8" }}>
               {scholarName}
             </span>
           </div>
-          <p className="text-sm leading-relaxed mb-4 font-light" style={{ color: COLORS.textSecondary }}>
+          <p className="text-sm leading-relaxed mb-4 font-light text-[#DFC8A4]">
             {settings?.homepageSettings?.heroMission || ''}
           </p>
           <div className="flex items-center gap-2.5 justify-start">
@@ -47,8 +47,9 @@ export default function Footer() {
                 href={socialLinks.facebook}
                 target="_blank"
                 rel="noopener noreferrer"
-                style={{ color: COLORS.primary, borderColor: COLORS.border }}
-                className="p-2 rounded bg-white border hover:text-white theme-hover-bg-accent transition-colors"
+                style={{ color: "#F7F1E8", borderColor: "#A8793E" }}
+                className="p-2 rounded-xl bg-[#3D2E22] border hover:text-[#DFC8A4] hover:border-[#DFC8A4] transition-colors"
+                aria-label="Facebook"
               >
                 <Facebook className="w-4 h-4" />
               </a>
@@ -58,8 +59,9 @@ export default function Footer() {
                 href={socialLinks.youtube}
                 target="_blank"
                 rel="noopener noreferrer"
-                style={{ color: COLORS.primary, borderColor: COLORS.border }}
-                className="p-2 rounded bg-white border hover:text-white theme-hover-bg-accent transition-colors"
+                style={{ color: "#F7F1E8", borderColor: "#A8793E" }}
+                className="p-2 rounded-xl bg-[#3D2E22] border hover:text-[#DFC8A4] hover:border-[#DFC8A4] transition-colors"
+                aria-label="YouTube"
               >
                 <Youtube className="w-4 h-4" />
               </a>
@@ -69,8 +71,9 @@ export default function Footer() {
                 href={socialLinks.twitter}
                 target="_blank"
                 rel="noopener noreferrer"
-                style={{ color: COLORS.primary, borderColor: COLORS.border }}
-                className="p-2 rounded bg-white border hover:text-white theme-hover-bg-accent transition-colors"
+                style={{ color: "#F7F1E8", borderColor: "#A8793E" }}
+                className="p-2 rounded-xl bg-[#3D2E22] border hover:text-[#DFC8A4] hover:border-[#DFC8A4] transition-colors"
+                aria-label="Twitter"
               >
                 <Twitter className="w-4 h-4" />
               </a>
@@ -80,8 +83,9 @@ export default function Footer() {
                 href={socialLinks.instagram}
                 target="_blank"
                 rel="noopener noreferrer"
-                style={{ color: COLORS.primary, borderColor: COLORS.border }}
-                className="p-2 rounded bg-white border hover:text-white theme-hover-bg-accent transition-colors"
+                style={{ color: "#F7F1E8", borderColor: "#A8793E" }}
+                className="p-2 rounded-xl bg-[#3D2E22] border hover:text-[#DFC8A4] hover:border-[#DFC8A4] transition-colors"
+                aria-label="Instagram"
               >
                 <Instagram className="w-4 h-4" />
               </a>
@@ -92,7 +96,7 @@ export default function Footer() {
         {/* Column 2: Sitemap Navigation */}
         <div className={language === 'ur' ? 'text-right' : 'text-left'}>
           <h3
-            style={{ color: COLORS.primary, borderColor: COLORS.border }}
+            style={{ color: "#F7F1E8", borderColor: "#A8793E" }}
             className="font-semibold text-md mb-4 border-b pb-2 uppercase tracking-wider"
           >
             {language === 'en' ? 'Quick Links' : 'فوری لنکس'}
@@ -101,55 +105,49 @@ export default function Footer() {
             <li>
               <Link
                 to="/about"
-                style={{ color: COLORS.textSecondary }}
-                className="hover:underline transition-all flex items-center gap-1 justify-start theme-hover-text-primary"
+                className="text-[#DFC8A4] hover:text-[#F7F1E8] hover:underline transition-all flex items-center gap-1 justify-start"
               >
-                <span style={{ color: COLORS.accent }}>›</span> {language === 'en' ? 'Biography & Credentials' : 'سوانح اور اسناد'}
+                <span style={{ color: "#A8793E" }}>›</span> {language === 'en' ? 'Biography & Credentials' : 'سوانح اور اسناد'}
               </Link>
             </li>
             <li>
               <Link
                 to="/articles"
-                style={{ color: COLORS.textSecondary }}
-                className="hover:underline transition-all flex items-center gap-1 justify-start theme-hover-text-primary"
+                className="text-[#DFC8A4] hover:text-[#F7F1E8] hover:underline transition-all flex items-center gap-1 justify-start"
               >
-                <span style={{ color: COLORS.accent }}>›</span> {language === 'en' ? 'Scholarly Articles' : 'علمی مقالات'}
+                <span style={{ color: "#A8793E" }}>›</span> {language === 'en' ? 'Scholarly Articles' : 'علمی مقالات'}
               </Link>
             </li>
             <li>
               <Link
                 to="/fatwas"
-                style={{ color: COLORS.textSecondary }}
-                className="hover:underline transition-all flex items-center gap-1 justify-start theme-hover-text-primary"
+                className="text-[#DFC8A4] hover:text-[#F7F1E8] hover:underline transition-all flex items-center gap-1 justify-start"
               >
-                <span style={{ color: COLORS.accent }}>›</span> {language === 'en' ? 'Fatwas & Shariah Rulings' : 'فتاویٰ اور شرعی احکام'}
+                <span style={{ color: "#A8793E" }}>›</span> {language === 'en' ? 'Fatwas & Shariah Rulings' : 'فتاویٰ اور شرعی احکام'}
               </Link>
             </li>
             <li>
               <Link
                 to="/qa"
-                style={{ color: COLORS.textSecondary }}
-                className="hover:underline transition-all flex items-center gap-1 justify-start theme-hover-text-primary"
+                className="text-[#DFC8A4] hover:text-[#F7F1E8] hover:underline transition-all flex items-center gap-1 justify-start"
               >
-                <span style={{ color: COLORS.accent }}>›</span> {language === 'en' ? 'Questions & Answers' : 'سوالات اور جوابات'}
+                <span style={{ color: "#A8793E" }}>›</span> {language === 'en' ? 'Questions & Answers' : 'سوالات اور جوابات'}
               </Link>
             </li>
             <li>
               <Link
                 to="/publications"
-                style={{ color: COLORS.textSecondary }}
-                className="hover:underline transition-all flex items-center gap-1 justify-start theme-hover-text-primary"
+                className="text-[#DFC8A4] hover:text-[#F7F1E8] hover:underline transition-all flex items-center gap-1 justify-start"
               >
-                <span style={{ color: COLORS.accent }}>›</span> {language === 'en' ? 'Books & Library' : 'کتب اور مطالعہ'}
+                <span style={{ color: "#A8793E" }}>›</span> {language === 'en' ? 'Books & Library' : 'کتب اور مطالعہ'}
               </Link>
             </li>
             <li>
               <Link
                 to="/lectures"
-                style={{ color: COLORS.textSecondary }}
-                className="hover:underline transition-all flex items-center gap-1 justify-start theme-hover-text-primary"
+                className="text-[#DFC8A4] hover:text-[#F7F1E8] hover:underline transition-all flex items-center gap-1 justify-start"
               >
-                <span style={{ color: COLORS.accent }}>›</span> {language === 'en' ? 'Audio & Video Lectures' : 'آڈیو اور ویڈیو بیانات'}
+                <span style={{ color: "#A8793E" }}>›</span> {language === 'en' ? 'Audio & Video Lectures' : 'آڈیو اور ویڈیو بیانات'}
               </Link>
             </li>
           </ul>
@@ -158,65 +156,65 @@ export default function Footer() {
         {/* Column 3: Contact details */}
         <div className={language === 'ur' ? 'text-right' : 'text-left'}>
           <h3
-            style={{ color: COLORS.primary, borderColor: COLORS.border }}
+            style={{ color: "#F7F1E8", borderColor: "#A8793E" }}
             className="font-semibold text-md mb-4 border-b pb-2 uppercase tracking-wider"
           >
             {language === 'en' ? 'Contact Scholar' : 'عالم صاحب سے رابطہ'}
           </h3>
           <ul className="space-y-3.5 text-sm font-light">
             <li className="flex items-start gap-2.5 justify-start">
-              <MapPin className="w-5 h-5 shrink-0 mt-0.5" style={{ color: COLORS.accent }} />
-              <span style={{ color: COLORS.textPrimary }} className="leading-tight">{address}</span>
+              <MapPin className="w-5 h-5 shrink-0 mt-0.5" style={{ color: "#A8793E" }} />
+              <span className="leading-tight text-[#F7F1E8]">{address}</span>
             </li>
             <li className="flex items-center gap-2.5 justify-start">
-              <Phone className="w-4 h-4 shrink-0" style={{ color: COLORS.accent }} />
-              <span style={{ color: COLORS.textPrimary }}>{phone}</span>
+              <Phone className="w-4 h-4 shrink-0" style={{ color: "#A8793E" }} />
+              <span className="text-[#F7F1E8]">{phone}</span>
             </li>
             {whatsapp && (
               <li className="flex items-center gap-2.5 justify-start">
                 <span
-                  style={{ color: COLORS.textSecondary, backgroundColor: COLORS.secondary, borderColor: COLORS.border }}
+                  style={{ color: "#F7F1E8", backgroundColor: "#3D2E22", borderColor: "#A8793E" }}
                   className="font-bold text-xs rounded px-2 py-0.5 border"
                 >
                   {language === 'en' ? 'WhatsApp' : 'واٹس ایپ'}
                 </span>
-                <span style={{ color: COLORS.textPrimary }}>{whatsapp}</span>
+                <span className="text-[#F7F1E8]">{whatsapp}</span>
               </li>
             )}
             <li className="flex items-center gap-2.5 justify-start">
-              <Mail className="w-4 h-4 shrink-0" style={{ color: COLORS.accent }} />
-              <span style={{ color: COLORS.textPrimary }}>{email}</span>
+              <Mail className="w-4 h-4 shrink-0" style={{ color: "#A8793E" }} />
+              <span className="text-[#F7F1E8]">{email}</span>
             </li>
           </ul>
         </div>
 
-        {/* Column 4: Newsletter Submission Mock */}
+        {/* Column 4: Newsletter Submission */}
         <div className={language === 'ur' ? 'text-right' : 'text-left'}>
           <h3
-            style={{ color: COLORS.primary, borderColor: COLORS.border }}
+            style={{ color: "#F7F1E8", borderColor: "#A8793E" }}
             className="font-semibold text-md mb-4 border-b pb-2 uppercase tracking-wider"
           >
             {language === 'en' ? 'Stay Informed' : 'باخبر رہیں'}
           </h3>
-          <p className="text-xs mb-4 font-light leading-relaxed" style={{ color: COLORS.textSecondary }}>
+          <p className="text-xs mb-4 font-light leading-relaxed text-[#DFC8A4]">
             {language === 'en' ? 'Subscribe to receive updates about new Islamic articles, publications, or fatwas directly.' : 'نئے اسلامی مضامین، مطبوعات یا فتاویٰ شائع ہونے پر براہ راست معلومات حاصل کرنے کے لیے سبسکرائب کریں۔'}
           </p>
           <form
             onSubmit={(e) => e.preventDefault()}
-            style={{ borderColor: COLORS.border }}
-            className="flex border rounded overflow-hidden shadow-xs"
+            style={{ borderColor: "#A8793E" }}
+            className="flex border rounded-xl overflow-hidden shadow-xs"
             dir={language === 'ur' ? 'rtl' : 'ltr'}
           >
             <Input
               type="email"
               placeholder={language === 'en' ? 'Your email address' : 'آپ کا ای میل ایڈریس'}
               border=""
-              inputClassName="bg-white text-slate-800 text-xs px-3 py-2 w-full outline-none"
+              inputClassName="bg-[#1E1610] text-[#F7F1E8] text-xs px-3 py-2 w-full outline-none placeholder:text-[#A8793E]/60"
             />
             <button
               type="submit"
-              style={{ backgroundColor: COLORS.primary }}
-              className="text-white px-4 transition-colors flex items-center justify-center shrink-0 theme-hover-bg-accent"
+              style={{ backgroundColor: "#A8793E" }}
+              className="text-[#2B2118] px-4 transition-colors flex items-center justify-center shrink-0 hover:bg-[#DFC8A4] hover:text-[#2B2118] cursor-pointer"
             >
               <Send className="w-3.5 h-3.5" />
             </button>
@@ -224,26 +222,6 @@ export default function Footer() {
         </div>
 
       </div>
-
-      {/* Footer base metadata */}
-      {/* <div 
-        style={{ borderColor: COLORS.border }}
-        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 border-t flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500" 
-        dir={language === 'ur' ? 'rtl' : 'ltr'}
-      >
-        <p className={`mb-4 sm:mb-0 text-center ${language === 'ur' ? 'sm:text-right' : 'sm:text-left'}`}>
-          &copy; {new Date().getFullYear()} {scholarName}{language === 'en' ? '. All rights reserved. Derived from classical guidance.' : '۔ جملہ حقوق محفوظ ہیں۔ کلاسیکی رہنمائی سے ماخوذ۔'}
-        </p>
-        <div className="flex items-center gap-4">
-          <Link 
-            to="/login" 
-            style={{ color: COLORS.primary }}
-            className="transition-colors flex items-center gap-1 font-semibold theme-hover-text-accent"
-          >
-            <Shield className="w-3.5 h-3.5" /> {language === 'en' ? 'Admin Panel' : 'ایڈمن پینل'}
-          </Link>
-        </div>
-      </div> */}
     </footer>
   );
 }

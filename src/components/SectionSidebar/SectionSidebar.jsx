@@ -9,7 +9,7 @@ export function SidebarHeader({ label, icon: Icon = Book }) {
       className="flex items-center justify-between px-4 py-3 select-none"
       style={{ backgroundColor: COLORS.primary }}
     >
-      <span className="text-base font-bold text-white font-serif">{label}</span>
+      <span className="text-base font-bold text-[#F7F1E8] font-serif">{label}</span>
       <Icon className="w-4 h-4" style={{ color: COLORS.accent }} />
     </div>
   );
@@ -21,18 +21,18 @@ export function SidebarLink({ label, active, onClick, count }) {
     <button
       type="button"
       onClick={onClick}
-      className="w-full text-right px-4 py-2.5 text-sm font-medium transition-all rounded-sm flex items-center justify-between border-b last:border-b-0 hover:bg-slate-50 cursor-pointer"
+      className="w-full text-right px-4 py-2.5 text-sm font-medium transition-all rounded-sm flex items-center justify-between border-b last:border-b-0 hover:bg-black/5 cursor-pointer"
       style={{
         color: active ? COLORS.primary : COLORS.textPrimary,
         fontWeight: active ? 700 : 500,
-        backgroundColor: active ? `${COLORS.secondary}70` : 'transparent',
+        backgroundColor: active ? `${COLORS.secondary}` : 'transparent',
         borderColor: `${COLORS.border}50`,
       }}
     >
       <span className="truncate">{label}</span>
       <div className="flex items-center gap-1.5 shrink-0">
         {typeof count === 'number' && (
-          <span className="text-[11px] px-1.5 py-0.2 rounded-full font-mono bg-slate-100 text-slate-500">
+          <span className="text-[11px] px-1.5 py-0.2 rounded-full font-mono bg-black/5 text-[#2A211A]">
             {count}
           </span>
         )}
@@ -121,7 +121,7 @@ export default function SectionSidebar({
         ref={dropdownRef}
         className={`lg:hidden sticky top-16 md:top-20 z-30 mb-6 p-2.5 rounded-2xl border shadow-md backdrop-blur-md transition-all ${className}`}
         style={{
-          backgroundColor: 'rgba(255, 255, 255, 0.97)',
+          backgroundColor: COLORS.cardBg,
           borderColor: COLORS.border,
         }}
         dir={isRTL ? 'rtl' : 'ltr'}

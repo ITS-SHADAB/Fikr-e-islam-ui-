@@ -141,7 +141,7 @@ export default function Login({ isModal = false, onClose, onSwitchToSignup }) {
         className={`${
           isModal
             ? "p-6 sm:p-8 w-full"
-            : "min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 flex items-center justify-center p-4 relative overflow-hidden"
+            : "min-h-screen bg-background flex items-center justify-center p-4 relative overflow-hidden"
         }`}
       >
         {!isModal && (
@@ -149,14 +149,14 @@ export default function Login({ isModal = false, onClose, onSwitchToSignup }) {
             {/* Background blobs */}
             <div className="absolute top-[-10%] right-[-10%] w-[480px] h-[480px] bg-primary/6 rounded-full blur-[100px] pointer-events-none" />
             <div className="absolute bottom-[-10%] left-[-10%] w-[380px] h-[380px] bg-accent/8 rounded-full blur-[90px] pointer-events-none" />
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-slate-200/40 rounded-full blur-[120px] pointer-events-none" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[120px] pointer-events-none" />
           </>
         )}
 
         <div
           className={`w-full ${
             !isModal
-              ? "max-w-md relative login-card mx-auto bg-white/90 rounded-3xl shadow-2xl shadow-slate-200/80 border border-slate-100 p-6 sm:p-10"
+              ? "max-w-md relative login-card mx-auto bg-card-bg rounded-3xl shadow-2xl border border-border/40 p-6 sm:p-10"
               : ""
           }`}
         >
