@@ -325,8 +325,8 @@ export default function Header() {
     <div
       className={`w-full sticky top-0 z-40 transition-all duration-300 select-none ${
         scrolled
-          ? "py-1 sm:py-1.5 bg-[#F3E3D8]/95 shadow-sm"
-          : "pt-1.5 sm:pt-2.5 pb-1 sm:pb-2 bg-transparent"
+          ? "py-0.5 sm:py-1 bg-[#F3E3D8]/95 shadow-sm"
+          : "pt-1 sm:pt-1.5 pb-0.5 sm:pb-1 bg-transparent"
       } px-2 sm:px-4 md:px-6`}
       dir="rtl"
     >
@@ -340,7 +340,7 @@ export default function Header() {
           {/* ────────────────────────────────────────────────────────────
               1. TOP CREAM BRANDING AREA (#F7F1E8 with Fine Gold Accents #A8793E)
               ──────────────────────────────────────────────────────────── */}
-          <div className="relative w-full bg-[#F7F1E8] text-[#2A211A] pt-1.5 sm:pt-2 pb-0 px-3 sm:px-8 overflow-hidden">
+          <div className="relative w-full bg-[#F7F1E8] text-[#2A211A] pt-1 sm:pt-1.5 pb-0.5 sm:pb-1 px-3 sm:px-6 overflow-hidden">
 
             {/* Outer Inset Decorative Frame */}
             <div className="absolute inset-1 sm:inset-1.5 rounded-[12px] sm:rounded-[18px] border border-[#A8793E]/40 pointer-events-none" />
@@ -371,60 +371,50 @@ export default function Header() {
               <rect width="100%" height="100%" fill="url(#islamic-star-pattern)" />
             </svg>
 
-            {/* Top Elevated Arch / Pediment Line with Diamond Tips */}
-            <div className="w-full max-w-[920px] mx-auto mb-0 pointer-events-none opacity-40 flex items-center justify-center">
-              <svg viewBox="0 0 920 14" preserveAspectRatio="none" className="w-full h-2.5 sm:h-3 text-[#A8793E]">
-                <path
-                  d="M 20 10 L 340 10 L 370 3 L 550 3 L 580 10 L 900 10"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.1"
-                />
-                <circle cx="370" cy="3" r="1.5" fill="currentColor" />
-                <circle cx="550" cy="3" r="1.5" fill="currentColor" />
-              </svg>
-            </div>
-
             {/* Top Corner Botanical Arabesque Branch Ornaments */}
-            <CornerArabesque className="absolute top-0 left-0 w-11 h-11 sm:w-15 sm:h-15 lg:w-18 lg:h-18 opacity-85 text-[#A8793E]" />
-            <CornerArabesque className="absolute top-0 right-0 w-11 h-11 sm:w-15 sm:h-15 lg:w-18 lg:h-18 -scale-x-100 opacity-85 text-[#A8793E]" />
+            <CornerArabesque className="absolute top-0 left-0 w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 opacity-80 text-[#A8793E]" />
+            <CornerArabesque className="absolute top-0 right-0 w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 -scale-x-100 opacity-80 text-[#A8793E]" />
 
-            {/* Center Calligraphic Branding Content */}
-            <div className="relative z-10 flex flex-col items-center justify-center text-center max-w-2xl mx-auto py-0">
+            {/* Center Calligraphic Branding Content (Vertically compact) */}
+            <div className="relative z-10 flex flex-col items-center justify-center text-center max-w-3xl mx-auto py-0">
 
               {/* Bismillah with Gold Diamond Florets */}
               <div
                 style={{ fontFamily: "'Payami Quran', 'Noto Naskh Arabic', serif" }}
-                className="flex items-center justify-center gap-1.5 text-[10.5px] sm:text-[11.5px] lg:text-[12.5px] text-[#2A211A] font-medium leading-none mb-0 select-none"
+                className="flex items-center justify-center gap-1.5 text-[10px] sm:text-[11px] text-[#2A211A] font-medium leading-none mb-0 select-none"
               >
-                <span className="text-[#A8793E] text-[8.5px] sm:text-[9.5px] select-none leading-none">❖</span>
+                <span className="text-[#A8793E] text-[7.5px] sm:text-[8px] select-none leading-none">❖</span>
                 <span className="tracking-wide">بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْم</span>
-                <span className="text-[#A8793E] text-[8.5px] sm:text-[9.5px] select-none leading-none">❖</span>
+                <span className="text-[#A8793E] text-[7.5px] sm:text-[8px] select-none leading-none">❖</span>
               </div>
 
               {/* Scholar Main Calligraphic Name Title */}
               <Link
                 to="/"
-                className="group block transition-transform duration-200 hover:scale-[1.01] -mt-1 sm:-mt-1.5 -mb-0.5 sm:-mb-1 py-0"
+                className="group block transition-transform duration-200 hover:scale-[1.01] -my-0.5 sm:-my-1 py-0"
               >
                 <h1
                   style={{ fontFamily: "'Payami Quran', 'Noto Naskh Arabic', serif" }}
-                  className="text-2xl sm:text-3xl md:text-3.5xl lg:text-[36px] xl:text-[38px] font-bold text-[#2A211A] leading-[1] tracking-tight group-hover:text-[#5C4433] transition-colors my-0 py-0"
+                  className="text-xl sm:text-2xl md:text-[26px] lg:text-[28px] font-bold text-[#2A211A] leading-tight tracking-tight group-hover:text-[#5C4433] transition-colors my-0 py-0"
                 >
                   مفتی فیضان سرور مصباحی
                 </h1>
               </Link>
 
-              {/* Subtitle / Designation with Payami Nastaleeq font and Gold Florets */}
-              <div
-                style={{ fontFamily: "'Payami Nastaleeq', 'Noto Nastaliq Urdu', serif" }}
-                className="flex items-center justify-center gap-1.5 text-[11px] sm:text-[12px] lg:text-[13px] font-medium text-[#2A211A] leading-none mt-0 select-none"
-              >
-                <span className="h-[1px] w-5 sm:w-9 bg-gradient-to-r from-transparent to-[#A8793E] hidden xs:inline-block" />
-                <span className="text-[#A8793E] text-[8px] sm:text-[9px] select-none">❖</span>
-                <span className="tracking-wide">قاضی شریعت و ترجمان اہل سنت</span>
-                <span className="text-[#A8793E] text-[8px] sm:text-[9px] select-none">❖</span>
-                <span className="h-[1px] w-5 sm:w-9 bg-gradient-to-l from-transparent to-[#A8793E] hidden xs:inline-block" />
+              {/* Continuous Straight Divider Line with Subheading Badge (Placed JUST below the name) */}
+              <div className="relative flex items-center justify-center w-full max-w-[480px] sm:max-w-[560px] md:max-w-[620px] mx-auto -mt-0.5 sm:-mt-1 mb-0.5 px-3">
+                {/* Continuous horizontal divider line running behind the badge */}
+                <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-[1px] bg-gradient-to-r from-transparent via-[#A8793E]/65 to-transparent pointer-events-none" />
+
+                {/* Subtitle text badge with solid cream background that cleanly masks the line behind it */}
+                <div
+                  style={{ fontFamily: "'Payami Nastaleeq', 'Noto Nastaliq Urdu', serif" }}
+                  className="relative z-10 bg-[#F7F1E8] px-3 py-0 flex items-center gap-1.5 text-[10.5px] sm:text-[11.5px] md:text-[12px] font-semibold text-[#2A211A] select-none"
+                >
+                  <span className="text-[#A8793E] text-[7.5px] sm:text-[8px] select-none">❖</span>
+                  <span className="tracking-wide">قاضی شریعت و ترجمان اہل سنت</span>
+                  <span className="text-[#A8793E] text-[7.5px] sm:text-[8px] select-none">❖</span>
+                </div>
               </div>
 
             </div>
@@ -432,77 +422,53 @@ export default function Header() {
           </div>
 
           {/* ────────────────────────────────────────────────────────────
-              2. THE DEEPER S-CURVED TRANSITION & ROSETTE MEDALLION
-                 (Synchronized Antique Gold Border #A8793E & Dark Walnut Fill #2B2118)
+              2. DISTINCT VISIBLE ISLAMIC S-CURVED TRANSITION
+                 (Compact height, clean cream fill above curve line)
               ──────────────────────────────────────────────────────────── */}
-          <div className="relative w-full -mt-3 sm:-mt-4 z-20 pointer-events-none">
+          <div className="relative w-full -mt-[1px] z-20 pointer-events-none">
             <svg
-              viewBox="0 0 1200 48"
+              viewBox="0 0 1200 24"
               preserveAspectRatio="none"
-              className="w-full h-6 sm:h-7 lg:h-8.5 block"
+              className="w-full h-3.5 sm:h-4 lg:h-4.5 block"
             >
               <defs>
                 <linearGradient id="goldCurveGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="#A8793E" stopOpacity="0.9" />
-                  <stop offset="25%" stopColor="#C5A87C" stopOpacity="1" />
+                  <stop offset="0%" stopColor="#A8793E" stopOpacity="0.8" />
+                  <stop offset="25%" stopColor="#C5A87C" stopOpacity="0.95" />
                   <stop offset="50%" stopColor="#DFC8A4" stopOpacity="1" />
-                  <stop offset="75%" stopColor="#C5A87C" stopOpacity="1" />
-                  <stop offset="100%" stopColor="#A8793E" stopOpacity="0.9" />
+                  <stop offset="75%" stopColor="#C5A87C" stopOpacity="0.95" />
+                  <stop offset="100%" stopColor="#A8793E" stopOpacity="0.8" />
                 </linearGradient>
               </defs>
 
-              {/* Dark chocolate fill connecting directly into navbar */}
+              {/* Pure cream background fill above the curve line */}
+              <rect width="1200" height="24" fill="#F7F1E8" />
+
+              {/* Dark chocolate fill strictly below the curve line */}
               <path
-                d="M 0 0 L 205 0 C 250 0 280 34 335 34 L 865 34 C 920 34 950 0 995 0 L 1200 0 L 1200 48 L 0 48 Z"
+                d="M 0 0 L 210 0 C 265 0, 295 18, 350 18 L 850 18 C 905 18, 935 0, 990 0 L 1200 0 L 1200 24 L 0 24 Z"
                 fill="#2B2118"
               />
 
-              {/* Ambient curve shadow */}
+              {/* Primary Antique Gold S-curve Line */}
               <path
-                d="M 0 0 L 205 0 C 250 0 280 34 335 34 L 865 34 C 920 34 950 0 995 0 L 1200 0"
-                stroke="#000000"
-                strokeWidth="2.5"
-                fill="none"
-                opacity="0.25"
-              />
-
-              {/* Primary Antique Gold S-curve Line (Matching Outer Frame Border) */}
-              <path
-                d="M 0 0 L 205 0 C 250 0 280 34 335 34 L 865 34 C 920 34 950 0 995 0 L 1200 0"
+                d="M 0 0 L 210 0 C 265 0, 295 18, 350 18 L 850 18 C 905 18, 935 0, 990 0 L 1200 0"
                 stroke="url(#goldCurveGrad)"
-                strokeWidth="1.5"
+                strokeWidth="1.3"
                 fill="none"
-              />
-
-              {/* Secondary fine inner accent line */}
-              <path
-                d="M 0 2.5 L 205 2.5 C 248 2.5 278 36.5 335 36.5 L 865 36.5 C 922 36.5 952 2.5 995 2.5 L 1200 2.5"
-                stroke="#DFC8A4"
-                strokeWidth="0.75"
-                strokeDasharray="4 3"
-                fill="none"
-                opacity="0.45"
               />
             </svg>
-
-            {/* Central Rosette Medallion with Diamond Side Florets */}
-            <div className="absolute left-1/2 -translate-x-1/2 bottom-0 translate-y-1/2 flex items-center justify-center gap-1.5">
-              <span className="text-[#A8793E] text-[7px] sm:text-[8px] opacity-85">◆</span>
-              <RosetteMedallion className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#A8793E] drop-shadow-xs" />
-              <span className="text-[#A8793E] text-[7px] sm:text-[8px] opacity-85">◆</span>
-            </div>
           </div>
 
           {/* ────────────────────────────────────────────────────────────
-              3. LOWER DARK-BROWN NAVBAR (#2B2118)
-                 (Wings raised on left & right, links centered in floor)
+              3. LOWER DARK-BROWN NAVBAR (#2B2118 - Ultra-Compact)
               ──────────────────────────────────────────────────────────── */}
           <nav
-            className="relative z-20 w-full bg-[#2B2118] px-3 sm:px-5 pt-0 pb-1.5 sm:pb-2 flex items-center justify-between min-h-[38px] sm:min-h-[42px]"
+            className="relative z-20 w-full bg-[#2B2118] px-3 sm:px-5 py-0.5 sm:py-0.5 flex items-center justify-between min-h-[30px] sm:min-h-[34px]"
             aria-label="مرکزی نیویگیشن"
           >
             {/* ── RIGHT SIDE (RTL START): Search Icon + Home Pill Button ── */}
-            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 -mt-2.5 sm:-mt-3">
+            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
               {/* Inline Expandable Search Box with Instant Close Response */}
               <div className="relative flex items-center z-30">
                 {isSearchOpen ? (
@@ -607,7 +573,7 @@ export default function Header() {
             </div>
 
             {/* ── LEFT SIDE (RTL END): Member & Login Buttons / Mobile Toggle ── */}
-            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 -mt-2.5 sm:-mt-3">
+            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
               {/* Member Button (ممبر بنیں) */}
               <Link
                 to="/ask"

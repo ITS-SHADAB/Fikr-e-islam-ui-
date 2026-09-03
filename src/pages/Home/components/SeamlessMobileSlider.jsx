@@ -80,7 +80,7 @@ export default function SeamlessMobileSlider({
   };
 
   return (
-    <div className="sm:hidden flex flex-col items-center gap-5 select-none w-full">
+    <div className="sm:hidden flex flex-col items-center gap-3.5 select-none w-full">
       <div
         className="w-full overflow-hidden touch-pan-y"
         dir="ltr"
@@ -126,7 +126,7 @@ export default function SeamlessMobileSlider({
 
       {/* Dots indicator */}
       <div
-        className="flex items-center justify-center gap-2 mt-2"
+        className="flex items-center justify-center gap-2 mt-1"
         dir="ltr"
       >
         {items.map((_, index) => (

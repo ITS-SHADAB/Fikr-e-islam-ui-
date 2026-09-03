@@ -43,7 +43,7 @@ import {
 import SeamlessMobileSlider from "../components/SeamlessMobileSlider";
 import { FATWA_TRANSLATIONS, LECTURE_TRANSLATIONS } from "@/utils/categories";
 import AnimatedFeatureCard from "../components/AnimatedFeatureCard";
-import muftiSahebImg from "../../../assets/images/muftiSaheb.png";
+import HeroBannerSlider from "../components/HeroBannerSlider";
 
 function SectionHeading({ eyebrow, title, linkTo, linkLabel }) {
   const { settings } = useSettings();
@@ -51,7 +51,7 @@ function SectionHeading({ eyebrow, title, linkTo, linkLabel }) {
     settings?.language === "ur" || settings?.language === "Urdu" ? "ur" : "en";
 
   return (
-    <div className="flex items-end justify-between mb-10 border-b-2 border-border pb-4">
+    <div className="flex items-end justify-between mb-2.5 sm:mb-4 md:mb-5 border-b-2 border-border pb-1.5 sm:pb-2.5">
       <div
         className={`border-accent ${language === "ur" ? "border-r-4 pr-4 text-right" : "border-l-4 pl-4 text-left"}`}
       >
@@ -78,34 +78,7 @@ function SectionHeading({ eyebrow, title, linkTo, linkLabel }) {
     </div>
   );
 }
-
-function ScholarPhotoPlaceholder() {
-  const { settings } = useSettings();
-  const language =
-    settings?.language === "ur" || settings?.language === "Urdu" ? "ur" : "en";
-  const name = settings?.scholarInfo?.fullName || "";
-  const settingsPhoto = settings?.scholarInfo?.photo || "";
-
-  return (
-    <div className="relative w-full max-w-sm">
-      <div className="relative aspect-[4/5] rounded-2xl overflow-hidden border-2 border-accent/40 shadow-none">
-        <img
-          src={muftiSahebImg}
-          alt={name || "Mufti Saheb"}
-          className="w-full h-full object-cover object-top"
-          onError={(e) => {
-            // Fallback chain: local asset failed → try settings URL → hide
-            if (settingsPhoto && e.currentTarget.src !== settingsPhoto) {
-              e.currentTarget.src = settingsPhoto;
-            } else {
-              e.currentTarget.style.display = "none";
-            }
-          }}
-        />
-      </div>
-    </div>
-  );
-}// Statistics Counter Section Component (Matching Reference Mockup - Compact & Full Width)
+// Statistics Counter Section Component (Matching Reference Mockup - Compact & Full Width)
 function StatisticsSection({ stats }) {
   return (
     <section className="py-3 sm:py-4.5 bg-background border-b border-border relative select-none">
@@ -292,11 +265,8 @@ export default function Home() {
       .finally(() => setIsLoadingEvents(false));
   }, []);
 
-  const heroName = settings?.homepageSettings?.heroName || "";
-  const heroTitle = settings?.homepageSettings?.heroTitle || "";
-  const heroIntro = settings?.homepageSettings?.heroIntroduction || "";
-  const heroMission = settings?.homepageSettings?.heroMission || "";
 
+  const heroName = settings?.scholarInfo?.fullName || settings?.homepageSettings?.heroName || "";
   const address = settings?.contactInfo?.address || "";
   const phone = settings?.contactInfo?.phone || "";
   const email = settings?.contactInfo?.email || "";
@@ -342,96 +312,16 @@ export default function Home() {
 
   return (
     <div className="bg-background min-h-screen relative">
-      {/* 1. HERO SECTION  Testing comments
-       */}
-      <section className="scholar-gradient-bg relative overflow-hidden py-20 border-b-2 border-border">
-        <div className="mx-auto px-4 sm:px-6 lg:px-8 relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-          {/* Hero Left: Text Content */}
-          <div
-            className={`lg:col-span-7 space-y-6 ${language === "ur" ? "text-right" : "text-left"}`}
-          >
-            <span className="inline-flex items-center gap-1.5 bg-secondary border border-border text-textSecondary text-xs font-bold px-4 py-2 rounded-full leading-relaxed max-w-full break-words">
-              <span className="text-accent text-sm">✦</span>
-              {heroTitle}
-            </span>
-
-            {/* Heading */}
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-primary leading-relaxed break-words [text-wrap:balance] max-w-2xl">
-              {heroName}
-            </h1>
-
-            {/* Intro paragraph */}
-            <p className="text-textPrimary text-base sm:text-lg font-normal leading-[2.1] max-w-3xl px-1 py-1 break-words">
-              {heroIntro}
-            </p>
-
-            {/* Quote */}
-            <div
-              className={`border-accent ${language === "ur" ? "border-r-4 pr-4 sm:pr-5 text-right" : "border-l-4 pl-4 sm:pl-5 text-left"} text-sm sm:text-base text-textSecondary font-normal leading-[2.1] max-w-2xl relative p-4 sm:p-5 break-words`}
-            >
-              {heroMission}
-            </div>
-
-            {/* CTAs */}
-            <div className="flex flex-wrap items-center gap-4 pt-4 justify-start">
-              {[
-                {
-                  to: "/articles",
-                  label: language === "en" ? "Read Articles" : "مقالات پڑھیں",
-                  icon: FileText,
-                  primary: true,
-                },
-                {
-                  to: "/fatwas",
-                  label: language === "en" ? "View Fatwas" : "فتاویٰ دیکھیں",
-                  icon: BookOpen,
-                  primary: false,
-                },
-              ].map((btn, index) => (
-                <div key={index}>
-                  <Link
-                    to={btn.to}
-                    className={`px-6 py-3 ${btn.primary
-                        ? "bg-primary hover:bg-primary/90 text-white shadow-md hover:shadow-lg"
-                        : "bg-transparent border-2 border-border text-textSecondary hover:bg-background"
-                      } font-bold rounded transition-all flex items-center gap-2 text-sm font-serif leading-none whitespace-nowrap`}
-                  >
-                    {btn.icon && <btn.icon className="w-4.5 h-4.5" />}
-                    {btn.label}
-                    {btn.label.includes("Fatwas") && (
-                      <span>
-                        {language === "en" ? (
-                          <ArrowRight className="w-4 h-4" />
-                        ) : (
-                          <ArrowLeft className="w-4 h-4" />
-                        )}
-                      </span>
-                    )}
-                  </Link>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Hero Right: Scholar Photo */}
-          <div className="lg:col-span-5 flex justify-center w-full">
-            <ScholarPhotoPlaceholder />
-          </div>
-        </div>
-
-        {/* Scroll down indicator */}
-        <div className="absolute bottom-5 left-1/2 transform -translate-x-1/2 text-textSecondary">
-          <ChevronDown className="w-6 h-6" />
-        </div>
-      </section>
+      {/* 1. HERO BANNER CAROUSEL */}
+      <HeroBannerSlider />
 
       {/* Stats Section */}
       <StatisticsSection stats={stats} />
 
       {/* FEATURE CARDS SECTION */}
-      <section className="py-12 sm:py-16 mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Section Heading & Subtitle */}
-        <div className="text-center mb-10">
+      <section className="pt-2.5 sm:pt-4 md:pt-5 pb-4 sm:pb-5.5 md:pb-7 mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Section Heading & Subtitle: Introduction for service cards */}
+        <div className="text-center mb-2.5 sm:mb-3.5 md:mb-4 flex flex-col items-center">
           <div className="inline-flex items-center justify-center gap-3 mb-2.5">
             <span className="h-px w-10 sm:w-16 bg-gradient-to-r from-transparent via-[#C5A880] to-[#C5A880]/40" />
             <span className="w-2 h-2 rotate-45 border border-[#C5A880] bg-[#FAF6F0]" />
@@ -484,7 +374,7 @@ export default function Home() {
       </section>
 
       {/* 2. LATEST ARTICLES */}
-      <section className="py-16 mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-4 sm:py-6 md:py-8 mx-auto px-4 sm:px-6 lg:px-8">
         <SectionHeading
           eyebrow={language === "en" ? "PROMOTING KNOWLEDGE" : "علم کا فروغ"}
           title={language === "en" ? "Latest Articles" : "تازہ ترین مقالات"}
@@ -525,7 +415,7 @@ export default function Home() {
       </section>
 
       {/* 3. FEATURED FATWAS */}
-      <section className="bg-background border-y border-border py-16">
+      <section className="bg-background border-y border-border py-4 sm:py-6 md:py-8">
         <div className="mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeading
             eyebrow={
@@ -570,7 +460,7 @@ export default function Home() {
       </section>
 
       {/* 4. RECENT Q&A */}
-      <section className="py-16 mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-4 sm:py-6 md:py-8 mx-auto px-4 sm:px-6 lg:px-8">
         <SectionHeading
           eyebrow={language === "en" ? "MUTUAL GUIDANCE" : "باہمی رہنمائی"}
           title={language === "en" ? "Recent Q&A" : "حالیہ سوال و جواب"}
@@ -706,7 +596,7 @@ export default function Home() {
       </section>
 
       {/* 5. LATEST PUBLICATIONS */}
-      <section className="py-16 bg-white border-t border-border">
+      <section className="py-4 sm:py-6 md:py-8 bg-white border-t border-border">
         <div className="mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeading
             eyebrow={
@@ -753,7 +643,7 @@ export default function Home() {
       </section>
 
       {/* 6. LATEST LECTURES */}
-      <section className="py-16 bg-background border-t border-border">
+      <section className="py-4 sm:py-6 md:py-8 bg-background border-t border-border">
         <div className="mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeading
             eyebrow={language === "en" ? "LECTURES & BAYANS" : "خطبات و بیانات"}
@@ -805,13 +695,13 @@ export default function Home() {
 
       {/* 6. EVENTS & CONTACT INFO (SPLIT) */}
       <section
-        className="py-16 mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-12 gap-12"
+        className="py-4 sm:py-6 md:py-8 mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-7"
         dir={language === "ur" ? "rtl" : "ltr"}
       >
         {/* Upcoming Programs */}
         <div className="lg:col-span-8">
           <div
-            className={`flex items-end justify-between mb-8 border-b border-border pb-3 ${language === "ur" ? "text-right" : "text-left"}`}
+            className={`flex items-end justify-between mb-2.5 sm:mb-4 border-b border-border pb-1.5 sm:pb-2 ${language === "ur" ? "text-right" : "text-left"}`}
           >
             <h2 className="text-xl font-bold text-primary flex items-center gap-2">
               <Calendar className="w-5.5 h-5.5 text-accent" />
@@ -863,7 +753,7 @@ export default function Home() {
         <div
           className={`lg:col-span-4 ${language === "ur" ? "text-right" : "text-left"}`}
         >
-          <h2 className="text-xl font-bold text-primary mb-8 border-b border-border pb-3">
+          <h2 className="text-xl font-bold text-primary mb-2.5 sm:mb-4 border-b border-border pb-1.5 sm:pb-2">
             {language === "en" ? "Contact Details" : "رابطے کی تفصیلات"}
           </h2>
 
@@ -872,8 +762,8 @@ export default function Home() {
 
             <p className="text-slate-700 text-xs leading-relaxed font-light">
               {language === "en"
-                ? `For meetings, invitations, or inquiries, feel free to contact ${heroName}'s office.`
-                : `ملاقات، دعوت ناموں یا سوالات کے لیے بلا جھجھک ${heroName} کے دفتر سے رابطہ کریں۔`}
+                ? `For meetings, invitations, or inquiries, feel free to contact ${heroName ? `${heroName}'s` : "our"} office.`
+                : `ملاقات، دعوت ناموں یا سوالات کے لیے بلا جھجھک ${heroName ? `${heroName} کے` : "ہمارے"} دفتر سے رابطہ کریں۔`}
             </p>
 
             <ul className="space-y-4.5 text-sm">
