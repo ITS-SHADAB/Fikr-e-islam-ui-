@@ -1,1 +1,1 @@
-export { default, Skeleton, Spinner, CardSkeleton, SectionLoader } from "./Loader";
+export { default, Skeleton, Spinner, LogoLoader, CardSkeleton, SectionLoader } from "./Loader";

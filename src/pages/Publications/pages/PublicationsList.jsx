@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { BookOpen, Book } from 'lucide-react';
 import { getPublications } from '@/services';
 import { useSettings } from '@/hooks/useSettings';
-import { PublicationCard, SectionSidebar } from '@/components';
+import { PublicationCard, SectionSidebar, Spinner } from '@/components';
 import { COLORS } from '@/utils/themeColors';
 import { PUBLICATION_CATEGORIES } from '@/utils/categories';
 
@@ -133,7 +133,7 @@ export default function PublicationsList() {
           <div className="flex-1 min-w-0 w-full">
             {loading ? (
               <div className="flex items-center justify-center py-20">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2" style={{ borderColor: COLORS.primary }} />
+                <Spinner size="lg" text="مطبوعات لوڈ ہو رہی ہیں..." />
               </div>
             ) : publications && publications.length > 0 ? (
               <>

@@ -3,6 +3,8 @@ import { Outlet, useLocation } from 'react-router-dom';
 import { useSettings } from '@/hooks/useSettings';
 import { Navbar, Footer, Header } from '@/layout';
 import { COLORS } from '@/utils/themeColors';
+import { Spinner } from '@/components';
+import logoImg from '@/assets/images/logo.jpeg';
 
 export const fontFamilies = {
   'Inter': "'Inter', sans-serif",
@@ -124,12 +126,12 @@ export default function MainLayout() {
       <div
         style={{ backgroundColor: COLORS.background, color: COLORS.primary }}
         className="flex flex-col items-center justify-center min-h-screen"
-        dir={language === 'ur' ? 'rtl' : 'ltr'}
+        dir="rtl"
       >
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2" style={{ borderColor: COLORS.accent }}></div>
-        <p className="mt-4 text-sm font-bold tracking-wider animate-pulse" style={{ color: COLORS.textSecondary }}>
-          {language === 'ur' ? 'پورٹل لوڈ ہو رہا ہے...' : 'Portal is loading...'}
-        </p>
+        <Spinner
+          size="lg"
+          text="لوڈ ہو رہا ہے..."
+        />
       </div>
     );
   }
@@ -256,16 +258,15 @@ export default function MainLayout() {
       {/* Full-Screen Transition Overlay */}
       {overlayFade !== 'hidden' && (
         <div className={overlayClass} style={{ pointerEvents: 'all' }}>
-          <div className="flex flex-col items-center gap-5">
-            {/* Elegant Spinner */}
-            <div className="relative w-16 h-16">
-              <div className="absolute inset-0 rounded-full border-4 border-slate-100" />
-              <div className="absolute inset-0 rounded-full border-4 animate-spin" style={{ borderTopColor: COLORS.accent }} />
-            </div>
-            {/* Pulsing loading state text */}
-            <span className="font-serif text-sm font-bold tracking-wider animate-pulse-slow" style={{ color: COLORS.primary }}>
-              {pendingLanguageChange === 'ur' ? 'زبان تبدیل کی جا رہی ہے...' : 'Switching Language...'}
-            </span>
+          <div className="flex flex-col items-center gap-4">
+            <Spinner
+              size="lg"
+              text={
+                pendingLanguageChange === 'ur'
+                  ? 'زبان تبدیل کی جا رہی ہے...'
+                  : 'Switching Language...'
+              }
+            />
           </div>
         </div>
       )}

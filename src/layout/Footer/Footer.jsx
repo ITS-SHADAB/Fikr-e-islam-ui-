@@ -5,6 +5,7 @@ import { useSettings } from '@/hooks/useSettings';
 import { COLORS } from '@/utils/themeColors';
 
 import { Input } from '@/components';
+import logoImg from '@/assets/images/logo.jpeg';
 
 export default function Footer() {
   const { settings } = useSettings();
@@ -32,11 +33,22 @@ export default function Footer() {
 
         {/* Column 1: Biography / Mission */}
         <div className={language === 'ur' ? 'text-right' : 'text-left'}>
-          <div className="flex items-center gap-2 mb-4 justify-start">
-            <BookOpen className="w-6 h-6" style={{ color: "#A8793E" }} />
-            <span className="text-lg font-bold tracking-wide" style={{ color: "#F7F1E8" }}>
-              {scholarName}
-            </span>
+          <div className="flex items-center gap-3 mb-4 justify-start">
+            <div className="w-12 h-12 rounded-full border-2 border-[#A8793E] overflow-hidden shrink-0 shadow-md bg-[#2B2118]">
+              <img
+                src={logoImg}
+                alt="Logo"
+                className="w-full h-full object-cover rounded-full"
+              />
+            </div>
+            <div>
+              <span className="text-lg font-bold tracking-wide block leading-snug" style={{ color: "#F7F1E8" }}>
+                {scholarName || (language === 'ur' ? "مفتی فیضان سرور مصباحی" : "Mufti Faizan Sarwar")}
+              </span>
+              <span className="text-xs text-[#DFC8A4] block">
+                {scholarTitle || (language === 'ur' ? "قاضی شریعت و ترجمان اہل سنت" : "Islamic Scholar & Jurist")}
+              </span>
+            </div>
           </div>
           <p className="text-sm leading-relaxed mb-4 font-light text-[#DFC8A4]">
             {settings?.homepageSettings?.heroMission || ''}

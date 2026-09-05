@@ -1,10 +1,21 @@
 import PropTypes from "prop-types";
 import { memo, useState, Fragment } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import logoImg from "@/assets/images/logo.jpeg";
 
 // Simple fallback components
 const BeatLoader = () => (
-  <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary mx-auto"></div>
+  <div className="flex flex-col items-center justify-center py-6 gap-2">
+    <div className="relative w-10 h-10 flex items-center justify-center">
+      <div className="absolute inset-0 rounded-full border-2 border-[#A8793E]/25 border-t-[#A8793E] animate-spin" />
+      <img
+        src={logoImg}
+        alt="Loading..."
+        className="w-8 h-8 rounded-full object-cover border border-[#A8793E]/50 shadow-xs"
+      />
+    </div>
+    <span className="text-[11px] font-bold text-[#A8793E] animate-pulse">لوڈ ہو رہا ہے...</span>
+  </div>
 );
 
 const Search = ({

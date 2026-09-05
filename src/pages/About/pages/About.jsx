@@ -21,6 +21,7 @@ import {
   Layers,
 } from 'lucide-react';
 import muftiSahebImg from '@/assets/images/muftiSaheb.png';
+import logoImg from '@/assets/images/logo.jpeg';
 import { useSettings } from '@/hooks/useSettings';
 import { COLORS } from '@/utils/themeColors';
 
@@ -204,12 +205,21 @@ export default function About() {
           <div className="relative z-10 p-6 sm:p-10 flex flex-col md:flex-row items-center justify-between gap-8">
             {/* Right/Main: Scholar Info & Typography */}
             <div className="flex-1 space-y-4 text-start w-full">
-              {/* Badge */}
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider"
-                style={{ backgroundColor: `${COLORS?.accent}30`, color: COLORS?.accent }}
-              >
-                <Sparkles className="w-3.5 h-3.5" />
-                <span>{isRTL ? 'سوانح حیات و تعارف' : 'Biography & Scholarly Profile'}</span>
+              {/* Badge & Official Emblem */}
+              <div className="flex items-center gap-3">
+                <div className="w-11 h-11 rounded-full border-2 border-[#A8793E] overflow-hidden shrink-0 shadow-md bg-white">
+                  <img
+                    src={logoImg}
+                    alt="Logo"
+                    className="w-full h-full object-cover rounded-full"
+                  />
+                </div>
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider"
+                  style={{ backgroundColor: `${COLORS?.accent}30`, color: COLORS?.accent }}
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>{isRTL ? 'سوانح حیات و تعارف' : 'Biography & Scholarly Profile'}</span>
+                </div>
               </div>
 
               {/* Scholar Name & Title */}

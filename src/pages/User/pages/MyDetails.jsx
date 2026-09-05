@@ -28,6 +28,7 @@ import { COLORS } from "@/utils/themeColors";
 import Modal from "@/components/Modal/Modal";
 import Login from "@/pages/Admin/pages/Login";
 import Signup from "@/pages/Admin/pages/Signup";
+import { Spinner } from "@/components";
 
 /* ── Helpers ──────────────────────────────────────────────────────────── */
 function fmt(date) {
@@ -133,13 +134,7 @@ function InfoTile({ icon: Icon, label, value }) {
 function Loader() {
   return (
     <div className="flex items-center justify-center py-16">
-      <div className="flex flex-col items-center gap-2">
-        <RefreshCw
-          className="w-6 h-6 animate-spin"
-          style={{ color: COLORS.primary }}
-        />
-        <p className="text-xs text-slate-600 font-bold">لوڈ ہو رہا ہے...</p>
-      </div>
+      <Spinner size="md" text="لوڈ ہو رہا ہے..." />
     </div>
   );
 }

@@ -195,6 +195,27 @@ export default function Home() {
     return cat === "Audio Lectures" || cat === "Bayan Recordings";
   };
 
+  const handleLectureAction = (lecture) => {
+    if (!lecture) return;
+    const isAudio =
+      isAudioMedia(lecture.category) &&
+      !lecture.videoUrl?.includes("youtube") &&
+      !lecture.videoUrl?.includes("youtu.be");
+
+    if (isAudio) {
+      setActiveMedia(lecture);
+    } else {
+      const ytRegExp =
+        /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|shorts\/|&v=)([^#&?]*).*/;
+      const match = lecture.videoUrl?.match(ytRegExp);
+      const targetUrl =
+        match && match[2].length === 11
+          ? `https://www.youtube.com/watch?v=${match[2]}`
+          : lecture.videoUrl || settings?.socialLinks?.youtube || "https://www.youtube.com";
+      window.open(targetUrl, "_blank", "noopener,noreferrer");
+    }
+  };
+
   const language =
     settings?.language === "ur" || settings?.language === "Urdu" ? "ur" : "en";
 
@@ -662,7 +683,7 @@ export default function Home() {
                   <div key={lecture._id}>
                     <LectureCard
                       lecture={lecture}
-                      onPlay={(lec) => setActiveMedia(lec)}
+                      onPlay={handleLectureAction}
                     />
                   </div>
                 ))}
@@ -678,7 +699,7 @@ export default function Home() {
                 renderCard={(lec) => (
                   <LectureCard
                     lecture={lec}
-                    onPlay={(item) => setActiveMedia(item)}
+                    onPlay={handleLectureAction}
                   />
                 )}
               />
@@ -797,7 +818,7 @@ export default function Home() {
       </section>
 
       {/* Embedded Player Media Modal */}
-      {activeMedia && (
+      {activeMedia && isAudioMedia(activeMedia.category) && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs animate-fade-in"
           onClick={() => setActiveMedia(null)}

@@ -3,21 +3,73 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>
-      Islamic Scholar - Platform for Authentic Islamic Knowledge & Guidance
-    </title>
+    <link
+      id="app-favicon"
+      rel="icon"
+      type="image/svg+xml"
+      href="/favicon.svg"
+    />
+    <link id="app-apple-icon" rel="apple-touch-icon" href="/favicon.svg" />
+    <title>مفتی فیضان سرور | Mufti Faizan Sarwar</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;800&family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Roboto:wght@300;400;500;700&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Outfit:wght@300;400;500;600;700&family=Noto+Nastaliq+Urdu:wght@400;500;600;700&family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    <script type="module" crossorigin src="/assets/index-D0emEuRI.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-TJe_3_mO.css">
+
+    <!-- Dynamic Circular Favicon Generator (cuts out dark square corners to make icon 100% round) -->
+    <script>
+      (function () {
+        var img = new Image();
+        img.src = "/src/assets/images/logo.jpeg";
+        img.onload = function () {
+          try {
+            var canvas = document.createElement("canvas");
+            canvas.width = 128;
+            canvas.height = 128;
+            var ctx = canvas.getContext("2d");
+
+            // 1. Transparent background, circular clip path
+            ctx.beginPath();
+            ctx.arc(64, 64, 62, 0, Math.PI * 2, true);
+            ctx.closePath();
+            ctx.clip();
+
+            // 2. Draw logo image centered
+            ctx.drawImage(img, 0, 0, 128, 128);
+
+            // 3. Draw antique gold border ring
+            ctx.beginPath();
+            ctx.arc(64, 64, 60, 0, Math.PI * 2);
+            ctx.strokeStyle = "#A8793E";
+            ctx.lineWidth = 4;
+            ctx.stroke();
+
+            var roundedDataUrl = canvas.toDataURL("image/png");
+
+            var fav = document.getElementById("app-favicon");
+            if (fav) {
+              fav.type = "image/png";
+              fav.href = roundedDataUrl;
+            }
+
+            var apple = document.getElementById("app-apple-icon");
+            if (apple) {
+              apple.href = roundedDataUrl;
+            }
+          } catch (e) {
+            console.warn("Rounded favicon generation notice:", e);
+          }
+        };
+      })();
+    </script>
+    <script type="module" crossorigin src="/assets/index-BJLaTnmH.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-BDutptAw.css">
   </head>
   <body
     class="bg-[#F3E3D8] text-[#2A211A] selection:bg-[#A8793E] selection:text-[#F7F1E8]"
   >
-    <div id="root"></div>
+    <div id="root"></div>
   </body>
 </html>

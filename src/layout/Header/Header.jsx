@@ -21,6 +21,7 @@ import { logoutUser } from "@/services";
 import Modal from "@/components/Modal/Modal";
 import Login from "@/pages/Admin/pages/Login";
 import Signup from "@/pages/Admin/pages/Signup";
+import logoImg from "@/assets/images/logo.jpeg";
 
 /* ─── Corner Botanical Arabesque Branch SVG ─── */
 function CornerArabesque({ className = "" }) {
@@ -71,9 +72,21 @@ function CornerArabesque({ className = "" }) {
       />
 
       {/* Foliage / Leaves */}
-      <path d="M12 90 C16 82 24 82 24 90 C24 98 16 98 12 90 Z" fill="currentColor" opacity="0.65" />
-      <path d="M6 82 C14 78 18 84 14 92 C10 88 6 82 6 82 Z" fill="currentColor" opacity="0.55" />
-      <path d="M22 68 C28 62 36 64 34 72 C28 72 22 68 22 68 Z" fill="currentColor" opacity="0.7" />
+      <path
+        d="M12 90 C16 82 24 82 24 90 C24 98 16 98 12 90 Z"
+        fill="currentColor"
+        opacity="0.65"
+      />
+      <path
+        d="M6 82 C14 78 18 84 14 92 C10 88 6 82 6 82 Z"
+        fill="currentColor"
+        opacity="0.55"
+      />
+      <path
+        d="M22 68 C28 62 36 64 34 72 C28 72 22 68 22 68 Z"
+        fill="currentColor"
+        opacity="0.7"
+      />
 
       {/* 4-Petal Flower Florets */}
       <g transform="translate(94, 16) scale(0.85)">
@@ -331,17 +344,14 @@ export default function Header() {
       dir="rtl"
     >
       <div className="max-w-[1360px] mx-auto">
-
         {/* ══════════════════════════════════════════════════════════════
             ONE SINGLE CONNECTED HEADER COMPONENT (#F7F1E8 + #2B2118)
             ══════════════════════════════════════════════════════════════ */}
         <header className="relative w-full rounded-2xl sm:rounded-3xl border border-[#A8793E] bg-[#2B2118] text-[#F7F1E8] shadow-[0_6px_24px_rgba(43,33,24,0.18)] overflow-hidden">
-
           {/* ────────────────────────────────────────────────────────────
               1. TOP CREAM BRANDING AREA (#F7F1E8 with Fine Gold Accents #A8793E)
               ──────────────────────────────────────────────────────────── */}
           <div className="relative w-full bg-[#F7F1E8] text-[#2A211A] pt-1 sm:pt-1.5 pb-0.5 sm:pb-1 px-3 sm:px-6 overflow-hidden">
-
             {/* Outer Inset Decorative Frame */}
             <div className="absolute inset-1 sm:inset-1.5 rounded-[12px] sm:rounded-[18px] border border-[#A8793E]/40 pointer-events-none" />
             {/* Inner Fine Dotted Accent Frame */}
@@ -365,10 +375,21 @@ export default function Header() {
                     stroke="currentColor"
                     strokeWidth="0.9"
                   />
-                  <circle cx="22" cy="22" r="5" fill="none" stroke="currentColor" strokeWidth="0.7" />
+                  <circle
+                    cx="22"
+                    cy="22"
+                    r="5"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="0.7"
+                  />
                 </pattern>
               </defs>
-              <rect width="100%" height="100%" fill="url(#islamic-star-pattern)" />
+              <rect
+                width="100%"
+                height="100%"
+                fill="url(#islamic-star-pattern)"
+              />
             </svg>
 
             {/* Top Corner Botanical Arabesque Branch Ornaments */}
@@ -377,24 +398,42 @@ export default function Header() {
 
             {/* Center Calligraphic Branding Content (Vertically compact) */}
             <div className="relative z-10 flex flex-col items-center justify-center text-center max-w-3xl mx-auto py-0">
-
               {/* Bismillah with Gold Diamond Florets */}
               <div
-                style={{ fontFamily: "'Payami Quran', 'Noto Naskh Arabic', serif" }}
+                style={{
+                  fontFamily: "'Payami Quran', 'Noto Naskh Arabic', serif",
+                }}
                 className="flex items-center justify-center gap-1.5 text-[10px] sm:text-[11px] text-[#2A211A] font-medium leading-none mb-0 select-none"
               >
-                <span className="text-[#A8793E] text-[7.5px] sm:text-[8px] select-none leading-none">❖</span>
-                <span className="tracking-wide">بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْم</span>
-                <span className="text-[#A8793E] text-[7.5px] sm:text-[8px] select-none leading-none">❖</span>
+                <span className="text-[#A8793E] text-[7.5px] sm:text-[8px] select-none leading-none">
+                  ❖
+                </span>
+                <span className="tracking-wide">
+                  بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْم
+                </span>
+                <span className="text-[#A8793E] text-[7.5px] sm:text-[8px] select-none leading-none">
+                  ❖
+                </span>
               </div>
 
-              {/* Scholar Main Calligraphic Name Title */}
+              {/* Scholar Main Calligraphic Name Title & Brand Logo */}
               <Link
                 to="/"
-                className="group block transition-transform duration-200 hover:scale-[1.01] -my-0.5 sm:-my-1 py-0"
+                className="group flex items-center justify-center gap-2.5 sm:gap-3.5 transition-transform duration-200 hover:scale-[1.01] -my-0.5 sm:-my-1 py-0.5"
               >
+                {/* Rounded Brand Logo */}
+                <div className="relative w-10 h-10 sm:w-12 sm:h-12 md:w-13 md:h-13 rounded-full border-2 border-[#A8793E] shadow-xs overflow-hidden shrink-0 bg-white">
+                  <img
+                    src={logoImg}
+                    alt="Logo"
+                    className="w-full h-full object-cover rounded-full"
+                  />
+                </div>
+
                 <h1
-                  style={{ fontFamily: "'Payami Quran', 'Noto Naskh Arabic', serif" }}
+                  style={{
+                    fontFamily: "'Payami Quran', 'Noto Naskh Arabic', serif",
+                  }}
                   className="text-xl sm:text-2xl md:text-[26px] lg:text-[28px] font-bold text-[#2A211A] leading-tight tracking-tight group-hover:text-[#5C4433] transition-colors my-0 py-0"
                 >
                   مفتی فیضان سرور مصباحی
@@ -408,17 +447,24 @@ export default function Header() {
 
                 {/* Subtitle text badge with solid cream background that cleanly masks the line behind it */}
                 <div
-                  style={{ fontFamily: "'Payami Nastaleeq', 'Noto Nastaliq Urdu', serif" }}
+                  style={{
+                    fontFamily:
+                      "'Payami Nastaleeq', 'Noto Nastaliq Urdu', serif",
+                  }}
                   className="relative z-10 bg-[#F7F1E8] px-3 py-0 flex items-center gap-1.5 text-[10.5px] sm:text-[11.5px] md:text-[12px] font-semibold text-[#2A211A] select-none"
                 >
-                  <span className="text-[#A8793E] text-[7.5px] sm:text-[8px] select-none">❖</span>
-                  <span className="tracking-wide">قاضی شریعت و ترجمان اہل سنت</span>
-                  <span className="text-[#A8793E] text-[7.5px] sm:text-[8px] select-none">❖</span>
+                  <span className="text-[#A8793E] text-[7.5px] sm:text-[8px] select-none">
+                    ❖
+                  </span>
+                  <span className="tracking-wide">
+                    قاضی شریعت و ترجمان اہل سنت
+                  </span>
+                  <span className="text-[#A8793E] text-[7.5px] sm:text-[8px] select-none">
+                    ❖
+                  </span>
                 </div>
               </div>
-
             </div>
-
           </div>
 
           {/* ────────────────────────────────────────────────────────────
@@ -432,7 +478,13 @@ export default function Header() {
               className="w-full h-3.5 sm:h-4 lg:h-4.5 block"
             >
               <defs>
-                <linearGradient id="goldCurveGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <linearGradient
+                  id="goldCurveGrad"
+                  x1="0%"
+                  y1="0%"
+                  x2="100%"
+                  y2="0%"
+                >
                   <stop offset="0%" stopColor="#A8793E" stopOpacity="0.8" />
                   <stop offset="25%" stopColor="#C5A87C" stopOpacity="0.95" />
                   <stop offset="50%" stopColor="#DFC8A4" stopOpacity="1" />
@@ -476,7 +528,10 @@ export default function Header() {
                     className="relative flex items-center bg-[#2B2118] border border-[#A8793E] rounded-full px-2 py-0.5 shadow-md animate-in fade-in zoom-in-95 duration-150"
                     onClick={(e) => e.stopPropagation()}
                   >
-                    <form onSubmit={handleSearchSubmit} className="flex items-center">
+                    <form
+                      onSubmit={handleSearchSubmit}
+                      className="flex items-center"
+                    >
                       <button
                         type="submit"
                         className="text-[#A8793E] hover:text-[#DFC8A4] transition-colors p-1 cursor-pointer flex items-center justify-center"
@@ -528,10 +583,11 @@ export default function Header() {
               {/* Home Pill Button (صفحہ اول with Home Icon & Chevron) */}
               <Link
                 to="/"
-                className={`rounded-full px-2.5 sm:px-3 py-1 flex items-center gap-1.5 text-[12px] sm:text-[13px] font-semibold transition-all duration-200 shrink-0 border ${isHomeActive
+                className={`rounded-full px-2.5 sm:px-3 py-1 flex items-center gap-1.5 text-[12px] sm:text-[13px] font-semibold transition-all duration-200 shrink-0 border ${
+                  isHomeActive
                     ? "border-[#A8793E] bg-[#3D2E22] text-[#F7F1E8] shadow-[0_0_10px_rgba(168,121,62,0.25)]"
                     : "border-[#A8793E] bg-[#2B2118] text-[#F7F1E8]/90 hover:border-[#DFC8A4] hover:text-[#F7F1E8] hover:bg-[#3D2E22]"
-                  }`}
+                }`}
               >
                 <Home className="w-3.5 h-3.5 text-[#F7F1E8]" />
                 <span>{isUrdu ? "صفحہ اول" : "Home"}</span>
@@ -545,16 +601,18 @@ export default function Header() {
                 {navLinks.map((item, index) => {
                   const isActive =
                     location.pathname === item.href ||
-                    (item.href !== "/" && location.pathname.startsWith(item.href));
+                    (item.href !== "/" &&
+                      location.pathname.startsWith(item.href));
 
                   return (
                     <React.Fragment key={item.href}>
                       <Link
                         to={item.href}
-                        className={`px-2 xl:px-2.5 py-0.5 text-[13px] xl:text-[14px] whitespace-nowrap transition-all duration-200 select-none flex items-center gap-1 ${isActive
+                        className={`px-2 xl:px-2.5 py-0.5 text-[13px] xl:text-[14px] whitespace-nowrap transition-all duration-200 select-none flex items-center gap-1 ${
+                          isActive
                             ? "text-[#DFC8A4] font-bold"
                             : "text-[#F7F1E8]/90 hover:text-[#DFC8A4] font-medium"
-                          }`}
+                        }`}
                       >
                         <span>{item.label}</span>
                         {item.hasDropdown && (
@@ -595,7 +653,8 @@ export default function Header() {
                       {getInitials(loggedInUser)}
                     </div>
                     <span className="hidden sm:inline max-w-[90px] truncate">
-                      {loggedInUser?.name?.split(" ")[0] || (isUrdu ? "پروفائل" : "Profile")}
+                      {loggedInUser?.name?.split(" ")[0] ||
+                        (isUrdu ? "پروفائل" : "Profile")}
                     </span>
                     <ChevronDown className="w-3 h-3 text-[#A8793E]" />
                   </button>
@@ -616,7 +675,9 @@ export default function Header() {
                             {loggedInUser?.name}
                           </span>
                           <span className="text-xs text-[#F7F1E8]/60 font-mono truncate">
-                            {loggedInUser?.loginEmail || loggedInUser?.loginPhone || "-"}
+                            {loggedInUser?.loginEmail ||
+                              loggedInUser?.loginPhone ||
+                              "-"}
                           </span>
                           <span className="self-start mt-1 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-[#A8793E]/25 text-[#DFC8A4] rounded-full border border-[#A8793E]/40">
                             {loggedInUser?.role || "user"}
@@ -648,7 +709,9 @@ export default function Header() {
                               className="mt-2 flex items-center gap-2 w-full px-3 py-2 text-xs font-bold text-[#F7F1E8] hover:text-[#DFC8A4] bg-[#3D2E22] hover:bg-[#4D3A2C] rounded-xl border border-[#A8793E]/40 transition-colors"
                             >
                               <Settings className="w-3.5 h-3.5 text-[#A8793E]" />
-                              {isUrdu ? "ویب سائٹ کی ترتیبات" : "Website Settings"}
+                              {isUrdu
+                                ? "ویب سائٹ کی ترتیبات"
+                                : "Website Settings"}
                             </Link>
                           </>
                         )}
@@ -685,11 +748,14 @@ export default function Header() {
                 className="lg:hidden w-7.5 h-7.5 sm:w-8 sm:h-8 rounded-full border border-[#A8793E] bg-[#2B2118] text-[#F7F1E8] flex items-center justify-center hover:bg-[#3D2E22] hover:border-[#DFC8A4] transition-all cursor-pointer"
                 aria-label="Toggle Menu"
               >
-                {isOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+                {isOpen ? (
+                  <X className="w-4 h-4" />
+                ) : (
+                  <Menu className="w-4 h-4" />
+                )}
               </button>
             </div>
           </nav>
-
         </header>
       </div>
 
@@ -709,16 +775,24 @@ export default function Header() {
                   animate={{ x: 0 }}
                   exit={{ x: isUrdu ? "100%" : "-100%" }}
                   transition={{ type: "tween", duration: 0.25 }}
-                  className={`fixed top-0 ${isUrdu ? "right-0 border-l" : "left-0 border-r"
-                    } h-full max-h-[100dvh] w-[300px] max-w-[88vw] bg-gradient-to-b from-[#2B2118] via-[#33261C] to-[#241A13] border-[#A8793E]/40 shadow-2xl flex flex-col text-[#F7F1E8] z-[100000]`}
+                  className={`fixed top-0 ${
+                    isUrdu ? "right-0 border-l" : "left-0 border-r"
+                  } h-full max-h-[100dvh] w-[300px] max-w-[88vw] bg-gradient-to-b from-[#2B2118] via-[#33261C] to-[#241A13] border-[#A8793E]/40 shadow-2xl flex flex-col text-[#F7F1E8] z-[100000]`}
                   onClick={(e) => e.stopPropagation()}
                   dir={isUrdu ? "rtl" : "ltr"}
                 >
                   {/* Drawer Header */}
                   <div className="flex items-center justify-between px-5 py-3.5 border-b border-[#A8793E]/30 shrink-0 bg-[#2B2118]">
-                    <span className="font-bold text-lg text-[#DFC8A4]">
-                      {isUrdu ? "مینو" : "Navigation"}
-                    </span>
+                    <div className="flex items-center gap-2.5">
+                      <img
+                        src={logoImg}
+                        alt="Logo"
+                        className="w-8 h-8 rounded-full border border-[#A8793E] object-cover shadow-xs"
+                      />
+                      <span className="font-bold text-lg text-[#DFC8A4]">
+                        {isUrdu ? "مفتی فیضان سرور" : "Mufti Faizan Sarwar"}
+                      </span>
+                    </div>
                     <button
                       type="button"
                       onClick={closeMenu}
@@ -756,19 +830,23 @@ export default function Header() {
                       {allMobileItems.map((item) => {
                         const isActive =
                           location.pathname === item.href ||
-                          (item.href !== "/" && location.pathname.startsWith(item.href));
+                          (item.href !== "/" &&
+                            location.pathname.startsWith(item.href));
 
                         return (
                           <Link
                             key={item.href}
                             to={item.href}
                             onClick={closeMenu}
-                            className={`px-3.5 py-2.5 rounded-xl text-[15px] sm:text-base transition-all flex items-center gap-2.5 ${isActive
+                            className={`px-3.5 py-2.5 rounded-xl text-[15px] sm:text-base transition-all flex items-center gap-2.5 ${
+                              isActive
                                 ? "bg-[#3D2E22] text-[#DFC8A4] font-bold border border-[#A8793E]/40 shadow-xs"
                                 : "text-[#F7F1E8]/90 hover:bg-[#33261C] hover:text-[#DFC8A4] font-medium"
-                              }`}
+                            }`}
                           >
-                            {item.icon && <item.icon className="w-4 h-4 text-[#A8793E]" />}
+                            {item.icon && (
+                              <item.icon className="w-4 h-4 text-[#A8793E]" />
+                            )}
                             <span>{item.label}</span>
                           </Link>
                         );
@@ -783,7 +861,9 @@ export default function Header() {
                         className="flex items-center justify-center gap-2 w-full px-3.5 py-2.5 text-xs font-bold text-[#2B2118] bg-[#A8793E] hover:bg-[#DFC8A4] rounded-xl shadow-sm transition-colors"
                       >
                         <HelpCircle className="w-4 h-4" />
-                        {isUrdu ? "ممبر بنیں / سوال پوچھیں" : "Member / Ask Question"}
+                        {isUrdu
+                          ? "ممبر بنیں / سوال پوچھیں"
+                          : "Member / Ask Question"}
                       </Link>
 
                       {isAuthenticated || userRole === "admin" ? (
