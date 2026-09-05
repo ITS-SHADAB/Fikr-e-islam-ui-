@@ -4,6 +4,8 @@ import {
   AUTH_LOGOUT,
   AUTH_ME,
   AUTH_REGISTER,
+  AUTH_FORGOT_PASSWORD,
+  AUTH_RESET_PASSWORD,
 } from "@/constants/urls";
 import toast from "react-hot-toast";
 
@@ -75,5 +77,38 @@ export const checkAuthStatus = async () => {
     console.error("Auth Status Error:", error);
 
     throw error;
+  }
+};
+
+// Forgot Password
+export const forgotPasswordApi = async (email) => {
+  try {
+    const response = await API.post(AUTH_FORGOT_PASSWORD, { email });
+    return response.data;
+  } catch (error) {
+    console.error("Forgot Password Error:", error);
+    const message =
+      error.response?.data?.message ||
+      error.message ||
+      "Unable to process your request. Please try again later.";
+    throw new Error(message);
+  }
+};
+
+// Reset Password
+export const resetPasswordApi = async (token, { password, confirmPassword }) => {
+  try {
+    const response = await API.post(`${AUTH_RESET_PASSWORD}/${token}`, {
+      password,
+      confirmPassword,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Reset Password Error:", error);
+    const message =
+      error.response?.data?.message ||
+      error.message ||
+      "Reset link is invalid or has expired.";
+    throw new Error(message);
   }
 };

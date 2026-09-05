@@ -3,18 +3,23 @@ import { useSelector } from 'react-redux';
 import Modal from '@/components/Modal/Modal';
 import Login from '@/pages/Admin/pages/Login';
 import Signup from '@/pages/Admin/pages/Signup';
+import ForgotPassword from '@/pages/Admin/pages/ForgotPassword';
+import ResetPassword from '@/pages/Admin/pages/ResetPassword';
 
 const AuthModalContext = createContext({
   isOpen: false,
   mode: 'login',
   openLogin: () => {},
   openSignup: () => {},
+  openForgotPassword: () => {},
+  openResetPassword: () => {},
   closeAuthModal: () => {},
 });
 
 export function AuthModalProvider({ children }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [mode, setMode] = useState('login'); // 'login' | 'signup'
+  const [mode, setMode] = useState('login'); // 'login' | 'signup' | 'forgot-password' | 'reset-password'
+  const [resetToken, setResetToken] = useState('');
   const { isAuthenticated } = useSelector((state) => state.auth);
 
   // Automatically close modal when user successfully authenticates
@@ -34,9 +39,36 @@ export function AuthModalProvider({ children }) {
     setIsOpen(true);
   };
 
+  const openForgotPassword = () => {
+    setMode('forgot-password');
+    setIsOpen(true);
+  };
+
+  const openResetPassword = (token = '') => {
+    setResetToken(token);
+    setMode('reset-password');
+    setIsOpen(true);
+  };
+
   const closeAuthModal = () => {
     setIsOpen(false);
   };
+
+  const modalTitle =
+    mode === 'login'
+      ? 'Sign In'
+      : mode === 'signup'
+      ? 'Create Account'
+      : mode === 'reset-password'
+      ? 'Reset Password'
+      : 'Forgot Password';
+
+  const modalMaxWidth =
+    mode === 'login'
+      ? 'max-w-md'
+      : mode === 'signup'
+      ? 'max-w-xl'
+      : 'max-w-md';
 
   return (
     <AuthModalContext.Provider
@@ -45,17 +77,19 @@ export function AuthModalProvider({ children }) {
         mode,
         openLogin,
         openSignup,
+        openForgotPassword,
+        openResetPassword,
         closeAuthModal,
       }}
     >
       {children}
 
-      {/* Global Auth Modal using existing Login and Signup components in English layout */}
+      {/* Global Auth Modal */}
       <Modal
         isOpen={isOpen}
         onClose={closeAuthModal}
-        title={mode === 'login' ? 'Sign In' : 'Create Account'}
-        maxWidth={mode === 'login' ? 'max-w-lg' : 'max-w-2xl'}
+        title={modalTitle}
+        maxWidth={modalMaxWidth}
         height="max-h-[92vh]"
         dir="ltr"
       >
@@ -64,12 +98,27 @@ export function AuthModalProvider({ children }) {
             isModal={true}
             onClose={closeAuthModal}
             onSwitchToSignup={() => setMode('signup')}
+            onSwitchToForgotPassword={() => setMode('forgot-password')}
           />
-        ) : (
+        ) : mode === 'signup' ? (
           <Signup
             isModal={true}
             onClose={closeAuthModal}
             onSwitchToLogin={() => setMode('login')}
+          />
+        ) : mode === 'reset-password' ? (
+          <ResetPassword
+            isModal={true}
+            token={resetToken}
+            onClose={closeAuthModal}
+            onSwitchToLogin={() => setMode('login')}
+            onSwitchToForgotPassword={() => setMode('forgot-password')}
+          />
+        ) : (
+          <ForgotPassword
+            isModal={true}
+            onClose={closeAuthModal}
+            onBackToLogin={() => setMode('login')}
           />
         )}
       </Modal>

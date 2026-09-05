@@ -1,1 +1,2 @@
-export { default as MainLayout, fontFamilies } from './MainLayout';
+export { default as MainLayout } from './MainLayout';
+export { fontFamilies } from '@/constants/fonts';

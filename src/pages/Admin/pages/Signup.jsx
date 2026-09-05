@@ -9,6 +9,8 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { register, clearAuthError } from "../../../store/slices/authSlice";
+import GoogleAuthButton from "@/components/Auth/GoogleAuthButton";
+import AuthDivider from "@/components/Auth/AuthDivider";
 
 /* ─── Animated required asterisk ─────────────────────────────────────── */
 function RequiredStar() {
@@ -31,13 +33,13 @@ function Field({ label, required, hint, error, children }) {
         {label}
         {required && <RequiredStar />}
         {!required && (
-          <span className="ml-2 text-[9px] font-semibold text-slate-300 normal-case tracking-normal border border-slate-200 rounded px-1.5 py-0.5">
+          <span className="ml-2 text-[9px] font-semibold text-slate-400 normal-case tracking-normal border border-slate-200 rounded px-1.5 py-0.5">
             optional
           </span>
         )}
       </label>
       <div
-        className={`relative flex items-center rounded-xl px-4 py-3 border-2 bg-white
+        className={`relative flex items-center rounded-xl px-3.5 py-2.5 sm:py-3 border-2 bg-white
           transition-all duration-200 group
           ${
             error
@@ -86,7 +88,7 @@ function PasswordStrength({ password }) {
           <div
             key={i}
             className={`h-1 flex-1 rounded-full transition-all duration-300 ${
-              i <= score ? colors[score] : "bg-slate-150 bg-slate-200"
+              i <= score ? colors[score] : "bg-slate-200"
             }`}
           />
         ))}
@@ -151,11 +153,11 @@ export default function Signup({ isModal = false, onClose, onSwitchToLogin }) {
           : null,
     identifier:
       touched.identifier && !identifier.trim()
-        ? "Email  is required."
+        ? "Email is required."
         : touched.identifier &&
             !emailRx.test(identifier.trim()) &&
             !phoneRx.test(identifier.trim())
-          ? "Enter a valid email or 10-digit phone (starts with 6-9)."
+          ? "Enter a valid email address."
           : null,
     password:
       touched.password && !password
@@ -194,12 +196,12 @@ export default function Signup({ isModal = false, onClose, onSwitchToLogin }) {
       return;
     }
     if (!identifier.trim()) {
-      setLocalError("Email or phone is required.");
+      setLocalError("Email is required.");
       return;
     }
     if (!emailRx.test(identifier.trim()) && !phoneRx.test(identifier.trim())) {
       setLocalError(
-        "Please enter a valid email or 10-digit phone number starting with 6-9."
+        "Please enter a valid email address."
       );
       return;
     }
@@ -251,7 +253,7 @@ export default function Signup({ isModal = false, onClose, onSwitchToLogin }) {
       <div
         className={`${
           isModal
-            ? "p-6 sm:p-8 w-full"
+            ? "p-5 sm:p-7 w-full"
             : "min-h-screen bg-background flex items-center justify-center p-4 py-10 relative overflow-hidden"
         }`}
       >
@@ -277,13 +279,21 @@ export default function Signup({ isModal = false, onClose, onSwitchToLogin }) {
               Create Account
             </h1>
             <p className="text-slate-500 text-xs sm:text-sm mt-1 font-light">
-              Register to access your account & services
+              Register to access your account &amp; services
             </p>
           </div>
 
+          {/* PRIMARY CTA: Google Sign Up */}
+          <div className="mb-1">
+            <GoogleAuthButton text="Continue with Google" />
+          </div>
+
+          {/* Subtle Divider: OR */}
+          <AuthDivider text="OR" />
+
           {/* Global error */}
           {displayError && (
-            <div className="mb-5 bg-red-50 border border-red-200 rounded-xl px-4 py-3 flex items-start gap-2.5 text-red-700 text-xs">
+            <div className="mb-4 bg-red-50 border border-red-200 rounded-xl px-4 py-3 flex items-start gap-2.5 text-red-700 text-xs">
               <AlertTriangle
                 size={15}
                 className="shrink-0 mt-0.5 text-red-500"
@@ -295,13 +305,14 @@ export default function Signup({ isModal = false, onClose, onSwitchToLogin }) {
             </div>
           )}
 
+          {/* Secondary: Email Registration Form */}
           <form
             onSubmit={handleSubmit}
             noValidate
-            className="space-y-4 sm:space-y-5 w-full"
+            className="space-y-3 sm:space-y-3.5 w-full"
           >
             {/* ── Row 1: Full Name + Contact Phone ── */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <Field label="Full Name" required error={fieldErrors.name}>
                 <input
                   id="signup-name"
@@ -319,7 +330,7 @@ export default function Signup({ isModal = false, onClose, onSwitchToLogin }) {
                 <input
                   id="signup-contact-phone"
                   type="text"
-                  placeholder="Secondary phone (optional)"
+                  placeholder="Phone number (optional)"
                   value={contactPhone}
                   onChange={(e) => setContactPhone(e.target.value)}
                   className="w-full bg-transparent text-sm text-slate-800 placeholder:text-slate-400 outline-none border-none ring-0 min-w-0"
@@ -327,7 +338,7 @@ export default function Signup({ isModal = false, onClose, onSwitchToLogin }) {
               </Field>
             </div>
 
-            {/* ── Row 2: Email / Phone (full-width) ── */}
+            {/* ── Row 2: Email (full-width) ── */}
             <Field
               label="Email"
               required
@@ -336,9 +347,9 @@ export default function Signup({ isModal = false, onClose, onSwitchToLogin }) {
             >
               <input
                 id="signup-identifier"
-                type="text"
-                autoComplete="username"
-                placeholder="Email address"
+                type="email"
+                autoComplete="email"
+                placeholder="Enter your email address"
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
                 onBlur={() => handleBlur("identifier")}
@@ -347,7 +358,7 @@ export default function Signup({ isModal = false, onClose, onSwitchToLogin }) {
             </Field>
 
             {/* ── Row 3: Password + Confirm Password ── */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {/* Password */}
               <div className="space-y-1">
                 <Field label="Password" required error={fieldErrors.password}>
@@ -407,12 +418,12 @@ export default function Signup({ isModal = false, onClose, onSwitchToLogin }) {
               </div>
             </div>
 
-            {/* ── Submit ── */}
+            {/* ── Submit (Secondary hierarchy to Google CTA) ── */}
             <button
               id="signup-submit"
               type="submit"
               disabled={loading}
-              className="w-full py-3.5 mt-2 bg-gradient-to-r from-primary to-primary/85 hover:from-primary/90 hover:to-primary text-white font-bold rounded-xl shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-0.5 transition-all duration-200 text-sm tracking-wide flex items-center justify-center gap-2.5 disabled:opacity-60 disabled:pointer-events-none cursor-pointer"
+              className="w-full py-3 sm:py-3.5 mt-2 bg-gradient-to-r from-primary to-primary/85 hover:from-primary/90 hover:to-primary text-white font-bold rounded-xl shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 text-sm tracking-wide flex items-center justify-center gap-2.5 disabled:opacity-60 disabled:pointer-events-none cursor-pointer"
             >
               {loading ? (
                 <>
@@ -444,7 +455,7 @@ export default function Signup({ isModal = false, onClose, onSwitchToLogin }) {
           </form>
 
           {/* Login link */}
-          <p className="mt-5 text-center text-xs text-slate-500">
+          <p className="mt-4 sm:mt-5 text-center text-xs text-slate-500">
             Already have an account?{" "}
             {onSwitchToLogin ? (
               <button

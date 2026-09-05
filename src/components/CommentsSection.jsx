@@ -11,6 +11,7 @@ import { ConfirmationBox } from "@/components";
 import Modal from "@/components/Modal/Modal";
 import Login from "@/pages/Admin/pages/Login";
 import Signup from "@/pages/Admin/pages/Signup";
+import ForgotPassword from "@/pages/Admin/pages/ForgotPassword";
 import toast from "react-hot-toast";
 
 function formatTimeAgo(dateStr) {
@@ -720,12 +721,18 @@ export default function CommentsSection({ contentType, contentId }) {
         isLoading={isDeleting}
       />
 
-      {/* Local Auth Modal using existing Login and Signup in English layout */}
+      {/* Local Auth Modal using existing Login, Signup & ForgotPassword */}
       <Modal
         isOpen={isAuthModalOpen}
         onClose={closeAuthModal}
-        title={authMode === "login" ? "Sign In" : "Create Account"}
-        maxWidth={authMode === "login" ? "max-w-md" : "max-w-xl"}
+        title={
+          authMode === "login"
+            ? "Sign In"
+            : authMode === "signup"
+            ? "Create Account"
+            : "Forgot Password"
+        }
+        maxWidth={authMode === "signup" ? "max-w-xl" : "max-w-md"}
         height="max-h-[92vh]"
         dir="ltr"
       >
@@ -734,12 +741,19 @@ export default function CommentsSection({ contentType, contentId }) {
             isModal={true}
             onClose={closeAuthModal}
             onSwitchToSignup={() => setAuthMode("signup")}
+            onSwitchToForgotPassword={() => setAuthMode("forgot-password")}
           />
-        ) : (
+        ) : authMode === "signup" ? (
           <Signup
             isModal={true}
             onClose={closeAuthModal}
             onSwitchToLogin={() => setAuthMode("login")}
+          />
+        ) : (
+          <ForgotPassword
+            isModal={true}
+            onClose={closeAuthModal}
+            onBackToLogin={() => setAuthMode("login")}
           />
         )}
       </Modal>

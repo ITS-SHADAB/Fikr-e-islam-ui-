@@ -16,11 +16,14 @@ import { COLORS } from '@/utils/themeColors';
 import Modal from '@/components/Modal/Modal';
 import Login from '@/pages/Admin/pages/Login';
 import Signup from '@/pages/Admin/pages/Signup';
+import ForgotPassword from '@/pages/Admin/pages/ForgotPassword';
+import ResetPassword from '@/pages/Admin/pages/ResetPassword';
 
 export default function AskQuestion() {
   const navigate = useNavigate();
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [authMode, setAuthMode] = useState('login'); // 'login' | 'signup'
+  const [authMode, setAuthMode] = useState('login'); // 'login' | 'signup' | 'forgot-password' | 'reset-password'
+  const [resetToken, setResetToken] = useState('');
 
   const openLogin = () => {
     setAuthMode('login');
@@ -316,12 +319,20 @@ export default function AskQuestion() {
         )}
       </div>
 
-      {/* Local Auth Modal using existing Login and Signup in English layout */}
+      {/* Local Auth Modal using existing Login, Signup & ForgotPassword */}
       <Modal
         isOpen={isAuthModalOpen}
         onClose={closeAuthModal}
-        title={authMode === "login" ? "Sign In" : "Create Account"}
-        maxWidth={authMode === "login" ? "max-w-md" : "max-w-xl"}
+        title={
+          authMode === "login"
+            ? "Sign In"
+            : authMode === "signup"
+            ? "Create Account"
+            : authMode === "reset-password"
+            ? "Reset Password"
+            : "Forgot Password"
+        }
+        maxWidth={authMode === "signup" ? "max-w-xl" : "max-w-md"}
         height="max-h-[92vh]"
         dir="ltr"
       >
@@ -330,12 +341,27 @@ export default function AskQuestion() {
             isModal={true}
             onClose={closeAuthModal}
             onSwitchToSignup={() => setAuthMode("signup")}
+            onSwitchToForgotPassword={() => setAuthMode("forgot-password")}
           />
-        ) : (
+        ) : authMode === "signup" ? (
           <Signup
             isModal={true}
             onClose={closeAuthModal}
             onSwitchToLogin={() => setAuthMode("login")}
+          />
+        ) : authMode === "reset-password" ? (
+          <ResetPassword
+            isModal={true}
+            token={resetToken}
+            onClose={closeAuthModal}
+            onSwitchToLogin={() => setAuthMode("login")}
+            onSwitchToForgotPassword={() => setAuthMode("forgot-password")}
+          />
+        ) : (
+          <ForgotPassword
+            isModal={true}
+            onClose={closeAuthModal}
+            onBackToLogin={() => setAuthMode("login")}
           />
         )}
       </Modal>

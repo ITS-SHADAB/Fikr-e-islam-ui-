@@ -22,6 +22,10 @@ import EventsList from '../pages/Events/pages/EventsList';
 import ContactPage from '../pages/Contact/pages/ContactPage';
 import PageNotFound from '../pages/PageNotFound/pages/PageNotFound';
 import MyDetails from '../pages/User/pages/MyDetails';
+import Login from '../pages/Admin/pages/Login';
+import Signup from '../pages/Admin/pages/Signup';
+import ForgotPassword from '../pages/Admin/pages/ForgotPassword';
+import ResetPassword from '../pages/Admin/pages/ResetPassword';
 // import YouTubeVideos from '../pages/YouTubeVideos/YouTubeVideos';
 
 // Admin Page Imports
@@ -70,6 +74,12 @@ export default function AppRoutes() {
         <Route path="events" element={<EventsList />} />
         <Route path="contact" element={<ContactPage />} />
         <Route path="my-details" element={<MyDetails />} />
+        <Route path="login" element={<Login />} />
+        <Route path="forgot-password" element={<ForgotPassword />} />
+        <Route path="reset-password/:token" element={<ResetPassword />} />
+        <Route path="reset-password" element={<ResetPassword />} />
+        <Route path="new-password/:token" element={<ResetPassword />} />
+        <Route path="new-password" element={<ResetPassword />} />
         {/* <Route path="youtube-videos" element={<YouTubeVideos />} /> */}
         {/* 404 */}
         <Route path="*" element={<PageNotFound />} />

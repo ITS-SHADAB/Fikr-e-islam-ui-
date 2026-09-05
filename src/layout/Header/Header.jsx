@@ -21,6 +21,8 @@ import { logoutUser } from "@/services";
 import Modal from "@/components/Modal/Modal";
 import Login from "@/pages/Admin/pages/Login";
 import Signup from "@/pages/Admin/pages/Signup";
+import ForgotPassword from "@/pages/Admin/pages/ForgotPassword";
+import ResetPassword from "@/pages/Admin/pages/ResetPassword";
 
 /* ─── Corner Botanical Arabesque Branch SVG ─── */
 function CornerArabesque({ className = "" }) {
@@ -130,7 +132,8 @@ export default function Header() {
   const dispatch = useDispatch();
 
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [authMode, setAuthMode] = useState("login"); // "login" | "signup"
+  const [authMode, setAuthMode] = useState("login"); // "login" | "signup" | "forgot-password" | "reset-password"
+  const [resetToken, setResetToken] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
@@ -169,9 +172,29 @@ export default function Header() {
     setIsAuthModalOpen(true);
   };
 
+  const openResetPassword = (token = "") => {
+    setResetToken(token);
+    setAuthMode("reset-password");
+    setIsAuthModalOpen(true);
+  };
+
   const closeAuthModal = () => {
     setIsAuthModalOpen(false);
   };
+
+  // Listen for global auth modal requests (e.g. from buttons or links)
+  useEffect(() => {
+    const handleAuthEvent = (e) => {
+      const mode = e?.detail?.mode || "login";
+      const token = e?.detail?.token || "";
+      if (token) setResetToken(token);
+      setAuthMode(mode);
+      setIsAuthModalOpen(true);
+    };
+
+    window.addEventListener("open-auth-modal", handleAuthEvent);
+    return () => window.removeEventListener("open-auth-modal", handleAuthEvent);
+  }, []);
 
   useEffect(() => {
     if (isAuthenticated && isAuthModalOpen) {
@@ -837,12 +860,20 @@ export default function Header() {
           document.body
         )}
 
-      {/* Local Auth Modal for Login & Signup */}
+      {/* Local Auth Modal for Login, Signup, Forgot Password & Reset Password */}
       <Modal
         isOpen={isAuthModalOpen}
         onClose={closeAuthModal}
-        title={authMode === "login" ? "Sign In" : "Create Account"}
-        maxWidth={authMode === "login" ? "max-w-md" : "max-w-xl"}
+        title={
+          authMode === "login"
+            ? "Sign In"
+            : authMode === "signup"
+            ? "Create Account"
+            : authMode === "reset-password"
+            ? "Reset Password"
+            : "Forgot Password"
+        }
+        maxWidth={authMode === "signup" ? "max-w-xl" : "max-w-md"}
         height="max-h-[92vh]"
         dir="ltr"
       >
@@ -851,12 +882,27 @@ export default function Header() {
             isModal={true}
             onClose={closeAuthModal}
             onSwitchToSignup={() => setAuthMode("signup")}
+            onSwitchToForgotPassword={() => setAuthMode("forgot-password")}
           />
-        ) : (
+        ) : authMode === "signup" ? (
           <Signup
             isModal={true}
             onClose={closeAuthModal}
             onSwitchToLogin={() => setAuthMode("login")}
+          />
+        ) : authMode === "reset-password" ? (
+          <ResetPassword
+            isModal={true}
+            token={resetToken}
+            onClose={closeAuthModal}
+            onSwitchToLogin={() => setAuthMode("login")}
+            onSwitchToForgotPassword={() => setAuthMode("forgot-password")}
+          />
+        ) : (
+          <ForgotPassword
+            isModal={true}
+            onClose={closeAuthModal}
+            onBackToLogin={() => setAuthMode("login")}
           />
         )}
       </Modal>

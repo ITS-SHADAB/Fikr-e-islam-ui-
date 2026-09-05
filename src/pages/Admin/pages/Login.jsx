@@ -3,6 +3,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, Link, Navigate } from "react-router-dom";
 import { Eye, EyeOff, AlertTriangle, ArrowRight } from "lucide-react";
 import { login, clearAuthError } from "../../../store/slices/authSlice";
+import GoogleAuthButton from "@/components/Auth/GoogleAuthButton";
+import AuthDivider from "@/components/Auth/AuthDivider";
+import ForgotPassword from "./ForgotPassword";
 
 /* ─── Animated required asterisk ─────────────────────────────────────── */
 function RequiredStar() {
@@ -48,7 +51,12 @@ function Field({ label, required, hint, error, children }) {
   );
 }
 
-export default function Login({ isModal = false, onClose, onSwitchToSignup }) {
+export default function Login({
+  isModal = false,
+  onClose,
+  onSwitchToSignup,
+  onSwitchToForgotPassword,
+}) {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { isAuthenticated, loading, error, userRole } = useSelector(
@@ -58,6 +66,7 @@ export default function Login({ isModal = false, onClose, onSwitchToSignup }) {
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [showPass, setShowPass] = useState(false);
+  const [internalView, setInternalView] = useState("login"); // 'login' | 'forgot-password'
   const [touched, setTouched] = useState({
     identifier: false,
     password: false,
@@ -71,6 +80,17 @@ export default function Login({ isModal = false, onClose, onSwitchToSignup }) {
       onClose?.();
     }
   }, [isAuthenticated, userRole, isModal, onClose, dispatch]);
+
+  /* Detect Google OAuth error query param */
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const authError = params.get("error");
+    if (authError === "google_auth_failed") {
+      setLocalError("Google sign in failed. Please try again.");
+    } else if (authError === "account_deactivated") {
+      setLocalError("Your account has been deactivated.");
+    }
+  }, []);
 
   /* Per-field inline validation */
   const emailRx = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -89,6 +109,14 @@ export default function Login({ isModal = false, onClose, onSwitchToSignup }) {
   };
 
   const handleBlur = (field) => setTouched((p) => ({ ...p, [field]: true }));
+
+  const handleForgotPassword = () => {
+    if (onSwitchToForgotPassword) {
+      onSwitchToForgotPassword();
+    } else {
+      setInternalView("forgot-password");
+    }
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -120,6 +148,17 @@ export default function Login({ isModal = false, onClose, onSwitchToSignup }) {
     return <Navigate to="/" replace />;
   }
 
+  // If switched to internal forgot password view
+  if (internalView === "forgot-password") {
+    return (
+      <ForgotPassword
+        isModal={isModal}
+        onClose={onClose}
+        onBackToLogin={() => setInternalView("login")}
+      />
+    );
+  }
+
   const displayError = localError || error;
 
   return (
@@ -140,7 +179,7 @@ export default function Login({ isModal = false, onClose, onSwitchToSignup }) {
       <div
         className={`${
           isModal
-            ? "p-6 sm:p-8 w-full"
+            ? "p-5 sm:p-7 w-full"
             : "min-h-screen bg-background flex items-center justify-center p-4 relative overflow-hidden"
         }`}
       >
@@ -160,18 +199,27 @@ export default function Login({ isModal = false, onClose, onSwitchToSignup }) {
               : ""
           }`}
         >
+          {/* Header */}
           <div className="text-center mb-5">
             <h1 className="text-xl sm:text-2xl font-extrabold text-slate-800 tracking-tight">
               Welcome Back
             </h1>
             <p className="text-slate-500 text-xs sm:text-sm mt-1 font-light">
-              Sign in to access your account & services
+              Sign in to access your account &amp; services
             </p>
           </div>
 
+          {/* PRIMARY CTA: Google Authentication */}
+          <div className="mb-1">
+            <GoogleAuthButton text="Continue with Google" />
+          </div>
+
+          {/* Subtle Divider: OR */}
+          <AuthDivider text="OR" />
+
           {/* Global error */}
           {displayError && (
-            <div className="mb-5 bg-red-50 border border-red-200 rounded-xl px-4 py-3 flex items-start gap-2.5 text-red-700 text-xs">
+            <div className="mb-4 bg-red-50 border border-red-200 rounded-xl px-4 py-3 flex items-start gap-2.5 text-red-700 text-xs">
               <AlertTriangle
                 size={15}
                 className="shrink-0 mt-0.5 text-red-500"
@@ -183,10 +231,11 @@ export default function Login({ isModal = false, onClose, onSwitchToSignup }) {
             </div>
           )}
 
+          {/* Secondary: Email/Password Form */}
           <form
             onSubmit={handleSubmit}
             noValidate
-            className="space-y-4 sm:space-y-5 w-full"
+            className="space-y-3.5 sm:space-y-4 w-full"
           >
             {/* Identifier */}
             <Field
@@ -208,37 +257,50 @@ export default function Login({ isModal = false, onClose, onSwitchToSignup }) {
             </Field>
 
             {/* Password */}
-            <Field
-              label="Password"
-              required
-              error={fieldErrors.password}
-            >
-              <input
-                id="login-password"
-                type={showPass ? "text" : "password"}
-                autoComplete="current-password"
-                placeholder="Enter your password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                onBlur={() => handleBlur("password")}
-                className="w-full bg-transparent text-sm text-slate-800 placeholder:text-slate-400 outline-none border-none ring-0 min-w-0"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPass(!showPass)}
-                className="text-slate-400 hover:text-primary transition-colors shrink-0 focus:outline-none cursor-pointer ml-2"
-                aria-label={showPass ? "Hide password" : "Show password"}
+            <div className="space-y-1.5">
+              <Field
+                label="Password"
+                required
+                error={fieldErrors.password}
               >
-                {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
-              </button>
-            </Field>
+                <input
+                  id="login-password"
+                  type={showPass ? "text" : "password"}
+                  autoComplete="current-password"
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  onBlur={() => handleBlur("password")}
+                  className="w-full bg-transparent text-sm text-slate-800 placeholder:text-slate-400 outline-none border-none ring-0 min-w-0"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPass(!showPass)}
+                  className="text-slate-400 hover:text-primary transition-colors shrink-0 focus:outline-none cursor-pointer ml-2"
+                  aria-label={showPass ? "Hide password" : "Show password"}
+                >
+                  {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </Field>
 
-            {/* Submit */}
+              {/* Forgot Password Link - Secondary text link directly below password */}
+              <div className="flex justify-end pr-1">
+                <button
+                  type="button"
+                  onClick={handleForgotPassword}
+                  className="text-xs font-semibold text-slate-500 hover:text-primary transition-colors cursor-pointer inline-flex items-center"
+                >
+                  Forgot Password?
+                </button>
+              </div>
+            </div>
+
+            {/* Submit Button (Secondary to Google CTA in visual hierarchy) */}
             <button
               id="login-submit"
               type="submit"
               disabled={loading}
-              className="w-full py-3.5 mt-2 bg-gradient-to-r from-primary to-primary/85 hover:from-primary/90 hover:to-primary text-white font-bold rounded-xl shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-0.5 transition-all duration-200 text-sm tracking-wide flex items-center justify-center gap-2.5 disabled:opacity-60 disabled:pointer-events-none cursor-pointer"
+              className="w-full py-3 sm:py-3.5 mt-1 bg-gradient-to-r from-primary to-primary/85 hover:from-primary/90 hover:to-primary text-white font-bold rounded-xl shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 text-sm tracking-wide flex items-center justify-center gap-2.5 disabled:opacity-60 disabled:pointer-events-none cursor-pointer"
             >
               {loading ? (
                 <>
@@ -270,7 +332,7 @@ export default function Login({ isModal = false, onClose, onSwitchToSignup }) {
           </form>
 
           {/* Register link */}
-          <p className="mt-5 text-center text-xs text-slate-500">
+          <p className="mt-4 sm:mt-5 text-center text-xs text-slate-500">
             Don&apos;t have an account?{" "}
             {onSwitchToSignup ? (
               <button

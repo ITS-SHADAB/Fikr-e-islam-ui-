@@ -1,19 +1,13 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { useSettings } from '@/hooks/useSettings';
 import { Navbar, Footer, Header } from '@/layout';
 import { COLORS } from '@/utils/themeColors';
 
-export const fontFamilies = {
-  'Inter': "'Inter', sans-serif",
-  'Roboto': "'Roboto', sans-serif",
-  'Playfair Display': "'Playfair Display', serif",
-  'Lora': "'Lora', serif",
-  'Outfit': "'Outfit', sans-serif",
-};
-
 export default function MainLayout() {
   const { pathname } = useLocation();
+  const location = useLocation();
   const {
     settings,
     loading,
@@ -29,13 +23,41 @@ export default function MainLayout() {
   const modalRef = useRef(null);
 
   const englishFont = settings?.englishFont || 'Inter';
+  const language = settings?.language === 'ur' || settings?.language === 'Urdu' ? 'ur' : 'en';
+
+  // Handle Google OAuth query parameter errors (?error=google_auth_failed / ?error=account_deactivated)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const authError = params.get('error');
+    if (authError) {
+      if (authError === 'google_auth_failed') {
+        toast.error(
+          language === 'ur'
+            ? 'گوگل لاگ ان ناکام رہا۔ براہ کرم دوبارہ کوشش کریں۔'
+            : 'Google sign in failed. Please try again.'
+        );
+      } else if (authError === 'account_deactivated') {
+        toast.error(
+          language === 'ur'
+            ? 'آپ کا اکاؤنٹ غیر فعال کر دیا گیا ہے۔'
+            : 'Your account has been deactivated.'
+        );
+      }
+
+      params.delete('error');
+      const remainingSearch = params.toString();
+      const newUrl =
+        window.location.pathname +
+        (remainingSearch ? `?${remainingSearch}` : '') +
+        window.location.hash;
+      window.history.replaceState({}, document.title, newUrl);
+    }
+  }, [location.search, language]);
 
   // Scroll to top automatically when navigation path changes
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [pathname]);
-
-  const language = settings?.language === 'ur' || settings?.language === 'Urdu' ? 'ur' : 'en';
 
   // Apply typography and direction configuration dynamically for Urdu & RTL
   useEffect(() => {

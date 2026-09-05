@@ -83,6 +83,11 @@ const authSlice = createSlice({
     logout: (state) => {
       localStorage.removeItem("adminToken");
       localStorage.removeItem("adminInfo");
+      try {
+        sessionStorage.removeItem("google_auth_pending");
+      } catch (err) {
+        // ignore storage errors
+      }
       state.loggedInUser = null;
       state.token = null;
       state.userRole = null;
@@ -134,16 +139,40 @@ const authSlice = createSlice({
       })
       // Check Auth Status
       .addCase(checkAuthStatus.fulfilled, (state, action) => {
-        const user = action.payload?.data || action.payload;
-        state.loggedInUser = { ...state.loggedInUser, ...user };
-        state.userRole = user?.role || state.userRole || "user";
+        const user =
+          action.payload?.data?.data || action.payload?.data || action.payload;
+        state.loggedInUser = user;
+        state.userRole = user?.role || "user";
         state.isAuthenticated = true;
+        state.error = null;
+        if (action.payload?.token) {
+          state.token = action.payload.token;
+          localStorage.setItem("adminToken", action.payload.token);
+          localStorage.setItem("adminInfo", JSON.stringify(action.payload));
+        } else {
+          // For cookie-based sessions (like Google OAuth), preserve session in localStorage
+          const existingToken =
+            localStorage.getItem("adminToken") || "google_session";
+          state.token = existingToken;
+          localStorage.setItem("adminToken", existingToken);
+          localStorage.setItem(
+            "adminInfo",
+            JSON.stringify(action.payload?.data ? action.payload : { data: user })
+          );
+        }
       })
       .addCase(checkAuthStatus.rejected, (state) => {
         state.loggedInUser = null;
         state.token = null;
         state.userRole = null;
         state.isAuthenticated = false;
+        localStorage.removeItem("adminToken");
+        localStorage.removeItem("adminInfo");
+        try {
+          sessionStorage.removeItem("google_auth_pending");
+        } catch (err) {
+          // ignore storage errors
+        }
       });
   },
 });
