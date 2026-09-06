@@ -10,3 +10,6 @@ export * from "./user";
 export * from "./profile";
 export * from "./comment";
 export * from "./youtube";
+export * from "./notificationService";
+export * from "./adminNotification";
+

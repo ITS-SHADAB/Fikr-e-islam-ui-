@@ -14,7 +14,10 @@ import {
   LayoutDashboard,
   Settings,
   ChevronDown,
+  Bell,
 } from "lucide-react";
+import { useNotifications } from "@/hooks/useNotifications";
+import NotificationDropdown from "@/components/Notification/NotificationDropdown";
 import { logout } from "@/store/slices/authSlice";
 import { useSettings } from "@/hooks/useSettings";
 import { logoutUser } from "@/services";
@@ -152,6 +155,9 @@ export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
+  const [showNotifDropdown, setShowNotifDropdown] = useState(false);
+  const notifBellRef = useRef(null);
+  const { unreadCount, refreshNotifications, hasLoadedNotifications } = useNotifications();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const searchInputRef = useRef(null);
@@ -238,6 +244,12 @@ export default function Header() {
       document.removeEventListener("touchstart", handleClickOutside);
     };
   }, [showProfileDropdown]);
+
+  // Close dropdowns on route changes
+  useEffect(() => {
+    setShowProfileDropdown(false);
+    setShowNotifDropdown(false);
+  }, [location.pathname]);
 
   // Escape key & focus for search popover
   useEffect(() => {
@@ -342,6 +354,14 @@ export default function Header() {
     return "U";
   };
 
+  const getUserDisplayName = (user) => {
+    if (!user) return isUrdu ? "پروفائل" : "Profile";
+    if (user.name && user.name.trim()) return user.name.trim();
+    if (user.loginEmail && user.loginEmail.trim()) return user.loginEmail.split("@")[0];
+    if (user.loginPhone) return user.loginPhone;
+    return isUrdu ? "پروفائل" : "Profile";
+  };
+
   // Exact navigation items matching the reference screenshot verbatim
   const navLinks = [
     {
@@ -431,11 +451,10 @@ export default function Header() {
   return (
     <div
       ref={headerContainerRef}
-      className={`w-full sticky top-0 z-40 transition-all duration-300 select-none ${
-        scrolled
-          ? "py-0.5 sm:py-1 bg-[#F3E3D8]/95 shadow-sm"
-          : "pt-1 sm:pt-1.5 pb-0.5 sm:pb-1 bg-transparent"
-      } px-2 sm:px-4 md:px-6`}
+      className={`w-full sticky top-0 z-40 transition-all duration-300 select-none ${scrolled
+        ? "py-0.5 sm:py-1 bg-[#F3E3D8]/95 shadow-sm"
+        : "pt-1 sm:pt-1.5 pb-0.5 sm:pb-1 bg-transparent"
+        } px-2 sm:px-4 md:px-6`}
       dir="rtl"
     >
       <div className="max-w-[1360px] mx-auto">
@@ -715,11 +734,11 @@ export default function Header() {
               {/* Feature / Home Pill Button (Dynamic current page title) */}
               <Link
                 to={currentFeature?.href || "/"}
-                className={`rounded-full px-2.5 sm:px-3 py-1 flex items-center gap-1.5 text-[12px] sm:text-[13px] font-semibold transition-all duration-200 shrink-0 border ${
-                  isFeatureActive
-                    ? "border-[#A8793E] bg-[#3D2E22] text-[#F7F1E8] shadow-[0_0_10px_rgba(168,121,62,0.25)]"
-                    : "border-[#A8793E] bg-[#2B2118] text-[#F7F1E8]/90 hover:border-[#DFC8A4] hover:text-[#F7F1E8] hover:bg-[#3D2E22]"
-                }`}
+
+                className={`rounded-full px-2.5 sm:px-3 py-1 flex items-center gap-1.5 text-[12px] sm:text-[13px] font-semibold transition-all duration-200 shrink-0 border ${isFeatureActive
+                  ? "border-[#A8793E] bg-[#3D2E22] text-[#F7F1E8] shadow-[0_0_10px_rgba(168,121,62,0.25)]"
+                  : "border-[#A8793E] bg-[#2B2118] text-[#F7F1E8]/90 hover:border-[#DFC8A4] hover:text-[#F7F1E8] hover:bg-[#3D2E22]"
+                  }`}
               >
                 <Home className="w-3.5 h-3.5 text-[#F7F1E8]" />
                 <span>
@@ -742,11 +761,12 @@ export default function Header() {
                     <React.Fragment key={item.href}>
                       <Link
                         to={item.href}
-                        className={`px-2 xl:px-2.5 py-0.5 text-[13px] xl:text-[14px] whitespace-nowrap transition-all duration-200 select-none flex items-center gap-1 ${
-                          isActive
-                            ? "text-[#DFC8A4] font-bold"
-                            : "text-[#F7F1E8]/90 hover:text-[#DFC8A4] font-medium"
-                        }`}
+
+                        className={`px-2 xl:px-2.5 py-0.5 text-[13px] xl:text-[14px] whitespace-nowrap transition-all duration-200 select-none flex items-center gap-1 ${isActive
+                          ? "text-[#DFC8A4] font-bold"
+                          : "text-[#F7F1E8]/90 hover:text-[#DFC8A4] font-medium"
+                          }`}
+
                       >
                         <span>{item.label}</span>
                         {item.hasDropdown && (
@@ -775,129 +795,168 @@ export default function Header() {
                 <span>{isUrdu ? "ممبر بنیں" : "Member"}</span>
               </Link>
 
-              {/* Profile / Login Button */}
+              {/* Notification Bell & Profile for Logged-in Users */}
               {isAuthenticated || userRole === "admin" ? (
-                <div ref={profileDropdownRef} className="relative z-50">
+                <>
+                  {/* Notification Bell */}
+                  <div ref={notifBellRef} className="relative z-50">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowProfileDropdown(false);
+                          setShowNotifDropdown((prev) => {
+                            const nextState = !prev;
+                            if (nextState) {
+                              refreshNotifications({ silent: hasLoadedNotifications });
+                            }
+                            return nextState;
+                          });
+                        }}
+                        className="relative w-7.5 h-7.5 sm:w-8 sm:h-8 rounded-full border border-[#A8793E] bg-[#2B2118] text-[#F7F1E8] flex items-center justify-center hover:bg-[#3D2E22] hover:border-[#DFC8A4] transition-all cursor-pointer shadow-xs"
+                        aria-label={isUrdu ? "اطلاعات" : "Notifications"}
+                        title={isUrdu ? "اطلاعات" : "Notifications"}
+                      >
+                        <Bell className="w-4 h-4 text-[#DFC8A4]" />
+                        {unreadCount > 0 && (
+                          <span className="absolute -top-1 -right-1 min-w-[17px] h-[17px] px-1 bg-[#D97706] text-[#2B2118] font-bold text-[10px] leading-none rounded-full flex items-center justify-center border-2 border-[#2B2118] shadow-sm">
+                            {unreadCount > 99 ? "99+" : unreadCount}
+                          </span>
+                        )}
+                      </button>
+
+                      <NotificationDropdown
+                        isOpen={showNotifDropdown}
+                        onClose={() => setShowNotifDropdown(false)}
+                        anchorRef={notifBellRef}
+                        headerHeight={headerHeight}
+                      />
+                    </div>
+
+                    {/* Profile Dropdown Trigger */}
+                    <div ref={profileDropdownRef} className="relative z-50">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowNotifDropdown(false);
+                          setShowProfileDropdown((prev) => !prev);
+                        }}
+                        className="rounded-full border border-[#A8793E] bg-[#2B2118] text-[#F7F1E8] px-2 sm:px-2.5 py-0.5 flex items-center gap-1.5 text-xs font-semibold hover:bg-[#3D2E22] transition-all cursor-pointer shadow-xs"
+                      >
+                        <div className="w-5 h-5 rounded-full bg-[#A8793E] text-[#2B2118] font-bold text-[10px] flex items-center justify-center shrink-0">
+                          {getInitials(loggedInUser)}
+                        </div>
+                        <span className="inline-block max-w-[70px] sm:max-w-[110px] truncate">
+                          {getUserDisplayName(loggedInUser)}
+                        </span>
+                        <ChevronDown className="w-3 h-3 text-[#A8793E]" />
+                      </button>
+
+                      {/* Profile Dropdown */}
+                      <AnimatePresence>
+                        {showProfileDropdown && (
+                          <motion.div
+                            initial={{ opacity: 0, scale: 0.95, y: -6 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: -6 }}
+                            transition={{ duration: 0.16 }}
+                            style={{ zIndex: 9999 }}
+                            className={`absolute left-0 ${isUrdu ? "text-right" : "text-left"} top-full mt-2 w-64 max-w-[calc(100vw-32px)] bg-[#2B2118] border border-[#A8793E] rounded-2xl shadow-2xl p-4 transition-all z-50`}
+                          >
+                            <div className="flex flex-col gap-1 pb-3 border-b border-[#A8793E]/30">
+                              <span className="font-bold text-[#F7F1E8] text-sm">
+                                {loggedInUser?.name}
+                              </span>
+                              <span className="text-xs text-[#F7F1E8]/60 font-mono truncate">
+                                {loggedInUser?.loginEmail ||
+                                  loggedInUser?.loginPhone ||
+                                  "-"}
+                              </span>
+                              <span className="self-start mt-1 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-[#A8793E]/25 text-[#DFC8A4] rounded-full border border-[#A8793E]/40">
+                                {loggedInUser?.role || "user"}
+                              </span>
+                            </div>
+
+                            <Link
+                              to="/"
+                              onClick={() => setShowProfileDropdown(false)}
+                              className="mt-2.5 flex items-center gap-2 w-full px-3 py-2 text-xs font-bold text-[#F7F1E8] hover:text-[#DFC8A4] bg-[#3D2E22] hover:bg-[#4D3A2C] rounded-xl border border-[#A8793E]/40 transition-colors"
+                            >
+                              <Home className="w-3.5 h-3.5 text-[#A8793E]" />
+                              {isUrdu ? "صفحہ اول" : "Home"}
+                            </Link>
+
+                            <Link
+                              to="/my-details"
+                              onClick={() => setShowProfileDropdown(false)}
+                              className="mt-2 flex items-center gap-2 w-full px-3 py-2 text-xs font-bold text-[#F7F1E8] hover:text-[#DFC8A4] bg-[#3D2E22] hover:bg-[#4D3A2C] rounded-xl border border-[#A8793E]/40 transition-colors"
+                            >
+                              <User className="w-3.5 h-3.5 text-[#A8793E]" />
+                              {isUrdu ? "میری تفصیلات" : "My Details"}
+                            </Link>
+
+                            {userRole === "admin" && (
+                              <>
+                                <Link
+                                  to="/admin/dashboard"
+                                  onClick={() => setShowProfileDropdown(false)}
+                                  className="mt-2 flex items-center gap-2 w-full px-3 py-2 text-xs font-bold text-[#F7F1E8] hover:text-[#DFC8A4] bg-[#3D2E22] hover:bg-[#4D3A2C] rounded-xl border border-[#A8793E]/40 transition-colors"
+                                >
+                                  <LayoutDashboard className="w-3.5 h-3.5 text-[#A8793E]" />
+                                  {isUrdu ? "ڈیش بورڈ" : "Admin Dashboard"}
+                                </Link>
+                                <Link
+                                  to="/admin/settings"
+                                  onClick={() => setShowProfileDropdown(false)}
+                                  className="mt-2 flex items-center gap-2 w-full px-3 py-2 text-xs font-bold text-[#F7F1E8] hover:text-[#DFC8A4] bg-[#3D2E22] hover:bg-[#4D3A2C] rounded-xl border border-[#A8793E]/40 transition-colors"
+                                >
+                                  <Settings className="w-3.5 h-3.5 text-[#A8793E]" />
+                                  {isUrdu
+                                    ? "ویب سائٹ کی ترتیبات"
+                                    : "Website Settings"}
+                                </Link>
+                              </>
+                            )}
+
+                            <button
+                              type="button"
+                              onClick={handleLogout}
+                              className="mt-3 flex items-center justify-center gap-2 w-full px-3 py-2 text-xs font-bold text-red-300 hover:text-red-200 bg-red-950/40 hover:bg-red-900/50 rounded-xl border border-red-800/40 transition-colors cursor-pointer"
+                            >
+                              <LogOut className="w-3.5 h-3.5 text-red-400" />
+                              {isUrdu ? "لاگ آؤٹ" : "Logout"}
+                            </button>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  </>
+                  ) : (
+                  /* Login Pill Button (لاگ ان with User Icon) */
                   <button
                     type="button"
-                    onClick={() => setShowProfileDropdown((prev) => !prev)}
-                    className="rounded-full border border-[#A8793E] bg-[#2B2118] text-[#F7F1E8] px-2.5 py-0.5 flex items-center gap-1.5 text-xs font-semibold hover:bg-[#3D2E22] transition-all cursor-pointer shadow-xs"
+                    onClick={openLogin}
+                    className="rounded-full border border-[#A8793E] bg-[#2B2118] text-[#F7F1E8] px-2.5 sm:px-3 py-1 flex items-center gap-1.5 text-xs sm:text-[12.5px] font-semibold hover:bg-[#3D2E22] hover:border-[#DFC8A4] hover:text-[#F7F1E8] transition-all duration-200 cursor-pointer shadow-xs"
+                    title={isUrdu ? "لاگ ان / سائن اپ" : "Login / Signup"}
                   >
-                    <div className="w-5 h-5 rounded-full bg-[#A8793E] text-[#2B2118] font-bold text-[10px] flex items-center justify-center shrink-0">
-                      {getInitials(loggedInUser)}
-                    </div>
-                    <span className="hidden sm:inline max-w-[90px] truncate">
-                      {loggedInUser?.name?.split(" ")[0] ||
-                        (isUrdu ? "پروفائل" : "Profile")}
-                    </span>
-                    <ChevronDown className="w-3 h-3 text-[#A8793E]" />
+                    <User className="w-3.5 h-3.5 text-[#F7F1E8]" />
+                    <span>{isUrdu ? "لاگ ان" : "Login"}</span>
                   </button>
-
-                  {/* Profile Dropdown */}
-                  <AnimatePresence>
-                    {showProfileDropdown && (
-                      <motion.div
-                        initial={{ opacity: 0, scale: 0.95, y: -6 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.95, y: -6 }}
-                        transition={{ duration: 0.16 }}
-                        style={{ zIndex: 9999 }}
-                        className={`absolute left-0 ${isUrdu ? "text-right" : "text-left"} top-full mt-2 w-64 max-w-[calc(100vw-32px)] bg-[#2B2118] border border-[#A8793E] rounded-2xl shadow-2xl p-4 transition-all z-50`}
-                      >
-                        <div className="flex flex-col gap-1 pb-3 border-b border-[#A8793E]/30">
-                          <span className="font-bold text-[#F7F1E8] text-sm">
-                            {loggedInUser?.name}
-                          </span>
-                          <span className="text-xs text-[#F7F1E8]/60 font-mono truncate">
-                            {loggedInUser?.loginEmail ||
-                              loggedInUser?.loginPhone ||
-                              "-"}
-                          </span>
-                          <span className="self-start mt-1 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-[#A8793E]/25 text-[#DFC8A4] rounded-full border border-[#A8793E]/40">
-                            {loggedInUser?.role || "user"}
-                          </span>
-                        </div>
-
-                        <Link
-                          to="/"
-                          onClick={() => setShowProfileDropdown(false)}
-                          className="mt-2.5 flex items-center gap-2 w-full px-3 py-2 text-xs font-bold text-[#F7F1E8] hover:text-[#DFC8A4] bg-[#3D2E22] hover:bg-[#4D3A2C] rounded-xl border border-[#A8793E]/40 transition-colors"
-                        >
-                          <Home className="w-3.5 h-3.5 text-[#A8793E]" />
-                          {isUrdu ? "صفحہ اول" : "Home"}
-                        </Link>
-
-                        <Link
-                          to="/my-details"
-                          onClick={() => setShowProfileDropdown(false)}
-                          className="mt-2 flex items-center gap-2 w-full px-3 py-2 text-xs font-bold text-[#F7F1E8] hover:text-[#DFC8A4] bg-[#3D2E22] hover:bg-[#4D3A2C] rounded-xl border border-[#A8793E]/40 transition-colors"
-                        >
-                          <User className="w-3.5 h-3.5 text-[#A8793E]" />
-                          {isUrdu ? "میری تفصیلات" : "My Details"}
-                        </Link>
-
-                        {userRole === "admin" && (
-                          <>
-                            <Link
-                              to="/admin/dashboard"
-                              onClick={() => setShowProfileDropdown(false)}
-                              className="mt-2 flex items-center gap-2 w-full px-3 py-2 text-xs font-bold text-[#F7F1E8] hover:text-[#DFC8A4] bg-[#3D2E22] hover:bg-[#4D3A2C] rounded-xl border border-[#A8793E]/40 transition-colors"
-                            >
-                              <LayoutDashboard className="w-3.5 h-3.5 text-[#A8793E]" />
-                              {isUrdu ? "ڈیش بورڈ" : "Admin Dashboard"}
-                            </Link>
-                            <Link
-                              to="/admin/settings"
-                              onClick={() => setShowProfileDropdown(false)}
-                              className="mt-2 flex items-center gap-2 w-full px-3 py-2 text-xs font-bold text-[#F7F1E8] hover:text-[#DFC8A4] bg-[#3D2E22] hover:bg-[#4D3A2C] rounded-xl border border-[#A8793E]/40 transition-colors"
-                            >
-                              <Settings className="w-3.5 h-3.5 text-[#A8793E]" />
-                              {isUrdu
-                                ? "ویب سائٹ کی ترتیبات"
-                                : "Website Settings"}
-                            </Link>
-                          </>
-                        )}
-
-                        <button
-                          type="button"
-                          onClick={handleLogout}
-                          className="mt-3 flex items-center justify-center gap-2 w-full px-3 py-2 text-xs font-bold text-red-300 hover:text-red-200 bg-red-950/40 hover:bg-red-900/50 rounded-xl border border-red-800/40 transition-colors cursor-pointer"
-                        >
-                          <LogOut className="w-3.5 h-3.5 text-red-400" />
-                          {isUrdu ? "لاگ آؤٹ" : "Logout"}
-                        </button>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              ) : (
-                /* Login Pill Button (لاگ ان with User Icon) */
-                <button
-                  type="button"
-                  onClick={openLogin}
-                  className="rounded-full border border-[#A8793E] bg-[#2B2118] text-[#F7F1E8] px-2.5 sm:px-3 py-1 flex items-center gap-1.5 text-xs sm:text-[12.5px] font-semibold hover:bg-[#3D2E22] hover:border-[#DFC8A4] hover:text-[#F7F1E8] transition-all duration-200 cursor-pointer shadow-xs"
-                  title={isUrdu ? "لاگ ان / سائن اپ" : "Login / Signup"}
-                >
-                  <User className="w-3.5 h-3.5 text-[#F7F1E8]" />
-                  <span>{isUrdu ? "لاگ ان" : "Login"}</span>
-                </button>
               )}
 
-              {/* Mobile Hamburger Toggle */}
-              <button
-                type="button"
-                onClick={() => setIsOpen(!isOpen)}
-                className="lg:hidden w-7.5 h-7.5 sm:w-8 sm:h-8 rounded-full border border-[#A8793E] bg-[#2B2118] text-[#F7F1E8] flex items-center justify-center hover:bg-[#3D2E22] hover:border-[#DFC8A4] transition-all cursor-pointer"
-                aria-label="Toggle Menu"
-              >
-                {isOpen ? (
-                  <X className="w-4 h-4" />
-                ) : (
-                  <Menu className="w-4 h-4" />
-                )}
-              </button>
-            </div>
+                  {/* Mobile Hamburger Toggle */}
+                  <button
+                    type="button"
+                    onClick={() => setIsOpen(!isOpen)}
+                    className="lg:hidden w-7.5 h-7.5 sm:w-8 sm:h-8 rounded-full border border-[#A8793E] bg-[#2B2118] text-[#F7F1E8] flex items-center justify-center hover:bg-[#3D2E22] hover:border-[#DFC8A4] transition-all cursor-pointer"
+                    aria-label="Toggle Menu"
+                  >
+                    {isOpen ? (
+                      <X className="w-4 h-4" />
+                    ) : (
+                      <Menu className="w-4 h-4" />
+                    )}
+                  </button>
+                </div>
           </nav>
         </header>
       </div>
@@ -922,9 +981,8 @@ export default function Header() {
                   animate={{ x: 0 }}
                   exit={{ x: isUrdu ? "100%" : "-100%" }}
                   transition={{ type: "tween", duration: 0.25 }}
-                  className={`absolute top-0 bottom-3 sm:bottom-4 ${
-                    isUrdu ? "right-0 border-l" : "left-0 border-r"
-                  } border-b border-[#A8793E]/40 rounded-b-2xl w-[280px] sm:w-[300px] max-w-[85vw] bg-gradient-to-b from-[#2B2118] via-[#33261C] to-[#241A13] shadow-2xl flex flex-col text-[#F7F1E8] z-[100000] overflow-hidden`}
+                  className={`absolute top-0 bottom-3 sm:bottom-4 ${isUrdu ? "right-0 border-l" : "left-0 border-r"
+                    } border-b border-[#A8793E]/40 rounded-b-2xl w-[280px] sm:w-[300px] max-w-[85vw] bg-gradient-to-b from-[#2B2118] via-[#33261C] to-[#241A13] shadow-2xl flex flex-col text-[#F7F1E8] z-[100000] overflow-hidden`}
                   onClick={(e) => e.stopPropagation()}
                   dir={isUrdu ? "rtl" : "ltr"}
                 >
@@ -978,11 +1036,10 @@ export default function Header() {
                             key={item.href}
                             to={item.href}
                             onClick={closeMenu}
-                            className={`px-3 py-1.5 rounded-lg text-[13.5px] sm:text-sm transition-all flex items-center gap-2 ${
-                              isActive
-                                ? "bg-[#3D2E22] text-[#DFC8A4] font-bold border border-[#A8793E]/40 shadow-xs"
-                                : "text-[#F7F1E8]/90 hover:bg-[#33261C] hover:text-[#DFC8A4] font-medium"
-                            }`}
+                            className={`px-3 py-1.5 rounded-lg text-[13.5px] sm:text-sm transition-all flex items-center gap-2 ${isActive
+                              ? "bg-[#3D2E22] text-[#DFC8A4] font-bold border border-[#A8793E]/40 shadow-xs"
+                              : "text-[#F7F1E8]/90 hover:bg-[#33261C] hover:text-[#DFC8A4] font-medium"
+                              }`}
                           >
                             {item.icon && (
                               <item.icon className="w-4 h-4 text-[#A8793E]" />
@@ -1008,6 +1065,28 @@ export default function Header() {
 
                       {isAuthenticated || userRole === "admin" ? (
                         <>
+                          {/* Mobile Drawer Notifications Button */}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              closeMenu();
+                              setShowProfileDropdown(false);
+                              setShowNotifDropdown(true);
+                              refreshNotifications({ silent: hasLoadedNotifications });
+                            }}
+                            className="flex items-center justify-between w-full px-3 py-1.5 text-xs font-bold text-[#F7F1E8] bg-[#3D2E22] hover:bg-[#4D3A2C] rounded-xl border border-[#A8793E]/30 transition-colors cursor-pointer"
+                          >
+                            <span className="flex items-center gap-2">
+                              <Bell className="w-3.5 h-3.5 text-[#A8793E]" />
+                              {isUrdu ? "اطلاعات (نوٹیفیکیشنز)" : "Notifications"}
+                            </span>
+                            {unreadCount > 0 && (
+                              <span className="px-1.5 py-0.5 text-[10px] font-bold bg-[#A8793E] text-[#2B2118] rounded-full">
+                                {unreadCount > 99 ? "99+" : unreadCount}
+                              </span>
+                            )}
+                          </button>
+
                           <Link
                             to="/my-details"
                             onClick={closeMenu}

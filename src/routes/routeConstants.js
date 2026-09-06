@@ -30,4 +30,5 @@ export const ROUTES = {
   ADMIN_EVENTS: '/admin/events',
   ADMIN_SETTINGS: '/admin/settings',
   ADMIN_USERS: '/admin/users',
+  ADMIN_NOTIFICATIONS: '/admin/notifications',
 };

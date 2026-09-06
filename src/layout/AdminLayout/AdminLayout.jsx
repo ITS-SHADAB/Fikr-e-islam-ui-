@@ -39,6 +39,7 @@ const NAV_LINKS = [
   { to: "/admin/events", label: "پروگرامات", icon: CalendarDays },
   { to: "/admin/users", label: "صارفین", icon: Users },
   { to: "/admin/comments", label: "تبصرے", icon: MessageSquare },
+  { to: "/admin/notifications", label: "اطلاعات (نوٹیفیکیشنز)", icon: Bell },
   { to: "/admin/settings", label: "ترتیبات", icon: Settings },
   // { to: '/admin/youtube', label: 'یوٹیوب', icon: Youtube },
 ];

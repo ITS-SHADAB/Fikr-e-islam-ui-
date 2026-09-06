@@ -5,6 +5,8 @@ import store from "./store/store";
 import AppRoutes from "./routes/AppRoutes";
 import { Toaster } from "react-hot-toast";
 import { checkAuthStatus } from "./store/slices/authSlice";
+import { NotificationProvider } from "./context/NotificationContext";
+import NotificationManager from "./components/Notification/NotificationManager";
 
 function AuthInitializer({ children }) {
   const dispatch = useDispatch();
@@ -21,8 +23,11 @@ export default function App() {
     <Provider store={store}>
       <BrowserRouter>
         <AuthInitializer>
-          <AppRoutes />
-          <Toaster position="top-center" reverseOrder={false} />
+          <NotificationProvider>
+            <NotificationManager />
+            <AppRoutes />
+            <Toaster position="top-center" reverseOrder={false} />
+          </NotificationProvider>
         </AuthInitializer>
       </BrowserRouter>
     </Provider>
