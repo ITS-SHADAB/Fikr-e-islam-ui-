@@ -23,6 +23,7 @@ import {
 import { getQuestionBySlug } from '@/services';
 import { COLORS } from '@/utils/themeColors';
 import { QA_TRANSLATIONS } from '@/utils/categories';
+import { Spinner } from '@/components';
 import toast from 'react-hot-toast';
 
 export default function QADetail() {
@@ -99,15 +100,7 @@ export default function QADetail() {
         className="min-h-[70vh] py-16 flex items-center justify-center"
         style={{ backgroundColor: COLORS.background }}
       >
-        <div className="flex flex-col items-center gap-3">
-          <div
-            className="w-10 h-10 rounded-full border-3 border-t-transparent animate-spin"
-            style={{ borderColor: `${COLORS.primary} transparent ${COLORS.primary} ${COLORS.primary}` }}
-          />
-          <span className="text-xs font-bold font-['Noto_Nastaliq_Urdu']" style={{ color: COLORS.textSecondary }}>
-            تفصیلات لوڈ ہو رہی ہیں...
-          </span>
-        </div>
+        <Spinner size="lg" text="تفصیلات لوڈ ہو رہی ہیں..." />
       </div>
     );
   }

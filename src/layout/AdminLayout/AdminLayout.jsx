@@ -26,6 +26,7 @@ import { logout } from "@/store/slices/authSlice";
 import { logoutUser } from "@/services";
 import toast from "react-hot-toast";
 import { ConfirmationBox } from "@/components";
+import logoImg from "@/assets/images/logo.jpeg";
 
 const NAV_LINKS = [
   { to: "/", label: "عوامی ویب سائٹ", icon: Globe },
@@ -135,15 +136,18 @@ export default function AdminLayout() {
             gap: collapsed ? "0" : "10px",
           }}
         >
-          {/* Shield logo — always visible */}
+          {/* Rounded Logo — always visible */}
           <div
-            className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
+            className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 border-2 border-[#fbbf24] overflow-hidden bg-white shadow-md"
             style={{
-              background: "linear-gradient(135deg,#fbbf24,#f59e0b)",
               boxShadow: "0 4px 12px rgba(251,191,36,0.35)",
             }}
           >
-            <Shield className="w-4 h-4 text-white" />
+            <img
+              src={logoImg}
+              alt="Logo"
+              className="w-full h-full object-cover rounded-full"
+            />
           </div>
 
           {/* Brand text — hidden when collapsed */}
@@ -153,7 +157,7 @@ export default function AdminLayout() {
               dir="rtl"
             >
               <p className="text-sm font-bold text-white truncate">
-                جامعہ بنوری ٹاؤن
+                مفتی فیضان سرور
               </p>
               <p
                 className="text-[10px] font-medium"

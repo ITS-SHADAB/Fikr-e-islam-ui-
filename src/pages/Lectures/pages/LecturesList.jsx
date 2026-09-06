@@ -9,7 +9,9 @@ import {
   Calendar,
   User,
   Video,
-  Sparkles,
+  Youtube,
+  Radio,
+  Tv,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { getLectures } from "@/services";
@@ -80,26 +82,39 @@ export default function LecturesList() {
     return cat === "Audio Lectures" || cat === "Bayan Recordings";
   };
 
-  const getEmbedUrl = (url = "") => {
-    if (!url) return "";
-    // YouTube
+  const getYoutubeTargetUrl = (url = "") => {
+    if (!url) return settings?.socialLinks?.youtube || "https://www.youtube.com";
     const ytRegExp =
       /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|shorts\/|&v=)([^#&?]*).*/;
     const match = url.match(ytRegExp);
     if (match && match[2].length === 11) {
-      return `https://www.youtube.com/embed/${match[2]}?autoplay=1&rel=0`;
-    }
-    // Facebook video plugin
-    if (url.includes("facebook.com") || url.includes("fb.watch")) {
-      return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=0`;
+      return `https://www.youtube.com/watch?v=${match[2]}`;
     }
     return url;
   };
 
+  const handleLectureAction = (lecture) => {
+    if (!lecture) return;
+    const isAudio =
+      isAudioMedia(lecture.category) &&
+      !lecture.videoUrl?.includes("youtube") &&
+      !lecture.videoUrl?.includes("youtu.be");
+
+    if (isAudio) {
+      setActiveMedia(lecture);
+    } else {
+      // Navigate directly to YouTube in a new tab — never embed or open on this page
+      const targetUrl = getYoutubeTargetUrl(lecture.videoUrl);
+      window.open(targetUrl, "_blank", "noopener,noreferrer");
+    }
+  };
+
   const handleShare = (lecture) => {
     if (!lecture) return;
-    const shareUrl = lecture.videoUrl || window.location.href;
-    const shareText = `${lecture.title}\n${isRTL ? "مفتی فیضان سرور مصباحی کا خطاب" : "Lecture by Mufti Faizan Sarwar"}`;
+    const shareUrl = getYoutubeTargetUrl(lecture.videoUrl);
+    const shareText = `${lecture.title}\n${
+      isRTL ? "مفتی فیضان سرور مصباحی کا خطاب" : "Lecture by Mufti Faizan Sarwar"
+    }`;
 
     if (navigator.share) {
       navigator.share({
@@ -109,9 +124,12 @@ export default function LecturesList() {
       });
     } else {
       navigator.clipboard?.writeText(`${shareText}\n${shareUrl}`);
-      toast.success(isRTL ? "لنک کاپی ہو گیا!" : "Link copied!");
+      toast.success(isRTL ? "یوٹیوب لنک کاپی ہو گیا!" : "YouTube link copied!");
     }
   };
+
+  const youtubeChannelUrl =
+    settings?.socialLinks?.youtube || "https://www.youtube.com";
 
   return (
     <div
@@ -119,7 +137,7 @@ export default function LecturesList() {
       className="bg-background py-8 md:py-12 min-h-screen"
       style={{ backgroundColor: COLORS.background }}
     >
-      <div className="mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header Title */}
         <div className="mb-8 md:mb-10 text-center">
           <span
@@ -153,9 +171,66 @@ export default function LecturesList() {
             style={{ color: COLORS.textSecondary }}
           >
             {isRTL
-              ? "ہفتہ وار بیانات، جمعہ کے خطبات اور شرعی سیمینارز کے ویڈیو خطابات دیکھیں یا آڈیو ریکارڈنگز سنیں۔"
-              : "Watch video lectures or listen to audio recordings of weekly sermons and Shariah seminars."}
+              ? "مفتی فیضان سرور مصباحی کے تمام باضابطہ ویڈیو بیانات، خطباتِ جمعہ اور علمی دروس یوٹیوب پر دیکھیں۔"
+              : "Explore official video lectures, Friday sermons, and Islamic scholarly discourses on YouTube."}
           </p>
+        </div>
+
+        {/* YouTube Channel Hero Showcase Banner */}
+        <div
+          className="mb-10 rounded-3xl p-6 sm:p-8 border shadow-xs flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden transition-all"
+          style={{
+            backgroundColor: COLORS.white,
+            borderColor: `${COLORS.border}70`,
+          }}
+        >
+          {/* Subtle YouTube Watermark */}
+          <div className="absolute -right-6 -bottom-6 opacity-5 pointer-events-none select-none">
+            <Youtube className="w-48 h-48 text-red-600" />
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 text-center sm:text-start relative z-10">
+            <div className="w-16 h-16 sm:w-18 sm:h-18 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-red-600/25 shrink-0 bg-gradient-to-tr from-red-650 to-red-500" style={{ background: "linear-gradient(135deg, #FF0000 0%, #C00000 100%)" }}>
+              <Youtube className="w-9 h-9 fill-white" />
+            </div>
+
+            <div className="space-y-1.5">
+              <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-[11px] font-bold bg-red-50 text-red-600 border border-red-200 uppercase tracking-wider">
+                <span className="w-2 h-2 rounded-full bg-red-600 animate-pulse" />
+                <span>{isRTL ? "آفیشل یوٹیوب چینل" : "Official YouTube Channel"}</span>
+              </div>
+              <h2
+                className="text-xl sm:text-2xl font-black font-serif"
+                style={{ color: COLORS.primary }}
+              >
+                {isRTL ? "مفتی فیضان سرور آفیشل یوٹیوب چینل" : "Mufti Faizan Sarwar Official Channel"}
+              </h2>
+              <p
+                className="text-xs sm:text-sm font-light max-w-xl leading-relaxed"
+                style={{ color: COLORS.textSecondary }}
+              >
+                {isRTL
+                  ? "ہمارے تمام نئے بیانات، قرآنی دروس اور فتاویٰ سیشنز براہِ راست یوٹیوب پر دیکھنے کے لیے آفیشل چینل سبسکرائب کریں۔"
+                  : "Watch all weekly lectures, Quranic lessons, and fatwa sessions directly on YouTube. Subscribe now."}
+              </p>
+            </div>
+          </div>
+
+          <div className="relative z-10 shrink-0">
+            <a
+              href={youtubeChannelUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2.5 px-6 py-3 rounded-xl font-bold text-xs sm:text-sm text-white shadow-md hover:shadow-xl hover:brightness-110 active:scale-95 transition-all duration-200 uppercase tracking-wider cursor-pointer"
+              style={{
+                background: "linear-gradient(135deg, #FF0000 0%, #CC0000 100%)",
+              }}
+            >
+              <Youtube className="w-5 h-5 fill-current" />
+              <span>{isRTL ? "چینل سبسکرائب کریں" : "Subscribe on YouTube"}</span>
+              <ExternalLink className="w-4 h-4 opacity-80" />
+            </a>
+          </div>
         </div>
 
         {/* Two-column layout (Sidebar on Side, Content Area) */}
@@ -195,7 +270,7 @@ export default function LecturesList() {
                   <LectureCard
                     key={lecture._id}
                     lecture={lecture}
-                    onPlay={(l) => setActiveMedia(l)}
+                    onPlay={handleLectureAction}
                   />
                 ))}
               </div>
@@ -211,7 +286,7 @@ export default function LecturesList() {
                   className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
                   style={{ backgroundColor: `${COLORS.primary}10` }}
                 >
-                  <Play
+                  <Youtube
                     className="w-8 h-8"
                     style={{ color: COLORS.accent }}
                   />
@@ -236,15 +311,15 @@ export default function LecturesList() {
         </div>
       </div>
 
-      {/* Embedded Player Media Modal */}
-      {activeMedia && (
+      {/* Audio-only modal (only displays if an audio lecture without YouTube is selected) */}
+      {activeMedia && isAudioMedia(activeMedia.category) && (
         <div
           className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-xs p-4 animate-fade-in"
           onClick={() => setActiveMedia(null)}
           dir={isRTL ? "rtl" : "ltr"}
         >
           <div
-            className="rounded-3xl border-2 shadow-2xl overflow-hidden w-full max-w-4xl relative flex flex-col"
+            className="rounded-3xl border-2 shadow-2xl overflow-hidden w-full max-w-2xl relative flex flex-col"
             style={{
               backgroundColor: COLORS.white,
               borderColor: COLORS.accent,
@@ -284,70 +359,45 @@ export default function LecturesList() {
               </button>
             </div>
 
-            {/* Modal Body: Player Area */}
-            <div className="bg-black aspect-video flex items-center justify-center relative overflow-hidden">
-              {isAudioMedia(activeMedia.category) ? (
-                <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-b from-slate-900 to-slate-950 p-6 text-center gap-6">
-                  <div
-                    className="w-20 h-20 rounded-full flex items-center justify-center shadow-2xl border-2 border-accent/60 animate-pulse"
-                    style={{
-                      backgroundColor: COLORS.primary,
-                      color: COLORS.accent,
-                    }}
-                  >
-                    <Music className="w-10 h-10" />
-                  </div>
-                  <div className="space-y-1.5 max-w-md">
-                    <span
-                      className="text-xs font-bold uppercase tracking-wider block font-serif"
-                      style={{ color: COLORS.accent }}
-                    >
-                      {isRTL ? "آڈیو بیان" : "Audio Lecture"}
-                    </span>
-                    <h4 className="text-white font-serif text-base line-clamp-1 font-bold">
-                      {activeMedia.title}
-                    </h4>
-                  </div>
-                  <div className="w-full max-w-md">
-                    <audio
-                      controls
-                      className="w-full rounded-xl shadow-lg"
-                      autoPlay
-                      src={
-                        activeMedia.videoUrl ||
-                        activeMedia.url ||
-                        activeMedia.audioUrl
-                      }
-                    >
-                      Your browser does not support the audio element.
-                    </audio>
-                  </div>
-                </div>
-              ) : activeMedia.videoUrl?.includes("youtube.com") ||
-                activeMedia.videoUrl?.includes("youtu.be") ||
-                activeMedia.videoUrl?.includes("facebook.com") ||
-                activeMedia.videoUrl?.includes("fb.watch") ? (
-                <iframe
-                  src={getEmbedUrl(activeMedia.videoUrl || activeMedia.url)}
-                  title={activeMedia.title}
-                  className="w-full h-full border-0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                />
-              ) : (
-                /* HTML5 Video Player / Direct video */
-                <video
-                  controls
-                  autoPlay
-                  className="w-full h-full object-contain"
-                  src={activeMedia.videoUrl || activeMedia.url}
+            {/* Audio Player Area */}
+            <div className="w-full flex flex-col items-center justify-center bg-gradient-to-b from-slate-900 to-slate-950 p-8 text-center gap-6">
+              <div
+                className="w-20 h-20 rounded-full flex items-center justify-center shadow-2xl border-2 border-accent/60 animate-pulse"
+                style={{
+                  backgroundColor: COLORS.primary,
+                  color: COLORS.accent,
+                }}
+              >
+                <Music className="w-10 h-10" />
+              </div>
+              <div className="space-y-1.5 max-w-md">
+                <span
+                  className="text-xs font-bold uppercase tracking-wider block font-serif"
+                  style={{ color: COLORS.accent }}
                 >
-                  Your browser does not support the video tag.
-                </video>
-              )}
+                  {isRTL ? "آڈیو بیان" : "Audio Recording"}
+                </span>
+                <h4 className="text-white font-serif text-base line-clamp-1 font-bold">
+                  {activeMedia.title}
+                </h4>
+              </div>
+              <div className="w-full max-w-md">
+                <audio
+                  controls
+                  className="w-full rounded-xl shadow-lg"
+                  autoPlay
+                  src={
+                    activeMedia.videoUrl ||
+                    activeMedia.url ||
+                    activeMedia.audioUrl
+                  }
+                >
+                  Your browser does not support the audio element.
+                </audio>
+              </div>
             </div>
 
-            {/* Modal Footer Info & Action Bar */}
+            {/* Modal Footer Info */}
             <div
               className="p-4 sm:p-5 flex flex-col gap-3 border-t"
               style={{
@@ -355,7 +405,6 @@ export default function LecturesList() {
                 backgroundColor: COLORS.background,
               }}
             >
-              {/* Top row: Speaker & Actions */}
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-center gap-4 text-xs">
                   <span
@@ -379,37 +428,21 @@ export default function LecturesList() {
                   )}
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => handleShare(activeMedia)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold hover:bg-white transition-colors cursor-pointer shadow-2xs"
-                    style={{
-                      borderColor: COLORS.border,
-                      color: COLORS.primary,
-                      backgroundColor: COLORS.white,
-                    }}
-                  >
-                    <Share2 className="w-3.5 h-3.5" style={{ color: COLORS.accent }} />
-                    <span>{isRTL ? "شیئر کریں" : "Share"}</span>
-                  </button>
-
-                  {activeMedia.videoUrl && (
-                    <a
-                      href={activeMedia.videoUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold text-white transition-opacity hover:opacity-90 shadow-2xs"
-                      style={{ backgroundColor: COLORS.primary }}
-                    >
-                      <span>{isRTL ? "اصل لنک پر جائیں" : "Open Source"}</span>
-                      <ExternalLink className="w-3.5 h-3.5" />
-                    </a>
-                  )}
-                </div>
+                <button
+                  type="button"
+                  onClick={() => handleShare(activeMedia)}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold hover:bg-white transition-colors cursor-pointer shadow-2xs"
+                  style={{
+                    borderColor: COLORS.border,
+                    color: COLORS.primary,
+                    backgroundColor: COLORS.white,
+                  }}
+                >
+                  <Share2 className="w-3.5 h-3.5" style={{ color: COLORS.accent }} />
+                  <span>{isRTL ? "شیئر کریں" : "Share"}</span>
+                </button>
               </div>
 
-              {/* Description */}
               {activeMedia.description && (
                 <p
                   className="text-xs leading-[2] font-normal line-clamp-3 pt-1 border-t"

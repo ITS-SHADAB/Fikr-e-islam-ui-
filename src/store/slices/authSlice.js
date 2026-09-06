@@ -157,7 +157,9 @@ const authSlice = createSlice({
           localStorage.setItem("adminToken", existingToken);
           localStorage.setItem(
             "adminInfo",
-            JSON.stringify(action.payload?.data ? action.payload : { data: user })
+            JSON.stringify(
+              action.payload?.data ? action.payload : { data: user }
+            )
           );
         }
       })

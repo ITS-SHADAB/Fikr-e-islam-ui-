@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 import { getFatwaBySlug, getFatwas } from "@/services";
 import { useSettings } from "@/hooks/useSettings";
-import { FatwaCard, PdfViewer } from "@/components";
+import { FatwaCard, PdfViewer, Spinner } from "@/components";
 import CommentsSection from "@/components/CommentsSection";
 import { FATWA_CATEGORY_TRANSLATIONS } from "@/utils/categories";
 import { COLORS } from "@/utils/themeColors";
@@ -123,19 +123,13 @@ export default function FatwaDetail() {
   if (loading) {
     return (
       <div
-        className="min-h-screen flex flex-col items-center justify-center gap-4"
+        className="min-h-screen flex items-center justify-center"
         style={{ backgroundColor: COLORS?.background }}
       >
-        <div
-          className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2"
-          style={{ borderColor: COLORS?.primary }}
+        <Spinner
+          size="lg"
+          text="فتویٰ لوڈ ہو رہا ہے..."
         />
-        <span
-          className="text-sm font-medium"
-          style={{ color: COLORS?.textSecondary }}
-        >
-          {isRTL ? "فتویٰ لوڈ ہو رہا ہے..." : "Loading fatwa..."}
-        </span>
       </div>
     );
   }

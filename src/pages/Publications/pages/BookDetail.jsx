@@ -25,7 +25,7 @@ import {
   PUBLICATION_CATEGORY_TRANSLATIONS,
   BOOK_LANGUAGE_TRANSLATIONS,
 } from "@/utils/categories";
-import { PdfViewer } from "@/components";
+import { PdfViewer, Spinner } from "@/components";
 import CommentsSection from "@/components/CommentsSection";
 
 import toast from "react-hot-toast";
@@ -144,21 +144,13 @@ export default function BookDetail() {
   if (loading) {
     return (
       <div
-        className="min-h-screen flex flex-col items-center justify-center gap-4"
+        className="min-h-screen flex items-center justify-center"
         style={{ backgroundColor: COLORS.background }}
       >
-        <div
-          className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2"
-          style={{ borderColor: COLORS.primary }}
+        <Spinner
+          size="lg"
+          text="کتاب کی تفصیلات لوڈ ہو رہی ہیں..."
         />
-        <span
-          className="text-sm font-medium"
-          style={{ color: COLORS.textSecondary }}
-        >
-          {isRTL
-            ? "کتاب کی تفصیلات لوڈ ہو رہی ہیں..."
-            : "Loading book details..."}
-        </span>
       </div>
     );
   }

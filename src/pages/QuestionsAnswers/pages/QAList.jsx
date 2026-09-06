@@ -14,7 +14,7 @@ import {
   Settings,
 } from 'lucide-react';
 import { getPublicQuestions } from '@/services';
-import { SectionSidebar } from '@/components';
+import { SectionSidebar, Spinner } from '@/components';
 import { COLORS } from '@/utils/themeColors';
 import { QA_CATEGORIES, QA_TRANSLATIONS } from '@/utils/categories';
 import toast from 'react-hot-toast';
@@ -186,10 +186,7 @@ export default function QAList() {
           <div className="flex-1 min-w-0 w-full">
             {loading ? (
               <div className="flex items-center justify-center py-20">
-                <div
-                  className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2"
-                  style={{ borderColor: COLORS.primary }}
-                />
+                <Spinner size="lg" text="سوالات لوڈ ہو رہے ہیں..." />
               </div>
             ) : questions && questions.length > 0 ? (
               <>
