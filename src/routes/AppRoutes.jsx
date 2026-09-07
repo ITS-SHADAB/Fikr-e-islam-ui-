@@ -1,109 +1,118 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { Routes, Route } from 'react-router-dom';
 
 // Layout Imports
 import { MainLayout } from '@/layout';
-import AdminLayout from '@/layout/AdminLayout';
 
-// Public Page Imports
-import Home from '../pages/Home/pages/Home';
-import About from '../pages/About/pages/About';
-import ArticlesList from '../pages/Articles/pages/ArticlesList';
-import ArticleDetail from '../pages/Articles/pages/ArticleDetail';
-import FatwasList from '../pages/Fatwas/pages/FatwasList';
-import FatwaDetail from '../pages/Fatwas/pages/FatwaDetail';
-import AskQuestion from '../pages/AskQuestion/pages/AskQuestion';
-import QAList from '../pages/QuestionsAnswers/pages/QAList';
-import QADetail from '../pages/QuestionsAnswers/pages/QADetail';
-import PublicationsList from '../pages/Publications/pages/PublicationsList';
-import BookDetail from '../pages/Publications/pages/BookDetail';
-import LecturesList from '../pages/Lectures/pages/LecturesList';
-import EventsList from '../pages/Events/pages/EventsList';
-import ContactPage from '../pages/Contact/pages/ContactPage';
-import PageNotFound from '../pages/PageNotFound/pages/PageNotFound';
-import MyDetails from '../pages/User/pages/MyDetails';
-import Login from '../pages/Admin/pages/Login';
-import Signup from '../pages/Admin/pages/Signup';
-import ForgotPassword from '../pages/Admin/pages/ForgotPassword';
-import ResetPassword from '../pages/Admin/pages/ResetPassword';
-// import YouTubeVideos from '../pages/YouTubeVideos/YouTubeVideos';
-
-// Admin Page Imports
-import Dashboard from '../pages/Admin/pages/Dashboard';
-import ManageArticles from '../pages/Admin/pages/ManageArticles';
-import ManageFatwas from '../pages/Admin/pages/ManageFatwas';
-import ManageQuestions from '../pages/Admin/pages/ManageQuestions';
-import ManagePublications from '../pages/Admin/pages/ManagePublications';
-import ManageLectures from '../pages/Admin/pages/ManageLectures';
-import ManageEvents from '../pages/Admin/pages/ManageEvents';
-import ManageSettings from '../pages/Admin/pages/ManageSettings';
-import ManageUsers from '../pages/Admin/pages/ManageUsers';
-import ManageComments from '../pages/Admin/pages/ManageComments';
-import ManageNotifications from '../pages/Admin/pages/ManageNotifications';
-// import YouTubeManager from '../pages/Admin/pages/YouTubeManager';
+// Loading Fallback Component
+import { Spinner } from '@/components/Loader';
 
 // Route Guard
-import { AdminRoute } from '@/components';
+import AdminRoute from '@/components/AdminRoute/AdminRoute';
+
+function PageLoader() {
+  return (
+    <div className="flex items-center justify-center min-h-[50vh] w-full py-12">
+      <Spinner size="md" />
+    </div>
+  );
+}
+
+// Public Page Imports (Lazy-Loaded)
+const Home = lazy(() => import('../pages/Home/pages/Home'));
+const About = lazy(() => import('../pages/About/pages/About'));
+const ArticlesList = lazy(() => import('../pages/Articles/pages/ArticlesList'));
+const ArticleDetail = lazy(() => import('../pages/Articles/pages/ArticleDetail'));
+const FatwasList = lazy(() => import('../pages/Fatwas/pages/FatwasList'));
+const FatwaDetail = lazy(() => import('../pages/Fatwas/pages/FatwaDetail'));
+const AskQuestion = lazy(() => import('../pages/AskQuestion/pages/AskQuestion'));
+const QAList = lazy(() => import('../pages/QuestionsAnswers/pages/QAList'));
+const QADetail = lazy(() => import('../pages/QuestionsAnswers/pages/QADetail'));
+const PublicationsList = lazy(() => import('../pages/Publications/pages/PublicationsList'));
+const BookDetail = lazy(() => import('../pages/Publications/pages/BookDetail'));
+const LecturesList = lazy(() => import('../pages/Lectures/pages/LecturesList'));
+const EventsList = lazy(() => import('../pages/Events/pages/EventsList'));
+const ContactPage = lazy(() => import('../pages/Contact/pages/ContactPage'));
+const PageNotFound = lazy(() => import('../pages/PageNotFound/pages/PageNotFound'));
+const MyDetails = lazy(() => import('../pages/User/pages/MyDetails'));
+const Login = lazy(() => import('../pages/Admin/pages/Login'));
+const Signup = lazy(() => import('../pages/Admin/pages/Signup'));
+const ForgotPassword = lazy(() => import('../pages/Admin/pages/ForgotPassword'));
+const ResetPassword = lazy(() => import('../pages/Admin/pages/ResetPassword'));
+
+// Admin Page Imports (Lazy-Loaded)
+const AdminLayout = lazy(() => import('@/layout/AdminLayout'));
+const Dashboard = lazy(() => import('../pages/Admin/pages/Dashboard'));
+const ManageArticles = lazy(() => import('../pages/Admin/pages/ManageArticles'));
+const ManageFatwas = lazy(() => import('../pages/Admin/pages/ManageFatwas'));
+const ManageQuestions = lazy(() => import('../pages/Admin/pages/ManageQuestions'));
+const ManagePublications = lazy(() => import('../pages/Admin/pages/ManagePublications'));
+const ManageLectures = lazy(() => import('../pages/Admin/pages/ManageLectures'));
+const ManageEvents = lazy(() => import('../pages/Admin/pages/ManageEvents'));
+const ManageSettings = lazy(() => import('../pages/Admin/pages/ManageSettings'));
+const ManageUsers = lazy(() => import('../pages/Admin/pages/ManageUsers'));
+const ManageComments = lazy(() => import('../pages/Admin/pages/ManageComments'));
+const ManageNotifications = lazy(() => import('../pages/Admin/pages/ManageNotifications'));
 
 export default function AppRoutes() {
   return (
-    <Routes>
-      {/* ── Public site (Urdu + RTL, has Navbar + Footer) ── */}
-      <Route path="/" element={<MainLayout />}>
-        <Route index element={<Home />} />
-        <Route path="about" element={<About />} />
+    <Suspense fallback={<PageLoader />}>
+      <Routes>
+        {/* ── Public site (Urdu + RTL, has Navbar + Footer) ── */}
+        <Route path="/" element={<MainLayout />}>
+          <Route index element={<Home />} />
+          <Route path="about" element={<About />} />
 
-        <Route path="articles" element={<ArticlesList />} />
-        <Route path="articles/slug/:slug" element={<ArticleDetail />} />
-        <Route path="articles/:slug" element={<ArticleDetail />} />
-        <Route path="articles/:id" element={<ArticleDetail />} />
+          <Route path="articles" element={<ArticlesList />} />
+          <Route path="articles/slug/:slug" element={<ArticleDetail />} />
+          <Route path="articles/:slug" element={<ArticleDetail />} />
+          <Route path="articles/:id" element={<ArticleDetail />} />
 
-        <Route path="fatwas" element={<FatwasList />} />
-        <Route path="fatwas/:slug" element={<FatwaDetail />} />
+          <Route path="fatwas" element={<FatwasList />} />
+          <Route path="fatwas/:slug" element={<FatwaDetail />} />
 
-        <Route path="ask" element={<AskQuestion />} />
-        <Route path="qa" element={<QAList />} />
-        <Route path="qa/slug/:slug" element={<QADetail />} />
-        <Route path="qa/:slug" element={<QADetail />} />
-        <Route path="publications" element={<PublicationsList />} />
-        <Route path="publications/slug/:slug" element={<BookDetail />} />
-        <Route path="publications/:slug" element={<BookDetail />} />
-        <Route path="books" element={<PublicationsList />} />
-        <Route path="books/slug/:slug" element={<BookDetail />} />
-        <Route path="books/:slug" element={<BookDetail />} />
-        <Route path="lectures" element={<LecturesList />} />
-        <Route path="events" element={<EventsList />} />
-        <Route path="contact" element={<ContactPage />} />
-        <Route path="my-details" element={<MyDetails />} />
-        <Route path="login" element={<Login />} />
-        <Route path="forgot-password" element={<ForgotPassword />} />
-        <Route path="reset-password/:token" element={<ResetPassword />} />
-        <Route path="reset-password" element={<ResetPassword />} />
-        <Route path="new-password/:token" element={<ResetPassword />} />
-        <Route path="new-password" element={<ResetPassword />} />
-        {/* <Route path="youtube-videos" element={<YouTubeVideos />} /> */}
-        {/* 404 */}
-        <Route path="*" element={<PageNotFound />} />
-      </Route>
-
-      {/* ── Admin Console (full-screen, no public Navbar/Footer) ── */}
-      <Route element={<AdminRoute />}>
-        <Route element={<AdminLayout />}>
-          <Route path="/admin/dashboard" element={<Dashboard />} />
-          <Route path="/admin/articles" element={<ManageArticles />} />
-          <Route path="/admin/fatwas" element={<ManageFatwas />} />
-          <Route path="/admin/questions" element={<ManageQuestions />} />
-          <Route path="/admin/publications" element={<ManagePublications />} />
-          <Route path="/admin/lectures" element={<ManageLectures />} />
-          <Route path="/admin/events" element={<ManageEvents />} />
-          <Route path="/admin/settings" element={<ManageSettings />} />
-          <Route path="/admin/users" element={<ManageUsers />} />
-          <Route path="/admin/comments" element={<ManageComments />} />
-          <Route path="/admin/notifications" element={<ManageNotifications />} />
-          {/* <Route path="/admin/youtube" element={<YouTubeManager />} /> */}
+          <Route path="ask" element={<AskQuestion />} />
+          <Route path="qa" element={<QAList />} />
+          <Route path="qa/slug/:slug" element={<QADetail />} />
+          <Route path="qa/:slug" element={<QADetail />} />
+          <Route path="publications" element={<PublicationsList />} />
+          <Route path="publications/slug/:slug" element={<BookDetail />} />
+          <Route path="publications/:slug" element={<BookDetail />} />
+          <Route path="books" element={<PublicationsList />} />
+          <Route path="books/slug/:slug" element={<BookDetail />} />
+          <Route path="books/:slug" element={<BookDetail />} />
+          <Route path="lectures" element={<LecturesList />} />
+          <Route path="events" element={<EventsList />} />
+          <Route path="contact" element={<ContactPage />} />
+          <Route path="my-details" element={<MyDetails />} />
+          <Route path="login" element={<Login />} />
+          <Route path="forgot-password" element={<ForgotPassword />} />
+          <Route path="reset-password/:token" element={<ResetPassword />} />
+          <Route path="reset-password" element={<ResetPassword />} />
+          <Route path="new-password/:token" element={<ResetPassword />} />
+          <Route path="new-password" element={<ResetPassword />} />
+          {/* 404 */}
+          <Route path="*" element={<PageNotFound />} />
         </Route>
-      </Route>
 
-    </Routes>
+        {/* ── Admin Console (full-screen, no public Navbar/Footer) ── */}
+        <Route element={<AdminRoute />}>
+          <Route element={<AdminLayout />}>
+            <Route path="/admin/dashboard" element={<Dashboard />} />
+            <Route path="/admin/articles" element={<ManageArticles />} />
+            <Route path="/admin/fatwas" element={<ManageFatwas />} />
+            <Route path="/admin/questions" element={<ManageQuestions />} />
+            <Route path="/admin/publications" element={<ManagePublications />} />
+            <Route path="/admin/lectures" element={<ManageLectures />} />
+            <Route path="/admin/events" element={<ManageEvents />} />
+            <Route path="/admin/settings" element={<ManageSettings />} />
+            <Route path="/admin/users" element={<ManageUsers />} />
+            <Route path="/admin/comments" element={<ManageComments />} />
+            <Route path="/admin/notifications" element={<ManageNotifications />} />
+          </Route>
+        </Route>
+
+      </Routes>
+    </Suspense>
   );
 }

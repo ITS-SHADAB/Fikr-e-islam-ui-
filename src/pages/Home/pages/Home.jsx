@@ -245,46 +245,47 @@ export default function Home() {
   useEffect(() => {
     // 1. Load Articles
     setIsLoadingArticles(true);
-    getArticles({ limit: 3 })
+    getArticles({ limit: 4 })
       .then((data) => setArticles(Array.isArray(data?.articles) ? data.articles : []))
       .catch((err) => console.error("Error loading articles:", err))
       .finally(() => setIsLoadingArticles(false));
 
     // 2. Load Fatwas
     setIsLoadingFatwas(true);
-    getFatwas({ limit: 3 })
+    getFatwas({ limit: 4 })
       .then((data) => setFatwas(Array.isArray(data?.fatwas) ? data.fatwas : []))
       .catch((err) => console.error("Error loading fatwas:", err))
       .finally(() => setIsLoadingFatwas(false));
 
     // 3. Load Questions
     setIsLoadingQuestions(true);
-    getPublicQuestions({ limit: 3 })
+    getPublicQuestions({ limit: 4 })
       .then((data) => setQuestions(Array.isArray(data?.questions) ? data.questions : []))
       .catch((err) => console.error("Error loading questions:", err))
       .finally(() => setIsLoadingQuestions(false));
 
     // 4. Load Publications
     setIsLoadingPublications(true);
-    getPublications()
+    getPublications({ limit: 4 })
       .then((data) => setPublications(Array.isArray(data?.books) ? data.books : []))
       .catch((err) => console.error("Error loading publications:", err))
       .finally(() => setIsLoadingPublications(false));
 
     // 5. Load Lectures
     setIsLoadingLectures(true);
-    getLectures()
+    getLectures({ limit: 4 })
       .then((data) => setLectures(Array.isArray(data) ? data : []))
       .catch((err) => console.error("Error loading lectures:", err))
       .finally(() => setIsLoadingLectures(false));
 
     // 6. Load Events
     setIsLoadingEvents(true);
-    getEvents()
+    getEvents({ limit: 4 })
       .then((data) => setEvents(Array.isArray(data) ? data : []))
       .catch((err) => console.error("Error loading events:", err))
       .finally(() => setIsLoadingEvents(false));
   }, []);
+
 
 
   const heroName = settings?.scholarInfo?.fullName || settings?.homepageSettings?.heroName || "";
@@ -404,12 +405,12 @@ export default function Home() {
         />
 
         {isLoadingArticles ? (
-          <SectionLoader type="article" count={3} />
+          <SectionLoader type="article" count={4} />
         ) : articles && articles.length > 0 ? (
           <>
             {/* Desktop: grid */}
             <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {articles.slice(0, 3).map((article) => (
+              {articles.slice(0, 4).map((article) => (
                 <div key={article._id}>
                   <ArticleCard article={article} />
                 </div>
@@ -418,7 +419,7 @@ export default function Home() {
 
             {/* Mobile: one-by-one slider with Seamless infinite swipe */}
             <SeamlessMobileSlider
-              items={articles.slice(0, 3)}
+              items={articles.slice(0, 4)}
               language={language}
               duration={500}
               activeDotColor={COLORS.primary}
@@ -448,12 +449,12 @@ export default function Home() {
           />
 
           {isLoadingFatwas ? (
-            <SectionLoader type="fatwa" count={3} />
+            <SectionLoader type="fatwa" count={4} />
           ) : fatwas && fatwas.length > 0 ? (
             <>
               {/* Desktop: grid */}
               <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {fatwas.slice(0, 3).map((fatwa) => (
+                {fatwas.slice(0, 4).map((fatwa) => (
                   <div key={fatwa._id}>
                     <FatwaCard fatwa={fatwa} />
                   </div>
@@ -462,7 +463,7 @@ export default function Home() {
 
               {/* Mobile: one-by-one slider with Seamless infinite swipe */}
               <SeamlessMobileSlider
-                items={fatwas.slice(0, 3)}
+                items={fatwas.slice(0, 4)}
                 language={language}
                 duration={500}
                 activeDotColor={COLORS.primary}
@@ -490,12 +491,12 @@ export default function Home() {
         />
 
         {isLoadingQuestions ? (
-          <SectionLoader type="qa" count={3} />
+          <SectionLoader type="qa" count={4} />
         ) : questions && questions.length > 0 ? (
           <>
             {/* Desktop: grid */}
             <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {questions.slice(0, 3).map((q) => {
+              {questions.slice(0, 4).map((q) => {
                 const qaDetailUrl = `/qa/${q.slug || q._id}`;
                 return (
                   <div
@@ -550,7 +551,7 @@ export default function Home() {
 
             {/* Mobile: one-by-one slider with Seamless infinite swipe */}
             <SeamlessMobileSlider
-              items={questions.slice(0, 3)}
+              items={questions.slice(0, 4)}
               language={language}
               duration={500}
               activeDotColor={COLORS.primary}
@@ -631,12 +632,12 @@ export default function Home() {
           />
 
           {isLoadingPublications ? (
-            <SectionLoader type="publication" count={3} layout="list" />
+            <SectionLoader type="publication" count={4} layout="list" />
           ) : publications && publications.length > 0 ? (
             <>
-              {/* Desktop: Show all 3 publication cards in one list */}
+              {/* Desktop: Show all 4 publication cards in one list */}
               <div className="hidden sm:flex sm:flex-col sm:gap-6">
-                {publications.slice(0, 3).map((pub) => (
+                {publications.slice(0, 4).map((pub) => (
                   <div key={pub._id}>
                     <PublicationCard publication={pub} />
                   </div>
@@ -645,7 +646,7 @@ export default function Home() {
 
               {/* Mobile: One-by-one Seamless infinite slider */}
               <SeamlessMobileSlider
-                items={publications.slice(0, 3)}
+                items={publications.slice(0, 4)}
                 language={language}
                 duration={500}
                 activeDotColor={COLORS.primary}
@@ -674,12 +675,12 @@ export default function Home() {
           />
 
           {isLoadingLectures ? (
-            <SectionLoader type="lecture" count={3} />
+            <SectionLoader type="lecture" count={4} />
           ) : lectures && lectures.length > 0 ? (
             <>
               {/* Desktop: grid */}
               <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {lectures.slice(0, 3).map((lecture) => (
+                {lectures.slice(0, 4).map((lecture) => (
                   <div key={lecture._id}>
                     <LectureCard
                       lecture={lecture}
@@ -691,7 +692,7 @@ export default function Home() {
 
               {/* Mobile: one-by-one Seamless infinite slider */}
               <SeamlessMobileSlider
-                items={lectures.slice(0, 3)}
+                items={lectures.slice(0, 4)}
                 language={language}
                 duration={500}
                 activeDotColor={COLORS.primary}
@@ -739,12 +740,12 @@ export default function Home() {
           </div>
 
           {isLoadingEvents ? (
-            <SectionLoader type="event" count={2} layout="list" />
+            <SectionLoader type="event" count={4} layout="list" />
           ) : events && events.length > 0 ? (
             <>
               {/* Desktop: stacked list */}
               <div className="hidden sm:block space-y-4">
-                {events.slice(0, 2).map((event) => (
+                {events.slice(0, 4).map((event) => (
                   <div key={event._id}>
                     <EventCard event={event} />
                   </div>
@@ -753,7 +754,7 @@ export default function Home() {
 
               {/* Mobile: one-by-one Seamless infinite slider */}
               <SeamlessMobileSlider
-                items={events.slice(0, 2)}
+                items={events.slice(0, 4)}
                 language={language}
                 duration={500}
                 activeDotColor={COLORS.primary}

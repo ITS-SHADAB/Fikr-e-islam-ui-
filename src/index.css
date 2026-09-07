@@ -3,7 +3,7 @@
    ═════════════════════════════════════════════════════════════════════ */
 @font-face {
   font-family: 'Payami Nastaleeq';
-  src: url('./assets/fonts/Payami Nastaleeq.ttf') format('truetype');
+  src: url('./assets/fonts/Payami Nastaleeq.woff2') format('woff2');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
@@ -11,7 +11,7 @@
 
 @font-face {
   font-family: 'Payami Quran';
-  src: url('./assets/fonts/Payami QuranFont.ttf') format('truetype');
+  src: url('./assets/fonts/Payami QuranFont.woff2') format('woff2');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
@@ -36,22 +36,36 @@
 }
 
 :root {
-  --color-primary: #2B2118;        /* Navbar #2B2118 */
-  --color-secondary: #F3E3D8;      /* Website Background #F3E3D8 */
-  --color-accent: #A8793E;         /* Gold Accents #A8793E */
-  --color-background: #F3E3D8;     /* Website Background #F3E3D8 */
-  --color-text-primary: #2A211A;   /* Main Text #2A211A */
-  --color-text-secondary: #685545; /* Secondary Text #685545 */
-  --color-border: #A8793E;         /* Gold Border #A8793E */
-  --color-white: #F7F1E8;          /* Light Card Surfaces #F7F1E8 */
+  --color-primary: #2B2118;
+  /* Navbar #2B2118 */
+  --color-secondary: #F3E3D8;
+  /* Website Background #F3E3D8 */
+  --color-accent: #A8793E;
+  /* Gold Accents #A8793E */
+  --color-background: #F3E3D8;
+  /* Website Background #F3E3D8 */
+  --color-text-primary: #2A211A;
+  /* Main Text #2A211A */
+  --color-text-secondary: #685545;
+  /* Secondary Text #685545 */
+  --color-border: #A8793E;
+  /* Gold Border #A8793E */
+  --color-white: #F7F1E8;
+  /* Light Card Surfaces #F7F1E8 */
 
-  --color-brown-dark: #2B2118;     /* Navbar #2B2118 */
-  --color-brown-mid: #A8793E;      /* Gold #A8793E */
-  --color-brown-light: #F3E3D8;    /* Website Background #F3E3D8 */
-  --color-cream: #F7F1E8;          /* Header / Cards #F7F1E8 */
+  --color-brown-dark: #2B2118;
+  /* Navbar #2B2118 */
+  --color-brown-mid: #A8793E;
+  /* Gold #A8793E */
+  --color-brown-light: #F3E3D8;
+  /* Website Background #F3E3D8 */
+  --color-cream: #F7F1E8;
+  /* Header / Cards #F7F1E8 */
   --color-cream-light: #F7F1E8;
-  --color-site-bg: #F3E3D8;        /* Website Background #F3E3D8 */
-  --color-card-bg: #F7F1E8;        /* Cards #F7F1E8 */
+  --color-site-bg: #F3E3D8;
+  /* Website Background #F3E3D8 */
+  --color-card-bg: #F7F1E8;
+  /* Cards #F7F1E8 */
   --color-text-muted: #685545;
   --color-site-border: #A8793E;
   --color-footer-bg: #2B2118;

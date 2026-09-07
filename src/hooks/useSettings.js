@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import {
   fetchSettings,
@@ -14,12 +13,6 @@ export function useSettings() {
   const { settings, loading, error, updateSuccess, pendingLanguageChange } = useSelector(
     (state) => state.settings
   );
-
-  useEffect(() => {
-    if (settings === null && !loading && !error) {
-      dispatch(fetchSettings());
-    }
-  }, [settings, loading, error, dispatch]);
 
   const changeLanguage = (newLang) => {
     dispatch(changeLanguageAction(newLang));

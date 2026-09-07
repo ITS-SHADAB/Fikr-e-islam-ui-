@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, Suspense } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useSettings } from '@/hooks/useSettings';
@@ -142,57 +142,7 @@ export default function MainLayout() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [pendingLanguageChange]);
 
-  // If initial API call is in progress, show spinner/loader
-  if ((loading && !settings) || (!settings && !error)) {
-    return (
-      <div
-        style={{ backgroundColor: COLORS.background, color: COLORS.primary }}
-        className="flex flex-col items-center justify-center min-h-screen"
-        dir="rtl"
-      >
-        <Spinner
-          size="lg"
-          text="لوڈ ہو رہا ہے..."
-        />
-      </div>
-    );
-  }
 
-  // If API call fails or there's no response, show "Server is under maintenance"
-  if (error && !settings) {
-    return (
-      <div
-        style={{ backgroundColor: COLORS.background }}
-        className="flex flex-col items-center justify-center min-h-screen text-center p-6"
-        dir={language === 'ur' ? 'rtl' : 'ltr'}
-      >
-        <div
-          style={{ backgroundColor: COLORS.white, borderColor: COLORS.border }}
-          className="max-w-md w-full p-8 rounded-2xl shadow-xl border relative overflow-hidden"
-        >
-          <div className="absolute top-0 left-0 right-0 h-1.5 bg-red-500"></div>
-          <div className="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-6">
-            <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
-          </div>
-          <h1 className="text-2xl font-bold mb-3" style={{ color: COLORS.primary }}>
-            {language === 'ur' ? 'سسٹم کی دیکھ بھال جاری ہے' : 'System is under maintenance'}
-          </h1>
-          <p className="text-sm leading-relaxed mb-6 font-light" style={{ color: `rgba(107, 91, 75, 0.8)` }}>
-            {language === 'ur' ? 'ہم اس وقت سسٹم کی دیکھ بھال کر رہے ہیں یا اپنی ترتیبات کو اپ ڈیٹ کر رہے ہیں۔ براہ کرم چند لمحوں بعد دوبارہ کوشش کریں۔' : 'We are currently maintaining the system or updating our settings. Please try again in a few moments.'}
-          </p>
-          <button
-            onClick={() => refreshSettings()}
-            style={{ backgroundColor: COLORS.primary }}
-            className="px-6 py-2.5 text-white font-bold rounded shadow-md hover:opacity-90 transition-all text-xs"
-          >
-            {language === 'ur' ? 'دوبارہ کوشش کریں' : 'Try Again'}
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   let pageTransitionClass = "flex-grow lang-content-transition";
   if (transitionState === 'leaving') {
@@ -217,7 +167,15 @@ export default function MainLayout() {
 
       {/* Main page content area */}
       <main className={pageTransitionClass}>
-        <Outlet />
+        <Suspense
+          fallback={
+            <div className="flex items-center justify-center min-h-[40vh] w-full py-12">
+              <Spinner size="md" />
+            </div>
+          }
+        >
+          <Outlet />
+        </Suspense>
       </main>
 
       {/* Footer information */}

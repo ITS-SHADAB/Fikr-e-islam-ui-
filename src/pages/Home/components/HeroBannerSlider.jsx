@@ -107,13 +107,19 @@ export default function HeroBannerSlider() {
     [total]
   );
 
-  // Preload all 3 images on mount to ensure immediate display
+  // Preload only the upcoming slide shortly before transition (after 2.5s) to avoid initial page load contention while preventing slide transition flicker
   useEffect(() => {
-    HERO_SLIDES.forEach((slide) => {
+    const nextIdx = (currentIndex + 1) % total;
+    const nextImage = HERO_SLIDES[nextIdx]?.image;
+    if (!nextImage) return;
+
+    const timer = setTimeout(() => {
       const img = new Image();
-      img.src = slide.image;
-    });
-  }, []);
+      img.src = nextImage;
+    }, 2500);
+
+    return () => clearTimeout(timer);
+  }, [currentIndex, total]);
 
   // Autoplay timer: advances every 4.5 seconds (paused when user hovers)
   useEffect(() => {
