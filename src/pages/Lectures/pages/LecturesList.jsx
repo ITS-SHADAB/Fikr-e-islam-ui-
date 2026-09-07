@@ -14,7 +14,7 @@ import {
   Tv,
 } from "lucide-react";
 import toast from "react-hot-toast";
-import { getLectures } from "@/services";
+import { useLecturesList } from "@/hooks/useContentCache";
 import { useSettings } from "@/hooks/useSettings";
 import { LectureCard, SectionSidebar, SectionLoader } from "@/components";
 import { COLORS } from "@/utils/themeColors";
@@ -27,10 +27,6 @@ export default function LecturesList() {
   const isRTL = language === "ur";
   const [searchParams] = useSearchParams();
   const queryCategory = searchParams.get("category");
-
-  const [lectures, setLectures] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
@@ -46,36 +42,19 @@ export default function LecturesList() {
 
   const categories = LECTURE_CATEGORIES;
 
-  const loadLectures = async (
-    category = selectedCategory,
-    search = searchTerm
-  ) => {
-    try {
-      setLoading(true);
-      setError(null);
-      const data = await getLectures({ category, search });
-      setLectures(Array.isArray(data) ? data : []);
-    } catch (err) {
-      setError(
-        err.response?.data?.message || err.message || "Failed to load lectures"
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { data: lecturesData, loading, error } = useLecturesList({
+    category: selectedCategory,
+    search: searchTerm,
+  });
 
-  useEffect(() => {
-    loadLectures(selectedCategory, searchTerm);
-  }, [selectedCategory]);
+  const lectures = Array.isArray(lecturesData) ? lecturesData : [];
 
   const handleSearchSubmit = (e) => {
     e?.preventDefault();
-    loadLectures(selectedCategory, searchTerm);
   };
 
   const handleCategoryChange = (category) => {
     setSelectedCategory(category);
-    loadLectures(category, searchTerm);
   };
 
   const isAudioMedia = (cat = "") => {
@@ -242,7 +221,6 @@ export default function LecturesList() {
             onSearchSubmit={handleSearchSubmit}
             onClearSearch={() => {
               setSearchTerm("");
-              loadLectures(selectedCategory, "");
             }}
             searchPlaceholder={
               isRTL ? "بیانات تلاش کریں..." : "Search lectures..."

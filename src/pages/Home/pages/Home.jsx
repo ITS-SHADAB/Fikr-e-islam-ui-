@@ -22,13 +22,13 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  getArticles,
-  getFatwas,
-  getPublicQuestions,
-  getPublications,
-  getLectures,
-  getEvents,
-} from "@/services";
+  useArticlesList,
+  useFatwasList,
+  useQuestionsList,
+  usePublicationsList,
+  useLecturesList,
+  useEventsList,
+} from "@/hooks/useContentCache";
 import { useSettings } from "@/hooks/useSettings";
 import { COLORS } from "@/utils/themeColors";
 
@@ -157,23 +157,19 @@ function StatisticsSection({ stats }) {
 
 export default function Home() {
   const { settings } = useSettings();
-  const [articles, setArticles] = useState([]);
-  const [isLoadingArticles, setIsLoadingArticles] = useState(true);
+  const { data: articlesData, loading: isLoadingArticles } = useArticlesList({ limit: 4 });
+  const { data: fatwasData, loading: isLoadingFatwas } = useFatwasList({ limit: 4 });
+  const { data: questionsData, loading: isLoadingQuestions } = useQuestionsList({ limit: 4 });
+  const { data: publicationsData, loading: isLoadingPublications } = usePublicationsList({ limit: 4 });
+  const { data: lecturesData, loading: isLoadingLectures } = useLecturesList({ limit: 4 });
+  const { data: eventsData, loading: isLoadingEvents } = useEventsList({ limit: 4 });
 
-  const [fatwas, setFatwas] = useState([]);
-  const [isLoadingFatwas, setIsLoadingFatwas] = useState(true);
-
-  const [questions, setQuestions] = useState([]);
-  const [isLoadingQuestions, setIsLoadingQuestions] = useState(true);
-
-  const [publications, setPublications] = useState([]);
-  const [isLoadingPublications, setIsLoadingPublications] = useState(true);
-
-  const [lectures, setLectures] = useState([]);
-  const [isLoadingLectures, setIsLoadingLectures] = useState(true);
-
-  const [events, setEvents] = useState([]);
-  const [isLoadingEvents, setIsLoadingEvents] = useState(true);
+  const articles = Array.isArray(articlesData?.articles) ? articlesData.articles : [];
+  const fatwas = Array.isArray(fatwasData?.fatwas) ? fatwasData.fatwas : [];
+  const questions = Array.isArray(questionsData?.questions) ? questionsData.questions : [];
+  const publications = Array.isArray(publicationsData?.books) ? publicationsData.books : [];
+  const lectures = Array.isArray(lecturesData) ? lecturesData : [];
+  const events = Array.isArray(eventsData) ? eventsData : [];
 
   const [activeMedia, setActiveMedia] = useState(null);
 
@@ -242,49 +238,7 @@ export default function Home() {
     },
   ];
 
-  useEffect(() => {
-    // 1. Load Articles
-    setIsLoadingArticles(true);
-    getArticles({ limit: 4 })
-      .then((data) => setArticles(Array.isArray(data?.articles) ? data.articles : []))
-      .catch((err) => console.error("Error loading articles:", err))
-      .finally(() => setIsLoadingArticles(false));
 
-    // 2. Load Fatwas
-    setIsLoadingFatwas(true);
-    getFatwas({ limit: 4 })
-      .then((data) => setFatwas(Array.isArray(data?.fatwas) ? data.fatwas : []))
-      .catch((err) => console.error("Error loading fatwas:", err))
-      .finally(() => setIsLoadingFatwas(false));
-
-    // 3. Load Questions
-    setIsLoadingQuestions(true);
-    getPublicQuestions({ limit: 4 })
-      .then((data) => setQuestions(Array.isArray(data?.questions) ? data.questions : []))
-      .catch((err) => console.error("Error loading questions:", err))
-      .finally(() => setIsLoadingQuestions(false));
-
-    // 4. Load Publications
-    setIsLoadingPublications(true);
-    getPublications({ limit: 4 })
-      .then((data) => setPublications(Array.isArray(data?.books) ? data.books : []))
-      .catch((err) => console.error("Error loading publications:", err))
-      .finally(() => setIsLoadingPublications(false));
-
-    // 5. Load Lectures
-    setIsLoadingLectures(true);
-    getLectures({ limit: 4 })
-      .then((data) => setLectures(Array.isArray(data) ? data : []))
-      .catch((err) => console.error("Error loading lectures:", err))
-      .finally(() => setIsLoadingLectures(false));
-
-    // 6. Load Events
-    setIsLoadingEvents(true);
-    getEvents({ limit: 4 })
-      .then((data) => setEvents(Array.isArray(data) ? data : []))
-      .catch((err) => console.error("Error loading events:", err))
-      .finally(() => setIsLoadingEvents(false));
-  }, []);
 
 
 

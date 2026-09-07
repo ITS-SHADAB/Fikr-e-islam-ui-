@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Search, X, ShieldAlert, ChevronLeft, ChevronRight, Scale, BookOpen } from 'lucide-react';
-import { getFatwas } from '@/services';
+import { useFatwasList } from '@/hooks/useContentCache';
 import { useSettings } from '@/hooks/useSettings';
 import { FatwaCard } from '@/components';
 import { COLORS } from '@/utils/themeColors';
@@ -15,12 +15,7 @@ export default function FatwasList() {
   const [searchParams] = useSearchParams();
   const queryCategory = searchParams.get('category');
 
-  const [fatwas, setFatwas] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
   const [page, setPage] = useState(1);
-  const [pages, setPages] = useState(1);
-  const [total, setTotal] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
   const [searchInput, setSearchInput] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
@@ -29,55 +24,34 @@ export default function FatwasList() {
     setSelectedCategory(queryCategory !== null ? queryCategory : '');
   }, [queryCategory]);
 
-  const loadFatwas = async (
-    pageNum = page,
-    category = selectedCategory,
-    search = searchTerm
-  ) => {
-    try {
-      setLoading(true);
-      setError(null);
-      const data = await getFatwas({
-        category,
-        search,
-        page: pageNum,
-        limit: 9,
-      });
-      setFatwas(data?.fatwas || []);
-      setPages(data?.pages || 1);
-      setPage(data?.page || 1);
-      setTotal(data?.total || 0);
-    } catch (err) {
-      setError(
-        err?.response?.data?.message ||
-          err?.message ||
-          (isRTL ? 'فتاویٰ لوڈ کرنے میں ناکامی' : 'Failed to load fatwas')
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
+  const {
+    data,
+    loading,
+    error,
+  } = useFatwasList({
+    category: selectedCategory,
+    search: searchTerm,
+    page,
+    limit: 9,
+  });
 
-  useEffect(() => {
-    loadFatwas(page, selectedCategory, searchTerm);
-  }, [selectedCategory, page]);
+  const fatwas = data?.fatwas || [];
+  const pages = data?.pages || 1;
+  const total = data?.total || 0;
 
   const handleSearchSubmit = (e) => {
     e?.preventDefault();
     setSearchTerm(searchInput);
     setPage(1);
-    loadFatwas(1, selectedCategory, searchInput);
   };
 
   const handleCategoryChange = (category) => {
     setSelectedCategory(category);
     setPage(1);
-    loadFatwas(1, category, searchTerm);
   };
 
   const handlePageChange = (pageNum) => {
     setPage(pageNum);
-    loadFatwas(pageNum, selectedCategory, searchTerm);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -86,7 +60,6 @@ export default function FatwasList() {
     setSearchTerm('');
     setSearchInput('');
     setPage(1);
-    loadFatwas(1, '', '');
   };
 
   const categories = FATWA_CATEGORIES;

@@ -7,7 +7,10 @@ export const getPublications = async (params) => {
   try {
     let url = PUBLICATIONS;
     if (params) {
-      const query = new URLSearchParams(params).toString();
+      const cleanParams = Object.fromEntries(
+        Object.entries(params).filter(([_, v]) => v !== undefined && v !== null && v !== '')
+      );
+      const query = new URLSearchParams(cleanParams).toString();
       if (query) {
         url += `?${query}`;
       }
@@ -78,7 +81,10 @@ export const getLectures = async (params) => {
   try {
     let url = LECTURES;
     if (params) {
-      const query = new URLSearchParams(params).toString();
+      const cleanParams = Object.fromEntries(
+        Object.entries(params).filter(([_, v]) => v !== undefined && v !== null && v !== '')
+      );
+      const query = new URLSearchParams(cleanParams).toString();
       if (query) {
         url += `?${query}`;
       }

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { BookOpen, Book } from 'lucide-react';
-import { getPublications } from '@/services';
+import { usePublicationsList } from '@/hooks/useContentCache';
 import { useSettings } from '@/hooks/useSettings';
 import { PublicationCard, SectionSidebar, Spinner } from '@/components';
 import { COLORS } from '@/utils/themeColors';
@@ -13,12 +13,7 @@ export default function PublicationsList() {
   const [searchParams] = useSearchParams();
   const queryCategory = searchParams.get('category');
 
-  const [publications, setPublications] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
   const [page, setPage] = useState(1);
-  const [pages, setPages] = useState(1);
-  const [total, setTotal] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
 
@@ -32,38 +27,33 @@ export default function PublicationsList() {
     }
   }, [queryCategory]);
 
-  const loadPublications = async (pageNum = page, category = selectedCategory, search = searchTerm) => {
-    try {
-      setLoading(true);
-      setError(null);
-      const data = await getPublications({ category, search, page: pageNum, limit: 10 });
-      setPublications(data.books || []);
-      setPages(data.pages || 1);
-      setPage(data.page || 1);
-      setTotal(data.total || 0);
-    } catch (err) {
-      setError(err.response?.data?.message || err.message || 'Failed to load');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const {
+    data,
+    loading,
+    error,
+  } = usePublicationsList({
+    category: selectedCategory,
+    search: searchTerm,
+    page,
+    limit: 10,
+  });
 
-  useEffect(() => {
-    loadPublications(page, selectedCategory, searchTerm);
-  }, [selectedCategory, page]);
+  const publications = data?.books || [];
+  const pages = data?.pages || 1;
+  const total = data?.total || 0;
 
   const handleSearchSubmit = (e) => {
     e?.preventDefault();
-    loadPublications(1, selectedCategory, searchTerm);
+    setPage(1);
   };
 
   const handleCategoryChange = (category) => {
     setSelectedCategory(category);
-    loadPublications(1, category, searchTerm);
+    setPage(1);
   };
 
   const handlePageChange = (pageNum) => {
-    loadPublications(pageNum, selectedCategory, searchTerm);
+    setPage(pageNum);
     window.scrollTo(0, 0);
   };
 
@@ -115,7 +105,7 @@ export default function PublicationsList() {
             onSearchSubmit={handleSearchSubmit}
             onClearSearch={() => {
               setSearchTerm('');
-              loadPublications(1, selectedCategory, '');
+              setPage(1);
             }}
             searchPlaceholder={isRTL ? 'کتب و مطبوعات تلاش کریں...' : 'Search books...'}
             searchLabel={isRTL ? 'کتب تلاش کریں' : 'Search Books'}

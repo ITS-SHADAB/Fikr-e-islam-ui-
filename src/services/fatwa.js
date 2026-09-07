@@ -6,7 +6,10 @@ export const getFatwas = async (params) => {
   try {
     let url = FATWAS;
     if (params) {
-      const query = new URLSearchParams(params).toString();
+      const cleanParams = Object.fromEntries(
+        Object.entries(params).filter(([_, v]) => v !== undefined && v !== null && v !== '')
+      );
+      const query = new URLSearchParams(cleanParams).toString();
       if (query) {
         url += `?${query}`;
       }

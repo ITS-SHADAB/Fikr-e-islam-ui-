@@ -21,6 +21,8 @@ import {
   Minimize2,
 } from "lucide-react";
 import { getArticleBySlug, getArticles } from "@/services";
+import { useCachedContent } from "@/hooks/useContentCache";
+import { STALE_TIMES } from "@/store/slices/contentSlice";
 import { useSettings } from "@/hooks/useSettings";
 import { COLORS } from "@/utils/themeColors";
 import { BACKEND_URL } from "@/constants/urls";
@@ -42,10 +44,41 @@ export default function ArticleDetail() {
     settings?.language === "ur" || settings?.language === "Urdu" ? "ur" : "en";
   const isRTL = language === "ur";
 
-  const [article, setArticle] = useState(null);
-  const [relatedArticles, setRelatedArticles] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const { data: detailData, loading, error } = useCachedContent({
+    type: "articles_detail",
+    params: rawParam,
+    fetcher: async () => {
+      let activeSlug = rawParam;
+      if (rawParam && /^[0-9a-fA-F]{24}$/.test(rawParam)) {
+        const res = await getArticles({ limit: 1000 });
+        const matched = res?.articles?.find((a) => a?._id === rawParam);
+        if (matched?.slug) activeSlug = matched.slug;
+      }
+
+      const data = await getArticleBySlug(activeSlug);
+      const articleData = data?.article || data;
+      let related = data?.related || [];
+      if (!related.length && articleData?.category) {
+        try {
+          const allRes = await getArticles({
+            category: articleData?.category,
+            limit: 4,
+          });
+          const others = (allRes?.articles || [])?.filter(
+            (a) => a?._id !== articleData?._id
+          );
+          related = others?.slice(0, 3) || [];
+        } catch {}
+      }
+      return { article: articleData, related };
+    },
+    staleTime: STALE_TIMES.articles,
+    enabled: !!rawParam,
+  });
+
+  const article = detailData?.article || null;
+  const relatedArticles = detailData?.related || [];
+
   const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
   const [showEmbeddedPdf, setShowEmbeddedPdf] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -61,50 +94,8 @@ export default function ArticleDetail() {
   };
 
   useEffect(() => {
-    const loadArticle = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        setHeroImgError(false);
-        window.scrollTo({ top: 0, behavior: "smooth" });
-
-        let activeSlug = rawParam;
-        if (rawParam && /^[0-9a-fA-F]{24}$/.test(rawParam)) {
-          const res = await getArticles({ limit: 1000 });
-          const matched = res?.articles?.find((a) => a?._id === rawParam);
-          if (matched?.slug) activeSlug = matched.slug;
-        }
-
-        const data = await getArticleBySlug(activeSlug);
-        const articleData = data?.article || data;
-        setArticle(articleData);
-
-        if (data?.related?.length > 0) {
-          setRelatedArticles(data.related);
-        } else if (articleData?.category) {
-          try {
-            const allRes = await getArticles({
-              category: articleData?.category,
-              limit: 4,
-            });
-            const others = (allRes?.articles || [])?.filter(
-              (a) => a?._id !== articleData?._id
-            );
-            setRelatedArticles(others?.slice(0, 3) || []);
-          } catch {}
-        }
-      } catch (err) {
-        setError(
-          err?.response?.data?.message ||
-            err?.message ||
-            (isRTL ? "مضمون لوڈ کرنے میں ناکامی" : "Failed to load article")
-        );
-      } finally {
-        setLoading(false);
-      }
-    };
-    if (rawParam) loadArticle();
-  }, [rawParam, isRTL]);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [rawParam]);
 
   const shareUrl = typeof window !== "undefined" ? window?.location?.href : "";
 

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Search, X, BookOpen, ChevronLeft, ChevronRight, Filter } from 'lucide-react';
-import { getArticles } from '@/services';
+import { useArticlesList } from '@/hooks/useContentCache';
 import { useSettings } from '@/hooks/useSettings';
 import { ArticleCard } from '@/components';
 import { COLORS } from '@/utils/themeColors';
@@ -14,12 +14,7 @@ export default function ArticlesList() {
   const [searchParams] = useSearchParams();
   const queryCategory = searchParams.get('category');
 
-  const [articles, setArticles] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
   const [page, setPage] = useState(1);
-  const [pages, setPages] = useState(1);
-  const [total, setTotal] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
   const [searchInput, setSearchInput] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
@@ -29,42 +24,35 @@ export default function ArticlesList() {
     setSelectedCategory(queryCategory !== null ? queryCategory : '');
   }, [queryCategory]);
 
-  const loadArticles = async (pageNum = page, category = selectedCategory, search = searchTerm) => {
-    try {
-      setLoading(true);
-      setError(null);
-      const data = await getArticles({ category, search, page: pageNum, limit: 9 });
-      setArticles(data?.articles || []);
-      setPages(data?.pages || 1);
-      setPage(data?.page || 1);
-      setTotal(data?.total || 0);
-    } catch (err) {
-      setError(err?.response?.data?.message || err?.message || 'Failed to load articles');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const {
+    data,
+    loading,
+    error,
+  } = useArticlesList({
+    category: selectedCategory,
+    search: searchTerm,
+    page,
+    limit: 9,
+  });
 
-  useEffect(() => {
-    loadArticles(page, selectedCategory, searchTerm);
-  }, [selectedCategory, page]);
+  const articles = data?.articles || [];
+  const pages = data?.pages || 1;
+  const total = data?.total || 0;
 
   const handleSearchSubmit = (e) => {
     e?.preventDefault();
     setSearchTerm(searchInput);
-    loadArticles(1, selectedCategory, searchInput);
+    setPage(1);
   };
 
   const handleCategoryChange = (category) => {
     setSelectedCategory(category);
     setPage(1);
-    loadArticles(1, category, searchTerm);
     setShowMobileFilters(false);
   };
 
   const handlePageChange = (pageNum) => {
     setPage(pageNum);
-    loadArticles(pageNum, selectedCategory, searchTerm);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -72,7 +60,7 @@ export default function ArticlesList() {
     setSelectedCategory('');
     setSearchTerm('');
     setSearchInput('');
-    loadArticles(1, '', '');
+    setPage(1);
   };
 
   const categories = ARTICLE_CATEGORIES;

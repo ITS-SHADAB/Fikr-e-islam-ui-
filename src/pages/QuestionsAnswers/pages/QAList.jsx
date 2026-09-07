@@ -13,7 +13,7 @@ import {
   BookOpen,
   Settings,
 } from 'lucide-react';
-import { getPublicQuestions } from '@/services';
+import { useQuestionsList } from '@/hooks/useContentCache';
 import { SectionSidebar, Spinner } from '@/components';
 import { COLORS } from '@/utils/themeColors';
 import { QA_CATEGORIES, QA_TRANSLATIONS } from '@/utils/categories';
@@ -27,12 +27,7 @@ export default function QAList() {
   const [searchParams, setSearchParams] = useSearchParams();
   const queryCategory = searchParams.get('category');
 
-  const [questions, setQuestions] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
-  const [pages, setPages] = useState(1);
-  const [total, setTotal] = useState(0);
-
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState(queryCategory || '');
   const [copiedId, setCopiedId] = useState(null);
@@ -45,36 +40,25 @@ export default function QAList() {
     }
   }, [queryCategory]);
 
+  const {
+    data,
+    loading,
+  } = useQuestionsList({
+    category: selectedCategory || undefined,
+    search: searchTerm || undefined,
+    page,
+    limit: 8,
+  });
+
+  const questions = data?.questions || [];
+  const pages = data?.totalPages || 1;
+  const total = data?.totalQuestions || 0;
+
   const categories = QA_CATEGORIES;
-
-  const loadQuestions = async (pageNum = 1, category = selectedCategory, search = searchTerm) => {
-    try {
-      setLoading(true);
-      const data = await getPublicQuestions({
-        category: category || undefined,
-        search: search || undefined,
-        page: pageNum,
-        limit: 8,
-      });
-      setQuestions(data.questions || []);
-      setPages(data.totalPages || 1);
-      setPage(data.currentPage || pageNum);
-      setTotal(data.totalQuestions || 0);
-    } catch (err) {
-      // Handled silently
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    loadQuestions(page, selectedCategory, searchTerm);
-  }, [selectedCategory, page]);
 
   const handleSearchSubmit = (e) => {
     e?.preventDefault();
     setPage(1);
-    loadQuestions(1, selectedCategory, searchTerm);
   };
 
   const handleCategoryChange = (category) => {
@@ -85,12 +69,10 @@ export default function QAList() {
     } else {
       setSearchParams({});
     }
-    loadQuestions(1, category, searchTerm);
   };
 
   const handlePageChange = (pageNum) => {
     setPage(pageNum);
-    loadQuestions(pageNum, selectedCategory, searchTerm);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -168,7 +150,6 @@ export default function QAList() {
             onClearSearch={() => {
               setSearchTerm('');
               setPage(1);
-              loadQuestions(1, selectedCategory, '');
             }}
             searchPlaceholder="سوال و جواب تلاش کریں..."
             searchLabel="سوالات تلاش کریں"
@@ -287,7 +268,7 @@ export default function QAList() {
                                 <BookOpen className="w-3 h-3" />
                                 جواب
                               </span>
-                              <p className="text-sm sm:text-base md:text-lg text-slate-600 font-['Noto_Nastaliq_Urdu'] leading-relaxed flex-1">
+                              <p className="text-sm sm:text-base md:text-lg text-slate-600 font-urdu leading-relaxed flex-1">
                                 {previewText}
                               </p>
                             </div>

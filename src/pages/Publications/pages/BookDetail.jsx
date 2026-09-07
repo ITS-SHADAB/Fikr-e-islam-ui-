@@ -18,6 +18,8 @@ import {
   MessageSquare,
 } from "lucide-react";
 import { getPublicationBySlug, getPublications } from "@/services";
+import { useCachedContent } from "@/hooks/useContentCache";
+import { STALE_TIMES } from "@/store/slices/contentSlice";
 import { useSettings } from "@/hooks/useSettings";
 import { COLORS } from "@/utils/themeColors";
 import { BACKEND_URL } from "@/constants/urls";
@@ -39,10 +41,43 @@ export default function BookDetail() {
     settings?.language === "ur" || settings?.language === "Urdu" ? "ur" : "en";
   const isRTL = language === "ur";
 
-  const [book, setBook] = useState(null);
-  const [relatedBooks, setRelatedBooks] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const { data: detailData, loading, error } = useCachedContent({
+    type: "publications_detail",
+    params: rawParam,
+    fetcher: async () => {
+      let activeSlug = rawParam;
+      if (rawParam && /^[0-9a-fA-F]{24}$/.test(rawParam)) {
+        const res = await getPublications({ limit: 1000 });
+        const matched = res.books?.find((b) => b._id === rawParam);
+        if (matched && matched.slug) {
+          activeSlug = matched.slug;
+        }
+      }
+
+      const data = await getPublicationBySlug(activeSlug);
+      const bookData = data.book || data;
+      let relatedBooks = [];
+      try {
+        const allRes = await getPublications({
+          category: bookData.category,
+          limit: 4,
+        });
+        const otherBooks = (allRes.books || []).filter(
+          (b) => b._id !== bookData._id
+        );
+        relatedBooks = otherBooks.slice(0, 3);
+      } catch (rErr) {
+        console.warn("Failed to load related books", rErr);
+      }
+      return { book: bookData, relatedBooks };
+    },
+    staleTime: STALE_TIMES.publications,
+    enabled: !!rawParam,
+  });
+
+  const book = detailData?.book || null;
+  const relatedBooks = detailData?.relatedBooks || [];
+
   const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
   const [showEmbeddedPdf, setShowEmbeddedPdf] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -58,55 +93,8 @@ export default function BookDetail() {
   };
 
   useEffect(() => {
-    const loadBookData = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        window.scrollTo({ top: 0, behavior: "smooth" });
-
-        let activeSlug = rawParam;
-
-        // If parameter is a 24-character ObjectID hex representation, resolve to slug
-        if (rawParam && /^[0-9a-fA-F]{24}$/.test(rawParam)) {
-          const res = await getPublications({ limit: 1000 });
-          const matched = res.books?.find((b) => b._id === rawParam);
-          if (matched && matched.slug) {
-            activeSlug = matched.slug;
-          }
-        }
-
-        const data = await getPublicationBySlug(activeSlug);
-        const bookData = data.book || data;
-        setBook(bookData);
-
-        // Fetch other books for related section
-        try {
-          const allRes = await getPublications({
-            category: bookData.category,
-            limit: 4,
-          });
-          const otherBooks = (allRes.books || []).filter(
-            (b) => b._id !== bookData._id
-          );
-          setRelatedBooks(otherBooks.slice(0, 3));
-        } catch (rErr) {
-          console.warn("Failed to load related books", rErr);
-        }
-      } catch (err) {
-        setError(
-          err.response?.data?.message ||
-            err.message ||
-            (isRTL ? "کتاب لوڈ کرنے میں ناکامی" : "Failed to load book")
-        );
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (rawParam) {
-      loadBookData();
-    }
-  }, [rawParam, isRTL]);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [rawParam]);
 
   const shareUrl = window.location.href;
 

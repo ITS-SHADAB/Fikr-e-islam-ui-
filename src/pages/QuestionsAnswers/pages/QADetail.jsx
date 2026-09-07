@@ -21,6 +21,8 @@ import {
   Clock,
 } from 'lucide-react';
 import { getQuestionBySlug } from '@/services';
+import { useCachedContent } from '@/hooks/useContentCache';
+import { STALE_TIMES } from '@/store/slices/contentSlice';
 import { COLORS } from '@/utils/themeColors';
 import { QA_TRANSLATIONS } from '@/utils/categories';
 import { Spinner } from '@/components';
@@ -32,32 +34,25 @@ export default function QADetail() {
   const { loggedInUser, userRole } = useSelector((state) => state.auth);
   const isAdmin = userRole === 'admin' || loggedInUser?.role === 'admin';
 
-  const [question, setQuestion] = useState(null);
-  const [relatedQuestions, setRelatedQuestions] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const { data, loading, error } = useCachedContent({
+    type: 'questions_detail',
+    params: slug,
+    fetcher: async () => {
+      const res = await getQuestionBySlug(slug);
+      if (!res?.question) {
+        throw new Error('سوال نہیں ملا');
+      }
+      return res;
+    },
+    staleTime: STALE_TIMES.questions,
+    enabled: !!slug,
+  });
+
+  const question = data?.question || null;
+  const relatedQuestions = data?.relatedQuestions || [];
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    if (!slug) return;
-    const fetchQuestion = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const data = await getQuestionBySlug(slug);
-        if (data?.question) {
-          setQuestion(data.question);
-          setRelatedQuestions(data.relatedQuestions || []);
-        } else {
-          setError('سوال نہیں ملا');
-        }
-      } catch (err) {
-        setError(err?.response?.data?.message || 'سوال حاصل کرنے میں ناکامی');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchQuestion();
     window.scrollTo(0, 0);
   }, [slug]);
 
@@ -355,7 +350,7 @@ export default function QADetail() {
 
             {/* Answer Content Body */}
             <div
-              className="prose prose-slate max-w-none text-sm sm:text-base leading-loose text-slate-800 whitespace-pre-line font-['Noto_Nastaliq_Urdu']"
+              className="prose prose-slate max-w-none text-sm sm:text-base leading-loose text-slate-800 whitespace-pre-line font-urdu"
               style={{ lineHeight: '2.2' }}
               dangerouslySetInnerHTML={{
                 __html: question.answerContent || 'جواب فی الحال درج نہیں ہے۔',

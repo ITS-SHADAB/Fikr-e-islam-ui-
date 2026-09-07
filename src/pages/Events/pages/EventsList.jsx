@@ -17,7 +17,7 @@ import {
   Bookmark,
   CalendarPlus,
 } from 'lucide-react';
-import { getEvents } from '@/services';
+import { useEventsList } from '@/hooks/useContentCache';
 import { useSettings } from '@/hooks/useSettings';
 import { EventCard } from '@/components';
 import { COLORS } from '@/utils/themeColors';
@@ -47,35 +47,14 @@ export default function EventsList() {
     settings?.language === 'ur' || settings?.language === 'Urdu' ? 'ur' : 'en';
   const isRTL = language === 'ur';
 
-  const [events, setEvents] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const { data: eventsData, loading, error } = useEventsList();
+  const events = Array.isArray(eventsData) ? eventsData : eventsData?.events || [];
 
   // Calendar State
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(null);
   const [activeTab, setActiveTab] = useState('all'); // 'all', 'upcoming', 'past', 'calendar'
   const [searchTerm, setSearchTerm] = useState('');
-
-  useEffect(() => {
-    const loadEvents = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const data = await getEvents();
-        setEvents(Array.isArray(data) ? data : data?.events || []);
-      } catch (err) {
-        setError(
-          err?.response?.data?.message ||
-            err?.message ||
-            (isRTL ? 'پروگرام لوڈ کرنے میں ناکامی' : 'Failed to load events')
-        );
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadEvents();
-  }, [isRTL]);
 
   // Year and Month of Calendar View
   const currentYear = currentDate.getFullYear();

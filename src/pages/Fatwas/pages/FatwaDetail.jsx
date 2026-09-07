@@ -22,6 +22,8 @@ import {
   Minimize2,
 } from "lucide-react";
 import { getFatwaBySlug, getFatwas } from "@/services";
+import { useCachedContent } from "@/hooks/useContentCache";
+import { STALE_TIMES } from "@/store/slices/contentSlice";
 import { useSettings } from "@/hooks/useSettings";
 import { FatwaCard, PdfViewer, Spinner } from "@/components";
 import CommentsSection from "@/components/CommentsSection";
@@ -36,66 +38,53 @@ export default function FatwaDetail() {
     settings?.language === "ur" || settings?.language === "Urdu" ? "ur" : "en";
   const isRTL = language === "ur";
 
-  const [fatwa, setFatwa] = useState(null);
-  const [related, setRelated] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const { data: detailData, loading, error } = useCachedContent({
+    type: "fatwas_detail",
+    params: slug,
+    fetcher: async () => {
+      let activeSlug = slug;
+      if (/^[0-9a-fA-F]{24}$/.test(slug)) {
+        const res = await getFatwas({ limit: 1000 });
+        const matched = res?.fatwas?.find((f) => f?._id === slug);
+        if (matched?.slug) {
+          activeSlug = matched.slug;
+        }
+      }
+
+      const data = await getFatwaBySlug(activeSlug);
+      const fatwaData = data?.fatwa || data;
+      let related = data?.related || [];
+      if (!related.length && fatwaData?.category) {
+        try {
+          const allRes = await getFatwas({
+            category: fatwaData?.category,
+            limit: 4,
+          });
+          const others = (allRes?.fatwas || [])?.filter(
+            (f) => f?._id !== fatwaData?._id
+          );
+          related = others?.slice(0, 3) || [];
+        } catch (rErr) {
+          console.warn("Failed to load related fatwas", rErr);
+        }
+      }
+      return { fatwa: fatwaData, related };
+    },
+    staleTime: STALE_TIMES.fatwas,
+    enabled: !!slug,
+  });
+
+  const fatwa = detailData?.fatwa || null;
+  const related = detailData?.related || [];
+
   const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
   const [showEmbeddedPdf, setShowEmbeddedPdf] = useState(false);
   const [copied, setCopied] = useState(false);
   const [isCommentsOpen, setIsCommentsOpen] = useState(false);
 
   useEffect(() => {
-    const loadFatwa = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        window.scrollTo({ top: 0, behavior: "smooth" });
-
-        let activeSlug = slug;
-
-        // If parameter is a 24-character ObjectID hex representation, resolve to slug
-        if (/^[0-9a-fA-F]{24}$/.test(slug)) {
-          const res = await getFatwas({ limit: 1000 });
-          const matched = res?.fatwas?.find((f) => f?._id === slug);
-          if (matched?.slug) {
-            activeSlug = matched.slug;
-          }
-        }
-
-        const data = await getFatwaBySlug(activeSlug);
-        const fatwaData = data?.fatwa || data;
-        setFatwa(fatwaData);
-
-        if (data?.related && data?.related?.length > 0) {
-          setRelated(data.related);
-        } else if (fatwaData?.category) {
-          try {
-            const allRes = await getFatwas({
-              category: fatwaData?.category,
-              limit: 4,
-            });
-            const others = (allRes?.fatwas || [])?.filter(
-              (f) => f?._id !== fatwaData?._id
-            );
-            setRelated(others?.slice(0, 3) || []);
-          } catch (rErr) {
-            console.warn("Failed to load related fatwas", rErr);
-          }
-        }
-      } catch (err) {
-        setError(
-          err?.response?.data?.message ||
-            err?.message ||
-            (isRTL ? "فتویٰ لوڈ کرنے میں ناکامی" : "Failed to load fatwa")
-        );
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (slug) loadFatwa();
-  }, [slug, isRTL]);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [slug]);
 
   const shareUrl = typeof window !== "undefined" ? window?.location?.href : "";
 
