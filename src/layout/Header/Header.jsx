@@ -797,9 +797,24 @@ export default function Header() {
 
               {/* Notification Bell & Profile for Logged-in Users */}
               {isAuthenticated || userRole === "admin" ? (
-                <>
-                  {/* Notification Bell */}
-                  <div ref={notifBellRef} className="relative z-50">
+                <div ref={profileDropdownRef} className="relative z-50">
+                  <button
+                    type="button"
+                    onClick={() => setShowProfileDropdown((prev) => !prev)}
+                    className="rounded-full border border-[#A8793E] bg-[#2B2118] text-[#F7F1E8] px-2.5 py-0.5 flex items-center gap-1.5 text-xs font-semibold hover:bg-[#3D2E22] transition-all cursor-pointer shadow-xs"
+                  >
+                    <div className="w-5 h-5 rounded-full bg-[#A8793E] text-[#2B2118] font-bold text-[10px] flex items-center justify-center shrink-0">
+                      {getInitials(loggedInUser)}
+                    </div>
+                    <span className="hidden sm:inline max-w-[90px] truncate">
+                      {loggedInUser?.name?.split(" ")[0] ||
+                        (isUrdu ? "پروفائل" : "Profile")}
+                    </span>
+                    <ChevronDown className="w-3 h-3 text-[#A8793E]" />
+                  </button>
+                  <>
+                    {/* Notification Bell */}
+                    <div ref={notifBellRef} className="relative z-50">
                       <button
                         type="button"
                         onClick={() => {
