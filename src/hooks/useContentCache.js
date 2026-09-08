@@ -17,6 +17,7 @@ import {
   getPublicationBySlug,
   getLectures,
   getEvents,
+  getContentCounts,
 } from '@/services';
 
 /**
@@ -216,3 +217,15 @@ export function useEventsList(params = {}, options = {}) {
     ...options,
   });
 }
+
+// Content Counts
+export function useContentCounts(options = {}) {
+  return useCachedContent({
+    type: 'content_counts',
+    params: {},
+    fetcher: () => getContentCounts(),
+    staleTime: DEFAULT_STALE_TIME,
+    ...options,
+  });
+}
+

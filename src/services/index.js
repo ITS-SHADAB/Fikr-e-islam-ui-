@@ -12,4 +12,6 @@ export * from "./comment";
 export * from "./youtube";
 export * from "./notificationService";
 export * from "./adminNotification";
+export * from "./contentCounts";
+
 

@@ -16,9 +16,11 @@ import {
   Globe,
   ExternalLink,
 } from 'lucide-react';
+import { FaWhatsapp, FaTelegramPlane } from 'react-icons/fa';
 import { submitContact } from '@/services';
 import { useSettings } from '@/hooks/useSettings';
 import { COLORS } from '@/utils/themeColors';
+import { OFFICIAL_CONTACT, OFFICIAL_SOCIAL_LINKS } from '@/constants/contact';
 
 export default function ContactPage() {
   const { settings } = useSettings();
@@ -91,16 +93,14 @@ export default function ContactPage() {
   };
 
   // Contacts fallback defaults with safe optional chaining
-  const address =
-    settings?.contactInfo?.address ||
-    (isRTL
-      ? 'جامعہ دار العلوم و الافتاء، کراچی، پاکستان'
-      : 'Jamia Darul Uloom & Ifta, Karachi, Pakistan');
-
-  const phone = settings?.contactInfo?.phone || '+92 300 1234567';
-  const whatsapp = settings?.contactInfo?.whatsapp || '+92 300 1234567';
-  const email = settings?.contactInfo?.email || 'contact@fikr-e-islam.com';
-  const socialLinks = settings?.socialLinks || {};
+  const address = settings?.contactInfo?.address || OFFICIAL_CONTACT.address;
+  const phone = settings?.contactInfo?.phone || OFFICIAL_CONTACT.phone;
+  const whatsapp = settings?.contactInfo?.whatsapp || OFFICIAL_SOCIAL_LINKS.whatsapp;
+  const email = settings?.contactInfo?.email || OFFICIAL_CONTACT.email;
+  const socialLinks = {
+    ...OFFICIAL_SOCIAL_LINKS,
+    ...(settings?.socialLinks || {}),
+  };
 
   return (
     <div
@@ -214,22 +214,24 @@ export default function ContactPage() {
                   </span>
                   <div className="mt-1 space-y-1">
                     {phone && (
-                      <p
-                        className="text-xs sm:text-sm font-semibold dir-ltr text-right"
+                      <a
+                        href={`tel:${phone}`}
+                        className="text-xs sm:text-sm font-semibold dir-ltr text-right hover:underline block"
                         style={{ color: COLORS?.textPrimary }}
                       >
                         {phone}
-                      </p>
+                      </a>
                     )}
                     {whatsapp && (
                       <a
-                        href={`https://wa.me/${whatsapp.replace(/[^0-9]/g, '')}`}
+                        href={whatsapp.startsWith('http') ? whatsapp : `https://wa.me/${whatsapp.replace(/[^0-9]/g, '')}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-1.5 text-xs font-bold transition-opacity hover:opacity-80"
                         style={{ color: '#16a34a' }}
                       >
-                        <span>{isRTL ? 'واٹس ایپ پر رابطہ کریں' : 'Chat on WhatsApp'}</span>
+                        <FaWhatsapp className="w-3.5 h-3.5" />
+                        <span>{isRTL ? 'واٹس ایپ چینل پر تشریف لائیں' : 'Join WhatsApp Channel'}</span>
                         <ExternalLink className="w-3 h-3" />
                       </a>
                     )}
@@ -326,9 +328,9 @@ export default function ContactPage() {
                     <Youtube className="w-4 h-4" />
                   </a>
                 )}
-                {socialLinks?.twitter && (
+                {socialLinks?.whatsapp && (
                   <a
-                    href={socialLinks.twitter}
+                    href={socialLinks.whatsapp}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-9 h-9 rounded-xl flex items-center justify-center transition-all hover:scale-105 border"
@@ -337,14 +339,14 @@ export default function ContactPage() {
                       borderColor: 'rgba(255,255,255,0.2)',
                       color: '#ffffff',
                     }}
-                    title="Twitter / X"
+                    title="WhatsApp Channel"
                   >
-                    <Twitter className="w-4 h-4" />
+                    <FaWhatsapp className="w-4 h-4" />
                   </a>
                 )}
-                {socialLinks?.instagram && (
+                {socialLinks?.telegram && (
                   <a
-                    href={socialLinks.instagram}
+                    href={socialLinks.telegram}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-9 h-9 rounded-xl flex items-center justify-center transition-all hover:scale-105 border"
@@ -353,9 +355,9 @@ export default function ContactPage() {
                       borderColor: 'rgba(255,255,255,0.2)',
                       color: '#ffffff',
                     }}
-                    title="Instagram"
+                    title="Telegram"
                   >
-                    <Instagram className="w-4 h-4" />
+                    <FaTelegramPlane className="w-4 h-4" />
                   </a>
                 )}
               </div>

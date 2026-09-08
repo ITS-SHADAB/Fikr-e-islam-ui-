@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { getSettings as fetchSettingsApi, putSettings as updateSettingsApi } from '@/services';
+import { OFFICIAL_CONTACT, OFFICIAL_SOCIAL_LINKS } from '@/constants/contact';
 
 export const DEFAULT_SETTINGS = {
   language: 'ur',
@@ -31,7 +32,7 @@ export const DEFAULT_SETTINGS = {
       'تقابل ادیان و فرق باطلہ',
     ],
     institutionsAssociatedWith: [
-      'جامعہ عارفیہ سید سراواں الہ آباد',
+      'دارالقضاء ادارۂ شرعیہ اورنگ آباد، بہار (انڈیا)',
       'دار الافتاء و القضاء',
     ],
     achievements: [
@@ -40,16 +41,17 @@ export const DEFAULT_SETTINGS = {
     ],
   },
   contactInfo: {
-    address: 'دار الافتاء و القضاء، جامعہ عارفیہ، سید سراواں، الہ آباد',
-    phone: '+1 (800) 555-ISLAM',
-    whatsapp: '+1 (800) 555-WHATS',
-    email: 'scholar@islamicknowledge.com',
+    heading: OFFICIAL_CONTACT.headingUr,
+    address: OFFICIAL_CONTACT.address,
+    phone: OFFICIAL_CONTACT.phone,
+    whatsapp: OFFICIAL_SOCIAL_LINKS.whatsapp,
+    email: OFFICIAL_CONTACT.email,
   },
   socialLinks: {
-    facebook: 'https://facebook.com/scholardemo',
-    youtube: 'https://youtube.com/scholardemo',
-    twitter: 'https://twitter.com/scholardemo',
-    instagram: 'https://instagram.com/scholardemo',
+    telegram: OFFICIAL_SOCIAL_LINKS.telegram,
+    whatsapp: OFFICIAL_SOCIAL_LINKS.whatsapp,
+    youtube: OFFICIAL_SOCIAL_LINKS.youtube,
+    facebook: OFFICIAL_SOCIAL_LINKS.facebook,
   },
   homepageSettings: {
     heroName: 'مفتی فیضان سرور مصباحی',
@@ -71,13 +73,74 @@ const normalizeLang = (lang) => {
   return (l === 'ur' || l === 'urdu') ? 'ur' : 'en';
 };
 
+const isDummyContact = (contact) => {
+  if (!contact) return true;
+  return (
+    contact.email === 'scholar@islamicknowledge.com' ||
+    contact.phone?.includes('555-ISLAM') ||
+    contact.address?.includes('100 مینار روڈ') ||
+    contact.address?.includes('جامعہ عارفیہ')
+  );
+};
+
+const isDummySocial = (socials) => {
+  if (!socials) return true;
+  return (
+    socials.facebook?.includes('scholardemo') ||
+    socials.youtube?.includes('scholardemo') ||
+    socials.twitter?.includes('scholardemo') ||
+    socials.instagram?.includes('scholardemo')
+  );
+};
+
+const sanitizeContact = (contact) => {
+  if (isDummyContact(contact)) {
+    return {
+      heading: OFFICIAL_CONTACT.headingUr,
+      address: OFFICIAL_CONTACT.address,
+      phone: OFFICIAL_CONTACT.phone,
+      whatsapp: OFFICIAL_SOCIAL_LINKS.whatsapp,
+      email: OFFICIAL_CONTACT.email,
+    };
+  }
+  return {
+    ...contact,
+    address: contact.address || OFFICIAL_CONTACT.address,
+    phone: contact.phone || OFFICIAL_CONTACT.phone,
+    whatsapp: contact.whatsapp || OFFICIAL_SOCIAL_LINKS.whatsapp,
+    email: contact.email || OFFICIAL_CONTACT.email,
+  };
+};
+
+const sanitizeSocials = (socials) => {
+  if (isDummySocial(socials)) {
+    return {
+      telegram: OFFICIAL_SOCIAL_LINKS.telegram,
+      whatsapp: OFFICIAL_SOCIAL_LINKS.whatsapp,
+      youtube: OFFICIAL_SOCIAL_LINKS.youtube,
+      facebook: OFFICIAL_SOCIAL_LINKS.facebook,
+    };
+  }
+  return {
+    telegram: OFFICIAL_SOCIAL_LINKS.telegram,
+    whatsapp: OFFICIAL_SOCIAL_LINKS.whatsapp,
+    youtube: socials.youtube || OFFICIAL_SOCIAL_LINKS.youtube,
+    facebook: socials.facebook || OFFICIAL_SOCIAL_LINKS.facebook,
+    ...socials,
+  };
+};
+
 const loadCachedSettings = () => {
   try {
     const raw = localStorage.getItem(SETTINGS_CACHE_KEY);
     if (!raw) return null;
     const parsed = JSON.parse(raw);
     if (parsed && typeof parsed === 'object' && parsed.scholarInfo) {
-      return parsed;
+      return {
+        ...parsed,
+        contactInfo: sanitizeContact(parsed.contactInfo),
+        socialLinks: sanitizeSocials(parsed.socialLinks),
+      };
     }
   } catch (e) {
     console.warn('Failed to parse cached site settings:', e);
@@ -94,8 +157,8 @@ const saveCachedSettings = (settings) => {
         englishFont: settings.englishFont,
         urduFont: settings.urduFont,
         scholarInfo: settings.scholarInfo,
-        contactInfo: settings.contactInfo,
-        socialLinks: settings.socialLinks,
+        contactInfo: sanitizeContact(settings.contactInfo),
+        socialLinks: sanitizeSocials(settings.socialLinks),
         homepageSettings: settings.homepageSettings,
         seoSettings: settings.seoSettings,
       };
@@ -113,6 +176,8 @@ const getLocalSettings = (apiData) => {
     language: localLang,
     englishFont: localStorage.getItem('site_english_font') || apiData?.englishFont || 'Inter',
     urduFont: localStorage.getItem('site_urdu_font') || apiData?.urduFont || 'Payami Nastaleeq',
+    contactInfo: sanitizeContact(apiData?.contactInfo),
+    socialLinks: sanitizeSocials(apiData?.socialLinks),
   };
 };
 
@@ -127,6 +192,8 @@ const getInitialSettings = () => {
     language: localLang,
     englishFont: localStorage.getItem('site_english_font') || base.englishFont || 'Inter',
     urduFont: localStorage.getItem('site_urdu_font') || base.urduFont || 'Payami Nastaleeq',
+    contactInfo: sanitizeContact(base.contactInfo),
+    socialLinks: sanitizeSocials(base.socialLinks),
   };
 };
 

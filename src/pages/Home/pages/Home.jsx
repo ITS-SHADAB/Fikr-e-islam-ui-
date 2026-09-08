@@ -28,9 +28,11 @@ import {
   usePublicationsList,
   useLecturesList,
   useEventsList,
+  useContentCounts,
 } from "@/hooks/useContentCache";
 import { useSettings } from "@/hooks/useSettings";
 import { COLORS } from "@/utils/themeColors";
+import { OFFICIAL_CONTACT } from "@/constants/contact";
 
 import {
   ArticleCard,
@@ -157,12 +159,13 @@ function StatisticsSection({ stats }) {
 
 export default function Home() {
   const { settings } = useSettings();
-  const { data: articlesData, loading: isLoadingArticles } = useArticlesList({ limit: 4 });
-  const { data: fatwasData, loading: isLoadingFatwas } = useFatwasList({ limit: 4 });
-  const { data: questionsData, loading: isLoadingQuestions } = useQuestionsList({ limit: 4 });
-  const { data: publicationsData, loading: isLoadingPublications } = usePublicationsList({ limit: 4 });
-  const { data: lecturesData, loading: isLoadingLectures } = useLecturesList({ limit: 4 });
-  const { data: eventsData, loading: isLoadingEvents } = useEventsList({ limit: 4 });
+  const { data: articlesData, loading: isLoadingArticles } = useArticlesList({ limit: 3 });
+  const { data: fatwasData, loading: isLoadingFatwas } = useFatwasList({ limit: 3 });
+  const { data: questionsData, loading: isLoadingQuestions } = useQuestionsList({ limit: 3 });
+  const { data: publicationsData, loading: isLoadingPublications } = usePublicationsList({ limit: 3 });
+  const { data: lecturesData, loading: isLoadingLectures } = useLecturesList({ limit: 3 });
+  const { data: eventsData, loading: isLoadingEvents } = useEventsList({ limit: 3 });
+  const { data: countsData, loading: isLoadingCounts } = useContentCounts();
 
   const articles = Array.isArray(articlesData?.articles) ? articlesData.articles : [];
   const fatwas = Array.isArray(fatwasData?.fatwas) ? fatwasData.fatwas : [];
@@ -215,24 +218,32 @@ export default function Home() {
   const language =
     settings?.language === "ur" || settings?.language === "Urdu" ? "ur" : "en";
 
+  const counts = countsData?.data || countsData || {};
+  const getCountValue = (key, fallbackKey) => {
+    if (counts && counts[key] !== undefined && counts[key] !== null) return counts[key];
+    if (fallbackKey && counts && counts[fallbackKey] !== undefined && counts[fallbackKey] !== null) return counts[fallbackKey];
+    if (isLoadingCounts) return "...";
+    return 0;
+  };
+
   const stats = [
     {
-      value: 1000,
+      value: getCountValue("fatwas"),
       label: language === "en" ? "Fatwas" : "فتاویٰ",
       icon: Feather,
     },
     {
-      value: 500,
+      value: getCountValue("articles"),
       label: language === "en" ? "Articles" : "مقالات",
       icon: Users,
     },
     {
-      value: 50,
+      value: getCountValue("books", "publications"),
       label: language === "en" ? "Publications" : "مطبوعات",
       icon: BookOpen,
     },
     {
-      value: 300,
+      value: getCountValue("lectures"),
       label: language === "en" ? "Lectures" : "بیانات",
       icon: Video,
     },
@@ -243,9 +254,9 @@ export default function Home() {
 
 
   const heroName = settings?.scholarInfo?.fullName || settings?.homepageSettings?.heroName || "";
-  const address = settings?.contactInfo?.address || "";
-  const phone = settings?.contactInfo?.phone || "";
-  const email = settings?.contactInfo?.email || "";
+  const address = settings?.contactInfo?.address || OFFICIAL_CONTACT.address;
+  const phone = settings?.contactInfo?.phone || OFFICIAL_CONTACT.phone;
+  const email = settings?.contactInfo?.email || OFFICIAL_CONTACT.email;
 
   const FEATURES = [
     {
@@ -359,12 +370,12 @@ export default function Home() {
         />
 
         {isLoadingArticles ? (
-          <SectionLoader type="article" count={4} />
+          <SectionLoader type="article" count={3} />
         ) : articles && articles.length > 0 ? (
           <>
             {/* Desktop: grid */}
             <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {articles.slice(0, 4).map((article) => (
+              {articles.slice(0, 3).map((article) => (
                 <div key={article._id}>
                   <ArticleCard article={article} />
                 </div>
@@ -373,7 +384,7 @@ export default function Home() {
 
             {/* Mobile: one-by-one slider with Seamless infinite swipe */}
             <SeamlessMobileSlider
-              items={articles.slice(0, 4)}
+              items={articles.slice(0, 3)}
               language={language}
               duration={500}
               activeDotColor={COLORS.primary}
@@ -403,12 +414,12 @@ export default function Home() {
           />
 
           {isLoadingFatwas ? (
-            <SectionLoader type="fatwa" count={4} />
+            <SectionLoader type="fatwa" count={3} />
           ) : fatwas && fatwas.length > 0 ? (
             <>
               {/* Desktop: grid */}
               <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {fatwas.slice(0, 4).map((fatwa) => (
+                {fatwas.slice(0, 3).map((fatwa) => (
                   <div key={fatwa._id}>
                     <FatwaCard fatwa={fatwa} />
                   </div>
@@ -417,7 +428,7 @@ export default function Home() {
 
               {/* Mobile: one-by-one slider with Seamless infinite swipe */}
               <SeamlessMobileSlider
-                items={fatwas.slice(0, 4)}
+                items={fatwas.slice(0, 3)}
                 language={language}
                 duration={500}
                 activeDotColor={COLORS.primary}
@@ -445,12 +456,12 @@ export default function Home() {
         />
 
         {isLoadingQuestions ? (
-          <SectionLoader type="qa" count={4} />
+          <SectionLoader type="qa" count={3} />
         ) : questions && questions.length > 0 ? (
           <>
             {/* Desktop: grid */}
             <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {questions.slice(0, 4).map((q) => {
+              {questions.slice(0, 3).map((q) => {
                 const qaDetailUrl = `/qa/${q.slug || q._id}`;
                 return (
                   <div
@@ -505,7 +516,7 @@ export default function Home() {
 
             {/* Mobile: one-by-one slider with Seamless infinite swipe */}
             <SeamlessMobileSlider
-              items={questions.slice(0, 4)}
+              items={questions.slice(0, 3)}
               language={language}
               duration={500}
               activeDotColor={COLORS.primary}
@@ -586,12 +597,12 @@ export default function Home() {
           />
 
           {isLoadingPublications ? (
-            <SectionLoader type="publication" count={4} layout="list" />
+            <SectionLoader type="publication" count={3} layout="list" />
           ) : publications && publications.length > 0 ? (
             <>
-              {/* Desktop: Show all 4 publication cards in one list */}
+              {/* Desktop: Show all 3 publication cards in one list */}
               <div className="hidden sm:flex sm:flex-col sm:gap-6">
-                {publications.slice(0, 4).map((pub) => (
+                {publications.slice(0, 3).map((pub) => (
                   <div key={pub._id}>
                     <PublicationCard publication={pub} />
                   </div>
@@ -600,7 +611,7 @@ export default function Home() {
 
               {/* Mobile: One-by-one Seamless infinite slider */}
               <SeamlessMobileSlider
-                items={publications.slice(0, 4)}
+                items={publications.slice(0, 3)}
                 language={language}
                 duration={500}
                 activeDotColor={COLORS.primary}
@@ -629,12 +640,12 @@ export default function Home() {
           />
 
           {isLoadingLectures ? (
-            <SectionLoader type="lecture" count={4} />
+            <SectionLoader type="lecture" count={3} />
           ) : lectures && lectures.length > 0 ? (
             <>
               {/* Desktop: grid */}
               <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {lectures.slice(0, 4).map((lecture) => (
+                {lectures.slice(0, 3).map((lecture) => (
                   <div key={lecture._id}>
                     <LectureCard
                       lecture={lecture}
@@ -646,7 +657,7 @@ export default function Home() {
 
               {/* Mobile: one-by-one Seamless infinite slider */}
               <SeamlessMobileSlider
-                items={lectures.slice(0, 4)}
+                items={lectures.slice(0, 3)}
                 language={language}
                 duration={500}
                 activeDotColor={COLORS.primary}
@@ -694,12 +705,12 @@ export default function Home() {
           </div>
 
           {isLoadingEvents ? (
-            <SectionLoader type="event" count={4} layout="list" />
+            <SectionLoader type="event" count={3} layout="list" />
           ) : events && events.length > 0 ? (
             <>
               {/* Desktop: stacked list */}
               <div className="hidden sm:block space-y-4">
-                {events.slice(0, 4).map((event) => (
+                {events.slice(0, 3).map((event) => (
                   <div key={event._id}>
                     <EventCard event={event} />
                   </div>
@@ -708,7 +719,7 @@ export default function Home() {
 
               {/* Mobile: one-by-one Seamless infinite slider */}
               <SeamlessMobileSlider
-                items={events.slice(0, 4)}
+                items={events.slice(0, 3)}
                 language={language}
                 duration={500}
                 activeDotColor={COLORS.primary}
@@ -730,7 +741,7 @@ export default function Home() {
           className={`lg:col-span-4 ${language === "ur" ? "text-right" : "text-left"}`}
         >
           <h2 className="text-xl font-bold text-primary mb-2.5 sm:mb-4 border-b border-border pb-1.5 sm:pb-2">
-            {language === "en" ? "Contact Details" : "رابطے کی تفصیلات"}
+            {language === "en" ? "Contact Details" : "مفتی صاحب سے رابطہ کریں"}
           </h2>
 
           <div className="premium-card p-6 space-y-6 bg-white relative overflow-hidden group">
@@ -743,21 +754,30 @@ export default function Home() {
             </p>
 
             <ul className="space-y-4.5 text-sm">
-              {[
-                { icon: MapPin, text: address },
-                { icon: Phone, text: phone },
-                { icon: Mail, text: email },
-              ].map((item, index) => (
-                <li
-                  key={index}
-                  className="flex gap-3 items-start justify-start"
+              <li className="flex gap-3 items-start justify-start">
+                <MapPin className="w-5 h-5 text-accent shrink-0 mt-0.5" />
+                <span className="text-slate-700 leading-tight font-light">
+                  {address}
+                </span>
+              </li>
+              <li className="flex gap-3 items-center justify-start">
+                <Phone className="w-5 h-5 text-accent shrink-0" />
+                <a
+                  href={`tel:${phone}`}
+                  className="text-slate-700 hover:text-accent leading-tight font-light dir-ltr transition-colors"
                 >
-                  <item.icon className="w-5 h-5 text-accent shrink-0 mt-0.5" />
-                  <span className="text-slate-700 leading-tight font-light">
-                    {item.text}
-                  </span>
-                </li>
-              ))}
+                  {phone}
+                </a>
+              </li>
+              <li className="flex gap-3 items-center justify-start">
+                <Mail className="w-5 h-5 text-accent shrink-0" />
+                <a
+                  href={`mailto:${email}`}
+                  className="text-slate-700 hover:text-accent leading-tight font-light truncate transition-colors"
+                >
+                  {email}
+                </a>
+              </li>
             </ul>
 
             <div>

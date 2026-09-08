@@ -41,6 +41,7 @@ export default function ManageSettings() {
   const [socialLinks, setSocialLinks] = useState({
     facebook: '',
     youtube: '',
+    telegram: '',
     twitter: '',
     instagram: '',
   });
@@ -88,6 +89,7 @@ export default function ManageSettings() {
       setSocialLinks({
         facebook: socials.facebook || '',
         youtube: socials.youtube || '',
+        telegram: socials.telegram || '',
         twitter: socials.twitter || '',
         instagram: socials.instagram || '',
       });
@@ -532,6 +534,22 @@ export default function ManageSettings() {
                     value={socialLinks.instagram}
                     onChange={(e) => setSocialLinks({ ...socialLinks, instagram: e.target.value })}
                     placeholder="https://instagram.com/username"
+                    border=""
+                    inputClassName={`w-full px-3 py-2 text-sm bg-slate-50 border border-border rounded outline-none focus:border-accent ${language === 'ur' ? 'text-right' : 'text-left'}`}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase mb-1">
+                    {language === 'en' ? 'Telegram Channel Link' : 'ٹیلیگرام چینل کا لنک'}
+                  </label>
+                  <Input
+                    type="url"
+                    value={socialLinks.telegram || ''}
+                    onChange={(e) => setSocialLinks({ ...socialLinks, telegram: e.target.value })}
+                    placeholder="https://t.me/username"
                     border=""
                     inputClassName={`w-full px-3 py-2 text-sm bg-slate-50 border border-border rounded outline-none focus:border-accent ${language === 'ur' ? 'text-right' : 'text-left'}`}
                   />

@@ -98,8 +98,12 @@ export const FOOTER_SITEMAP = ['صفحہ اول', 'تعارف', 'دارالاف�
 export const FOOTER_DEPTS   = ['مسلہ پوچھیں', 'خواب کی تعبیر معلوم کریں', 'مسنون وماثور دعائیں', 'نماز کے اوقات', 'رابطہ', 'طریقہ تعاون']
 
 export const CONTACT = {
-  poBox:  'P.O. Box : 3465. Karachi-74800',
-  phone1: '+92-21-34123366',
-  phone2: '+92-21-34914665',
-  email:  'info@banuri.edu.pk',
-}
+  address: 'دارالقضاء ادارۂ شرعیہ اورنگ آباد، بہار (انڈیا)',
+  phone: '+918317780566',
+  email: 'faizansarwarmisbahi@gmail.com',
+  whatsapp: 'https://whatsapp.com/channel/0029Va62ICRDZ4LaWYNIr32k',
+  telegram: 'https://t.me/faizansarwarmisbahi',
+  youtube: 'https://youtube.com/@faizansarwarmisbahi5651?si=KGBF1iU1VQ0DUTPM',
+  facebook: 'https://www.facebook.com/share/1JcsQwS4h5/',
+};
+

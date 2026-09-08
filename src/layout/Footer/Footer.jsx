@@ -1,8 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { BookOpen, Mail, Phone, MapPin, Send, Facebook, Youtube, Twitter, Instagram, Shield } from 'lucide-react';
+import { BookOpen, Mail, Phone, MapPin, Send, Facebook, Youtube, Shield } from 'lucide-react';
+import { FaWhatsapp, FaTelegramPlane } from 'react-icons/fa';
 import { useSettings } from '@/hooks/useSettings';
 import { COLORS } from '@/utils/themeColors';
+import { OFFICIAL_CONTACT, OFFICIAL_SOCIAL_LINKS } from '@/constants/contact';
 
 import { Input } from '@/components';
 import logoImg from '@/assets/images/logo.jpeg';
@@ -14,12 +16,15 @@ export default function Footer() {
   const scholarName = settings?.scholarInfo?.fullName || '';
   const scholarTitle = settings?.scholarInfo?.title || '';
 
-  const address = settings?.contactInfo?.address || '';
-  const phone = settings?.contactInfo?.phone || '';
-  const whatsapp = settings?.contactInfo?.whatsapp || '';
-  const email = settings?.contactInfo?.email || '';
+  const address = settings?.contactInfo?.address || OFFICIAL_CONTACT.address;
+  const phone = settings?.contactInfo?.phone || OFFICIAL_CONTACT.phone;
+  const whatsapp = settings?.contactInfo?.whatsapp || OFFICIAL_SOCIAL_LINKS.whatsapp;
+  const email = settings?.contactInfo?.email || OFFICIAL_CONTACT.email;
 
-  const socialLinks = settings?.socialLinks || {};
+  const socialLinks = {
+    ...OFFICIAL_SOCIAL_LINKS,
+    ...(settings?.socialLinks || {}),
+  };
 
   return (
     <footer
@@ -78,28 +83,28 @@ export default function Footer() {
                 <Youtube className="w-4 h-4" />
               </a>
             )}
-            {socialLinks.twitter && (
+            {socialLinks.whatsapp && (
               <a
-                href={socialLinks.twitter}
+                href={socialLinks.whatsapp}
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{ color: "#F7F1E8", borderColor: "#A8793E" }}
                 className="p-2 rounded-xl bg-[#3D2E22] border hover:text-[#DFC8A4] hover:border-[#DFC8A4] transition-colors"
-                aria-label="Twitter"
+                aria-label="WhatsApp"
               >
-                <Twitter className="w-4 h-4" />
+                <FaWhatsapp className="w-4 h-4" />
               </a>
             )}
-            {socialLinks.instagram && (
+            {socialLinks.telegram && (
               <a
-                href={socialLinks.instagram}
+                href={socialLinks.telegram}
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{ color: "#F7F1E8", borderColor: "#A8793E" }}
                 className="p-2 rounded-xl bg-[#3D2E22] border hover:text-[#DFC8A4] hover:border-[#DFC8A4] transition-colors"
-                aria-label="Instagram"
+                aria-label="Telegram"
               >
-                <Instagram className="w-4 h-4" />
+                <FaTelegramPlane className="w-4 h-4" />
               </a>
             )}
           </div>
@@ -171,7 +176,7 @@ export default function Footer() {
             style={{ color: "#F7F1E8", borderColor: "#A8793E" }}
             className="font-semibold text-md mb-4 border-b pb-2 uppercase tracking-wider"
           >
-            {language === 'en' ? 'Contact Scholar' : 'عالم صاحب سے رابطہ'}
+            {language === 'en' ? 'Contact Mufti Sahab' : 'مفتی صاحب سے رابطہ کریں'}
           </h3>
           <ul className="space-y-3.5 text-sm font-light">
             <li className="flex items-start gap-2.5 justify-start">
@@ -180,22 +185,39 @@ export default function Footer() {
             </li>
             <li className="flex items-center gap-2.5 justify-start">
               <Phone className="w-4 h-4 shrink-0" style={{ color: "#A8793E" }} />
-              <span className="text-[#F7F1E8]">{phone}</span>
+              <a
+                href={`tel:${phone}`}
+                className="text-[#F7F1E8] hover:text-[#DFC8A4] transition-colors dir-ltr font-sans"
+              >
+                {phone}
+              </a>
             </li>
             {whatsapp && (
               <li className="flex items-center gap-2.5 justify-start">
-                <span
-                  style={{ color: "#F7F1E8", backgroundColor: "#3D2E22", borderColor: "#A8793E" }}
-                  className="font-bold text-xs rounded px-2 py-0.5 border"
+                <a
+                  href={whatsapp}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-[#F7F1E8] hover:text-[#DFC8A4] transition-colors"
                 >
-                  {language === 'en' ? 'WhatsApp' : 'واٹس ایپ'}
-                </span>
-                <span className="text-[#F7F1E8]">{whatsapp}</span>
+                  <span
+                    style={{ color: "#F7F1E8", backgroundColor: "#3D2E22", borderColor: "#A8793E" }}
+                    className="font-bold text-xs rounded px-2 py-0.5 border flex items-center gap-1.5"
+                  >
+                    <FaWhatsapp className="w-3.5 h-3.5 text-[#25D366]" />
+                    {language === 'en' ? 'WhatsApp Channel' : 'واٹس ایپ چینل'}
+                  </span>
+                </a>
               </li>
             )}
             <li className="flex items-center gap-2.5 justify-start">
               <Mail className="w-4 h-4 shrink-0" style={{ color: "#A8793E" }} />
-              <span className="text-[#F7F1E8]">{email}</span>
+              <a
+                href={`mailto:${email}`}
+                className="text-[#F7F1E8] hover:text-[#DFC8A4] transition-colors truncate font-sans"
+              >
+                {email}
+              </a>
             </li>
           </ul>
         </div>

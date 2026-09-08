@@ -48,5 +48,9 @@ export const QUESTIONS = "/questions";
 export const PUBLICATIONS = "/books";
 export const LECTURES = "/lectures";
 
+// Content Counts
+export const CONTENT_COUNTS = "/content-counts";
+
 // YouTube
 export const YOUTUBE = "/youtube";
+
