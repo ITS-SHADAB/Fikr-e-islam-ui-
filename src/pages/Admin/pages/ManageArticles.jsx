@@ -181,6 +181,16 @@ export default function ManageArticles() {
     setActionError(null);
     setActionLoading(true);
 
+    if (!formFields.title?.trim() || !formFields.summary?.trim() || !formFields.category) {
+      setActionError(
+        language === 'en'
+          ? 'Title, summary, and category are required'
+          : 'عنوان، خلاصہ اور زمرہ درکار ہیں'
+      );
+      setActionLoading(false);
+      return;
+    }
+
     if (!editingId && !thumbnailFile) {
       setActionError(
         language === 'en'

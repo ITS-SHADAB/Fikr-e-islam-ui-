@@ -343,9 +343,12 @@ export default function Login({
                 Create one here
               </button>
             ) : (
-              <span className="text-primary font-bold">
+              <Link
+                to="/signup"
+                className="text-primary hover:text-primary/80 font-bold transition-colors underline underline-offset-2 cursor-pointer inline"
+              >
                 Create one here
-              </span>
+              </Link>
             )}
           </p>
 

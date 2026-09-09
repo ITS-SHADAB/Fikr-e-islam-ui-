@@ -48,14 +48,7 @@ export default function ArticleDetail() {
     type: "articles_detail",
     params: rawParam,
     fetcher: async () => {
-      let activeSlug = rawParam;
-      if (rawParam && /^[0-9a-fA-F]{24}$/.test(rawParam)) {
-        const res = await getArticles({ limit: 1000 });
-        const matched = res?.articles?.find((a) => a?._id === rawParam);
-        if (matched?.slug) activeSlug = matched.slug;
-      }
-
-      const data = await getArticleBySlug(activeSlug);
+      const data = await getArticleBySlug(rawParam);
       const articleData = data?.article || data;
       let related = data?.related || [];
       if (!related.length && articleData?.category) {

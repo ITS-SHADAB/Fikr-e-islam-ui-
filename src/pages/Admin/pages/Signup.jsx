@@ -466,7 +466,12 @@ export default function Signup({ isModal = false, onClose, onSwitchToLogin }) {
                 Sign in here
               </button>
             ) : (
-              <span className="text-primary font-bold">Sign in here</span>
+              <Link
+                to="/login"
+                className="text-primary hover:text-primary/80 font-bold transition-colors underline underline-offset-2 cursor-pointer inline"
+              >
+                Sign in here
+              </Link>
             )}
           </p>
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { Navigate, Link } from "react-router-dom";
 import {
   User,
@@ -22,17 +22,17 @@ import {
   Activity,
   Building2,
   ExternalLink,
+  Edit2,
+  Camera,
+  Upload,
+  X,
 } from "lucide-react";
-import { getMyComments, getMyQuestions } from "@/services";
+import { getMyComments, getMyQuestions, updateMyProfile } from "@/services";
+import { updateUserProfile } from "@/store/slices/authSlice";
 import { COLORS } from "@/utils/themeColors";
-import Modal from "@/components/Modal/Modal";
-import Login from "@/pages/Admin/pages/Login";
-import Signup from "@/pages/Admin/pages/Signup";
-
-import ForgotPassword from "@/pages/Admin/pages/ForgotPassword";
-import ResetPassword from "@/pages/Admin/pages/ResetPassword";
-
-import { Spinner } from "@/components";
+import { useAuthModal } from "@/context/AuthModalContext";
+import { Spinner, Modal } from "@/components";
+import toast from "react-hot-toast";
 
 /* ── Helpers ──────────────────────────────────────────────────────────── */
 function fmt(date) {
@@ -384,36 +384,83 @@ function ColHeader({ icon: Icon, title, count, iconBg }) {
    Main Page
 ═══════════════════════════════════════════════════════════════════════ */
 export default function MyDetails() {
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [authMode, setAuthMode] = useState("login"); // "login" | "signup" | "forgot-password" | "reset-password"
-  const [resetToken, setResetToken] = useState("");
-
-  const openLogin = () => {
-    setAuthMode("login");
-    setIsAuthModalOpen(true);
-  };
-
-  const openSignup = () => {
-    setAuthMode("signup");
-    setIsAuthModalOpen(true);
-  };
-
-  const closeAuthModal = () => {
-    setIsAuthModalOpen(false);
-  };
-
+  const dispatch = useDispatch();
+  const { openLogin } = useAuthModal();
   const { isAuthenticated, loggedInUser } = useSelector((s) => s.auth);
-
-  useEffect(() => {
-    if (isAuthenticated && isAuthModalOpen) {
-      setIsAuthModalOpen(false);
-    }
-  }, [isAuthenticated, isAuthModalOpen]);
 
   const [comments, setComments] = useState([]);
   const [questions, setQuestions] = useState([]);
   const [loadingC, setLoadingC] = useState(true);
   const [loadingQ, setLoadingQ] = useState(true);
+
+  // Edit Profile State
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [editName, setEditName] = useState("");
+  const [editPhone, setEditPhone] = useState("");
+  const [editImageFile, setEditImageFile] = useState(null);
+  const [previewImage, setPreviewImage] = useState(null);
+  const [editLoading, setEditLoading] = useState(false);
+  const [editError, setEditError] = useState("");
+
+  const openEditModal = () => {
+    setEditName(loggedInUser?.name || "");
+    setEditPhone(loggedInUser?.contactPhone || "");
+    setEditImageFile(null);
+    setPreviewImage(null);
+    setEditError("");
+    setIsEditOpen(true);
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setEditImageFile(file);
+      setPreviewImage(URL.createObjectURL(file));
+    }
+  };
+
+  const handleUpdateProfile = async (e) => {
+    e.preventDefault();
+    setEditError("");
+
+    if (!editName.trim()) {
+      setEditError("Name is required / نام درکار ہے");
+      return;
+    }
+
+    const phoneRegex = /^[6-9]\d{9}$/;
+    if (editPhone.trim() && !phoneRegex.test(editPhone.trim())) {
+      setEditError(
+        "Contact phone must be a valid 10-digit number starting with 6-9."
+      );
+      return;
+    }
+
+    try {
+      setEditLoading(true);
+      const formData = new FormData();
+      formData.append("name", editName.trim());
+      if (editPhone.trim()) {
+        formData.append("contactPhone", editPhone.trim());
+      }
+      if (editImageFile) {
+        formData.append("profileImage", editImageFile);
+      }
+
+      const res = await updateMyProfile(formData);
+      if (res?.success) {
+        dispatch(updateUserProfile(res.data));
+        toast.success(res.message || "Profile updated successfully!");
+        setIsEditOpen(false);
+      }
+    } catch (err) {
+      setEditError(
+        err.response?.data?.message || err.message || "Failed to update profile."
+      );
+    } finally {
+      setEditLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (!isAuthenticated) return;
@@ -458,52 +505,6 @@ export default function MyDetails() {
           </button>
         </div>
 
-        {/* Local Auth Modal */}
-        <Modal
-          isOpen={isAuthModalOpen}
-          onClose={closeAuthModal}
-          title={
-            authMode === "login"
-              ? "Sign In"
-              : authMode === "signup"
-                ? "Create Account"
-                : authMode === "reset-password"
-                  ? "Reset Password"
-                  : "Forgot Password"
-          }
-          maxWidth={authMode === "signup" ? "max-w-xl" : "max-w-md"}
-          height="max-h-[92vh]"
-          dir="ltr"
-        >
-          {authMode === "login" ? (
-            <Login
-              isModal={true}
-              onClose={closeAuthModal}
-              onSwitchToSignup={() => setAuthMode("signup")}
-              onSwitchToForgotPassword={() => setAuthMode("forgot-password")}
-            />
-          ) : authMode === "signup" ? (
-            <Signup
-              isModal={true}
-              onClose={closeAuthModal}
-              onSwitchToLogin={() => setAuthMode("login")}
-            />
-          ) : authMode === "reset-password" ? (
-            <ResetPassword
-              isModal={true}
-              token={resetToken}
-              onClose={closeAuthModal}
-              onSwitchToLogin={() => setAuthMode("login")}
-              onSwitchToForgotPassword={() => setAuthMode("forgot-password")}
-            />
-          ) : (
-            <ForgotPassword
-              isModal={true}
-              onClose={closeAuthModal}
-              onBackToLogin={() => setAuthMode("login")}
-            />
-          )}
-        </Modal>
       </div>
     );
   }
@@ -563,7 +564,7 @@ export default function MyDetails() {
         {/* Action Link Row */}
         <div
           style={{ borderColor: COLORS.border }}
-          className="flex justify-between items-center bg-white border-2 p-3"
+          className="flex justify-between items-center bg-white border-2 p-3 flex-wrap gap-2"
         >
           <Link
             to="/"
@@ -573,6 +574,15 @@ export default function MyDetails() {
             <ArrowLeft className="w-4 h-4" />
             Back to official portal
           </Link>
+          <button
+            type="button"
+            onClick={openEditModal}
+            style={{ backgroundColor: COLORS.primary }}
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-white text-xs font-bold hover:opacity-90 transition-all shadow-xs cursor-pointer"
+          >
+            <Edit2 className="w-3.5 h-3.5" />
+            <span>Edit Profile / پروفائل میں ترمیم</span>
+          </button>
         </div>
 
         {/* Info Grid */}
@@ -649,51 +659,123 @@ export default function MyDetails() {
         </div>
       </div>
 
-      {/* Local Auth Modal */}
+      {/* Edit Profile Modal */}
       <Modal
-        isOpen={isAuthModalOpen}
-        onClose={closeAuthModal}
-        title={
-          authMode === "login"
-            ? "Sign In"
-            : authMode === "signup"
-              ? "Create Account"
-              : authMode === "reset-password"
-                ? "Reset Password"
-                : "Forgot Password"
-        }
-        maxWidth={authMode === "signup" ? "max-w-xl" : "max-w-md"}
-        height="max-h-[92vh]"
+        isOpen={isEditOpen}
+        onClose={() => setIsEditOpen(false)}
+        title="Edit Profile / پروفائل میں ترمیم"
+        maxWidth="max-w-md"
         dir="ltr"
       >
-        {authMode === "login" ? (
-          <Login
-            isModal={true}
-            onClose={closeAuthModal}
-            onSwitchToSignup={() => setAuthMode("signup")}
-            onSwitchToForgotPassword={() => setAuthMode("forgot-password")}
-          />
-        ) : authMode === "signup" ? (
-          <Signup
-            isModal={true}
-            onClose={closeAuthModal}
-            onSwitchToLogin={() => setAuthMode("login")}
-          />
-        ) : authMode === "reset-password" ? (
-          <ResetPassword
-            isModal={true}
-            token={resetToken}
-            onClose={closeAuthModal}
-            onSwitchToLogin={() => setAuthMode("login")}
-            onSwitchToForgotPassword={() => setAuthMode("forgot-password")}
-          />
-        ) : (
-          <ForgotPassword
-            isModal={true}
-            onClose={closeAuthModal}
-            onBackToLogin={() => setAuthMode("login")}
-          />
-        )}
+        <form onSubmit={handleUpdateProfile} className="space-y-4 p-2">
+          {editError && (
+            <div className="bg-red-50 border border-red-200 text-red-700 text-xs p-3 rounded-xl flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0 text-red-500" />
+              <span>{editError}</span>
+            </div>
+          )}
+
+          {/* Avatar / Photo Upload */}
+          <div className="flex flex-col items-center justify-center gap-3 py-2">
+            <div className="relative">
+              {previewImage ? (
+                <img
+                  src={previewImage}
+                  alt="Preview"
+                  className="w-20 h-20 rounded-full object-cover border-2 border-primary shadow-sm"
+                />
+              ) : user?.profileImage?.url ? (
+                <img
+                  src={user.profileImage.url}
+                  alt={user.name}
+                  className="w-20 h-20 rounded-full object-cover border-2 border-primary shadow-sm"
+                />
+              ) : (
+                <div
+                  style={{ backgroundColor: COLORS.primary }}
+                  className="w-20 h-20 rounded-full border-2 border-white shadow-sm flex items-center justify-center text-white text-2xl font-bold"
+                >
+                  {(user?.name || "U")[0]?.toUpperCase()}
+                </div>
+              )}
+              <label
+                htmlFor="profile-image-upload"
+                className="absolute bottom-0 right-0 p-1.5 rounded-full bg-primary text-white hover:bg-primary/90 cursor-pointer shadow-md transition-colors"
+                title="Change Photo"
+              >
+                <Camera className="w-3.5 h-3.5" />
+                <input
+                  id="profile-image-upload"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="hidden"
+                />
+              </label>
+            </div>
+            <span className="text-[11px] text-slate-500 font-medium">
+              Click camera icon to change photo
+            </span>
+          </div>
+
+          {/* Name Field */}
+          <div className="space-y-1">
+            <label className="block text-xs font-bold text-slate-600 uppercase tracking-wide">
+              Full Name / مکمل نام *
+            </label>
+            <input
+              type="text"
+              value={editName}
+              onChange={(e) => setEditName(e.target.value)}
+              required
+              placeholder="Your full name"
+              className="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl outline-none focus:border-primary transition-colors"
+            />
+          </div>
+
+          {/* Contact Phone Field */}
+          <div className="space-y-1">
+            <label className="block text-xs font-bold text-slate-600 uppercase tracking-wide">
+              Contact Phone / رابطہ نمبر
+            </label>
+            <input
+              type="tel"
+              value={editPhone}
+              onChange={(e) => setEditPhone(e.target.value)}
+              placeholder="e.g. 9876543210 (10 digits)"
+              className="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl outline-none focus:border-primary transition-colors"
+            />
+            <span className="text-[10.5px] text-slate-400 block">
+              10-digit mobile number starting with 6, 7, 8, or 9
+            </span>
+          </div>
+
+          {/* Buttons */}
+          <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-200">
+            <button
+              type="button"
+              onClick={() => setIsEditOpen(false)}
+              className="px-4 py-2 border border-slate-300 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-colors cursor-pointer"
+            >
+              Cancel / منسوخ
+            </button>
+            <button
+              type="submit"
+              disabled={editLoading}
+              style={{ backgroundColor: COLORS.primary }}
+              className="px-5 py-2 rounded-xl text-xs font-bold text-white hover:opacity-90 transition-all shadow-xs disabled:opacity-50 cursor-pointer flex items-center gap-1.5"
+            >
+              {editLoading ? (
+                <>
+                  <Spinner size="sm" />
+                  <span>Saving...</span>
+                </>
+              ) : (
+                <span>Save Changes / محفوظ کریں</span>
+              )}
+            </button>
+          </div>
+        </form>
       </Modal>
     </div>
   );

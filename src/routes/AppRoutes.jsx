@@ -66,7 +66,6 @@ export default function AppRoutes() {
           <Route path="articles" element={<ArticlesList />} />
           <Route path="articles/slug/:slug" element={<ArticleDetail />} />
           <Route path="articles/:slug" element={<ArticleDetail />} />
-          <Route path="articles/:id" element={<ArticleDetail />} />
 
           <Route path="fatwas" element={<FatwasList />} />
           <Route path="fatwas/:slug" element={<FatwaDetail />} />
@@ -79,13 +78,12 @@ export default function AppRoutes() {
           <Route path="publications/slug/:slug" element={<BookDetail />} />
           <Route path="publications/:slug" element={<BookDetail />} />
           <Route path="books" element={<PublicationsList />} />
-          <Route path="books/slug/:slug" element={<BookDetail />} />
-          <Route path="books/:slug" element={<BookDetail />} />
           <Route path="lectures" element={<LecturesList />} />
           <Route path="events" element={<EventsList />} />
           <Route path="contact" element={<ContactPage />} />
           <Route path="my-details" element={<MyDetails />} />
           <Route path="login" element={<Login />} />
+          <Route path="signup" element={<Signup />} />
           <Route path="forgot-password" element={<ForgotPassword />} />
           <Route path="reset-password/:token" element={<ResetPassword />} />
           <Route path="reset-password" element={<ResetPassword />} />

@@ -42,16 +42,7 @@ export default function FatwaDetail() {
     type: "fatwas_detail",
     params: slug,
     fetcher: async () => {
-      let activeSlug = slug;
-      if (/^[0-9a-fA-F]{24}$/.test(slug)) {
-        const res = await getFatwas({ limit: 1000 });
-        const matched = res?.fatwas?.find((f) => f?._id === slug);
-        if (matched?.slug) {
-          activeSlug = matched.slug;
-        }
-      }
-
-      const data = await getFatwaBySlug(activeSlug);
+      const data = await getFatwaBySlug(slug);
       const fatwaData = data?.fatwa || data;
       let related = data?.related || [];
       if (!related.length && fatwaData?.category) {

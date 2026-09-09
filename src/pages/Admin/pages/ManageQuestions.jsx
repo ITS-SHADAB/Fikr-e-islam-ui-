@@ -294,7 +294,7 @@ export default function ManageQuestions() {
       setActionId(id);
       await permanentDeleteQuestion(id);
       if (activeQuestion?._id === id) closeAnswerModal();
-      showSuccess('سوال حذف کر دیا گیا۔');
+      showSuccess('سوال مستقل طور پر حذف کر دیا گیا۔');
       loadQuestions(page, statusFilter, categoryFilter, searchTerm);
       loadStats();
     } catch (err) {
@@ -667,7 +667,7 @@ export default function ManageQuestions() {
                           type="button"
                           onClick={(e) => handleDelete(q._id, e)}
                           className="p-1 text-red-500 hover:bg-red-50 rounded transition-colors cursor-pointer"
-                          title="حذف کریں"
+                          title="مستقل حذف کریں"
                         >
                           <Trash2 className="w-3 h-3" />
                         </button>
@@ -734,20 +734,16 @@ export default function ManageQuestions() {
                 <div className="space-y-0.5">
                   <span className="font-bold text-slate-800 flex items-center gap-1">
                     <User className="w-3 h-3 text-slate-400" />
-                    سائل: {activeQuestion.fullName || activeQuestion.user?.name || 'نامعلوم'}
+                    سائل: {activeQuestion.fullName || activeQuestion.user?.name || 'Not available'}
                   </span>
-                  {(activeQuestion.email || activeQuestion.user?.email) && (
-                    <span className="text-slate-500 flex items-center gap-1 text-[10px]">
-                      <Mail className="w-2.5 h-2.5 text-slate-400" />
-                      {activeQuestion.email || activeQuestion.user?.email}
-                    </span>
-                  )}
-                  {(activeQuestion.contactPhone || activeQuestion.user?.contactPhone) && (
-                    <span className="text-slate-500 flex items-center gap-1 text-[10px] font-mono">
-                      <Phone className="w-2.5 h-2.5 text-slate-400" />
-                      {activeQuestion.contactPhone || activeQuestion.user?.contactPhone}
-                    </span>
-                  )}
+                  <span className="text-slate-500 flex items-center gap-1 text-[10px]">
+                    <Mail className="w-2.5 h-2.5 text-slate-400" />
+                    ای میل: {activeQuestion.email || activeQuestion.user?.loginEmail || activeQuestion.user?.email || 'Not available'}
+                  </span>
+                  <span className="text-slate-500 flex items-center gap-1 text-[10px] font-mono">
+                    <Phone className="w-2.5 h-2.5 text-slate-400" />
+                    فون: {activeQuestion.contactPhone || activeQuestion.user?.loginPhone || activeQuestion.user?.contactPhone || 'Not available'}
+                  </span>
                 </div>
                 <div className="space-y-0.5">
                   <span className="font-bold text-slate-800 flex items-center gap-1">
@@ -928,10 +924,10 @@ export default function ManageQuestions() {
           setDeleteTargetId(null);
         }}
         onConfirm={handleConfirmDelete}
-        title="سوال حذف کرنے کی تصدیق"
-        message="کیا آپ واقعی اس سوال کو حذف کرنا چاہتے ہیں؟"
+        title="مستقل حذف کی تصدیق"
+        message="کیا آپ واقعی اس سوال کو مستقل طور پر ڈیٹا بیس سے حذف کرنا چاہتے ہیں؟ یہ عمل ناقابلِ واپسی ہے اور سوال دوبارہ بحال نہیں کیا جا سکے گا۔"
         type="danger"
-        confirmText="ہاں، حذف کریں"
+        confirmText="ہاں، مستقل حذف کریں"
         cancelText="منسوخ کریں"
       />
 

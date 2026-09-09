@@ -21,11 +21,7 @@ import NotificationDropdown from "@/components/Notification/NotificationDropdown
 import { logout } from "@/store/slices/authSlice";
 import { useSettings } from "@/hooks/useSettings";
 import { logoutUser } from "@/services";
-import Modal from "@/components/Modal/Modal";
-import Login from "@/pages/Admin/pages/Login";
-import Signup from "@/pages/Admin/pages/Signup";
-import ForgotPassword from "@/pages/Admin/pages/ForgotPassword";
-import ResetPassword from "@/pages/Admin/pages/ResetPassword";
+import { useAuthModal } from "@/context/AuthModalContext";
 import headerProfileImg from "@/assets/images/header-profile.jpg";
 
 import logoImg from "@/assets/images/logo.jpeg";
@@ -149,9 +145,6 @@ export default function Header() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [authMode, setAuthMode] = useState("login"); // "login" | "signup" | "forgot-password" | "reset-password"
-  const [resetToken, setResetToken] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
@@ -190,41 +183,7 @@ export default function Header() {
   const language =
     settings?.language === "ur" || settings?.language === "Urdu" ? "ur" : "en";
   const isUrdu = language === "ur";
-
-  const openLogin = () => {
-    setAuthMode("login");
-    setIsAuthModalOpen(true);
-  };
-
-  const openResetPassword = (token = "") => {
-    setResetToken(token);
-    setAuthMode("reset-password");
-    setIsAuthModalOpen(true);
-  };
-
-  const closeAuthModal = () => {
-    setIsAuthModalOpen(false);
-  };
-
-  // Listen for global auth modal requests (e.g. from buttons or links)
-  useEffect(() => {
-    const handleAuthEvent = (e) => {
-      const mode = e?.detail?.mode || "login";
-      const token = e?.detail?.token || "";
-      if (token) setResetToken(token);
-      setAuthMode(mode);
-      setIsAuthModalOpen(true);
-    };
-
-    window.addEventListener("open-auth-modal", handleAuthEvent);
-    return () => window.removeEventListener("open-auth-modal", handleAuthEvent);
-  }, []);
-
-  useEffect(() => {
-    if (isAuthenticated && isAuthModalOpen) {
-      setIsAuthModalOpen(false);
-    }
-  }, [isAuthenticated, isAuthModalOpen]);
+  const { openLogin, openResetPassword, closeAuthModal } = useAuthModal();
 
   // Click outside profile dropdown
   useEffect(() => {
@@ -797,24 +756,9 @@ export default function Header() {
 
               {/* Notification Bell & Profile for Logged-in Users */}
               {isAuthenticated || userRole === "admin" ? (
-                <div ref={profileDropdownRef} className="relative z-50">
-                  <button
-                    type="button"
-                    onClick={() => setShowProfileDropdown((prev) => !prev)}
-                    className="rounded-full border border-[#A8793E] bg-[#2B2118] text-[#F7F1E8] px-2.5 py-0.5 flex items-center gap-1.5 text-xs font-semibold hover:bg-[#3D2E22] transition-all cursor-pointer shadow-xs"
-                  >
-                    <div className="w-5 h-5 rounded-full bg-[#A8793E] text-[#2B2118] font-bold text-[10px] flex items-center justify-center shrink-0">
-                      {getInitials(loggedInUser)}
-                    </div>
-                    <span className="hidden sm:inline max-w-[90px] truncate">
-                      {loggedInUser?.name?.split(" ")[0] ||
-                        (isUrdu ? "پروفائل" : "Profile")}
-                    </span>
-                    <ChevronDown className="w-3 h-3 text-[#A8793E]" />
-                  </button>
-                  <>
-                    {/* Notification Bell */}
-                    <div ref={notifBellRef} className="relative z-50">
+                <>
+                  {/* Notification Bell */}
+                  <div ref={notifBellRef} className="relative z-50">
                       <button
                         type="button"
                         onClick={() => {
@@ -945,8 +889,7 @@ export default function Header() {
                       </AnimatePresence>
                     </div>
                   </>
-                  ) : (
-                  /* Login Pill Button (لاگ ان with User Icon) */
+                ) : (
                   <button
                     type="button"
                     onClick={openLogin}
@@ -1151,52 +1094,6 @@ export default function Header() {
           document.body
         )}
 
-      {/* Local Auth Modal for Login, Signup, Forgot Password & Reset Password */}
-      <Modal
-        isOpen={isAuthModalOpen}
-        onClose={closeAuthModal}
-        title={
-          authMode === "login"
-            ? "Sign In"
-            : authMode === "signup"
-              ? "Create Account"
-              : authMode === "reset-password"
-                ? "Reset Password"
-                : "Forgot Password"
-        }
-        maxWidth={authMode === "signup" ? "max-w-xl" : "max-w-md"}
-        height="max-h-[92vh]"
-        dir="ltr"
-      >
-        {authMode === "login" ? (
-          <Login
-            isModal={true}
-            onClose={closeAuthModal}
-            onSwitchToSignup={() => setAuthMode("signup")}
-            onSwitchToForgotPassword={() => setAuthMode("forgot-password")}
-          />
-        ) : authMode === "signup" ? (
-          <Signup
-            isModal={true}
-            onClose={closeAuthModal}
-            onSwitchToLogin={() => setAuthMode("login")}
-          />
-        ) : authMode === "reset-password" ? (
-          <ResetPassword
-            isModal={true}
-            token={resetToken}
-            onClose={closeAuthModal}
-            onSwitchToLogin={() => setAuthMode("login")}
-            onSwitchToForgotPassword={() => setAuthMode("forgot-password")}
-          />
-        ) : (
-          <ForgotPassword
-            isModal={true}
-            onClose={closeAuthModal}
-            onBackToLogin={() => setAuthMode("login")}
-          />
-        )}
-      </Modal>
     </div>
   );
 }

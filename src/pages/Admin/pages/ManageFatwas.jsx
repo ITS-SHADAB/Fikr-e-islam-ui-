@@ -170,6 +170,17 @@ export default function ManageFatwas() {
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     setActionError(null);
+
+    if (
+      !formFields.title?.trim() ||
+      !formFields.category ||
+      !formFields.question?.trim() ||
+      !formFields.summary?.trim()
+    ) {
+      setActionError('عنوان، زمرہ، سوال اور خلاصہ درج کرنا ضروری ہے');
+      return;
+    }
+
     setActionLoading(true);
 
     try {

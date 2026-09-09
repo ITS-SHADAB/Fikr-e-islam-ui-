@@ -45,16 +45,7 @@ export default function BookDetail() {
     type: "publications_detail",
     params: rawParam,
     fetcher: async () => {
-      let activeSlug = rawParam;
-      if (rawParam && /^[0-9a-fA-F]{24}$/.test(rawParam)) {
-        const res = await getPublications({ limit: 1000 });
-        const matched = res.books?.find((b) => b._id === rawParam);
-        if (matched && matched.slug) {
-          activeSlug = matched.slug;
-        }
-      }
-
-      const data = await getPublicationBySlug(activeSlug);
+      const data = await getPublicationBySlug(rawParam);
       const bookData = data.book || data;
       let relatedBooks = [];
       try {

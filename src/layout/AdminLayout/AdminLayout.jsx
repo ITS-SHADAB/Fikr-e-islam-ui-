@@ -20,7 +20,6 @@ import {
   ChevronLeft,
   Bell,
   MessageSquare,
-  Youtube,
 } from "lucide-react";
 import { logout } from "@/store/slices/authSlice";
 import { logoutUser } from "@/services";
@@ -41,7 +40,6 @@ const NAV_LINKS = [
   { to: "/admin/comments", label: "تبصرے", icon: MessageSquare },
   { to: "/admin/notifications", label: "اطلاعات (نوٹیفیکیشنز)", icon: Bell },
   { to: "/admin/settings", label: "ترتیبات", icon: Settings },
-  // { to: '/admin/youtube', label: 'یوٹیوب', icon: Youtube },
 ];
 
 // Premium gradient sidebar palette

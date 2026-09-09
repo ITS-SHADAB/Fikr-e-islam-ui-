@@ -7,6 +7,7 @@ import { Toaster } from "react-hot-toast";
 import { checkAuthStatus } from "./store/slices/authSlice";
 import { fetchSettings } from "./store/slices/settingsSlice";
 import { NotificationProvider } from "./context/NotificationContext";
+import { AuthModalProvider } from "./context/AuthModalContext";
 import NotificationManager from "./components/Notification/NotificationManager";
 
 function AppInitializer({ children }) {
@@ -26,9 +27,11 @@ export default function App() {
       <BrowserRouter>
         <AppInitializer>
           <NotificationProvider>
-            <NotificationManager />
-            <AppRoutes />
-            <Toaster position="top-center" reverseOrder={false} />
+            <AuthModalProvider>
+              <NotificationManager />
+              <AppRoutes />
+              <Toaster position="top-center" reverseOrder={false} />
+            </AuthModalProvider>
           </NotificationProvider>
         </AppInitializer>
       </BrowserRouter>

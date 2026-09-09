@@ -36,3 +36,18 @@ export const getMyProfile = async () => {
     throw error;
   }
 };
+
+// Update current user profile
+// PUT /api/users/update_profile
+// Supports name, contactPhone, and file profileImage
+export const updateMyProfile = async (formData) => {
+  try {
+    const response = await API.put('/users/update_profile', formData);
+    return response.data;
+  } catch (error) {
+    console.error('updateMyProfile:', error.response?.data?.message || error.message);
+    toast.error(error.response?.data?.message || error.message);
+    throw error;
+  }
+};
+

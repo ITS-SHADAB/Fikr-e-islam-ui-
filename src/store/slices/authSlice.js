@@ -5,20 +5,37 @@ import {
   checkAuthStatus as checkAuthStatusApi,
 } from "@/services";
 
-// Check if token exists in local storage
-const token = localStorage.getItem("adminToken");
-const adminInfo = localStorage.getItem("adminInfo")
-  ? JSON.parse(localStorage.getItem("adminInfo") || "{}")
-  : null;
+// Helper to safely parse cached user from local storage
+const getStoredUser = () => {
+  try {
+    const raw = localStorage.getItem("adminInfo");
+    if (!raw || raw === "undefined" || raw === "null") return null;
+    const parsed = JSON.parse(raw);
+    const user = parsed?.data?.data || parsed?.data || parsed?.user || (parsed?._id ? parsed : null);
+    return user || null;
+  } catch {
+    return null;
+  }
+};
 
-// Normalize user object from localStorage
-const user = adminInfo?.data?.data || adminInfo?.data || adminInfo;
+// Helper to safely get stored token (only if genuine and non-empty)
+const getStoredToken = () => {
+  const t = localStorage.getItem("adminToken");
+  if (!t || t === "undefined" || t === "null") {
+    localStorage.removeItem("adminToken");
+    return null;
+  }
+  return t;
+};
+
+const initialUser = getStoredUser();
+const initialToken = getStoredToken();
 
 const initialState = {
-  loggedInUser: user,
-  token: token,
-  userRole: user?.role || null,
-  isAuthenticated: !!token,
+  loggedInUser: initialUser,
+  token: initialToken,
+  userRole: initialUser?.role || null,
+  isAuthenticated: !!initialUser,
   loading: false,
   error: null,
 };
@@ -28,10 +45,16 @@ export const register = createAsyncThunk(
   async (formData, thunkAPI) => {
     try {
       const data = await registerUser(formData);
+      const user = data?.data?.data || data?.data || data?.user;
 
-      // Save details to local storage
-      localStorage.setItem("adminToken", data.token);
-      localStorage.setItem("adminInfo", JSON.stringify(data));
+      if (user) {
+        localStorage.setItem("adminInfo", JSON.stringify(user));
+      }
+      if (data?.token && data.token !== "undefined" && data.token !== "null") {
+        localStorage.setItem("adminToken", data.token);
+      } else {
+        localStorage.removeItem("adminToken");
+      }
 
       return data;
     } catch (error) {
@@ -47,10 +70,16 @@ export const login = createAsyncThunk(
   async ({ username, password }, thunkAPI) => {
     try {
       const data = await loginUser({ username, password });
+      const user = data?.data?.data || data?.data || data?.user;
 
-      // Save details to local storage
-      localStorage.setItem("adminToken", data.token);
-      localStorage.setItem("adminInfo", JSON.stringify(data));
+      if (user) {
+        localStorage.setItem("adminInfo", JSON.stringify(user));
+      }
+      if (data?.token && data.token !== "undefined" && data.token !== "null") {
+        localStorage.setItem("adminToken", data.token);
+      } else {
+        localStorage.removeItem("adminToken");
+      }
 
       return data;
     } catch (error) {
@@ -68,7 +97,7 @@ export const checkAuthStatus = createAsyncThunk(
       const data = await checkAuthStatusApi();
       return data;
     } catch (error) {
-      // Token is expired or invalid
+      // Session is expired or invalid
       localStorage.removeItem("adminToken");
       localStorage.removeItem("adminInfo");
       return thunkAPI.rejectWithValue("Session expired");
@@ -98,6 +127,20 @@ const authSlice = createSlice({
     clearAuthError: (state) => {
       state.error = null;
     },
+    updateUserProfile: (state, action) => {
+      const user =
+        action.payload?.data?.data ||
+        action.payload?.data ||
+        action.payload?.user ||
+        action.payload;
+      if (user) {
+        state.loggedInUser = { ...state.loggedInUser, ...user };
+        state.userRole = user.role || state.loggedInUser?.role || "user";
+        try {
+          localStorage.setItem("adminInfo", JSON.stringify(state.loggedInUser));
+        } catch {}
+      }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -109,11 +152,17 @@ const authSlice = createSlice({
       .addCase(register.fulfilled, (state, action) => {
         state.loading = false;
         const user =
-          action.payload?.data?.data || action.payload?.data || action.payload;
+          action.payload?.data?.data ||
+          action.payload?.data ||
+          action.payload?.user ||
+          action.payload;
         state.loggedInUser = user;
-        state.token = action.payload?.token;
+        state.token =
+          action.payload?.token && action.payload.token !== "undefined"
+            ? action.payload.token
+            : null;
         state.userRole = user?.role || "user";
-        state.isAuthenticated = true;
+        state.isAuthenticated = !!user;
       })
       .addCase(register.rejected, (state, action) => {
         state.loading = false;
@@ -127,43 +176,52 @@ const authSlice = createSlice({
       .addCase(login.fulfilled, (state, action) => {
         state.loading = false;
         const user =
-          action.payload?.data?.data || action.payload?.data || action.payload;
+          action.payload?.data?.data ||
+          action.payload?.data ||
+          action.payload?.user ||
+          action.payload;
         state.loggedInUser = user;
-        state.token = action.payload?.token;
+        state.token =
+          action.payload?.token && action.payload.token !== "undefined"
+            ? action.payload.token
+            : null;
         state.userRole = user?.role || "user";
-        state.isAuthenticated = true;
+        state.isAuthenticated = !!user;
       })
       .addCase(login.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
       // Check Auth Status
+      .addCase(checkAuthStatus.pending, (state) => {
+        state.loading = true;
+      })
       .addCase(checkAuthStatus.fulfilled, (state, action) => {
+        state.loading = false;
         const user =
-          action.payload?.data?.data || action.payload?.data || action.payload;
+          action.payload?.data?.data ||
+          action.payload?.data ||
+          action.payload?.user ||
+          action.payload;
         state.loggedInUser = user;
         state.userRole = user?.role || "user";
-        state.isAuthenticated = true;
+        state.isAuthenticated = !!user;
         state.error = null;
-        if (action.payload?.token) {
+
+        if (user) {
+          localStorage.setItem("adminInfo", JSON.stringify(user));
+        }
+
+        if (action.payload?.token && action.payload.token !== "undefined") {
           state.token = action.payload.token;
           localStorage.setItem("adminToken", action.payload.token);
-          localStorage.setItem("adminInfo", JSON.stringify(action.payload));
         } else {
-          // For cookie-based sessions (like Google OAuth), preserve session in localStorage
-          const existingToken =
-            localStorage.getItem("adminToken") || "google_session";
-          state.token = existingToken;
-          localStorage.setItem("adminToken", existingToken);
-          localStorage.setItem(
-            "adminInfo",
-            JSON.stringify(
-              action.payload?.data ? action.payload : { data: user }
-            )
-          );
+          state.token = null;
+          localStorage.removeItem("adminToken");
         }
       })
       .addCase(checkAuthStatus.rejected, (state) => {
+        state.loading = false;
         state.loggedInUser = null;
         state.token = null;
         state.userRole = null;
@@ -179,5 +237,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { logout, clearAuthError } = authSlice.actions;
+export const { logout, clearAuthError, updateUserProfile } = authSlice.actions;
 export default authSlice.reducer;
