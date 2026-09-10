@@ -1,0 +1,409 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   About / Taruf Page — Dedicated Modern Editorial Styles
+   Official Scholar Profile for Fikr-e-Islam
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ── Custom Typography Helpers ── */
+.about-urdu {
+  font-family: 'Payami Nastaleeq', 'Noto Nastaliq Urdu', 'Urdu Typesetting', serif;
+  letter-spacing: 0;
+}
+
+.about-quran {
+  font-family: 'Payami Quran', 'Noto Naskh Arabic', 'Amiri', serif;
+  letter-spacing: 0.02em;
+}
+
+/* ── Entrance Animations (Performance Optimized) ── */
+@keyframes aboutFadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .about-animate {
+    opacity: 0;
+    animation: aboutFadeInUp 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  .about-d-1 { animation-delay: 0.05s; }
+  .about-d-2 { animation-delay: 0.12s; }
+  .about-d-3 { animation-delay: 0.18s; }
+  .about-d-4 { animation-delay: 0.24s; }
+  .about-d-5 { animation-delay: 0.30s; }
+  .about-d-6 { animation-delay: 0.36s; }
+  .about-d-7 { animation-delay: 0.42s; }
+  .about-d-8 { animation-delay: 0.48s; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .about-animate {
+    opacity: 1 !important;
+    animation: none !important;
+    transform: none !important;
+  }
+}
+
+/* ── Top Full-Width Editorial Hero Banner ── */
+.about-banner-wrap {
+  width: 100%;
+}
+
+.about-banner-container {
+  position: relative;
+  width: 100%;
+  height: 160px; /* Mobile: 150–200px */
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(168, 121, 62, 0.28);
+  box-shadow: 0 4px 20px -2px rgba(43, 33, 24, 0.16);
+  background-color: #2B2118;
+}
+
+@media (min-width: 640px) {
+  .about-banner-container {
+    height: 215px; /* Tablet: 180–230px */
+    border-radius: 16px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .about-banner-container {
+    height: 260px; /* Desktop: 220–280px */
+    border-radius: 18px;
+  }
+}
+
+.about-banner-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 42%;
+  display: block;
+}
+
+/* Clean Vignette & Scrim (Preserves banner artwork while ensuring text legibility) */
+.about-banner-scrim {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(25, 17, 10, 0.38) 0%,
+    rgba(18, 12, 7, 0.58) 100%
+  );
+  pointer-events: none;
+}
+
+/* ── Scholar Image Premium Frame (Sharp, Clean & Unobstructed) ── */
+.about-image-frame {
+  position: relative;
+  background-color: #2B2118;
+  border: 1px solid rgba(168, 121, 62, 0.35);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 16px 36px -10px rgba(43, 33, 24, 0.28);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.about-image-frame:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 44px -10px rgba(43, 33, 24, 0.38);
+}
+
+
+
+/* ── Refined Card Hover Effects ── */
+.about-card {
+  background-color: #F7F1E8;
+  border: 1px solid rgba(168, 121, 62, 0.20);
+  border-radius: 18px;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.25s ease;
+}
+
+.about-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(168, 121, 62, 0.40);
+  box-shadow: 0 12px 28px -8px rgba(43, 33, 24, 0.12);
+}
+
+/* ── Desktop Timeline Track ── */
+.about-timeline-connector {
+  position: relative;
+}
+
+@media (min-width: 768px) {
+  .about-timeline-connector::before {
+    content: '';
+    position: absolute;
+    top: 26px;
+    left: 8%;
+    right: 8%;
+    height: 1px;
+    background: linear-gradient(
+      to right,
+      rgba(168, 121, 62, 0.10),
+      rgba(168, 121, 62, 0.40),
+      rgba(168, 121, 62, 0.10)
+    );
+    pointer-events: none;
+    z-index: 0;
+  }
+}
+
+/* ── Gold Shimmer Text Animation ── */
+@keyframes aboutGoldShimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.about-shimmer-gold {
+  background: linear-gradient(
+    90deg,
+    #A8793E 0%,
+    #D4A855 35%,
+    #F3E3D8 50%,
+    #D4A855 65%,
+    #A8793E 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: aboutGoldShimmer 4s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .about-shimmer-gold {
+    animation: none;
+    -webkit-text-fill-color: #A8793E;
+    color: #A8793E;
+  }
+}
+
+/* ── Editorial Quote Card Ribbon ── */
+.about-quote-ribbon {
+  background: linear-gradient(
+    90deg,
+    rgba(168, 121, 62, 0.08) 0%,
+    rgba(168, 121, 62, 0.18) 50%,
+    rgba(168, 121, 62, 0.08) 100%
+  );
+  border: 1px solid rgba(168, 121, 62, 0.25);
+  border-radius: 12px;
+}
+
+/* ── Mobile Layout Fine-Tuning ── */
+@media (max-width: 640px) {
+  .about-hero-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 28px !important;
+  }
+  .about-hero-img-wrap {
+    order: 1 !important;
+    width: 100% !important;
+    max-width: 310px !important;
+    margin: 0 auto !important;
+  }
+  .about-hero-content {
+    order: 2 !important;
+    text-align: center !important;
+  }
+  .about-hero-cta {
+    justify-content: center !important;
+  }
+  .about-hero-badges {
+    justify-content: center !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Key Areas — 6 Interactive Feature Cards & Detail Modal
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ── Section Header Quotation Boxes ── */
+.about-header-quote-box {
+  background-color: #FAF4EB;
+  border: 1px solid rgba(168, 121, 62, 0.22);
+  transition: border-color 0.25s ease, transform 0.25s ease;
+}
+
+.about-header-quote-box:hover {
+  border-color: rgba(168, 121, 62, 0.40);
+  transform: translateY(-2px);
+}
+
+/* ── 6 Interactive Key Area Cards ── */
+.about-key-card {
+  background-color: #F7F1E8;
+  border: 1px solid rgba(168, 121, 62, 0.22);
+  border-radius: 20px;
+  box-shadow: 0 4px 18px -4px rgba(43, 33, 24, 0.06);
+  min-height: 235px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  justify-content: space-between;
+  width: 100%;
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.25s ease;
+}
+
+.about-key-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(168, 121, 62, 0.50);
+  box-shadow: 0 16px 32px -8px rgba(43, 33, 24, 0.14);
+}
+
+.about-key-card:active {
+  transform: translateY(-1px);
+}
+
+@media (max-width: 640px) {
+  .about-key-card {
+    min-height: auto;
+    padding: 20px 16px;
+  }
+}
+
+.about-card-watermark {
+  background: radial-gradient(
+    circle at top right,
+    rgba(168, 121, 62, 0.07) 0%,
+    rgba(168, 121, 62, 0.02) 40%,
+    transparent 70%
+  );
+  opacity: 0.9;
+}
+
+.about-card-icon-badge {
+  background: linear-gradient(135deg, #2B2118 0%, #1c140e 100%);
+  border: 1px solid rgba(168, 121, 62, 0.42);
+  color: #FCE7A6;
+}
+
+.about-card-action-btn {
+  background-color: #2B2118;
+  border: 1px solid rgba(168, 121, 62, 0.35);
+  color: #FCE7A6;
+}
+
+/* ── Bottom Summary Ribbon ── */
+.about-key-ribbon {
+  background: linear-gradient(
+    90deg,
+    rgba(168, 121, 62, 0.07) 0%,
+    rgba(168, 121, 62, 0.18) 50%,
+    rgba(168, 121, 62, 0.07) 100%
+  );
+  border: 1px solid rgba(168, 121, 62, 0.24);
+}
+
+/* ── Key Area Detail Modal ── */
+.about-modal-backdrop {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 999999 !important;
+  background-color: rgba(20, 13, 7, 0.78) !important;
+  backdrop-filter: blur(6px) !important;
+  -webkit-backdrop-filter: blur(6px) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 16px !important;
+  animation: aboutModalFadeIn 0.2s ease-out forwards;
+}
+
+@keyframes aboutModalFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.about-modal-dialog {
+  position: relative !important;
+  width: 100% !important;
+  max-width: 580px !important;
+  max-height: 88vh !important;
+  background-color: #FBF7F0 !important;
+  border: 1.5px solid rgba(168, 121, 62, 0.45) !important;
+  border-radius: 24px !important;
+  box-shadow: 0 25px 65px -10px rgba(0, 0, 0, 0.7),
+              0 0 0 1px rgba(255, 255, 255, 0.15) inset !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+  z-index: 1000000 !important;
+  animation: aboutModalScaleUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes aboutModalScaleUp {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Modal Custom Scrollbar */
+.about-modal-dialog ::-webkit-scrollbar {
+  width: 6px;
+}
+
+.about-modal-dialog ::-webkit-scrollbar-track {
+  background: rgba(168, 121, 62, 0.05);
+}
+
+.about-modal-dialog ::-webkit-scrollbar-thumb {
+  background: rgba(168, 121, 62, 0.25);
+  border-radius: 999px;
+}
+
+.about-modal-dialog ::-webkit-scrollbar-thumb:hover {
+  background: rgba(168, 121, 62, 0.45);
+}
+
+@media (max-width: 480px) {
+  .about-modal-dialog {
+    border-radius: 18px;
+    max-height: 92vh;
+  }
+  .about-key-card {
+    min-height: auto;
+  }
+}
+
+/* ── Education Journey & Stage Cards inside Modal ── */
+.about-stage-card {
+  background-color: #FAF6F0;
+  border: 1px solid rgba(168, 121, 62, 0.25);
+  border-radius: 14px;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.about-stage-card:hover {
+  background-color: #F8F1E7;
+  border-color: rgba(168, 121, 62, 0.45);
+}
+
