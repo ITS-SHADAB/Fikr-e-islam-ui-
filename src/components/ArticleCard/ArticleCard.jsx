@@ -68,13 +68,14 @@ export default function ArticleCard({ article }) {
         }}
       >
         {/* ── Hero Banner Image ── */}
-        <Link to={detailUrl} className="block relative overflow-hidden" style={{ height: showImage ? "200px" : "0" }}>
+        <Link to={detailUrl} className="block relative overflow-hidden bg-[#F3E3D8]" style={{ height: showImage ? "200px" : "0" }}>
           {showImage && (
             <>
               <img
                 src={imageSrc}
                 alt={article?.title || ""}
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                decoding="async"
                 onError={() => setImgError(true)}
               />
               {/* Gradient overlay */}

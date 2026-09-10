@@ -143,7 +143,7 @@ export default function LectureCard({ lecture, onPlay }) {
           src={getThumbnailUrl()}
           alt={title}
           className="w-full h-full object-cover opacity-90 transition-transform duration-500 group-hover:scale-105"
-          loading="lazy"
+          decoding="async"
           onError={(e) => {
             e.currentTarget.onerror = null;
             e.currentTarget.src = fallbackThumb;

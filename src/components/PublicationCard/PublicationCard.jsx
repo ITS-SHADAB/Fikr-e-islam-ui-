@@ -91,11 +91,12 @@ export default function PublicationCard({ publication }) {
           title={title}
         >
           {coverImageSrc ? (
-            <div className="relative w-32 sm:w-36 h-44 sm:h-48 rounded shadow-xl overflow-hidden border border-white/20">
+            <div className="relative w-32 sm:w-36 h-44 sm:h-48 rounded shadow-xl overflow-hidden border border-white/20 bg-[#2B2118]">
               <img
                 src={coverImageSrc}
                 alt={title}
                 className="w-full h-full object-cover"
+                decoding="async"
                 onError={(e) => {
                   e.currentTarget.style.display = "none";
                 }}

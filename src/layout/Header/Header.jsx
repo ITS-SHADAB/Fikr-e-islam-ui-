@@ -146,7 +146,6 @@ export default function Header() {
   const dispatch = useDispatch();
 
   const [isOpen, setIsOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [showNotifDropdown, setShowNotifDropdown] = useState(false);
   const notifBellRef = useRef(null);
@@ -158,20 +157,25 @@ export default function Header() {
   const headerContainerRef = useRef(null);
   const [headerHeight, setHeaderHeight] = useState(0);
 
-  // Scroll listener for fixed / sticky header effect
+  // Fast, zero-re-render scroll styling for sticky header effect (prevents main thread freeze)
   useEffect(() => {
-    let ticking = false;
+    const el = headerContainerRef.current;
+    if (!el) return;
+
+    let isPast = false;
     const handleScroll = () => {
-      if (!ticking) {
-        window.requestAnimationFrame(() => {
-          const isPast = window.scrollY > 15;
-          setScrolled((prev) => (prev !== isPast ? isPast : prev));
-          ticking = false;
-        });
-        ticking = true;
+      const past = window.scrollY > 15;
+      if (past !== isPast) {
+        isPast = past;
+        if (past) {
+          el.classList.add("header-scrolled");
+        } else {
+          el.classList.remove("header-scrolled");
+        }
       }
     };
 
+    handleScroll();
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
@@ -239,21 +243,27 @@ export default function Header() {
 
   // Measure header bottom position to place mobile menu exactly below navbar
   useEffect(() => {
+    let ticking = false;
     const updateHeaderHeight = () => {
-      if (headerContainerRef.current) {
-        const rect = headerContainerRef.current.getBoundingClientRect();
-        setHeaderHeight(Math.round(rect.bottom));
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          if (headerContainerRef.current) {
+            const rect = headerContainerRef.current.getBoundingClientRect();
+            const newH = Math.round(rect.bottom);
+            setHeaderHeight((prev) => (Math.abs(prev - newH) > 1 ? newH : prev));
+          }
+          ticking = false;
+        });
+        ticking = true;
       }
     };
 
     updateHeaderHeight();
     window.addEventListener("resize", updateHeaderHeight);
-    window.addEventListener("scroll", updateHeaderHeight, { passive: true });
     return () => {
       window.removeEventListener("resize", updateHeaderHeight);
-      window.removeEventListener("scroll", updateHeaderHeight);
     };
-  }, [scrolled, isOpen]);
+  }, [isOpen]);
 
   const closeMenu = () => {
     setIsOpen(false);
@@ -410,10 +420,7 @@ export default function Header() {
   return (
     <div
       ref={headerContainerRef}
-      className={`w-full sticky top-0 z-40 transition-all duration-300 select-none ${scrolled
-        ? "py-0.5 sm:py-1 bg-[#F3E3D8]/95 shadow-sm"
-        : "pt-1 sm:pt-1.5 pb-0.5 sm:pb-1 bg-transparent"
-        } px-2 sm:px-4 md:px-6`}
+      className="w-full sticky top-0 z-40 select-none py-1 sm:py-1.5 px-2 sm:px-4 md:px-6 sticky-header-wrapper bg-transparent"
       dir="rtl"
     >
       <div className="max-w-[1360px] mx-auto">
@@ -502,7 +509,7 @@ export default function Header() {
                   : "Seal - Mufti Faizan Sarwar Misbahi"
               }
             >
-              <div className="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 lg:w-[84px] lg:h-[84px] rounded-full overflow-hidden border-2 border-[#A8793E]/70 shadow-[0_2px_12px_rgba(43,33,24,0.18)] bg-[#F7F1E8] shrink-0 transition-transform duration-300 group-hover:scale-105 group-hover:border-[#C5A87C]">
+              <div className="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 lg:w-[84px] lg:h-[84px] rounded-full overflow-hidden border-2 border-[#A8793E] shadow-[0_2px_14px_rgba(43,33,24,0.22)] bg-[#2B2118] shrink-0 p-[2px] transition-transform duration-300 group-hover:scale-105 group-hover:border-[#C5A87C]">
                 <img
                   src={logoImg}
                   alt={
@@ -510,7 +517,7 @@ export default function Header() {
                       ? "مفتی محمد فیضان سرور مصباحی مہر"
                       : "Calligraphy Seal"
                   }
-                  className="w-full h-full object-cover scale-[1.12] transition-transform duration-300 group-hover:scale-[1.16]"
+                  className="w-full h-full object-contain rounded-full transition-transform duration-300 group-hover:scale-105"
                 />
               </div>
             </Link>

@@ -74,11 +74,17 @@
 }
 
 @layer base {
+  html {
+    -webkit-overflow-scrolling: touch;
+  }
+
   body {
     background-color: var(--color-site-bg);
     color: var(--color-text-primary);
     @apply antialiased;
     font-family: 'Inter', sans-serif;
+    overflow-x: hidden;
+    overscroll-behavior-y: auto;
   }
 
   h1,
@@ -91,6 +97,18 @@
     color: var(--color-section-hdr);
     @apply font-semibold tracking-wide;
   }
+}
+
+/* GPU-Composited Sticky Header: Zero layout reflow on scroll */
+.sticky-header-wrapper {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  transition: background-color 200ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 200ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.sticky-header-wrapper.header-scrolled {
+  background-color: rgba(243, 227, 216, 0.96);
+  box-shadow: 0 2px 10px rgba(43, 33, 24, 0.08);
 }
 
 /* Custom premium styles */
@@ -221,7 +239,7 @@
   background: var(--color-primary);
 }
 
-/* Hide scrollbar utility for carousels */
+/* Hide scrollbar utility for carousels with native smooth momentum touch */
 .scrollbar-none::-webkit-scrollbar {
   display: none !important;
 }
@@ -231,6 +249,8 @@
   /* IE and Edge */
   scrollbar-width: none !important;
   /* Firefox */
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
 }
 
 /* ═════════════════════════════════════════════════════════════════════
