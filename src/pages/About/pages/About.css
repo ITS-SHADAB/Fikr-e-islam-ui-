@@ -20,6 +20,7 @@
     opacity: 0;
     transform: translateY(16px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -31,14 +32,38 @@
     opacity: 0;
     animation: aboutFadeInUp 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
-  .about-d-1 { animation-delay: 0.05s; }
-  .about-d-2 { animation-delay: 0.12s; }
-  .about-d-3 { animation-delay: 0.18s; }
-  .about-d-4 { animation-delay: 0.24s; }
-  .about-d-5 { animation-delay: 0.30s; }
-  .about-d-6 { animation-delay: 0.36s; }
-  .about-d-7 { animation-delay: 0.42s; }
-  .about-d-8 { animation-delay: 0.48s; }
+
+  .about-d-1 {
+    animation-delay: 0.05s;
+  }
+
+  .about-d-2 {
+    animation-delay: 0.12s;
+  }
+
+  .about-d-3 {
+    animation-delay: 0.18s;
+  }
+
+  .about-d-4 {
+    animation-delay: 0.24s;
+  }
+
+  .about-d-5 {
+    animation-delay: 0.30s;
+  }
+
+  .about-d-6 {
+    animation-delay: 0.36s;
+  }
+
+  .about-d-7 {
+    animation-delay: 0.42s;
+  }
+
+  .about-d-8 {
+    animation-delay: 0.48s;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -57,7 +82,8 @@
 .about-banner-container {
   position: relative;
   width: 100%;
-  height: 160px; /* Mobile: 150–200px */
+  height: 160px;
+  /* Mobile: 150–200px */
   border-radius: 12px;
   overflow: hidden;
   border: 1px solid rgba(168, 121, 62, 0.28);
@@ -67,14 +93,16 @@
 
 @media (min-width: 640px) {
   .about-banner-container {
-    height: 215px; /* Tablet: 180–230px */
+    height: 215px;
+    /* Tablet: 180–230px */
     border-radius: 16px;
   }
 }
 
 @media (min-width: 1024px) {
   .about-banner-container {
-    height: 260px; /* Desktop: 220–280px */
+    height: 260px;
+    /* Desktop: 220–280px */
     border-radius: 18px;
   }
 }
@@ -91,11 +119,9 @@
 .about-banner-scrim {
   position: absolute;
   inset: 0;
-  background: radial-gradient(
-    ellipse at center,
-    rgba(25, 17, 10, 0.38) 0%,
-    rgba(18, 12, 7, 0.58) 100%
-  );
+  background: radial-gradient(ellipse at center,
+      rgba(25, 17, 10, 0.38) 0%,
+      rgba(18, 12, 7, 0.58) 100%);
   pointer-events: none;
 }
 
@@ -108,7 +134,7 @@
   overflow: hidden;
   box-shadow: 0 16px 36px -10px rgba(43, 33, 24, 0.28);
   transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
-              box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .about-image-frame:hover {
@@ -124,8 +150,8 @@
   border: 1px solid rgba(168, 121, 62, 0.20);
   border-radius: 18px;
   transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
-              box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1),
-              border-color 0.25s ease;
+    box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.25s ease;
 }
 
 .about-card:hover {
@@ -147,12 +173,10 @@
     left: 8%;
     right: 8%;
     height: 1px;
-    background: linear-gradient(
-      to right,
-      rgba(168, 121, 62, 0.10),
-      rgba(168, 121, 62, 0.40),
-      rgba(168, 121, 62, 0.10)
-    );
+    background: linear-gradient(to right,
+        rgba(168, 121, 62, 0.10),
+        rgba(168, 121, 62, 0.40),
+        rgba(168, 121, 62, 0.10));
     pointer-events: none;
     z-index: 0;
   }
@@ -160,19 +184,22 @@
 
 /* ── Gold Shimmer Text Animation ── */
 @keyframes aboutGoldShimmer {
-  0% { background-position: -200% center; }
-  100% { background-position: 200% center; }
+  0% {
+    background-position: -200% center;
+  }
+
+  100% {
+    background-position: 200% center;
+  }
 }
 
 .about-shimmer-gold {
-  background: linear-gradient(
-    90deg,
-    #A8793E 0%,
-    #D4A855 35%,
-    #F3E3D8 50%,
-    #D4A855 65%,
-    #A8793E 100%
-  );
+  background: linear-gradient(90deg,
+      #A8793E 0%,
+      #D4A855 35%,
+      #F3E3D8 50%,
+      #D4A855 65%,
+      #A8793E 100%);
   background-size: 200% auto;
   -webkit-background-clip: text;
   background-clip: text;
@@ -190,12 +217,10 @@
 
 /* ── Editorial Quote Card Ribbon ── */
 .about-quote-ribbon {
-  background: linear-gradient(
-    90deg,
-    rgba(168, 121, 62, 0.08) 0%,
-    rgba(168, 121, 62, 0.18) 50%,
-    rgba(168, 121, 62, 0.08) 100%
-  );
+  background: linear-gradient(90deg,
+      rgba(168, 121, 62, 0.08) 0%,
+      rgba(168, 121, 62, 0.18) 50%,
+      rgba(168, 121, 62, 0.08) 100%);
   border: 1px solid rgba(168, 121, 62, 0.25);
   border-radius: 12px;
 }
@@ -207,19 +232,23 @@
     flex-direction: column !important;
     gap: 28px !important;
   }
+
   .about-hero-img-wrap {
     order: 1 !important;
     width: 100% !important;
     max-width: 310px !important;
     margin: 0 auto !important;
   }
+
   .about-hero-content {
     order: 2 !important;
     text-align: center !important;
   }
+
   .about-hero-cta {
     justify-content: center !important;
   }
+
   .about-hero-badges {
     justify-content: center !important;
   }
@@ -255,8 +284,8 @@
   justify-content: space-between;
   width: 100%;
   transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
-              box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1),
-              border-color 0.25s ease;
+    box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.25s ease;
 }
 
 .about-key-card:hover {
@@ -277,12 +306,10 @@
 }
 
 .about-card-watermark {
-  background: radial-gradient(
-    circle at top right,
-    rgba(168, 121, 62, 0.07) 0%,
-    rgba(168, 121, 62, 0.02) 40%,
-    transparent 70%
-  );
+  background: radial-gradient(circle at top right,
+      rgba(168, 121, 62, 0.07) 0%,
+      rgba(168, 121, 62, 0.02) 40%,
+      transparent 70%);
   opacity: 0.9;
 }
 
@@ -300,12 +327,10 @@
 
 /* ── Bottom Summary Ribbon ── */
 .about-key-ribbon {
-  background: linear-gradient(
-    90deg,
-    rgba(168, 121, 62, 0.07) 0%,
-    rgba(168, 121, 62, 0.18) 50%,
-    rgba(168, 121, 62, 0.07) 100%
-  );
+  background: linear-gradient(90deg,
+      rgba(168, 121, 62, 0.07) 0%,
+      rgba(168, 121, 62, 0.18) 50%,
+      rgba(168, 121, 62, 0.07) 100%);
   border: 1px solid rgba(168, 121, 62, 0.24);
 }
 
@@ -333,6 +358,7 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -347,7 +373,7 @@
   border: 1.5px solid rgba(168, 121, 62, 0.45) !important;
   border-radius: 24px !important;
   box-shadow: 0 25px 65px -10px rgba(0, 0, 0, 0.7),
-              0 0 0 1px rgba(255, 255, 255, 0.15) inset !important;
+    0 0 0 1px rgba(255, 255, 255, 0.15) inset !important;
   overflow: hidden !important;
   display: flex !important;
   flex-direction: column !important;
@@ -360,6 +386,7 @@
     opacity: 0;
     transform: scale(0.95) translateY(12px);
   }
+
   to {
     opacity: 1;
     transform: scale(1) translateY(0);
@@ -389,6 +416,7 @@
     border-radius: 18px;
     max-height: 92vh;
   }
+
   .about-key-card {
     min-height: auto;
   }
@@ -406,4 +434,3 @@
   background-color: #F8F1E7;
   border-color: rgba(168, 121, 62, 0.45);
 }
-

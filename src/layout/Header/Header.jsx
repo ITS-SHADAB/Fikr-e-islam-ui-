@@ -153,9 +153,12 @@ export default function Header() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const searchInputRef = useRef(null);
+  const mobileSearchInputRef = useRef(null);
+  const mobileSearchContainerRef = useRef(null);
+  const desktopSearchContainerRef = useRef(null);
   const profileDropdownRef = useRef(null);
   const headerContainerRef = useRef(null);
-  const [headerHeight, setHeaderHeight] = useState(0);
+  const [headerHeight, setHeaderHeight] = useState(130);
 
   // Fast, zero-re-render scroll styling for sticky header effect (prevents main thread freeze)
   useEffect(() => {
@@ -208,13 +211,14 @@ export default function Header() {
     };
   }, [showProfileDropdown]);
 
-  // Close dropdowns on route changes
+  // Close dropdowns and search on route changes
   useEffect(() => {
     setShowProfileDropdown(false);
     setShowNotifDropdown(false);
+    setIsSearchOpen(false);
   }, [location.pathname]);
 
-  // Escape key & focus for search popover
+  // Escape key & auto-focus for search
   useEffect(() => {
     if (!isSearchOpen) return;
     const handleKeyDown = (e) => {
@@ -223,10 +227,42 @@ export default function Header() {
       }
     };
     window.addEventListener("keydown", handleKeyDown);
-    if (searchInputRef.current) {
-      searchInputRef.current.focus();
-    }
-    return () => window.removeEventListener("keydown", handleKeyDown);
+
+    const timer = setTimeout(() => {
+      if (mobileSearchInputRef.current) {
+        mobileSearchInputRef.current.focus();
+      } else if (searchInputRef.current) {
+        searchInputRef.current.focus();
+      }
+    }, 60);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      clearTimeout(timer);
+    };
+  }, [isSearchOpen]);
+
+  // Click outside search
+  useEffect(() => {
+    if (!isSearchOpen) return;
+    const handleClickOutside = (event) => {
+      const isInsideMobile =
+        mobileSearchContainerRef.current &&
+        mobileSearchContainerRef.current.contains(event.target);
+      const isInsideDesktop =
+        desktopSearchContainerRef.current &&
+        desktopSearchContainerRef.current.contains(event.target);
+
+      if (!isInsideMobile && !isInsideDesktop) {
+        setIsSearchOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("touchstart", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
+    };
   }, [isSearchOpen]);
 
   // Body scroll locking when mobile drawer is open
@@ -259,11 +295,13 @@ export default function Header() {
     };
 
     updateHeaderHeight();
-    window.addEventListener("resize", updateHeaderHeight);
+    window.addEventListener("resize", updateHeaderHeight, { passive: true });
+    window.addEventListener("scroll", updateHeaderHeight, { passive: true });
     return () => {
       window.removeEventListener("resize", updateHeaderHeight);
+      window.removeEventListener("scroll", updateHeaderHeight);
     };
-  }, [isOpen]);
+  }, []);
 
   const closeMenu = () => {
     setIsOpen(false);
@@ -636,10 +674,89 @@ export default function Header() {
             className="relative z-20 w-full bg-[#2B2118] px-3 sm:px-5 py-0.5 sm:py-0.5 flex items-center justify-between min-h-[30px] sm:min-h-[34px] rounded-b-2xl sm:rounded-b-3xl"
             aria-label="مرکزی نیویگیشن"
           >
+            {/* ── MOBILE FULL-NAVBAR SEARCH OVERLAY (Edge-to-edge on small phones, 100% responsive, zero overflow) ── */}
+            <AnimatePresence>
+              {isSearchOpen && (
+                <motion.div
+                  ref={mobileSearchContainerRef}
+                  initial={{ opacity: 0, y: -4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -4 }}
+                  transition={{ duration: 0.15 }}
+                  className="lg:hidden absolute inset-0 z-40 bg-[#2B2118] px-2 sm:px-4 py-0.5 flex items-center gap-1.5 sm:gap-2 rounded-b-2xl sm:rounded-b-3xl shadow-lg"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <form
+                    onSubmit={handleSearchSubmit}
+                    className="flex-1 min-w-0 flex items-center bg-[#3D2E22] border border-[#A8793E] rounded-full px-2.5 py-0.5 shadow-inner"
+                  >
+                    <button
+                      type="submit"
+                      className="text-[#DFC8A4] hover:text-[#F7F1E8] p-0.5 cursor-pointer flex items-center justify-center shrink-0"
+                      title={isUrdu ? "تلاش کریں" : "Submit search"}
+                      aria-label={isUrdu ? "تلاش کریں" : "Submit search"}
+                    >
+                      <Search className="w-3.5 h-3.5" />
+                    </button>
+                    <input
+                      ref={mobileSearchInputRef}
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder={isUrdu ? "یہاں تلاش کریں..." : "Search..."}
+                      className="flex-1 min-w-0 bg-transparent text-xs text-[#F7F1E8] placeholder-[#A8793E]/70 focus:outline-none text-right font-normal px-1.5 py-0.5"
+                      dir={isUrdu ? "rtl" : "ltr"}
+                    />
+                    {searchQuery && (
+                      <button
+                        type="button"
+                        onClick={() => setSearchQuery("")}
+                        className="text-[#A8793E] hover:text-[#F7F1E8] p-0.5 cursor-pointer shrink-0"
+                        title={isUrdu ? "صاف کریں" : "Clear"}
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    )}
+                  </form>
+
+                  {/* Mobile Search Close Button */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsSearchOpen(false);
+                      setSearchQuery("");
+                    }}
+                    className="shrink-0 w-7 h-7 rounded-full border border-[#A8793E] bg-[#3D2E22] text-[#DFC8A4] hover:text-[#F7F1E8] hover:border-[#DFC8A4] flex items-center justify-center cursor-pointer active:scale-95 transition-all shadow-xs"
+                    title={isUrdu ? "بند کریں" : "Close"}
+                    aria-label={isUrdu ? "بند کریں" : "Close"}
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
             {/* ── RIGHT SIDE (RTL START): Search Icon + Home Pill Button ── */}
             <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-              {/* Inline Expandable Search Box with Instant Close Response */}
-              <div className="relative flex items-center z-30">
+              {/* Mobile Search Trigger Button (Visible only when search is closed on < lg) */}
+              {!isSearchOpen && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsSearchOpen(true);
+                    setIsOpen(false);
+                  }}
+                  className="lg:hidden w-7.5 h-7.5 sm:w-8 sm:h-8 rounded-full border border-[#A8793E] bg-[#2B2118] text-[#F7F1E8] hover:text-[#DFC8A4] hover:border-[#DFC8A4] hover:scale-105 active:scale-95 transition-all flex items-center justify-center shadow-xs cursor-pointer shrink-0"
+                  title={isUrdu ? "تلاش کریں" : "Search"}
+                  aria-label="تلاش"
+                >
+                  <Search className="w-3.5 h-3.5 text-[#F7F1E8]" />
+                </button>
+              )}
+
+              {/* Desktop Inline Expandable Search Box */}
+              <div ref={desktopSearchContainerRef} className="relative hidden lg:flex items-center z-30">
                 {isSearchOpen ? (
                   <div
                     className="relative flex items-center bg-[#2B2118] border border-[#A8793E] rounded-full px-2 py-0.5 shadow-md animate-in fade-in zoom-in-95 duration-150"
@@ -662,7 +779,7 @@ export default function Header() {
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         placeholder={isUrdu ? "تلاش کریں..." : "Search..."}
-                        className="w-32 sm:w-44 md:w-52 bg-transparent text-xs text-[#F7F1E8] placeholder-[#A8793E]/70 focus:outline-none text-right font-normal px-1"
+                        className="w-44 md:w-52 bg-transparent text-xs text-[#F7F1E8] placeholder-[#A8793E]/70 focus:outline-none text-right font-normal px-1"
                         dir={isUrdu ? "rtl" : "ltr"}
                       />
                     </form>
@@ -687,7 +804,10 @@ export default function Header() {
                 ) : (
                   <button
                     type="button"
-                    onClick={() => setIsSearchOpen(true)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsSearchOpen(true);
+                    }}
                     className="w-7.5 h-7.5 sm:w-8 sm:h-8 rounded-full border border-[#A8793E] bg-[#2B2118] text-[#F7F1E8] hover:text-[#DFC8A4] hover:border-[#DFC8A4] hover:scale-105 active:scale-95 transition-all flex items-center justify-center shadow-xs cursor-pointer"
                     title={isUrdu ? "تلاش کریں" : "Search"}
                     aria-label="تلاش"
@@ -700,14 +820,13 @@ export default function Header() {
               {/* Feature / Home Pill Button (Dynamic current page title) */}
               <Link
                 to={currentFeature?.href || "/"}
-
                 className={`rounded-full px-2.5 sm:px-3 py-1 flex items-center gap-1.5 text-[12px] sm:text-[13px] font-semibold transition-all duration-200 shrink-0 border ${isFeatureActive
                   ? "border-[#A8793E] bg-[#3D2E22] text-[#F7F1E8] shadow-[0_0_10px_rgba(168,121,62,0.25)]"
                   : "border-[#A8793E] bg-[#2B2118] text-[#F7F1E8]/90 hover:border-[#DFC8A4] hover:text-[#F7F1E8] hover:bg-[#3D2E22]"
                   }`}
               >
                 <Home className="w-3.5 h-3.5 text-[#F7F1E8]" />
-                <span>
+                <span className="max-w-[85px] sm:max-w-none truncate">
                   {currentFeature?.label || (isUrdu ? "صفحہ اول" : "Home")}
                 </span>
                 <ChevronDown className="w-3 h-3 text-[#A8793E] opacity-80" />
@@ -911,7 +1030,10 @@ export default function Header() {
                   {/* Mobile Hamburger Toggle */}
                   <button
                     type="button"
-                    onClick={() => setIsOpen(!isOpen)}
+                    onClick={() => {
+                      setIsOpen(!isOpen);
+                      setIsSearchOpen(false);
+                    }}
                     className="lg:hidden w-7.5 h-7.5 sm:w-8 sm:h-8 rounded-full border border-[#A8793E] bg-[#2B2118] text-[#F7F1E8] flex items-center justify-center hover:bg-[#3D2E22] hover:border-[#DFC8A4] transition-all cursor-pointer"
                     aria-label="Toggle Menu"
                   >
@@ -933,19 +1055,37 @@ export default function Header() {
         createPortal(
           <AnimatePresence>
             {isOpen && (
-              <div
-                className="lg:hidden fixed left-0 right-0 bottom-0 z-[99999] bg-black/75 backdrop-blur-xs transition-opacity duration-300 flex flex-col justify-start"
+              <motion.div
+                key="mobile-drawer-backdrop"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2, ease: "easeOut" }}
+                className="lg:hidden fixed left-0 right-0 bottom-0 z-[99999] bg-black/70 flex flex-col justify-start"
                 style={{
-                  top: `${headerHeight || 120}px`,
-                  height: `calc(100dvh - ${headerHeight || 120}px)`,
+                  top: `${headerHeight || 130}px`,
+                  height: `calc(100dvh - ${headerHeight || 130}px)`,
+                  willChange: "opacity",
                 }}
                 onClick={closeMenu}
               >
                 <motion.div
+                  key="mobile-drawer-panel"
                   initial={{ x: isUrdu ? "100%" : "-100%" }}
                   animate={{ x: 0 }}
                   exit={{ x: isUrdu ? "100%" : "-100%" }}
-                  transition={{ type: "tween", duration: 0.25 }}
+                  transition={{
+                    type: "tween",
+                    ease: [0.16, 1, 0.3, 1],
+                    duration: 0.24,
+                  }}
+                  style={{
+                    willChange: "transform",
+                    transform: "translate3d(0, 0, 0)",
+                    WebkitBackfaceVisibility: "hidden",
+                    backfaceVisibility: "hidden",
+                    contain: "paint layout",
+                  }}
                   className={`absolute top-0 bottom-3 sm:bottom-4 ${isUrdu ? "right-0 border-l" : "left-0 border-r"
                     } border-b border-[#A8793E]/40 rounded-b-2xl w-[280px] sm:w-[300px] max-w-[85vw] bg-gradient-to-b from-[#2B2118] via-[#33261C] to-[#241A13] shadow-2xl flex flex-col text-[#F7F1E8] z-[100000] overflow-hidden`}
                   onClick={(e) => e.stopPropagation()}
@@ -1095,7 +1235,7 @@ export default function Header() {
                     </div>
                   </div>
                 </motion.div>
-              </div>
+              </motion.div>
             )}
           </AnimatePresence>,
           document.body

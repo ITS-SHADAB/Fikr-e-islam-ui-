@@ -1,15 +1,14 @@
-import React, { useState, useEffect, useLayoutEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 /**
  * SeamlessMobileSlider
- * Production-grade Infinite / Looping Horizontal Carousel:
- * - 3-Buffer Architecture: [Clone Set A] [Original Set B] [Clone Set C]
- * - Instantaneous, invisible boundary repositioning (scrollLeft ± setWidth)
- * - Zero flash, zero jump, zero blank space, zero layout shifts
- * - Continuous native 120fps hardware-composited momentum scrolling
- * - Multi-card fast swiping without stopping or stuttering
- * - Bidirectional infinite looping for mouse drag, touch swipe, trackpad, and navigation arrows
- * - Finite DOM footprint (only 3x original count, no unbounded memory growth)
+ * Production-grade Infinite 1-Card Swiper Carousel:
+ * - Strictly 1 card per swipe (never skips multiple cards regardless of swipe speed or screen width)
+ * - Pure hardware-accelerated CSS translate3d (60/120fps)
+ * - Multi-buffer infinite looping (Set A, Set B, Middle Set C, Set D, Set E)
+ * - Seamless zero-flash silent boundary repositioning on transition end
+ * - Real-time touch tracking with gesture disambiguation (smooth vertical page scrolling)
+ * - Guaranteed consistent behavior on all screen widths (including narrow 320px - 360px phones)
  */
 export default function SeamlessMobileSlider({
   items = [],
@@ -22,7 +21,7 @@ export default function SeamlessMobileSlider({
 
   const count = items.length;
 
-  // Single item renders statically
+  // Single item renders statically without slider
   if (count <= 1) {
     return (
       <div className="w-full select-none" dir={language === "ur" ? "rtl" : "ltr"}>
@@ -31,253 +30,296 @@ export default function SeamlessMobileSlider({
     );
   }
 
+  // 5 buffer sets for robust infinite loop safety margin
+  const repeatCount = 5;
+  const middleSetIndex = 2;
+
+  // Build the multi-buffer list
+  const bufferList = [];
+  for (let s = 0; s < repeatCount; s++) {
+    for (let i = 0; i < count; i++) {
+      bufferList.push({ item: items[i], originalIndex: i, setIndex: s });
+    }
+  }
+
   const containerRef = useRef(null);
   const cardWidthRef = useRef(0);
-  const isInitialized = useRef(false);
-  const isWrapping = useRef(false);
-  const ticking = useRef(false);
-  const activeDotIndexRef = useRef(0);
-  const [activeDotIndex, setActiveDotIndex] = useState(0);
+  const [containerWidth, setContainerWidth] = useState(0);
 
-  // Mouse drag refs (for desktop testing / trackpad)
-  const isMouseDown = useRef(false);
-  const startX = useRef(0);
-  const scrollLeftStart = useRef(0);
-  const lastX = useRef(0);
-  const lastTime = useRef(0);
-  const velocity = useRef(0);
-  const isDragging = useRef(false);
+  // Active slide index in bufferList (starts at the beginning of middle set)
+  const [activeIndex, setActiveIndex] = useState(() => middleSetIndex * count);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [dragOffset, setDragOffset] = useState(0);
 
-  // 3-Buffer list: [Set A (left clone), Set B (middle), Set C (right clone)]
-  const triBufferList = [...items, ...items, ...items];
+  // Touch gesture refs
+  const isTouchActive = useRef(false);
+  const touchStartX = useRef(0);
+  const touchStartY = useRef(0);
+  const isDirectionLocked = useRef(false);
+  const isHorizontalSwipe = useRef(false);
+  const lastTouchX = useRef(0);
+  const lastTouchTime = useRef(0);
+  const touchVelocity = useRef(0);
+  const hasDragged = useRef(false);
 
-  // Initialize scroll position exactly to the start of Set B (middle set)
-  useLayoutEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
+  // Mouse drag refs
+  const isMouseActive = useRef(false);
+  const mouseStartX = useRef(0);
+  const lastMouseX = useRef(0);
+  const lastMouseTime = useRef(0);
+  const mouseVelocity = useRef(0);
 
-    const initPosition = () => {
-      const width = container.clientWidth;
-      if (width > 0) {
-        cardWidthRef.current = width;
-        container.style.scrollBehavior = "auto";
-        container.scrollLeft = count * width;
-        isInitialized.current = true;
-      }
-    };
-
-    initPosition();
-    const frame = requestAnimationFrame(initPosition);
-    return () => cancelAnimationFrame(frame);
-  }, [count]);
-
-  // Handle window resizing or orientation change gracefully without jumping
+  // Measure container width and adapt on resize / rotation
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
 
-    const resizeObserver = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        const newWidth = entry.contentRect.width;
-        if (newWidth > 0 && Math.abs(newWidth - cardWidthRef.current) > 1) {
-          cardWidthRef.current = newWidth;
-          container.style.scrollBehavior = "auto";
-          container.scrollLeft = (count + activeDotIndexRef.current) * newWidth;
-        }
-      }
-    });
-
-    resizeObserver.observe(container);
-    return () => resizeObserver.disconnect();
-  }, [count]);
-
-  // Passive, throttled scroll listener for silent infinite boundary normalization & dot sync
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-
-    const handleScroll = () => {
-      if (!isInitialized.current || isWrapping.current) return;
-
-      const width = cardWidthRef.current || container.clientWidth;
-      if (width <= 0) return;
-
-      const setWidth = count * width;
-      const currentScroll = container.scrollLeft;
-
-      // ── Silent Boundary Normalization ──
-      // When scrolled into Set C (right duplicate), silently shift back into Set B
-      if (currentScroll >= setWidth * 2) {
-        isWrapping.current = true;
-        container.style.scrollBehavior = "auto";
-        container.scrollLeft = currentScroll - setWidth;
-        // Re-enable wrapping on next tick
-        requestAnimationFrame(() => {
-          isWrapping.current = false;
-        });
-      }
-      // When scrolled into Set A (left duplicate), silently shift forward into Set B
-      else if (currentScroll < setWidth) {
-        isWrapping.current = true;
-        container.style.scrollBehavior = "auto";
-        container.scrollLeft = currentScroll + setWidth;
-        requestAnimationFrame(() => {
-          isWrapping.current = false;
-        });
-      }
-
-      // ── RAF-Throttled Active Dot Synchronization ──
-      if (!ticking.current) {
-        window.requestAnimationFrame(() => {
-          if (container) {
-            const w = cardWidthRef.current || container.clientWidth || 1;
-            const rawIdx = Math.round(container.scrollLeft / w);
-            const activeIdx = ((rawIdx % count) + count) % count;
-            activeDotIndexRef.current = activeIdx;
-            setActiveDotIndex((prev) => (prev !== activeIdx ? activeIdx : prev));
-          }
-          ticking.current = false;
-        });
-        ticking.current = true;
+    const updateWidth = () => {
+      const w = container.clientWidth;
+      if (w > 0 && Math.abs(w - cardWidthRef.current) > 1) {
+        cardWidthRef.current = w;
+        setContainerWidth(w);
       }
     };
 
-    container.addEventListener("scroll", handleScroll, { passive: true });
-    return () => container.removeEventListener("scroll", handleScroll);
+    updateWidth();
+    const ro = new ResizeObserver(updateWidth);
+    ro.observe(container);
+    return () => ro.disconnect();
+  }, []);
+
+  // Update starting activeIndex if count changes (e.g. data load from API)
+  useEffect(() => {
+    setActiveIndex(middleSetIndex * count);
+    setIsTransitioning(false);
+    setDragOffset(0);
   }, [count]);
 
-  // Dot Navigation: Smooth glide to target card within Set B
-  const goToIndex = (targetIdx) => {
-    const container = containerRef.current;
-    if (!container) return;
-    const width = cardWidthRef.current || container.clientWidth;
-    container.style.scrollBehavior = "smooth";
-    container.scrollTo({
-      left: (count + targetIdx) * width,
-      behavior: "smooth",
-    });
+  // Silent normalization when transition finishes: instantly snap back into middle set
+  const handleTransitionEnd = () => {
+    setIsTransitioning(false);
+    const currentCard = ((activeIndex % count) + count) % count;
+    const middleIndex = middleSetIndex * count + currentCard;
+
+    if (activeIndex !== middleIndex) {
+      setActiveIndex(middleIndex);
+    }
   };
 
-  // Mouse Drag-to-Scroll (Desktop & Trackpad support)
+  // ── Touch Event Listeners (with passive: false for clean swipe capture) ──
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    const onTouchMove = (e) => {
+      if (!isTouchActive.current) return;
+
+      const touch = e.touches[0];
+      const deltaX = touch.clientX - touchStartX.current;
+      const deltaY = touch.clientY - touchStartY.current;
+
+      // Disambiguate gesture: if user scrolls vertically, let page scroll natively!
+      if (!isDirectionLocked.current) {
+        if (Math.abs(deltaX) > 7 || Math.abs(deltaY) > 7) {
+          isDirectionLocked.current = true;
+          isHorizontalSwipe.current = Math.abs(deltaX) > Math.abs(deltaY);
+        }
+      }
+
+      if (isHorizontalSwipe.current) {
+        if (e.cancelable) {
+          e.preventDefault();
+        }
+        hasDragged.current = true;
+        setDragOffset(deltaX);
+
+        const now = performance.now();
+        const dt = now - lastTouchTime.current;
+        if (dt > 8) {
+          touchVelocity.current = (touch.clientX - lastTouchX.current) / dt;
+          lastTouchX.current = touch.clientX;
+          lastTouchTime.current = now;
+        }
+      }
+    };
+
+    el.addEventListener("touchmove", onTouchMove, { passive: false });
+    return () => el.removeEventListener("touchmove", onTouchMove);
+  }, [containerWidth]);
+
+  const onTouchStart = (e) => {
+    // If currently mid-transition, complete it immediately to start fresh swipe
+    if (isTransitioning) {
+      handleTransitionEnd();
+    }
+    const touch = e.touches[0];
+    isTouchActive.current = true;
+    isDirectionLocked.current = false;
+    isHorizontalSwipe.current = false;
+    hasDragged.current = false;
+    touchStartX.current = touch.clientX;
+    touchStartY.current = touch.clientY;
+    lastTouchX.current = touch.clientX;
+    lastTouchTime.current = performance.now();
+    touchVelocity.current = 0;
+    setDragOffset(0);
+  };
+
+  const onTouchEnd = () => {
+    if (!isTouchActive.current) return;
+    isTouchActive.current = false;
+
+    if (!isHorizontalSwipe.current) {
+      setDragOffset(0);
+      return;
+    }
+
+    const width = cardWidthRef.current || containerWidth || 1;
+    const threshold = Math.min(width * 0.18, 55); // 18% of screen or 55px
+    const vel = touchVelocity.current;
+
+    let step = 0;
+    // Exactly 1 card step: swiping left advances +1, swiping right retreats -1
+    if (dragOffset < -threshold || vel < -0.28) {
+      step = 1;
+    } else if (dragOffset > threshold || vel > 0.28) {
+      step = -1;
+    }
+
+    setIsTransitioning(true);
+    setActiveIndex((prev) => prev + step);
+    setDragOffset(0);
+  };
+
+  // ── Mouse Drag (Desktop Testing / Trackpad) ──
   const onMouseDown = (e) => {
     if (e.button !== 0) return;
-    const container = containerRef.current;
-    if (!container) return;
-
-    isMouseDown.current = true;
-    isDragging.current = false;
-    startX.current = e.pageX;
-    scrollLeftStart.current = container.scrollLeft;
-    lastX.current = e.pageX;
-    lastTime.current = performance.now();
-    velocity.current = 0;
-
-    container.style.scrollSnapType = "none";
-    container.style.scrollBehavior = "auto";
+    if (isTransitioning) {
+      handleTransitionEnd();
+    }
+    isMouseActive.current = true;
+    hasDragged.current = false;
+    mouseStartX.current = e.pageX;
+    lastMouseX.current = e.pageX;
+    lastMouseTime.current = performance.now();
+    mouseVelocity.current = 0;
+    setDragOffset(0);
   };
 
   const onMouseMove = (e) => {
-    if (!isMouseDown.current) return;
-    const container = containerRef.current;
-    if (!container) return;
-
-    const deltaX = e.pageX - startX.current;
+    if (!isMouseActive.current) return;
+    const deltaX = e.pageX - mouseStartX.current;
     if (Math.abs(deltaX) > 6) {
-      isDragging.current = true;
+      hasDragged.current = true;
     }
-
-    container.scrollLeft = scrollLeftStart.current - deltaX;
+    setDragOffset(deltaX);
 
     const now = performance.now();
-    const dt = now - lastTime.current;
+    const dt = now - lastMouseTime.current;
     if (dt > 8) {
-      velocity.current = (e.pageX - lastX.current) / dt;
-      lastX.current = e.pageX;
-      lastTime.current = now;
+      mouseVelocity.current = (e.pageX - lastMouseX.current) / dt;
+      lastMouseX.current = e.pageX;
+      lastMouseTime.current = now;
     }
   };
 
-  const onMouseUpOrLeave = () => {
-    if (!isMouseDown.current) return;
-    isMouseDown.current = false;
+  const onMouseUp = () => {
+    if (!isMouseActive.current) return;
+    isMouseActive.current = false;
 
-    const container = containerRef.current;
-    if (!container) return;
+    const width = cardWidthRef.current || containerWidth || 1;
+    const threshold = Math.min(width * 0.18, 55);
+    const vel = mouseVelocity.current;
 
-    container.style.scrollSnapType = "x mandatory";
+    let step = 0;
+    if (dragOffset < -threshold || vel < -0.28) {
+      step = 1;
+    } else if (dragOffset > threshold || vel > 0.28) {
+      step = -1;
+    }
 
-    const width = cardWidthRef.current || container.clientWidth || 1;
-    const vel = velocity.current;
+    setIsTransitioning(true);
+    setActiveIndex((prev) => prev + step);
+    setDragOffset(0);
+  };
 
-    // Velocity-based momentum throw
-    if (Math.abs(vel) > 0.25) {
-      const currentScroll = container.scrollLeft;
-      const projected = currentScroll - vel * 220;
-      const targetIdx = Math.round(projected / width);
-      container.style.scrollBehavior = "smooth";
-      container.scrollTo({
-        left: targetIdx * width,
-        behavior: "smooth",
-      });
-    } else {
-      const targetIdx = Math.round(container.scrollLeft / width);
-      container.style.scrollBehavior = "smooth";
-      container.scrollTo({
-        left: targetIdx * width,
-        behavior: "smooth",
-      });
+  const onMouseLeave = () => {
+    if (isMouseActive.current) {
+      onMouseUp();
     }
   };
 
-  // Prevent accidental card navigation during drag
+  // Prevent accidental card navigation during swipe/drag
   const onClickCapture = (e) => {
-    if (isDragging.current) {
+    if (hasDragged.current) {
       e.preventDefault();
       e.stopPropagation();
-      isDragging.current = false;
+      hasDragged.current = false;
     }
   };
+
+  // Dot Navigation: Smooth glide to target card
+  const goToIndex = (targetDotIdx) => {
+    if (isTransitioning) return;
+    const currentCard = ((activeIndex % count) + count) % count;
+    if (currentCard === targetDotIdx) return;
+    const diff = targetDotIdx - currentCard;
+    setIsTransitioning(true);
+    setActiveIndex((prev) => prev + diff);
+  };
+
+  // Calculate current translation offset (GPU composited)
+  const currentCardWidth = containerWidth || cardWidthRef.current || 360;
+  const currentTranslate = -activeIndex * currentCardWidth + dragOffset;
+  const activeDotIndex = ((activeIndex % count) + count) % count;
 
   return (
     <div className="sm:hidden flex flex-col items-center gap-3.5 select-none w-full">
       {/* 
-        Native Momentum Scrollable Track:
-        - 3-Buffer Loop: [Set A] [Set B] [Set C]
-        - -webkit-overflow-scrolling: touch for native 120fps inertia
-        - scroll-snap-stop: normal allows continuous momentum passing through multiple cards on fast flick
-        - scrollbar-none hides browser scrollbars cleanly
+        Hardware-Accelerated Touch Track:
+        - Exactly 1 card per swipe (never skips multiple cards)
+        - translate3d with cubic-bezier deceleration
+        - Touch-pan-y allows smooth vertical page scrolling
       */}
       <div
         ref={containerRef}
-        className="w-full flex overflow-x-auto overflow-y-hidden scrollbar-none snap-x snap-mandatory cursor-grab active:cursor-grabbing"
+        className="w-full overflow-hidden select-none touch-pan-y cursor-grab active:cursor-grabbing"
         dir="ltr"
-        style={{
-          WebkitOverflowScrolling: "touch",
-          scrollSnapType: "x mandatory",
-          scrollSnapStop: "normal",
-          overscrollBehaviorX: "contain",
-        }}
+        onTouchStart={onTouchStart}
+        onTouchEnd={onTouchEnd}
         onMouseDown={onMouseDown}
         onMouseMove={onMouseMove}
-        onMouseUp={onMouseUpOrLeave}
-        onMouseLeave={onMouseUpOrLeave}
+        onMouseUp={onMouseUp}
+        onMouseLeave={onMouseLeave}
         onClickCapture={onClickCapture}
       >
-        {triBufferList.map((item, idx) => {
-          const originalIndex = idx % count;
-          const isActive = originalIndex === activeDotIndex;
-          const setIndex = Math.floor(idx / count);
+        <div
+          className="flex"
+          style={{
+            width: `${bufferList.length * currentCardWidth}px`,
+            transform: `translate3d(${currentTranslate}px, 0, 0)`,
+            transition: isTransitioning
+              ? "transform 0.28s cubic-bezier(0.16, 1, 0.3, 1)"
+              : "none",
+            willChange: "transform",
+          }}
+          onTransitionEnd={handleTransitionEnd}
+        >
+          {bufferList.map(({ item, originalIndex, setIndex }, idx) => {
+            const isActive = originalIndex === activeDotIndex;
 
-          return (
-            <div
-              key={`${item?._id || item?.title || item?.slug || "card"}-set${setIndex}-${originalIndex}`}
-              className="w-full shrink-0 px-2 snap-center origin-center"
-              dir={language === "ur" ? "rtl" : "ltr"}
-            >
-              {renderCard(item, originalIndex, isActive)}
-            </div>
-          );
-        })}
+            return (
+              <div
+                key={`${item?._id || item?.title || item?.slug || "card"}-set${setIndex}-${originalIndex}`}
+                style={{ width: `${currentCardWidth}px`, flexShrink: 0 }}
+                className="px-2"
+                dir={language === "ur" ? "rtl" : "ltr"}
+              >
+                {renderCard(item, originalIndex, isActive)}
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       {/* Dots indicator */}
@@ -287,21 +329,24 @@ export default function SeamlessMobileSlider({
         role="tablist"
         aria-label="سلائیڈر نیویگیشن"
       >
-        {items.map((_, index) => (
-          <button
-            key={index}
-            type="button"
-            aria-label={`Go to slide ${index + 1}`}
-            onClick={() => goToIndex(index)}
-            className="rounded-full transition-all duration-300 cursor-pointer"
-            style={{
-              width: activeDotIndex === index ? "20px" : "8px",
-              height: "8px",
-              backgroundColor:
-                activeDotIndex === index ? activeDotColor : dotColor,
-            }}
-          />
-        ))}
+        {items.map((_, index) => {
+          const isActive = activeDotIndex === index;
+
+          return (
+            <button
+              key={index}
+              type="button"
+              aria-label={`Go to slide ${index + 1}`}
+              onClick={() => goToIndex(index)}
+              className="rounded-full transition-all duration-300 cursor-pointer"
+              style={{
+                width: isActive ? "20px" : "8px",
+                height: "8px",
+                backgroundColor: isActive ? activeDotColor : dotColor,
+              }}
+            />
+          );
+        })}
       </div>
     </div>
   );

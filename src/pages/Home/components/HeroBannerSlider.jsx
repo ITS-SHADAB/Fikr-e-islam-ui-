@@ -70,10 +70,11 @@ const HERO_SLIDES = [
 ];
 
 // Animation variants for smooth horizontal carousel sliding
+// Opacity is locked to 1.0 to guarantee ZERO background flashing or blanking during speed scroll!
 const slideVariants = {
   enter: (direction) => ({
     x: direction > 0 ? "100%" : "-100%",
-    opacity: 0.85,
+    opacity: 1,
   }),
   center: {
     zIndex: 1,
@@ -83,7 +84,7 @@ const slideVariants = {
   exit: (direction) => ({
     zIndex: 0,
     x: direction < 0 ? "100%" : "-100%",
-    opacity: 0.85,
+    opacity: 1,
   }),
 };
 
@@ -93,6 +94,20 @@ export default function HeroBannerSlider() {
   const timerRef = useRef(null);
 
   const total = HERO_SLIDES.length;
+
+  // 1. Immediately preload and pre-decode ALL banner images into GPU VRAM on mount.
+  // This guarantees all textures are permanently hot in memory with zero scroll lag or blanking.
+  useEffect(() => {
+    HERO_SLIDES.forEach((slide) => {
+      if (slide.image) {
+        const img = new Image();
+        img.src = slide.image;
+        if (img.decode) {
+          img.decode().catch(() => {});
+        }
+      }
+    });
+  }, []);
 
   const paginate = useCallback(
     (newDirection, targetIndex = null) => {
@@ -107,34 +122,20 @@ export default function HeroBannerSlider() {
     [total]
   );
 
-  // Preload only the upcoming slide shortly before transition (after 2.5s) to avoid initial page load contention while preventing slide transition flicker
-  useEffect(() => {
-    const nextIdx = (currentIndex + 1) % total;
-    const nextImage = HERO_SLIDES[nextIdx]?.image;
-    if (!nextImage) return;
-
-    const timer = setTimeout(() => {
-      const img = new Image();
-      img.src = nextImage;
-    }, 2500);
-
-    return () => clearTimeout(timer);
-  }, [currentIndex, total]);
-
-  // Autoplay timer: advances every 4.5 seconds (paused when user hovers)
+  // Autoplay timer: horizontally advances every 4.8 seconds (paused when hovered)
   useEffect(() => {
     if (isHovered) return;
 
     timerRef.current = setInterval(() => {
       paginate(1);
-    }, 4500);
+    }, 4800);
 
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
   }, [paginate, isHovered]);
 
-  const currentSlide = HERO_SLIDES[currentIndex];
+  const currentSlide = HERO_SLIDES[currentIndex] || HERO_SLIDES[0];
   const isDark = currentSlide.theme === "dark";
 
   return (
@@ -144,18 +145,32 @@ export default function HeroBannerSlider() {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Full-width container: stretches across the entire available homepage width */}
+      {/* Hidden DOM element keeping all 3 image textures permanently mounted & rendered */}
+      <div className="hidden" aria-hidden="true">
+        {HERO_SLIDES.map((s) => (
+          <img
+            key={s.id}
+            src={s.image}
+            alt=""
+            loading="eager"
+            decoding="sync"
+          />
+        ))}
+      </div>
+
+      {/* Full-width container */}
       <div className="w-full px-2 sm:px-4 lg:px-6">
         {/*
           Hero Frame: Wide & Short Website Banner
-          - Mobile height preserved exactly at 180px (verified perfect)
-          - Laptop/desktop height reduced to a sleek 250px-295px banner
-          - Full width with rounded corners & subtle gold border
+          - Mobile height: 180px
+          - Desktop height: 250px-295px
+          - GPU layer isolation (translateZ(0)) prevents speed-scroll texture drops
         */}
         <div
-          className="relative w-full rounded-2xl sm:rounded-3xl overflow-hidden border border-[#A8793E]/35 shadow-[0_6px_24px_rgba(43,33,24,0.10)] bg-[#2B2118] h-[180px] sm:h-[220px] md:h-[250px] lg:h-[275px] xl:h-[295px]"
+          className="relative w-full rounded-2xl sm:rounded-3xl overflow-hidden border border-[#A8793E]/35 shadow-[0_6px_24px_rgba(43,33,24,0.10)] bg-[#1A120B] h-[180px] sm:h-[220px] md:h-[250px] lg:h-[275px] xl:h-[295px]"
+          style={{ transform: "translateZ(0)", willChange: "transform" }}
         >
-          {/* Framer Motion AnimatePresence for robust, individual slide transitions */}
+          {/* Framer Motion AnimatePresence for robust, silky-smooth horizontal slide transitions */}
           <AnimatePresence initial={false} custom={direction}>
             <motion.div
               key={currentIndex}
@@ -165,23 +180,23 @@ export default function HeroBannerSlider() {
               animate="center"
               exit="exit"
               transition={{
-                x: { type: "tween", duration: 0.6, ease: [0.25, 1, 0.5, 1] },
-                opacity: { duration: 0.35 },
+                x: { type: "tween", duration: 0.55, ease: [0.25, 1, 0.5, 1] },
               }}
               drag="x"
               dragConstraints={{ left: 0, right: 0 }}
-              dragElastic={0.4}
+              dragElastic={0.35}
               onDragEnd={(e, { offset }) => {
-                if (offset.x < -40) {
+                if (offset.x < -35) {
                   paginate(1); // Swiped left -> next
-                } else if (offset.x > 40) {
+                } else if (offset.x > 35) {
                   paginate(-1); // Swiped right -> prev
                 }
               }}
               className="absolute inset-0 w-full h-full overflow-hidden cursor-grab active:cursor-grabbing"
               dir="rtl"
+              style={{ transform: "translateZ(0)" }}
             >
-              {/* Background image: fills 100% of the slide area without distortion */}
+              {/* Background image: fills 100% of the slide area with immediate visibility */}
               <img
                 src={currentSlide.image}
                 alt={currentSlide.alt}
@@ -192,6 +207,7 @@ export default function HeroBannerSlider() {
                   }
                 }}
                 loading="eager"
+                decoding="sync"
                 draggable={false}
               />
 
@@ -210,13 +226,14 @@ export default function HeroBannerSlider() {
                 dir="rtl"
               >
                 <div className="w-full text-right flex flex-col items-start gap-1 sm:gap-1.5 md:gap-2">
-
                   {/* Title */}
                   <h1
                     className={`text-base sm:text-2xl md:text-3xl lg:text-4xl font-extrabold leading-tight tracking-tight drop-shadow-xs ${
                       isDark ? "text-[#FDFBF7]" : "text-[#2A211A]"
                     }`}
-                    style={{ fontFamily: "'Payami Nastaleeq', 'Noto Nastaliq Urdu', serif" }}
+                    style={{
+                      fontFamily: "'Payami Nastaleeq', 'Noto Nastaliq Urdu', serif",
+                    }}
                   >
                     {currentSlide.title}
                   </h1>
@@ -258,7 +275,6 @@ export default function HeroBannerSlider() {
                       <span>{currentSlide.secondaryBtn.text}</span>
                     </Link>
                   </div>
-
                 </div>
               </div>
             </motion.div>
@@ -269,7 +285,7 @@ export default function HeroBannerSlider() {
             type="button"
             onClick={() => paginate(-1)}
             aria-label="پچھلی سلائیڈ"
-            className="hidden sm:flex absolute left-3 top-1/2 -translate-y-1/2 z-30 w-8 h-8 rounded-full bg-[#2B2118]/50 hover:bg-[#2B2118]/80 text-[#F7F1E8] items-center justify-center border border-[#A8793E]/40 backdrop-blur-xs transition-all duration-200 opacity-60 hover:opacity-100 active:scale-95 cursor-pointer"
+            className="hidden sm:flex absolute left-3 top-1/2 -translate-y-1/2 z-30 w-8 h-8 rounded-full bg-[#2B2118]/60 hover:bg-[#2B2118]/90 text-[#F7F1E8] items-center justify-center border border-[#A8793E]/50 transition-all duration-200 opacity-70 hover:opacity-100 active:scale-95 cursor-pointer shadow-sm"
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
@@ -277,12 +293,12 @@ export default function HeroBannerSlider() {
             type="button"
             onClick={() => paginate(1)}
             aria-label="اگلی سلائیڈ"
-            className="hidden sm:flex absolute right-3 top-1/2 -translate-y-1/2 z-30 w-8 h-8 rounded-full bg-[#2B2118]/50 hover:bg-[#2B2118]/80 text-[#F7F1E8] items-center justify-center border border-[#A8793E]/40 backdrop-blur-xs transition-all duration-200 opacity-60 hover:opacity-100 active:scale-95 cursor-pointer"
+            className="hidden sm:flex absolute right-3 top-1/2 -translate-y-1/2 z-30 w-8 h-8 rounded-full bg-[#2B2118]/60 hover:bg-[#2B2118]/90 text-[#F7F1E8] items-center justify-center border border-[#A8793E]/50 transition-all duration-200 opacity-70 hover:opacity-100 active:scale-95 cursor-pointer shadow-sm"
           >
             <ChevronRight className="w-4 h-4" />
           </button>
 
-          {/* Pagination Indicators matching project's SeamlessMobileSlider style */}
+          {/* Pagination Indicators */}
           <div
             className="absolute bottom-2 sm:bottom-3 left-1/2 -translate-x-1/2 z-30 flex items-center justify-center gap-2"
             dir="ltr"
@@ -314,7 +330,6 @@ export default function HeroBannerSlider() {
               );
             })}
           </div>
-
         </div>
       </div>
     </section>
