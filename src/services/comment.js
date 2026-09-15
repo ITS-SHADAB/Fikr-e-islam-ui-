@@ -1,10 +1,10 @@
 import API from './api';
 import toast from 'react-hot-toast';
 
-export const getComments = async (contentType, contentId) => {
+export const getComments = async (contentType, contentId, sort = 'newest') => {
   try {
     const response = await API.get(`/comments/${contentType}/${contentId}`, {
-      params: { _t: Date.now() }
+      params: { _t: Date.now(), sort }
     });
     return response.data;
   } catch (error) {

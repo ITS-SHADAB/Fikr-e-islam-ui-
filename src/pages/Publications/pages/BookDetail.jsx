@@ -75,12 +75,22 @@ export default function BookDetail() {
   const [isSummaryExpanded, setIsSummaryExpanded] = useState(false);
   const [isCommentsOpen, setIsCommentsOpen] = useState(false);
 
-  const getCoverImageSrc = (img) => {
-    if (!img) return null;
-    const url = typeof img === "object" ? img.url : img;
-    if (!url) return null;
-    if (url.startsWith("/")) return `${BACKEND_URL}${url}`;
-    return url;
+  const getCoverImageSrc = (img, bookCategory) => {
+    if (img) {
+      const url = typeof img === "object" ? img.url : img;
+      if (url && typeof url === "string" && url.trim() !== "") {
+        if (url.startsWith("/")) return `${BACKEND_URL}${url}`;
+        return url;
+      }
+    }
+    const isGreenTheme =
+      bookCategory === "Quran" ||
+      bookCategory === "Hadith" ||
+      bookCategory === "قرآن و تفاسیر" ||
+      bookCategory === "حدیث";
+    return isGreenTheme
+      ? "/assets/images/books/islamic-book-cover-green.jpg"
+      : "/assets/images/books/islamic-book-cover.jpg";
   };
 
   useEffect(() => {
@@ -190,7 +200,7 @@ export default function BookDetail() {
   } = book;
 
   const pdfUrl = pdf?.url || (typeof pdf === "string" ? pdf : null);
-  const coverImageSrc = getCoverImageSrc(coverImage);
+  const coverImageSrc = getCoverImageSrc(coverImage, category);
   const categoryLabel =
     PUBLICATION_CATEGORY_TRANSLATIONS[category] ||
     category ||
@@ -300,14 +310,21 @@ export default function BookDetail() {
                 }}
               >
                 {coverImageSrc ? (
-                  <div className="relative w-full h-full rounded-xl overflow-hidden shadow-inner border border-white/20">
+                  <div className="relative w-full h-full rounded-xl overflow-hidden shadow-inner border border-white/20 flex items-center justify-center">
+                    {/* Ambient Blurred Background to eliminate empty gaps without cutting off cover artwork */}
+                    <img
+                      src={coverImageSrc}
+                      alt=""
+                      aria-hidden="true"
+                      className="absolute inset-0 w-full h-full object-cover filter blur-lg opacity-30 scale-110 pointer-events-none"
+                      decoding="async"
+                    />
+                    {/* Crisp Foreground Book Cover: Full cover visible, zero text cropping! */}
                     <img
                       src={coverImageSrc}
                       alt={title}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                      onError={(e) => {
-                        e.currentTarget.style.display = "none";
-                      }}
+                      className="relative z-10 w-full h-full object-contain drop-shadow-md transition-transform duration-500 group-hover:scale-105"
+                      decoding="async"
                     />
                   </div>
                 ) : (
@@ -898,7 +915,7 @@ export default function BookDetail() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {relatedBooks.map((relBook) => {
-                const relCoverSrc = getCoverImageSrc(relBook.coverImage);
+                const relCoverSrc = getCoverImageSrc(relBook.coverImage, relBook.category);
                 return (
                   <Link
                     key={relBook._id}

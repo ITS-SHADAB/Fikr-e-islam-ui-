@@ -20,6 +20,7 @@ import { PdfViewer } from "../PdfViewer";
 
 export default function PublicationCard({ publication }) {
   const [isPdfOpen, setIsPdfOpen] = useState(false);
+  const [imageError, setImageError] = useState(false);
 
   if (!publication) return null;
 
@@ -47,15 +48,33 @@ export default function PublicationCard({ publication }) {
     : "";
 
   const getCoverImageSrc = (img) => {
-    if (!img) return null;
-    const url = typeof img === "object" ? img.url : img;
-    if (!url) return null;
-    if (url.startsWith("/")) return `${BACKEND_URL}${url}`;
-    return url;
+    if (img) {
+      const url = typeof img === "object" ? img.url : img;
+      if (url && typeof url === "string" && url.trim() !== "") {
+        if (url.startsWith("/")) return `${BACKEND_URL}${url}`;
+        return url;
+      }
+    }
+    // High-resolution AI-crafted Islamic book covers matching website theme colors
+    const isGreenTheme =
+      category === "Quran" ||
+      category === "Hadith" ||
+      category === "قرآن و تفاسیر" ||
+      category === "حدیث";
+    return isGreenTheme
+      ? "/assets/images/books/islamic-book-cover-green.jpg"
+      : "/assets/images/books/islamic-book-cover.jpg";
   };
 
+  const [imgSrc, setImgSrc] = useState(() => getCoverImageSrc(coverImage));
+
+  React.useEffect(() => {
+    setImgSrc(getCoverImageSrc(coverImage));
+    setImageError(false);
+  }, [coverImage, category]);
+
   const pdfUrl = pdf?.url || (typeof pdf === "string" ? pdf : null);
-  const coverImageSrc = getCoverImageSrc(coverImage);
+  const coverImageSrc = imgSrc;
 
   const categoryLabel =
     PUBLICATION_CATEGORY_TRANSLATIONS[category] || category || "کتب و رسائل";
@@ -72,85 +91,189 @@ export default function PublicationCard({ publication }) {
     <>
       <div
         dir="rtl"
-        className="rounded-3xl p-5 sm:p-6 shadow-xs hover:shadow-md transition-all duration-300 relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6 md:gap-8 text-right border group"
+        className="rounded-3xl p-4 sm:p-6 shadow-xs hover:shadow-md transition-all duration-300 relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-5 sm:gap-6 md:gap-8 text-right border group"
         style={{
-          backgroundColor: COLORS.background || "FAF6F0",
-          borderColor: COLORS.border || "#EBDCCB",
+          backgroundColor: COLORS.cardBg || "#F7F1E8",
+          borderColor: `${COLORS.border}50` || "#EBDCCB",
         }}
       >
         {/* ══════════════════════════════════════════════════════════════
-            RIGHT SIDE (1st child in RTL): Book Cover & Thumbnail
+            RIGHT SIDE (1st child in RTL): 3D Luxury Hardcover Book Presentation
+            - Responsive mobile width (max-w-[260px] to max-w-[300px])
+            - Golden book ratio aspect-[3/4]
+            - Realistic book spine (RTL right edge) with 3D gradient & groove
+            - Real page depth layers (bottom & left edge in cream)
+            - Gold corner embossing & rim highlight with website theme colors
+            - Dual-layer image: ambient blur fill + crisp foreground cover (zero cropping!)
+            - Ornate Islamic book cover fallback if image is missing/broken
         ══════════════════════════════════════════════════════════════ */}
         <Link
           to={detailUrl}
-          className="relative w-full md:w-56 lg:w-60 h-56 sm:h-60 rounded-2xl overflow-hidden shadow-md border flex items-center justify-center p-3 shrink-0 select-none cursor-pointer transition-transform duration-300 group-hover:scale-[1.02]"
-          style={{
-            backgroundColor: COLORS.primary,
-            borderColor: `${COLORS.accent}40`,
-          }}
+          className="relative shrink-0 select-none cursor-pointer group/cover block w-full max-w-[280px] sm:max-w-[300px] md:w-56 lg:w-60 mx-auto my-1"
           title={title}
         >
-          {coverImageSrc ? (
-            <div className="relative w-32 sm:w-36 h-44 sm:h-48 rounded shadow-xl overflow-hidden border border-white/20 bg-[#2B2118]">
-              <img
-                src={coverImageSrc}
-                alt={title}
-                className="w-full h-full object-cover"
-                decoding="async"
-                onError={(e) => {
-                  e.currentTarget.style.display = "none";
-                }}
-              />
-            </div>
-          ) : (
-            /* Open Book Aesthetic Mockup */
+          {/* Outer Book Stage / Realistic Floating Shadow */}
+          <div className="relative w-full aspect-[3/4] transition-transform duration-500 group-hover/cover:-translate-y-1.5 group-hover/cover:scale-[1.01]">
+            {/* Under-book Depth Shadow (creates physical floating elevation) */}
             <div
-              className="relative w-40 sm:w-44 h-32 sm:h-36 rounded-sm shadow-xl border flex items-center justify-center p-2"
+              className="absolute -bottom-2.5 inset-x-3 h-5 rounded-full blur-md opacity-40 pointer-events-none transition-opacity duration-500 group-hover/cover:opacity-60"
+              style={{ backgroundColor: COLORS.primary }}
+            />
+
+            {/* Book Pages Edge Simulation (Stacked paper look on left & bottom for RTL) */}
+            <div
+              className="absolute inset-0 rounded-2xl pointer-events-none translate-x-[-3px] translate-y-[3px] border-l-2 border-b-2 opacity-60"
               style={{
-                backgroundColor: COLORS.background || "#F4EBE1",
-                borderColor: COLORS.border,
+                borderColor: COLORS.secondary,
+                backgroundColor: "rgba(243, 227, 216, 0.3)",
+              }}
+            />
+
+            {/* Main Hardcover Book Container */}
+            <div
+              className="relative w-full h-full rounded-2xl overflow-hidden shadow-2xl border flex items-center justify-center"
+              style={{
+                backgroundColor: COLORS.primary,
+                borderColor: `${COLORS.accent}80`,
               }}
             >
-              {/* Spine crease */}
-              <div className="absolute inset-y-0 left-1/2 w-2.5 -ml-1.5 bg-gradient-to-r from-black/10 via-black/20 to-black/10 z-10 pointer-events-none"></div>
+              {/* 3D Curved Spine Effect (Right side for RTL Urdu books) */}
+              <div
+                className="absolute top-0 right-0 bottom-0 w-4 sm:w-5 z-30 pointer-events-none rounded-r-2xl"
+                style={{
+                  background:
+                    "linear-gradient(to left, rgba(0,0,0,0.55) 0%, rgba(255,255,255,0.18) 35%, rgba(0,0,0,0.15) 75%, transparent 100%)",
+                }}
+              />
+              {/* Spine Crease / Hinge Indentation Line */}
+              <div
+                className="absolute top-0 right-4 sm:right-5 bottom-0 w-[1.5px] z-30 pointer-events-none"
+                style={{
+                  background:
+                    "linear-gradient(to bottom, rgba(168,121,62,0.6) 0%, rgba(0,0,0,0.7) 50%, rgba(168,121,62,0.6) 100%)",
+                }}
+              />
 
-              {/* Left Page */}
-              <div className="flex-1 h-full pr-1 flex flex-col justify-between py-1 border-r border-black/10 text-right">
-                <span
-                  className="text-[8px] font-bold pb-0.5 truncate block"
-                  style={{ color: COLORS.accent }}
-                >
-                  {categoryLabel}
-                </span>
-                <div className="space-y-1">
-                  <div className="h-1 bg-slate-300/80 rounded w-full"></div>
-                  <div className="h-1 bg-slate-300/80 rounded w-4/5"></div>
-                  <div className="h-1 bg-slate-300/80 rounded w-full"></div>
-                </div>
-                <span className="text-[7px] text-slate-400 text-center font-mono">
-                  148
-                </span>
-              </div>
+              {/* Gold Foil Corner Accents (Islamic manuscript aesthetic) */}
+              <div
+                className="absolute top-2.5 right-6 w-3 h-3 border-t-2 border-r-2 rounded-tr z-30 pointer-events-none opacity-70"
+                style={{ borderColor: COLORS.accent }}
+              />
+              <div
+                className="absolute top-2.5 left-2.5 w-3 h-3 border-t-2 border-l-2 rounded-tl z-30 pointer-events-none opacity-70"
+                style={{ borderColor: COLORS.accent }}
+              />
+              <div
+                className="absolute bottom-2.5 right-6 w-3 h-3 border-b-2 border-r-2 rounded-br z-30 pointer-events-none opacity-70"
+                style={{ borderColor: COLORS.accent }}
+              />
+              <div
+                className="absolute bottom-2.5 left-2.5 w-3 h-3 border-b-2 border-l-2 rounded-bl z-30 pointer-events-none opacity-70"
+                style={{ borderColor: COLORS.accent }}
+              />
 
-              {/* Right Page */}
-              <div className="flex-1 h-full pl-1 flex flex-col justify-between py-1 text-right">
-                <span
-                  className="text-[8px] font-extrabold line-clamp-1 block"
-                  style={{ color: COLORS.primary }}
-                >
-                  {title}
-                </span>
-                <div className="space-y-1">
-                  <div className="h-1 bg-slate-300/80 rounded w-full"></div>
-                  <div className="h-1 bg-slate-300/80 rounded w-5/6"></div>
-                  <div className="h-1 bg-slate-300/80 rounded w-2/3"></div>
+              {/* Cover Image Presentation */}
+              {coverImageSrc && !imageError ? (
+                <div className="relative w-full h-full p-2.5 sm:p-3 flex items-center justify-center overflow-hidden">
+                  {/* Ambient Blurred Background to eliminate empty gaps without cutting off cover artwork */}
+                  <img
+                    src={coverImageSrc}
+                    alt=""
+                    aria-hidden="true"
+                    className="absolute inset-0 w-full h-full object-cover filter blur-lg opacity-30 scale-110 pointer-events-none"
+                    decoding="async"
+                  />
+
+                  {/* Crisp Primary Book Cover: 100% full view, zero text cropping! */}
+                  <div className="relative z-20 w-full h-full rounded-xl overflow-hidden flex items-center justify-center border border-white/20 shadow-inner">
+                    <img
+                      src={coverImageSrc}
+                      alt={title}
+                      className="w-full h-full object-contain drop-shadow-md transition-transform duration-500 group-hover/cover:scale-[1.03]"
+                      decoding="async"
+                      onError={() => {
+                        const fallbackCover = "/assets/images/books/islamic-book-cover.jpg";
+                        if (imgSrc !== fallbackCover) {
+                          setImgSrc(fallbackCover);
+                        } else {
+                          setImageError(true);
+                        }
+                      }}
+                    />
+                  </div>
+
+                  {/* Luxury Soft Reflection Sheen */}
+                  <div
+                    className="absolute inset-0 z-30 pointer-events-none rounded-2xl opacity-20"
+                    style={{
+                      background:
+                        "linear-gradient(125deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.08) 35%, transparent 65%)",
+                    }}
+                  />
                 </div>
-                <span className="text-[7px] text-slate-400 text-center font-mono">
-                  149
-                </span>
-              </div>
+              ) : (
+                /* Fallback: Ornate Islamic Hardcover Design */
+                <div
+                  className="relative w-full h-full p-4 sm:p-5 flex flex-col justify-between text-center select-none"
+                  style={{ backgroundColor: COLORS.primary }}
+                >
+                  {/* Inner Gold Inset Border */}
+                  <div
+                    className="absolute inset-3 rounded-xl border border-dashed pointer-events-none opacity-40"
+                    style={{ borderColor: COLORS.accent }}
+                  />
+
+                  {/* Header Emblem */}
+                  <div className="pt-2 z-10">
+                    <div
+                      className="w-11 h-11 mx-auto rounded-full flex items-center justify-center border shadow-sm"
+                      style={{
+                        backgroundColor: `${COLORS.accent}25`,
+                        borderColor: `${COLORS.accent}60`,
+                      }}
+                    >
+                      <Book
+                        className="w-5 h-5"
+                        style={{ color: COLORS.accent }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Center Book Title & Author */}
+                  <div className="py-2 z-10 px-2">
+                    <h4
+                      className="font-bold text-sm sm:text-base leading-relaxed line-clamp-3 mb-1.5"
+                      style={{ color: COLORS.cardBg }}
+                    >
+                      {title}
+                    </h4>
+                    {author && (
+                      <p
+                        className="text-[11px] sm:text-xs font-semibold line-clamp-1"
+                        style={{ color: COLORS.accent }}
+                      >
+                        {author}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Footer Publisher Tag */}
+                  <div className="pb-1 z-10">
+                    <span
+                      className="text-[10px] tracking-wider px-2 py-0.5 rounded-full inline-block border"
+                      style={{
+                        color: COLORS.secondary,
+                        borderColor: `${COLORS.secondary}40`,
+                        backgroundColor: "rgba(0,0,0,0.25)",
+                      }}
+                    >
+                      فکرِ اسلام پبلیکیشنز
+                    </span>
+                  </div>
+                </div>
+              )}
             </div>
-          )}
+          </div>
         </Link>
 
         {/* ══════════════════════════════════════════════════════════════

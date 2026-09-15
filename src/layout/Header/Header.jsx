@@ -885,165 +885,165 @@ export default function Header() {
                 <>
                   {/* Notification Bell */}
                   <div ref={notifBellRef} className="relative z-50">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setShowProfileDropdown(false);
-                          setShowNotifDropdown((prev) => {
-                            const nextState = !prev;
-                            if (nextState) {
-                              refreshNotifications({ silent: hasLoadedNotifications });
-                            }
-                            return nextState;
-                          });
-                        }}
-                        className="relative w-7.5 h-7.5 sm:w-8 sm:h-8 rounded-full border border-[#A8793E] bg-[#2B2118] text-[#F7F1E8] flex items-center justify-center hover:bg-[#3D2E22] hover:border-[#DFC8A4] transition-all cursor-pointer shadow-xs"
-                        aria-label={isUrdu ? "اطلاعات" : "Notifications"}
-                        title={isUrdu ? "اطلاعات" : "Notifications"}
-                      >
-                        <Bell className="w-4 h-4 text-[#DFC8A4]" />
-                        {unreadCount > 0 && (
-                          <span className="absolute -top-1 -right-1 min-w-[17px] h-[17px] px-1 bg-[#D97706] text-[#2B2118] font-bold text-[10px] leading-none rounded-full flex items-center justify-center border-2 border-[#2B2118] shadow-sm">
-                            {unreadCount > 99 ? "99+" : unreadCount}
-                          </span>
-                        )}
-                      </button>
-
-                      <NotificationDropdown
-                        isOpen={showNotifDropdown}
-                        onClose={() => setShowNotifDropdown(false)}
-                        anchorRef={notifBellRef}
-                        headerHeight={headerHeight}
-                      />
-                    </div>
-
-                    {/* Profile Dropdown Trigger */}
-                    <div ref={profileDropdownRef} className="relative z-50">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setShowNotifDropdown(false);
-                          setShowProfileDropdown((prev) => !prev);
-                        }}
-                        className="rounded-full border border-[#A8793E] bg-[#2B2118] text-[#F7F1E8] px-2 sm:px-2.5 py-0.5 flex items-center gap-1.5 text-xs font-semibold hover:bg-[#3D2E22] transition-all cursor-pointer shadow-xs"
-                      >
-                        <div className="w-5 h-5 rounded-full bg-[#A8793E] text-[#2B2118] font-bold text-[10px] flex items-center justify-center shrink-0">
-                          {getInitials(loggedInUser)}
-                        </div>
-                        <span className="inline-block max-w-[70px] sm:max-w-[110px] truncate">
-                          {getUserDisplayName(loggedInUser)}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowProfileDropdown(false);
+                        setShowNotifDropdown((prev) => {
+                          const nextState = !prev;
+                          if (nextState) {
+                            refreshNotifications({ silent: hasLoadedNotifications });
+                          }
+                          return nextState;
+                        });
+                      }}
+                      className="relative w-7.5 h-7.5 sm:w-8 sm:h-8 rounded-full border border-[#A8793E] bg-[#2B2118] text-[#F7F1E8] flex items-center justify-center hover:bg-[#3D2E22] hover:border-[#DFC8A4] transition-all cursor-pointer shadow-xs"
+                      aria-label={isUrdu ? "اطلاعات" : "Notifications"}
+                      title={isUrdu ? "اطلاعات" : "Notifications"}
+                    >
+                      <Bell className="w-4 h-4 text-[#DFC8A4]" />
+                      {unreadCount > 0 && (
+                        <span className="absolute -top-1 -right-1 min-w-[17px] h-[17px] px-1 bg-[#D97706] text-[#2B2118] font-bold text-[10px] leading-none rounded-full flex items-center justify-center border-2 border-[#2B2118] shadow-sm">
+                          {unreadCount > 99 ? "99+" : unreadCount}
                         </span>
-                        <ChevronDown className="w-3 h-3 text-[#A8793E]" />
-                      </button>
+                      )}
+                    </button>
 
-                      {/* Profile Dropdown */}
-                      <AnimatePresence>
-                        {showProfileDropdown && (
-                          <motion.div
-                            initial={{ opacity: 0, scale: 0.95, y: -6 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95, y: -6 }}
-                            transition={{ duration: 0.16 }}
-                            style={{ zIndex: 9999 }}
-                            className={`absolute left-0 ${isUrdu ? "text-right" : "text-left"} top-full mt-2 w-64 max-w-[calc(100vw-32px)] bg-[#2B2118] border border-[#A8793E] rounded-2xl shadow-2xl p-4 transition-all z-50`}
+                    <NotificationDropdown
+                      isOpen={showNotifDropdown}
+                      onClose={() => setShowNotifDropdown(false)}
+                      anchorRef={notifBellRef}
+                      headerHeight={headerHeight}
+                    />
+                  </div>
+
+                  {/* Profile Dropdown Trigger */}
+                  <div ref={profileDropdownRef} className="relative z-50">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowNotifDropdown(false);
+                        setShowProfileDropdown((prev) => !prev);
+                      }}
+                      className="rounded-full border border-[#A8793E] bg-[#2B2118] text-[#F7F1E8] px-2 sm:px-2.5 py-0.5 flex items-center gap-1.5 text-xs font-semibold hover:bg-[#3D2E22] transition-all cursor-pointer shadow-xs"
+                    >
+                      <div className="w-5 h-5 rounded-full bg-[#A8793E] text-[#2B2118] font-bold text-[10px] flex items-center justify-center shrink-0">
+                        {getInitials(loggedInUser)}
+                      </div>
+                      <span className="inline-block max-w-[70px] sm:max-w-[110px] truncate">
+                        {getUserDisplayName(loggedInUser)}
+                      </span>
+                      <ChevronDown className="w-3 h-3 text-[#A8793E]" />
+                    </button>
+
+                    {/* Profile Dropdown */}
+                    <AnimatePresence>
+                      {showProfileDropdown && (
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0.95, y: -6 }}
+                          animate={{ opacity: 1, scale: 1, y: 0 }}
+                          exit={{ opacity: 0, scale: 0.95, y: -6 }}
+                          transition={{ duration: 0.16 }}
+                          style={{ zIndex: 9999 }}
+                          className={`absolute left-0 ${isUrdu ? "text-right" : "text-left"} top-full mt-2 w-64 max-w-[calc(100vw-32px)] bg-[#2B2118] border border-[#A8793E] rounded-2xl shadow-2xl p-4 transition-all z-50`}
+                        >
+                          <div className="flex flex-col gap-1 pb-3 border-b border-[#A8793E]/30">
+                            <span className="font-bold text-[#F7F1E8] text-sm">
+                              {loggedInUser?.name}
+                            </span>
+                            <span className="text-xs text-[#F7F1E8]/60 font-mono truncate">
+                              {loggedInUser?.loginEmail ||
+                                loggedInUser?.loginPhone ||
+                                "-"}
+                            </span>
+                            <span className="self-start mt-1 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-[#A8793E]/25 text-[#DFC8A4] rounded-full border border-[#A8793E]/40">
+                              {loggedInUser?.role || "user"}
+                            </span>
+                          </div>
+
+                          <Link
+                            to="/"
+                            onClick={() => setShowProfileDropdown(false)}
+                            className="mt-2.5 flex items-center gap-2 w-full px-3 py-2 text-xs font-bold text-[#F7F1E8] hover:text-[#DFC8A4] bg-[#3D2E22] hover:bg-[#4D3A2C] rounded-xl border border-[#A8793E]/40 transition-colors"
                           >
-                            <div className="flex flex-col gap-1 pb-3 border-b border-[#A8793E]/30">
-                              <span className="font-bold text-[#F7F1E8] text-sm">
-                                {loggedInUser?.name}
-                              </span>
-                              <span className="text-xs text-[#F7F1E8]/60 font-mono truncate">
-                                {loggedInUser?.loginEmail ||
-                                  loggedInUser?.loginPhone ||
-                                  "-"}
-                              </span>
-                              <span className="self-start mt-1 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-[#A8793E]/25 text-[#DFC8A4] rounded-full border border-[#A8793E]/40">
-                                {loggedInUser?.role || "user"}
-                              </span>
-                            </div>
+                            <Home className="w-3.5 h-3.5 text-[#A8793E]" />
+                            {isUrdu ? "صفحہ اول" : "Home"}
+                          </Link>
 
-                            <Link
-                              to="/"
-                              onClick={() => setShowProfileDropdown(false)}
-                              className="mt-2.5 flex items-center gap-2 w-full px-3 py-2 text-xs font-bold text-[#F7F1E8] hover:text-[#DFC8A4] bg-[#3D2E22] hover:bg-[#4D3A2C] rounded-xl border border-[#A8793E]/40 transition-colors"
-                            >
-                              <Home className="w-3.5 h-3.5 text-[#A8793E]" />
-                              {isUrdu ? "صفحہ اول" : "Home"}
-                            </Link>
+                          <Link
+                            to="/my-details"
+                            onClick={() => setShowProfileDropdown(false)}
+                            className="mt-2 flex items-center gap-2 w-full px-3 py-2 text-xs font-bold text-[#F7F1E8] hover:text-[#DFC8A4] bg-[#3D2E22] hover:bg-[#4D3A2C] rounded-xl border border-[#A8793E]/40 transition-colors"
+                          >
+                            <User className="w-3.5 h-3.5 text-[#A8793E]" />
+                            {isUrdu ? "میری تفصیلات" : "My Details"}
+                          </Link>
 
-                            <Link
-                              to="/my-details"
-                              onClick={() => setShowProfileDropdown(false)}
-                              className="mt-2 flex items-center gap-2 w-full px-3 py-2 text-xs font-bold text-[#F7F1E8] hover:text-[#DFC8A4] bg-[#3D2E22] hover:bg-[#4D3A2C] rounded-xl border border-[#A8793E]/40 transition-colors"
-                            >
-                              <User className="w-3.5 h-3.5 text-[#A8793E]" />
-                              {isUrdu ? "میری تفصیلات" : "My Details"}
-                            </Link>
+                          {userRole === "admin" && (
+                            <>
+                              <Link
+                                to="/admin/dashboard"
+                                onClick={() => setShowProfileDropdown(false)}
+                                className="mt-2 flex items-center gap-2 w-full px-3 py-2 text-xs font-bold text-[#F7F1E8] hover:text-[#DFC8A4] bg-[#3D2E22] hover:bg-[#4D3A2C] rounded-xl border border-[#A8793E]/40 transition-colors"
+                              >
+                                <LayoutDashboard className="w-3.5 h-3.5 text-[#A8793E]" />
+                                {isUrdu ? "ڈیش بورڈ" : "Admin Dashboard"}
+                              </Link>
+                              <Link
+                                to="/admin/settings"
+                                onClick={() => setShowProfileDropdown(false)}
+                                className="mt-2 flex items-center gap-2 w-full px-3 py-2 text-xs font-bold text-[#F7F1E8] hover:text-[#DFC8A4] bg-[#3D2E22] hover:bg-[#4D3A2C] rounded-xl border border-[#A8793E]/40 transition-colors"
+                              >
+                                <Settings className="w-3.5 h-3.5 text-[#A8793E]" />
+                                {isUrdu
+                                  ? "ویب سائٹ کی ترتیبات"
+                                  : "Website Settings"}
+                              </Link>
+                            </>
+                          )}
 
-                            {userRole === "admin" && (
-                              <>
-                                <Link
-                                  to="/admin/dashboard"
-                                  onClick={() => setShowProfileDropdown(false)}
-                                  className="mt-2 flex items-center gap-2 w-full px-3 py-2 text-xs font-bold text-[#F7F1E8] hover:text-[#DFC8A4] bg-[#3D2E22] hover:bg-[#4D3A2C] rounded-xl border border-[#A8793E]/40 transition-colors"
-                                >
-                                  <LayoutDashboard className="w-3.5 h-3.5 text-[#A8793E]" />
-                                  {isUrdu ? "ڈیش بورڈ" : "Admin Dashboard"}
-                                </Link>
-                                <Link
-                                  to="/admin/settings"
-                                  onClick={() => setShowProfileDropdown(false)}
-                                  className="mt-2 flex items-center gap-2 w-full px-3 py-2 text-xs font-bold text-[#F7F1E8] hover:text-[#DFC8A4] bg-[#3D2E22] hover:bg-[#4D3A2C] rounded-xl border border-[#A8793E]/40 transition-colors"
-                                >
-                                  <Settings className="w-3.5 h-3.5 text-[#A8793E]" />
-                                  {isUrdu
-                                    ? "ویب سائٹ کی ترتیبات"
-                                    : "Website Settings"}
-                                </Link>
-                              </>
-                            )}
-
-                            <button
-                              type="button"
-                              onClick={handleLogout}
-                              className="mt-3 flex items-center justify-center gap-2 w-full px-3 py-2 text-xs font-bold text-red-300 hover:text-red-200 bg-red-950/40 hover:bg-red-900/50 rounded-xl border border-red-800/40 transition-colors cursor-pointer"
-                            >
-                              <LogOut className="w-3.5 h-3.5 text-red-400" />
-                              {isUrdu ? "لاگ آؤٹ" : "Logout"}
-                            </button>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </div>
-                  </>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={openLogin}
-                    className="rounded-full border border-[#A8793E] bg-[#2B2118] text-[#F7F1E8] px-2.5 sm:px-3 py-1 flex items-center gap-1.5 text-xs sm:text-[12.5px] font-semibold hover:bg-[#3D2E22] hover:border-[#DFC8A4] hover:text-[#F7F1E8] transition-all duration-200 cursor-pointer shadow-xs"
-                    title={isUrdu ? "لاگ ان / سائن اپ" : "Login / Signup"}
-                  >
-                    <User className="w-3.5 h-3.5 text-[#F7F1E8]" />
-                    <span>{isUrdu ? "لاگ ان" : "Login"}</span>
-                  </button>
+                          <button
+                            type="button"
+                            onClick={handleLogout}
+                            className="mt-3 flex items-center justify-center gap-2 w-full px-3 py-2 text-xs font-bold text-red-300 hover:text-red-200 bg-red-950/40 hover:bg-red-900/50 rounded-xl border border-red-800/40 transition-colors cursor-pointer"
+                          >
+                            <LogOut className="w-3.5 h-3.5 text-red-400" />
+                            {isUrdu ? "لاگ آؤٹ" : "Logout"}
+                          </button>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                </>
+              ) : (
+                <button
+                  type="button"
+                  onClick={openLogin}
+                  className="rounded-full border border-[#A8793E] bg-[#2B2118] text-[#F7F1E8] px-2.5 sm:px-3 py-1 flex items-center gap-1.5 text-xs sm:text-[12.5px] font-semibold hover:bg-[#3D2E22] hover:border-[#DFC8A4] hover:text-[#F7F1E8] transition-all duration-200 cursor-pointer shadow-xs"
+                  title={isUrdu ? "لاگ ان / سائن اپ" : "Login / Signup"}
+                >
+                  <User className="w-3.5 h-3.5 text-[#F7F1E8]" />
+                  <span>{isUrdu ? "لاگ ان" : "Login"}</span>
+                </button>
               )}
 
-                  {/* Mobile Hamburger Toggle */}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsOpen(!isOpen);
-                      setIsSearchOpen(false);
-                    }}
-                    className="lg:hidden w-7.5 h-7.5 sm:w-8 sm:h-8 rounded-full border border-[#A8793E] bg-[#2B2118] text-[#F7F1E8] flex items-center justify-center hover:bg-[#3D2E22] hover:border-[#DFC8A4] transition-all cursor-pointer"
-                    aria-label="Toggle Menu"
-                  >
-                    {isOpen ? (
-                      <X className="w-4 h-4" />
-                    ) : (
-                      <Menu className="w-4 h-4" />
-                    )}
-                  </button>
-                </div>
+              {/* Mobile Hamburger Toggle */}
+              <button
+                type="button"
+                onClick={() => {
+                  setIsOpen(!isOpen);
+                  setIsSearchOpen(false);
+                }}
+                className="lg:hidden w-7.5 h-7.5 sm:w-8 sm:h-8 rounded-full border border-[#A8793E] bg-[#2B2118] text-[#F7F1E8] flex items-center justify-center hover:bg-[#3D2E22] hover:border-[#DFC8A4] transition-all cursor-pointer"
+                aria-label="Toggle Menu"
+              >
+                {isOpen ? (
+                  <X className="w-4 h-4" />
+                ) : (
+                  <Menu className="w-4 h-4" />
+                )}
+              </button>
+            </div>
           </nav>
         </header>
       </div>
