@@ -24,8 +24,7 @@ export const AUTH_REGISTER = "/users/register";
 export const AUTH_LOGOUT = "/users/logout";
 export const AUTH_FORGOT_PASSWORD = "/users/forgot-password";
 export const AUTH_RESET_PASSWORD = "/users/reset-password";
-export const AUTH_GOOGLE = `${BACKEND_URL}/api/users/google`;
-
+export const AUTH_GOOGLE = "/api/users/google";
 // Fatwas
 export const FATWAS = "/fatwas";
 
