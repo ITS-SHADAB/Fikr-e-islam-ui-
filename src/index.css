@@ -263,7 +263,7 @@
 [lang="ur"] {
   font-family: 'Payami Nastaleeq', 'Noto Nastaliq Urdu', 'Urdu Typesetting', 'Jameel Noori Nastaleeq', 'Noto Naskh Arabic', 'Inter', sans-serif;
   font-size: 1.055rem;
-  line-height: 2.2;
+  line-height: 1.68;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
 }
@@ -276,13 +276,13 @@
 [dir="rtl"] h6,
 [dir="rtl"] .title-serif {
   font-family: 'Payami Nastaleeq', 'Noto Nastaliq Urdu', 'Urdu Typesetting', 'Jameel Noori Nastaleeq', 'Noto Naskh Arabic', serif;
-  line-height: 1.95;
+  line-height: 1.5;
 }
 
 /* Slightly enhance readability of paragraphs and general text in RTL */
 [dir="rtl"] p {
   font-size: 1.04em;
-  line-height: 2.25;
+  line-height: 1.68;
 }
 
 /* Dedicated Quranic Typography Class (Uses Payami Quran font exclusively for Quran verses) */

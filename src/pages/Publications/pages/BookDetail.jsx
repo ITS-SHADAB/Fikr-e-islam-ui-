@@ -515,7 +515,7 @@ export default function BookDetail() {
                   </span>
                 </h3>
                 <div
-                  className="p-4 sm:p-6 rounded-2xl border text-sm sm:text-base leading-[2.2] whitespace-pre-line font-normal break-words"
+                  className="p-4 sm:p-6 rounded-2xl border text-sm sm:text-base leading-[1.8] whitespace-pre-line font-normal break-words"
                   style={{
                     backgroundColor: `${COLORS.background}50`,
                     borderColor: `${COLORS.border}70`,

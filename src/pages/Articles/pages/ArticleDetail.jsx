@@ -388,7 +388,7 @@ export default function ArticleDetail() {
             }}
           >
             <p
-              className="text-sm sm:text-base leading-[2.4] font-normal"
+              className="text-sm sm:text-base leading-[1.8] font-normal"
               style={{ color: COLORS?.textPrimary }}
             >
               {article?.summary}
