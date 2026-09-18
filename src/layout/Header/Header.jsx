@@ -386,7 +386,6 @@ export default function Header() {
     {
       label: isUrdu ? "مقالات" : "Articles",
       href: "/articles",
-      hasDropdown: true,
     },
     {
       label: isUrdu ? "کتب ورسائل" : "Publications",
@@ -820,50 +819,39 @@ export default function Header() {
               {/* Feature / Home Pill Button (Dynamic current page title) */}
               <Link
                 to={currentFeature?.href || "/"}
-                className={`rounded-full px-2.5 sm:px-3 py-1 flex items-center gap-1.5 text-[12px] sm:text-[13px] font-semibold transition-all duration-200 shrink-0 border ${isFeatureActive
+                className={`rounded-full px-2.5 sm:px-3 py-1 flex items-center gap-1.5 sm:gap-2 text-[12px] sm:text-[13px] font-semibold transition-all duration-200 shrink-0 border ${isFeatureActive
                   ? "border-[#A8793E] bg-[#3D2E22] text-[#F7F1E8] shadow-[0_0_10px_rgba(168,121,62,0.25)]"
                   : "border-[#A8793E] bg-[#2B2118] text-[#F7F1E8]/90 hover:border-[#DFC8A4] hover:text-[#F7F1E8] hover:bg-[#3D2E22]"
                   }`}
               >
-                <Home className="w-3.5 h-3.5 text-[#F7F1E8]" />
-                <span className="max-w-[85px] sm:max-w-none truncate">
+                <Home className="w-3.5 h-3.5 text-[#F7F1E8] shrink-0" />
+                <span className="max-w-[85px] sm:max-w-none truncate ps-0.5">
                   {currentFeature?.label || (isUrdu ? "صفحہ اول" : "Home")}
                 </span>
-                <ChevronDown className="w-3 h-3 text-[#A8793E] opacity-80" />
               </Link>
             </div>
 
-            {/* ── CENTER (DESKTOP): Navigation Links with Antique Gold Separators ── */}
-            <div className="hidden lg:flex items-center justify-center flex-1 mx-2 xl:mx-3 pt-0.5">
-              <div className="flex items-center flex-nowrap gap-0.5 xl:gap-1">
-                {navLinks.map((item, index) => {
+            {/* ── CENTER (DESKTOP): Navigation Menu Buttons ── */}
+            <div className="hidden lg:flex items-center justify-center flex-1 mx-1.5 xl:mx-3 py-1">
+              <div className="flex items-center flex-nowrap gap-1 xl:gap-2">
+                {navLinks.map((item) => {
                   const isActive =
                     location.pathname === item.href ||
                     (item.href !== "/" &&
                       location.pathname.startsWith(item.href));
 
                   return (
-                    <React.Fragment key={item.href}>
-                      <Link
-                        to={item.href}
-
-                        className={`px-2 xl:px-2.5 py-0.5 text-[13px] xl:text-[14px] whitespace-nowrap transition-all duration-200 select-none flex items-center gap-1 ${isActive
-                          ? "text-[#DFC8A4] font-bold"
-                          : "text-[#F7F1E8]/90 hover:text-[#DFC8A4] font-medium"
-                          }`}
-
-                      >
-                        <span>{item.label}</span>
-                        {item.hasDropdown && (
-                          <ChevronDown className="w-3 h-3 text-[#A8793E] opacity-80 inline-block" />
-                        )}
-                      </Link>
-
-                      {/* Thin Vertical Gold Separator */}
-                      {index < navLinks.length - 1 && (
-                        <div className="w-[1px] h-3 xl:h-3.5 bg-[#A8793E]/40 self-center mx-0.5 xl:mx-1 shrink-0" />
-                      )}
-                    </React.Fragment>
+                    <Link
+                      key={item.href}
+                      to={item.href}
+                      className={`group px-3 xl:px-3.5 py-1 xl:py-1.5 rounded-full text-[13.5px] xl:text-[14.5px] whitespace-nowrap transition-all duration-200 select-none flex items-center gap-1.5 border shrink-0 cursor-pointer shadow-xs ${
+                        isActive
+                          ? "border-[#DFC8A4] bg-[#3D2E22] text-[#DFC8A4] font-normal shadow-[0_0_10px_rgba(168,121,62,0.3)]"
+                          : "border-[#A8793E]/50 bg-[#2B2118]/90 text-[#F7F1E8] hover:border-[#DFC8A4] hover:text-[#FFF7D6] hover:bg-[#3D2E22] hover:shadow-[0_2px_8px_rgba(168,121,62,0.2)] font-normal hover:scale-[1.02] active:scale-95"
+                      }`}
+                    >
+                      <span className="tracking-wide leading-none">{item.label}</span>
+                    </Link>
                   );
                 })}
               </div>
@@ -1141,10 +1129,11 @@ export default function Header() {
                             key={item.href}
                             to={item.href}
                             onClick={closeMenu}
-                            className={`px-3 py-1.5 rounded-lg text-[13.5px] sm:text-sm transition-all flex items-center gap-2 ${isActive
-                              ? "bg-[#3D2E22] text-[#DFC8A4] font-bold border border-[#A8793E]/40 shadow-xs"
-                              : "text-[#F7F1E8]/90 hover:bg-[#33261C] hover:text-[#DFC8A4] font-medium"
-                              }`}
+                            className={`px-3 py-1.5 rounded-xl text-sm sm:text-[15px] transition-all flex items-center gap-2 border shadow-xs ${
+                              isActive
+                                ? "bg-[#3D2E22] text-[#DFC8A4] font-normal border-[#DFC8A4] shadow-[0_0_8px_rgba(168,121,62,0.25)]"
+                                : "bg-[#2B2118]/60 border-[#A8793E]/35 text-[#F7F1E8] hover:bg-[#3D2E22] hover:border-[#DFC8A4] hover:text-[#DFC8A4] font-normal"
+                            }`}
                           >
                             {item.icon && (
                               <item.icon className="w-4 h-4 text-[#A8793E]" />

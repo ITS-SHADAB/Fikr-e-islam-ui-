@@ -59,23 +59,23 @@ export function IslamicLantern({ className = "w-[56px] h-[112px]", style }) {
       {/* Ambient warm aura */}
       <circle cx="35" cy="68" r="32" fill="url(#auraGlow)" />
 
-      {/* Top Chain from ceiling */}
+      {/* Top Chain from ceiling - solid dark bronze connecting all the way to head */}
       <line
         x1="35"
         y1="0"
         x2="35"
-        y2="20"
-        stroke="url(#metalGold)"
-        strokeWidth="1.6"
+        y2="25"
+        stroke="#42301E"
+        strokeWidth="1.5"
       />
 
-      {/* Top Hanging Ring */}
+      {/* Top Hanging Ring - solid dark bronze */}
       <circle
         cx="35"
-        cy="20"
+        cy="19"
         r="4"
-        stroke="url(#metalGold)"
-        strokeWidth="1.6"
+        stroke="#42301E"
+        strokeWidth="1.5"
         fill="none"
       />
 

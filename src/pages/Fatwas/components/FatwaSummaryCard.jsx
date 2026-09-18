@@ -4,7 +4,6 @@ import {
   Download,
   ArrowRight,
   BookOpen,
-  Minimize2,
   Loader2,
 } from "lucide-react";
 import {
@@ -13,7 +12,6 @@ import {
   IslamicGeometricWatermark,
   CardGeometricTexture,
 } from "./FatwaDetailDecorativeAssets";
-import { PdfViewer } from "@/components";
 
 /**
  * FatwaSummaryCard - Section 2: Answer Summary & Integrated Download (جواب و خلاصہ)
@@ -23,8 +21,6 @@ export default function FatwaSummaryCard({
   pdfUrl,
   fatwaTitle = "",
   onOpenModal,
-  showEmbeddedPdf,
-  onToggleEmbedded,
   theme = {
     cardBg: "#F7F1E8",
     panelBg: "#FCF8F1",
@@ -40,11 +36,13 @@ export default function FatwaSummaryCard({
 }) {
   const [isDownloading, setIsDownloading] = useState(false);
 
-  // Trigger actual file download in browser
+  const securePdfUrl = pdfUrl ? pdfUrl.replace(/^http:\/\//i, "https://") : "";
+
+  // Trigger actual secure file download in browser
   const handleDownload = async (e) => {
     e?.preventDefault();
     e?.stopPropagation();
-    if (!pdfUrl || isDownloading) return;
+    if (!securePdfUrl || isDownloading) return;
 
     setIsDownloading(true);
 
@@ -56,49 +54,59 @@ export default function FatwaSummaryCard({
     const fileName = `${cleanTitle}.pdf`;
 
     try {
-      // 1. Fetch file as blob to guarantee local browser download regardless of origin
-      const response = await fetch(pdfUrl);
-      if (!response.ok) {
-        throw new Error(`Fetch error: ${response.status}`);
-      }
-
-      const blob = await response.blob();
-      const pdfBlob = new Blob([blob], { type: "application/pdf" });
-      const blobUrl = window.URL.createObjectURL(pdfBlob);
-
-      const link = document.createElement("a");
-      link.style.display = "none";
-      link.href = blobUrl;
-      link.download = fileName;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-
-      setTimeout(() => {
-        window.URL.revokeObjectURL(blobUrl);
-      }, 1500);
-    } catch (error) {
-      console.warn("Direct blob download failed, falling back to direct attachment download:", error);
-
-      // 2. Fallback: If Cloudinary, inject fl_attachment for Content-Disposition header
-      let fallbackUrl = pdfUrl;
-      if (fallbackUrl.includes("res.cloudinary.com") && fallbackUrl.includes("/upload/")) {
-        if (!fallbackUrl.includes("fl_attachment")) {
-          fallbackUrl = fallbackUrl.replace("/upload/", "/upload/fl_attachment/");
+      // If Cloudinary URL, use HTTPS + fl_attachment to force secure attachment download headers directly from Cloudinary
+      if (securePdfUrl.includes("res.cloudinary.com") && securePdfUrl.includes("/upload/")) {
+        let downloadUrl = securePdfUrl;
+        if (!downloadUrl.includes("fl_attachment")) {
+          downloadUrl = downloadUrl.replace("/upload/", "/upload/fl_attachment/");
         }
-      }
 
+        const link = document.createElement("a");
+        link.style.display = "none";
+        link.href = downloadUrl;
+        link.setAttribute("download", fileName);
+        link.setAttribute("target", "_blank");
+        link.setAttribute("rel", "noopener noreferrer");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } else {
+        // For self-hosted or other HTTPS URLs, fetch blob
+        const response = await fetch(securePdfUrl);
+        if (!response.ok) {
+          throw new Error(`Fetch error: ${response.status}`);
+        }
+
+        const blob = await response.blob();
+        const pdfBlob = new Blob([blob], { type: "application/pdf" });
+        const blobUrl = window.URL.createObjectURL(pdfBlob);
+
+        const link = document.createElement("a");
+        link.style.display = "none";
+        link.href = blobUrl;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        setTimeout(() => {
+          window.URL.revokeObjectURL(blobUrl);
+        }, 1500);
+      }
+    } catch (error) {
+      console.warn("Direct download failed, falling back to secure window open:", error);
       const fallbackLink = document.createElement("a");
       fallbackLink.style.display = "none";
-      fallbackLink.href = fallbackUrl;
-      fallbackLink.download = fileName;
+      fallbackLink.href = securePdfUrl;
       fallbackLink.target = "_blank";
       fallbackLink.rel = "noopener noreferrer";
       document.body.appendChild(fallbackLink);
       fallbackLink.click();
       document.body.removeChild(fallbackLink);
     } finally {
-      setIsDownloading(false);
+      setTimeout(() => {
+        setIsDownloading(false);
+      }, 700);
     }
   };
 
@@ -230,14 +238,14 @@ export default function FatwaSummaryCard({
           borderColor: theme.lightGold,
         }}
       >
-        {/* Exactly Two Action Buttons: Left (Download) & Right (Online Read) */}
+        {/* Exactly Two Action Buttons: Left (Download) & Right (Online Read in New Tab) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
           {/* BUTTON 1 (LEFT): Dark Brown #2C2118 with Actual Programmatic Download */}
           <button
             type="button"
             onClick={handleDownload}
-            disabled={!pdfUrl || isDownloading}
-            title={pdfUrl ? "مکمل فتویٰ ڈاؤنلوڈ کریں" : "پی ڈی ایف دستیاب نہیں ہے"}
+            disabled={!securePdfUrl || isDownloading}
+            title={securePdfUrl ? "مکمل فتویٰ ڈاؤنلوڈ کریں" : "پی ڈی ایف دستیاب نہیں ہے"}
             className="flex items-center justify-between px-3.5 sm:px-5 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-bold transition-all duration-200 cursor-pointer shadow-xs hover:opacity-95 active:scale-[0.99] min-h-[46px] sm:min-h-[48px] disabled:opacity-60 disabled:cursor-not-allowed select-none border-0"
             style={{
               backgroundColor: "#2C2118",
@@ -259,45 +267,28 @@ export default function FatwaSummaryCard({
             />
           </button>
 
-          {/* BUTTON 2 (RIGHT): Crisp Cream with Dark Border - Toggles Online Reader */}
-          <button
-            type="button"
-            onClick={onToggleEmbedded}
-            className="flex items-center justify-between px-3.5 sm:px-5 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl border font-bold transition-all duration-200 cursor-pointer shadow-xs hover:bg-[#F3E8D8] active:scale-[0.99] min-h-[46px] sm:min-h-[48px] select-none"
+          {/* BUTTON 2 (RIGHT): Crisp Cream with Dark Border - Opens PDF in New Tab */}
+          <a
+            href={securePdfUrl || "#"}
+            target="_blank"
+            rel="noopener noreferrer"
+            title={securePdfUrl ? "پی ڈی ایف آن لائن نئے ٹیب میں پڑھیں" : "پی ڈی ایف دستیاب نہیں ہے"}
+            className={`flex items-center justify-between px-3.5 sm:px-5 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl border font-bold transition-all duration-200 shadow-xs hover:bg-[#F3E8D8] active:scale-[0.99] min-h-[46px] sm:min-h-[48px] select-none ${
+              !securePdfUrl ? "opacity-60 pointer-events-none" : "cursor-pointer"
+            }`}
             style={{
-              backgroundColor: showEmbeddedPdf ? `${theme.goldAccent}18` : "#FAF6EF",
+              backgroundColor: "#FAF6EF",
               borderColor: "#2C2118",
               color: "#2C2118",
             }}
           >
-            {showEmbeddedPdf ? (
-              <Minimize2 className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-[#2C2118] shrink-0 stroke-[2.2]" />
-            ) : (
-              <BookOpen className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-[#2C2118] shrink-0 stroke-[2.2]" />
-            )}
+            <BookOpen className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-[#2C2118] shrink-0 stroke-[2.2]" />
             <span className="font-['Payami_Nastaleeq',serif] text-[14.5px] sm:text-base tracking-wide mx-2">
-              {showEmbeddedPdf ? "قاری بند کریں" : "آن لائن پڑھیں"}
+              آن لائن پڑھیں
             </span>
-            <ArrowRight
-              className={`w-4 h-4 sm:w-4.5 sm:h-4.5 text-[#2C2118] shrink-0 transition-transform duration-200 ${
-                showEmbeddedPdf ? "rotate-90" : ""
-              }`}
-            />
-          </button>
+            <ArrowRight className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-[#2C2118] shrink-0" />
+          </a>
         </div>
-
-        {/* Embedded PDF Viewer beneath the two buttons when toggled */}
-        {showEmbeddedPdf && (
-          <div
-            className="w-full mt-3 rounded-xl overflow-hidden border shadow-inner"
-            style={{
-              height: "650px",
-              borderColor: theme.secondaryBorder,
-            }}
-          >
-            <PdfViewer url={pdfUrl} title={fatwaTitle} isModal={false} />
-          </div>
-        )}
       </div>
     </section>
   );

@@ -76,6 +76,8 @@
 @layer base {
   html {
     -webkit-overflow-scrolling: touch;
+    font-size: 16px;
+    line-height: 24px;
   }
 
   body {
@@ -83,6 +85,8 @@
     color: var(--color-text-primary);
     @apply antialiased;
     font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    line-height: 24px;
     overflow-x: hidden;
     overscroll-behavior-y: auto;
   }
@@ -262,8 +266,8 @@
 .urdu-text,
 [lang="ur"] {
   font-family: 'Payami Nastaleeq', 'Noto Nastaliq Urdu', 'Urdu Typesetting', 'Jameel Noori Nastaleeq', 'Noto Naskh Arabic', 'Inter', sans-serif;
-  font-size: 1.055rem;
-  line-height: 1.68;
+  font-size: 16px;
+  line-height: 24px;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
 }
@@ -279,10 +283,11 @@
   line-height: 1.5;
 }
 
-/* Slightly enhance readability of paragraphs and general text in RTL */
-[dir="rtl"] p {
-  font-size: 1.04em;
-  line-height: 1.68;
+/* Paragraphs and general text in RTL */
+[dir="rtl"] p,
+p {
+  font-size: 16px;
+  line-height: 24px;
 }
 
 /* Dedicated Quranic Typography Class (Uses Payami Quran font exclusively for Quran verses) */

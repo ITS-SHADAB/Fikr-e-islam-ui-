@@ -170,8 +170,9 @@ export default function FatwaDetail() {
     );
   }
 
-  const pdfUrl =
+  const rawPdfUrl =
     fatwa?.pdf?.url || (typeof fatwa?.pdf === "string" ? fatwa?.pdf : null);
+  const pdfUrl = rawPdfUrl ? rawPdfUrl.replace(/^http:\/\//i, "https://") : null;
   const categoryLabel =
     FATWA_CATEGORY_TRANSLATIONS?.[fatwa?.category] ||
     fatwa?.category ||
@@ -187,6 +188,68 @@ export default function FatwaDetail() {
         }
       )
     : "";
+
+  // Trigger PDF download from top action bar
+  const handleDownloadPdf = async () => {
+    if (!pdfUrl) {
+      toast.error(isRTL ? "پی ڈی ایف دستیاب نہیں ہے" : "PDF not available");
+      return;
+    }
+
+    const cleanTitle = (fatwa?.title || "fatwa")
+      .replace(/[/\\?%*:|"<>]/g, "-")
+      .replace(/\s+/g, "_")
+      .slice(0, 75);
+    const fileName = `${cleanTitle}.pdf`;
+
+    try {
+      if (pdfUrl.includes("res.cloudinary.com") && pdfUrl.includes("/upload/")) {
+        let downloadUrl = pdfUrl;
+        if (!downloadUrl.includes("fl_attachment")) {
+          downloadUrl = downloadUrl.replace("/upload/", "/upload/fl_attachment/");
+        }
+
+        const link = document.createElement("a");
+        link.style.display = "none";
+        link.href = downloadUrl;
+        link.setAttribute("download", fileName);
+        link.setAttribute("target", "_blank");
+        link.setAttribute("rel", "noopener noreferrer");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } else {
+        const response = await fetch(pdfUrl);
+        if (!response.ok) throw new Error("Fetch failed");
+        const blob = await response.blob();
+        const pdfBlob = new Blob([blob], { type: "application/pdf" });
+        const blobUrl = window.URL.createObjectURL(pdfBlob);
+
+        const link = document.createElement("a");
+        link.style.display = "none";
+        link.href = blobUrl;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        setTimeout(() => {
+          window.URL.revokeObjectURL(blobUrl);
+        }, 1500);
+      }
+      toast.success(isRTL ? "پی ڈی ایف ڈاؤنلوڈ شروع ہو گئی ہے" : "Downloading PDF...");
+    } catch (err) {
+      console.warn("Direct download failed:", err);
+      const fallbackLink = document.createElement("a");
+      fallbackLink.style.display = "none";
+      fallbackLink.href = pdfUrl;
+      fallbackLink.target = "_blank";
+      fallbackLink.rel = "noopener noreferrer";
+      document.body.appendChild(fallbackLink);
+      fallbackLink.click();
+      document.body.removeChild(fallbackLink);
+    }
+  };
 
   return (
     <div
@@ -349,13 +412,13 @@ export default function FatwaDetail() {
             </button>
 
             <button
-              onClick={() => window?.print()}
+              onClick={handleDownloadPdf}
               className="flex items-center gap-1.5 text-xs font-semibold p-2.5 rounded-xl border cursor-pointer hover:bg-white transition-colors"
               style={{
                 borderColor: COLORS?.border,
                 color: COLORS?.textSecondary,
               }}
-              title={isRTL ? "پرنٹ کریں" : "Print"}
+              title={isRTL ? "پی ڈی ایف ڈاؤنلوڈ کریں" : "Download PDF"}
             >
               <Printer className="w-3.5 h-3.5 text-[#A8793E]" />
             </button>
@@ -378,81 +441,13 @@ export default function FatwaDetail() {
             pdfUrl={pdfUrl}
             fatwaTitle={fatwa?.title}
             onOpenModal={() => setIsPdfModalOpen(true)}
-            showEmbeddedPdf={showEmbeddedPdf}
-            onToggleEmbedded={() => setShowEmbeddedPdf(!showEmbeddedPdf)}
             isRTL={isRTL}
             theme={THEME}
           />
         </div>
 
-        {/* ── SUBSEQUENT SECTIONS: REFERENCES, COMMENTS, RELATED FATWAS ── */}
+        {/* ── SUBSEQUENT SECTIONS: COMMENTS, RELATED FATWAS ── */}
         <div className="mt-3.5 sm:mt-4 space-y-3 sm:space-y-3.5 relative z-10">
-
-          {/* ══════════════════════════════════════════════════════════════
-              CARD 4: ACADEMIC REFERENCES (علمی حوالہ جات و کتبِ فقہ)
-          ══════════════════════════════════════════════════════════════ */}
-          {fatwa?.references && fatwa?.references?.length > 0 && (
-            <section
-              aria-labelledby="references-heading"
-              className="rounded-[20px] sm:rounded-[24px] p-4 sm:p-6 border relative overflow-hidden transition-shadow duration-300"
-              style={{
-                backgroundColor: THEME.cardBg,
-                borderColor: THEME.secondaryBorder,
-                boxShadow: THEME.cardShadow,
-              }}
-            >
-              <div className="flex items-center gap-3 mb-3">
-                <div
-                  className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border shadow-xs"
-                  style={{
-                    backgroundColor: THEME.noticeBg,
-                    borderColor: THEME.secondaryBorder,
-                    color: THEME.goldAccent,
-                  }}
-                >
-                  <Bookmark className="w-4 h-4" />
-                </div>
-                <div className="text-left">
-                  <h2
-                    id="references-heading"
-                    className="text-lg sm:text-xl font-bold font-['Payami_Nastaleeq',serif] leading-tight"
-                    style={{ color: THEME.darkBrown }}
-                  >
-                    علمی حوالہ جات و کتبِ فقہ
-                  </h2>
-                  <span
-                    className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider block font-sans"
-                    style={{ color: THEME.textMuted }}
-                  >
-                    SOURCES & REFERENCES
-                  </span>
-                </div>
-              </div>
-
-              <div
-                className="rounded-[16px] p-4 sm:p-5 border shadow-2xs"
-                style={{
-                  backgroundColor: THEME.panelBg,
-                  borderColor: THEME.lightGold,
-                }}
-              >
-                <ul
-                  dir="rtl"
-                  className="list-disc list-inside space-y-2 text-sm sm:text-base font-['Payami_Nastaleeq',serif] leading-[1.68] text-right"
-                >
-                  {fatwa?.references?.map((ref, idx) => (
-                    <li
-                      key={idx}
-                      className="font-normal"
-                      style={{ color: THEME.mainText }}
-                    >
-                      {ref}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </section>
-          )}
 
           {/* ══════════════════════════════════════════════════════════════
               CARD 5: COMMENTS ACCORDION (تبصرے و آراء)
@@ -468,48 +463,46 @@ export default function FatwaDetail() {
             <button
               type="button"
               onClick={() => setIsCommentsOpen((v) => !v)}
-              className="w-full flex items-center justify-between gap-3 px-4 sm:px-6 py-3.5 cursor-pointer transition-colors hover:bg-black/5"
+              className="w-full flex items-center justify-between gap-3 px-4 sm:px-6 py-3.5 sm:py-4 cursor-pointer transition-colors hover:bg-black/5"
               style={{
                 borderBottom: isCommentsOpen
                   ? `1px solid ${THEME.lightGold}`
                   : "none",
               }}
             >
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 sm:gap-3.5">
+                {/* Dark Luxury Message Icon Container */}
                 <div
-                  className="w-10 h-10 rounded-xl flex items-center justify-center border shadow-xs"
+                  className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center border shadow-xs shrink-0 transition-colors"
                   style={{
-                    backgroundColor: isCommentsOpen
-                      ? THEME.darkBrown
-                      : THEME.noticeBg,
-                    borderColor: THEME.secondaryBorder,
-                    color: isCommentsOpen ? THEME.panelBg : THEME.goldAccent,
+                    backgroundColor: isCommentsOpen ? "#2C2118" : "#E4D5C2",
+                    borderColor: isCommentsOpen ? "#2C2118" : THEME.secondaryBorder,
+                    color: isCommentsOpen ? "#FAF6EF" : "#2C2118",
                   }}
                 >
-                  <MessageSquare className="w-4 h-4" />
+                  <MessageSquare className="w-5 h-5 stroke-[2.2]" />
                 </div>
-                <div className="text-left">
+                <div className="text-start">
                   <span
-                    className="text-base font-bold block font-['Payami_Nastaleeq',serif]"
+                    className="text-[17px] sm:text-[19px] md:text-[20px] font-bold block font-['Payami_Nastaleeq',serif] leading-none pt-0.5 select-none"
                     style={{ color: THEME.darkBrown }}
                   >
                     تبصرے و آراء
                   </span>
                   <span
-                    className="text-[11px] font-sans"
+                    className="text-[12px] sm:text-[13px] font-['Payami_Nastaleeq',serif] block leading-snug mt-1 opacity-80 select-none"
                     style={{ color: THEME.textMuted }}
                   >
                     {isCommentsOpen
-                      ? "Hide comments"
-                      : "View and post comments"}
+                      ? "تبصروں کا خانہ بند کریں"
+                      : "فتویٰ پر اپنے تاثرات لکھیں یا دوسروں کے تبصرے دیکھیں"}
                   </span>
                 </div>
               </div>
               <ChevronDown
-                className={`w-4 h-4 transition-transform duration-300 shrink-0 ${
+                className={`w-5 h-5 transition-transform duration-300 shrink-0 stroke-[2.2] text-[#2C2118] ${
                   isCommentsOpen ? "rotate-180" : ""
                 }`}
-                style={{ color: THEME.textMuted }}
               />
             </button>
 

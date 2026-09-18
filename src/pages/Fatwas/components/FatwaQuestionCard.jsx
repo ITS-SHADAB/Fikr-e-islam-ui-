@@ -43,22 +43,30 @@ function QuestionBubbleIcon({ className = "w-8 h-8 sm:w-9 sm:h-9" }) {
 /**
  * QuestionLeftNotch - Distinctive gold vertical accent bar with center triangular notch
  * matching the left border in the reference image.
+ * Dynamically scales with card height when text is longer, perfectly centered at all times.
  */
 function QuestionLeftNotch() {
   return (
-    <div className="absolute top-6 -left-[2px] w-2 h-16 pointer-events-none select-none">
+    <div className="absolute top-1/2 -translate-y-1/2 -left-[2px] w-2 h-[55%] min-h-[38px] max-h-[135px] pointer-events-none select-none flex flex-col items-end">
+      {/* Top vertical line (dynamically grows with text) */}
+      <div className="w-[3.5px] flex-1 bg-[#A8793E] rounded-t-[1px]" />
+
+      {/* Center triangle notch pointing left */}
       <svg
-        viewBox="0 0 8 60"
-        className="w-2 h-16"
+        viewBox="0 0 8 16"
+        className="w-2 h-4 shrink-0 -my-[0.5px]"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
         aria-hidden="true"
       >
         <path
-          d="M4 0 L4 23 L0 29 L4 35 L4 60 L8 60 L8 0 Z"
+          d="M4.5 0 L0 8 L4.5 16 L8 16 L8 0 Z"
           fill="#A8793E"
         />
       </svg>
+
+      {/* Bottom vertical line (dynamically grows with text) */}
+      <div className="w-[3.5px] flex-1 bg-[#A8793E] rounded-b-[1px]" />
     </div>
   );
 }
@@ -112,46 +120,50 @@ export default function FatwaQuestionCard({
         />
       </div>
 
-      {/* TOP-RIGHT: Hanging Lamp (suspended from top border, slightly bigger) */}
-      <div className="absolute top-0 right-3 sm:right-6 md:right-8 z-20 select-none pointer-events-none drop-shadow-md">
-        <IslamicLantern className="w-[54px] h-[108px] sm:w-[64px] sm:h-[126px] md:w-[72px] md:h-[142px]" />
+      {/* TOP-RIGHT: Hanging Lamp with Dark Ceiling Line & Continuous Thin Suspension */}
+      <div className="absolute top-0 right-3 sm:right-6 md:right-8 z-20 pointer-events-none select-none flex flex-col items-center">
+        {/* Dark Ceiling Mount Line (retained as requested by user) */}
+        <div
+          className="w-8 sm:w-10 h-1 sm:h-1.5 rounded-b-xs shrink-0"
+          style={{
+            backgroundColor: "#2B2118",
+            borderBottom: `1px solid ${theme.secondaryBorder}80`,
+          }}
+        />
+
+        {/* Full-Sized Islamic Lamp with thin line connected seamlessly all the way to the head */}
+        <IslamicLantern className="w-[46px] h-[92px] sm:w-[54px] sm:h-[108px] md:w-[62px] md:h-[124px] drop-shadow-sm -mt-[1px] relative z-10" />
       </div>
 
       {/* Header Row: Left-composed compact heading capsule */}
-      <div className="flex items-center justify-between gap-3 mb-3 sm:mb-3.5 relative z-10 pr-16 sm:pr-22">
-        {/* Sleek, Compact Height Heading Capsule (#EFE6D9) */}
+      <div className="flex items-center justify-between gap-3 mb-3.5 sm:mb-4 relative z-10">
+        {/* Sleek, Compact Height Heading Capsule (#EFE6D9) - Pure Urdu, No English */}
         <div
-          className="inline-flex items-center gap-2.5 sm:gap-3 py-1 sm:py-1.5 px-3 sm:px-3.5 rounded-full border shadow-2xs"
+          className="inline-flex items-center gap-1.5 sm:gap-2.5 py-1 sm:py-1.5 px-2.5 sm:px-3.5 rounded-full border shadow-2xs whitespace-nowrap shrink-0"
           style={{
             backgroundColor: theme.noticeBg,
             borderColor: `${theme.secondaryBorder}60`,
           }}
         >
           {/* Question Speech-Bubble Icon */}
-          <QuestionBubbleIcon className="w-8 h-8 sm:w-8.5 sm:h-8.5" />
+          <QuestionBubbleIcon className="w-7 h-7 sm:w-8 sm:h-8" />
 
-          {/* Text Block: Adjusted tight height & proper baseline */}
-          <div className="text-left flex flex-col justify-center pr-1 sm:pr-1.5">
-            <h2
-              id="question-heading"
-              className="text-base sm:text-[18px] font-bold font-['Payami_Nastaleeq',serif] leading-tight"
-              style={{ color: theme.mainText }}
-            >
+          {/* Urdu Title: Pure سائل کا سوال */}
+          <h2
+            id="question-heading"
+            className="font-bold whitespace-nowrap leading-none pr-0.5 select-none"
+            style={{ color: theme.mainText }}
+          >
+            <span className="text-[14px] xs:text-[15.5px] sm:text-[17px] font-['Payami_Nastaleeq',serif] leading-none pt-0.5">
               سائل کا سوال
-            </h2>
-            <span
-              className="text-[10px] sm:text-[11px] font-semibold block font-sans leading-none mt-0.5 tracking-tight"
-              style={{ color: theme.mainText }}
-            >
-              Question
             </span>
-          </div>
+          </h2>
         </div>
       </div>
 
-      {/* Inner Question Panel (#FCF8F1) */}
+      {/* Inner Question Panel (#FCF8F1) with dedicated right clearance for the lamp */}
       <div
-        className="rounded-[18px] p-4 sm:p-6 md:p-8 border relative shadow-2xs z-10"
+        className="rounded-[18px] p-3.5 sm:p-6 md:p-8 pr-14 sm:pr-20 md:pr-24 border relative shadow-2xs z-10"
         style={{
           backgroundColor: theme.panelBg,
           borderColor: theme.lightGold,
@@ -163,7 +175,7 @@ export default function FatwaQuestionCard({
         {/* Urdu Question Text: RTL, Right-aligned, Payami Nastaleeq font */}
         <p
           dir="rtl"
-          className="text-[20px] sm:text-[23px] md:text-[26px] font-['Payami_Nastaleeq',serif] leading-[1.62] sm:leading-[1.75] font-medium text-right"
+          className="text-[19px] sm:text-[22px] md:text-[25px] font-['Payami_Nastaleeq',serif] leading-[1.65] sm:leading-[1.78] font-medium text-right relative z-10 break-words"
           style={{ color: theme.mainText }}
         >
           ”{question}“

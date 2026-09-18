@@ -16,27 +16,27 @@ export default function CommentHeader({
       {/* Title & Count Badge */}
       <div className="flex items-center gap-2.5">
         <div
-          className="w-8 h-8 rounded-lg flex items-center justify-center border shadow-2xs"
+          className="w-8.5 h-8.5 rounded-lg flex items-center justify-center border shadow-2xs shrink-0"
           style={{
-            backgroundColor: `${COLORS.accent}15`,
-            borderColor: `${COLORS.accent}40`,
-            color: COLORS.accent,
+            backgroundColor: "#2C2118",
+            borderColor: "#2C2118",
+            color: "#FAF6EF",
           }}
         >
-          <MessageSquare className="w-4 h-4" />
+          <MessageSquare className="w-4.5 h-4.5 text-white stroke-[2.2]" />
         </div>
         <h3
-          className="text-base sm:text-lg font-bold font-serif"
+          className="text-base sm:text-lg font-bold font-['Payami_Nastaleeq',serif] pt-0.5"
           style={{ color: COLORS.primary }}
         >
           {isRTL ? "تبصرے اور آراء" : "Comments"}
         </h3>
         <span
-          className="text-xs font-semibold px-2 py-0.5 rounded-full border shadow-2xs"
+          className="text-xs font-bold px-2 py-0.5 rounded-full border shadow-2xs font-sans"
           style={{
-            backgroundColor: COLORS.secondary || "#F3E3D8",
-            borderColor: `${COLORS.border}40`,
-            color: COLORS.primary,
+            backgroundColor: "#E4D5C2",
+            borderColor: `${COLORS.border}50`,
+            color: "#2C2118",
           }}
         >
           {totalCount}
