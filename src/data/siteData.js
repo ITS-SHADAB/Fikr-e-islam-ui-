@@ -99,7 +99,7 @@ export const FOOTER_DEPTS   = ['مسلہ پوچھیں', 'خواب کی تعبی�
 
 export const CONTACT = {
   address: 'دارالقضاء ادارۂ شرعیہ اورنگ آباد، بہار (انڈیا)',
-  phone: '+918317780566',
+  phone: '+91 8317780566',
   email: 'faizansarwarmisbahi@gmail.com',
   whatsapp: 'https://whatsapp.com/channel/0029Va62ICRDZ4LaWYNIr32k',
   telegram: 'https://t.me/faizansarwarmisbahi',

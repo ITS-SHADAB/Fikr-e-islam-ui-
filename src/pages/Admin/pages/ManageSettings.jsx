@@ -4,6 +4,7 @@ import { ArrowRight, Save, AlertTriangle, Settings, CheckCircle, Info, PhoneCall
 import { useSettings } from '@/hooks/useSettings';
 import { Input } from '../../../components/Input';
 import { ImageViewer, ConfirmationBox } from '@/components';
+import { OFFICIAL_CONTACT, OFFICIAL_SOCIAL_LINKS } from '@/constants/contact';
 
 export default function ManageSettings() {
   const { settings, loading, error, updateSuccess, updateSettings, clearErrors } = useSettings();
@@ -42,6 +43,7 @@ export default function ManageSettings() {
     facebook: '',
     youtube: '',
     telegram: '',
+    whatsapp: '',
     twitter: '',
     instagram: '',
   });
@@ -79,17 +81,18 @@ export default function ManageSettings() {
 
       const contact = settings.contactInfo || {};
       setContactInfo({
-        address: contact.address || '',
-        phone: contact.phone || '',
-        whatsapp: contact.whatsapp || '',
-        email: contact.email || '',
+        address: contact.address || OFFICIAL_CONTACT.address,
+        phone: contact.phone || OFFICIAL_CONTACT.phone,
+        whatsapp: contact.whatsapp || OFFICIAL_SOCIAL_LINKS.whatsapp,
+        email: contact.email || OFFICIAL_CONTACT.email,
       });
 
       const socials = settings.socialLinks || {};
       setSocialLinks({
-        facebook: socials.facebook || '',
-        youtube: socials.youtube || '',
-        telegram: socials.telegram || '',
+        facebook: socials.facebook || OFFICIAL_SOCIAL_LINKS.facebook,
+        youtube: socials.youtube || OFFICIAL_SOCIAL_LINKS.youtube,
+        telegram: socials.telegram || OFFICIAL_SOCIAL_LINKS.telegram,
+        whatsapp: socials.whatsapp || OFFICIAL_SOCIAL_LINKS.whatsapp,
         twitter: socials.twitter || '',
         instagram: socials.instagram || '',
       });
@@ -444,10 +447,11 @@ export default function ManageSettings() {
                   </label>
                   <Input
                     type="text"
+                    dir="ltr"
                     value={contactInfo.phone}
                     onChange={(e) => setContactInfo({ ...contactInfo, phone: e.target.value })}
                     border=""
-                    inputClassName={`w-full px-3 py-2 text-sm bg-slate-50 border border-border rounded outline-none focus:border-accent ${language === 'ur' ? 'text-right' : 'text-left'}`}
+                    inputClassName="w-full px-3 py-2 text-sm bg-slate-50 border border-border rounded outline-none focus:border-accent text-left font-sans dir-ltr"
                   />
                 </div>
                 <div>
@@ -549,7 +553,20 @@ export default function ManageSettings() {
                     type="url"
                     value={socialLinks.telegram || ''}
                     onChange={(e) => setSocialLinks({ ...socialLinks, telegram: e.target.value })}
-                    placeholder="https://t.me/username"
+                    placeholder="https://t.me/faizansarwarmisbahi"
+                    border=""
+                    inputClassName={`w-full px-3 py-2 text-sm bg-slate-50 border border-border rounded outline-none focus:border-accent ${language === 'ur' ? 'text-right' : 'text-left'}`}
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase mb-1">
+                    {language === 'en' ? 'WhatsApp Channel Link' : 'واٹس ایپ چینل کا لنک'}
+                  </label>
+                  <Input
+                    type="url"
+                    value={socialLinks.whatsapp || ''}
+                    onChange={(e) => setSocialLinks({ ...socialLinks, whatsapp: e.target.value })}
+                    placeholder="https://whatsapp.com/channel/..."
                     border=""
                     inputClassName={`w-full px-3 py-2 text-sm bg-slate-50 border border-border rounded outline-none focus:border-accent ${language === 'ur' ? 'text-right' : 'text-left'}`}
                   />

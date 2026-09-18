@@ -363,9 +363,91 @@ export default function Header() {
 
   const getUserDisplayName = (user) => {
     if (!user) return isUrdu ? "پروفائل" : "Profile";
-    if (user.name && user.name.trim()) return user.name.trim();
-    if (user.loginEmail && user.loginEmail.trim()) return user.loginEmail.split("@")[0];
-    if (user.loginPhone) return user.loginPhone;
+
+    if (user.name && user.name.trim()) {
+      const rawName = user.name.trim();
+      const words = rawName.split(/\s+/).filter(Boolean);
+
+      if (words.length <= 1) {
+        return words[0] || rawName;
+      }
+
+      // Prefixes / Titles commonly used in Islamic & South Asian names
+      const PREFIXES = new Set([
+        "md", "md.", "mohd", "mohd.", "mohammad", "mohammed", "muhammad", "muhammed", "mohmmed", "mohamad", "m", "m.",
+        "syed", "sayed", "sayyid", "saiyed", "sayeed",
+        "mufti", "hafiz", "maulana", "moulana", "molvi", "qazi", "sheikh", "shaikh", "pir", "peer",
+        "alhaj", "al-haj", "haji",
+        "dr", "dr.", "prof", "prof.", "mr", "mr.", "mrs", "ms",
+        // Urdu prefixes
+        "محمد", "محمّد", "محمدد", "محمدہ",
+        "سید", "سیّد",
+        "مفتی", "حافظ", "مولانا", "مولوی", "قاضی", "شیخ", "پیر",
+        "الحاج", "حاجی",
+        "ڈاکٹر", "پروفیسر", "جناب",
+      ]);
+
+      const cleanWord = (w) =>
+        w.toLowerCase().replace(/^[^\w\u0600-\u06FF]+|[^\w\u0600-\u06FF]+$/g, "");
+
+      // Identify leading title/honorific prefixes
+      let prefixCount = 0;
+      while (prefixCount < words.length - 1) {
+        const cleaned = cleanWord(words[prefixCount]);
+        if (PREFIXES.has(cleaned) || PREFIXES.has(words[prefixCount].toLowerCase())) {
+          prefixCount++;
+        } else {
+          break;
+        }
+      }
+
+      // Meaningful name words without prefixes
+      const meaningfulWords = words.slice(prefixCount);
+
+      if (meaningfulWords.length === 1) {
+        // e.g., "Mohammad Shadab" -> returns "Shadab"
+        return meaningfulWords[0];
+      }
+
+      if (meaningfulWords.length >= 2) {
+        // If a prefix was stripped (e.g. "Md Shadab Alam" -> meaningfulWords: ["Shadab", "Alam"]):
+        // "Shadab" is the middle name / primary personal calling name
+        if (prefixCount > 0) {
+          // If first meaningful word is an initial like "A.", take the next word
+          if (meaningfulWords[0].replace(/[.,]/g, "").length <= 2 && meaningfulWords.length > 1) {
+            return meaningfulWords[1];
+          }
+          return meaningfulWords[0];
+        }
+
+        // If no prefix was present:
+        // If 3+ words (e.g. "Abdul Rahman Khan"): return the middle word "Rahman"
+        if (words.length >= 3) {
+          return words[1];
+        }
+
+        // If 2 words with no prefix:
+        // If short (<= 10 chars, e.g. "Ali Raza", "Zaid Khan"): keep full name
+        if (rawName.length <= 10) {
+          return rawName;
+        }
+
+        // If 2 words and long (e.g. "Shahabuddin Farooqui", "Faizan Sarwar"):
+        // return the last name (e.g. "Farooqui", "Sarwar")
+        return words[words.length - 1];
+      }
+
+      return words[words.length - 1];
+    }
+
+    if (user.loginEmail && user.loginEmail.trim()) {
+      return user.loginEmail.split("@")[0];
+    }
+
+    if (user.loginPhone) {
+      return user.loginPhone;
+    }
+
     return isUrdu ? "پروفائل" : "Profile";
   };
 
@@ -914,14 +996,15 @@ export default function Header() {
                         setShowProfileDropdown((prev) => !prev);
                       }}
                       className="rounded-full border border-[#A8793E] bg-[#2B2118] text-[#F7F1E8] px-2 sm:px-2.5 py-0.5 flex items-center gap-1.5 text-xs font-semibold hover:bg-[#3D2E22] transition-all cursor-pointer shadow-xs"
+                      title={loggedInUser?.name || getUserDisplayName(loggedInUser)}
                     >
                       <div className="w-5 h-5 rounded-full bg-[#A8793E] text-[#2B2118] font-bold text-[10px] flex items-center justify-center shrink-0">
                         {getInitials(loggedInUser)}
                       </div>
-                      <span className="inline-block max-w-[70px] sm:max-w-[110px] truncate">
+                      <span className="inline-block max-w-[85px] sm:max-w-[125px] md:max-w-[145px] truncate">
                         {getUserDisplayName(loggedInUser)}
                       </span>
-                      <ChevronDown className="w-3 h-3 text-[#A8793E]" />
+                      <ChevronDown className="w-3 h-3 text-[#A8793E] shrink-0" />
                     </button>
 
                     {/* Profile Dropdown */}
@@ -1159,6 +1242,21 @@ export default function Header() {
 
                       {isAuthenticated || userRole === "admin" ? (
                         <>
+                          {/* Logged in user info header */}
+                          <div className="px-3 py-2 rounded-xl bg-[#1E1610] border border-[#A8793E]/40 flex items-center gap-2.5 mb-0.5">
+                            <div className="w-8 h-8 rounded-full bg-[#A8793E] text-[#2B2118] font-bold text-xs flex items-center justify-center shrink-0">
+                              {getInitials(loggedInUser)}
+                            </div>
+                            <div className="flex flex-col min-w-0 flex-1">
+                              <span className="font-bold text-xs text-[#F7F1E8] truncate" title={loggedInUser?.name || ""}>
+                                {loggedInUser?.name || getUserDisplayName(loggedInUser)}
+                              </span>
+                              <span className="text-[11px] text-[#DFC8A4]/70 truncate">
+                                {loggedInUser?.loginEmail || loggedInUser?.loginPhone || (loggedInUser?.role || "user")}
+                              </span>
+                            </div>
+                          </div>
+
                           {/* Mobile Drawer Notifications Button */}
                           <button
                             type="button"

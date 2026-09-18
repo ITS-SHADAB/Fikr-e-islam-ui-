@@ -331,3 +331,23 @@ i,
 em {
   font-style: normal !important;
 }
+
+/* ═════════════════════════════════════════════════════════════════════
+   Bidirectional Isolation & LTR Utilities (ensures phone numbers & codes
+   never flip symbols like '+' to the end in RTL mode)
+   ═════════════════════════════════════════════════════════════════════ */
+.dir-ltr,
+[dir="ltr"] {
+  direction: ltr !important;
+  unicode-bidi: isolate !important;
+  text-align: left;
+}
+
+bdi.dir-ltr,
+span.dir-ltr,
+a.dir-ltr {
+  display: inline-block;
+  direction: ltr !important;
+  unicode-bidi: isolate !important;
+  text-align: left;
+}

@@ -32,7 +32,7 @@ import {
 } from "@/hooks/useContentCache";
 import { useSettings } from "@/hooks/useSettings";
 import { COLORS } from "@/utils/themeColors";
-import { OFFICIAL_CONTACT } from "@/constants/contact";
+import { OFFICIAL_CONTACT, OFFICIAL_SOCIAL_LINKS, formatPhoneNumber, getTelLink } from "@/constants/contact";
 
 import {
   ArticleCard,
@@ -207,10 +207,17 @@ export default function Home() {
       const ytRegExp =
         /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|shorts\/|&v=)([^#&?]*).*/;
       const match = lecture.videoUrl?.match(ytRegExp);
+      const ytChannel =
+        settings?.socialLinks?.youtube &&
+        !settings.socialLinks.youtube.includes("fikr") &&
+        settings.socialLinks.youtube.includes("faizansarwarmisbahi")
+          ? settings.socialLinks.youtube
+          : OFFICIAL_SOCIAL_LINKS.youtube;
+
       const targetUrl =
         match && match[2].length === 11
           ? `https://www.youtube.com/watch?v=${match[2]}`
-          : lecture.videoUrl || settings?.socialLinks?.youtube || "https://www.youtube.com";
+          : lecture.videoUrl || ytChannel;
       window.open(targetUrl, "_blank", "noopener,noreferrer");
     }
   };
@@ -249,14 +256,26 @@ export default function Home() {
     },
   ];
 
-
-
-
-
   const heroName = settings?.scholarInfo?.fullName || settings?.homepageSettings?.heroName || "";
-  const address = settings?.contactInfo?.address || OFFICIAL_CONTACT.address;
-  const phone = settings?.contactInfo?.phone || OFFICIAL_CONTACT.phone;
-  const email = settings?.contactInfo?.email || OFFICIAL_CONTACT.email;
+  const address =
+    settings?.contactInfo?.address &&
+    !settings.contactInfo.address.includes("123 Islamic Center") &&
+    !settings.contactInfo.address.includes("100 مینار روڈ")
+      ? settings.contactInfo.address
+      : OFFICIAL_CONTACT.address;
+  const phone =
+    settings?.contactInfo?.phone &&
+    !settings.contactInfo.phone.includes("555") &&
+    !settings.contactInfo.phone.includes("9876543210")
+      ? settings.contactInfo.phone
+      : OFFICIAL_CONTACT.phone;
+  const email =
+    settings?.contactInfo?.email &&
+    !settings.contactInfo.email.includes("example.com") &&
+    !settings.contactInfo.email.includes("fikr") &&
+    !settings.contactInfo.email.includes("scholar@")
+      ? settings.contactInfo.email
+      : OFFICIAL_CONTACT.email;
 
   const FEATURES = [
     {
@@ -763,10 +782,12 @@ export default function Home() {
               <li className="flex gap-3 items-center justify-start">
                 <Phone className="w-5 h-5 text-accent shrink-0" />
                 <a
-                  href={`tel:${phone}`}
-                  className="text-slate-700 hover:text-accent leading-tight font-light dir-ltr transition-colors"
+                  href={getTelLink(phone)}
+                  dir="ltr"
+                  style={{ direction: 'ltr', unicodeBidi: 'isolate' }}
+                  className="text-slate-700 hover:text-accent leading-tight font-light dir-ltr transition-colors font-sans inline-block"
                 >
-                  {phone}
+                  <bdi dir="ltr">{formatPhoneNumber(phone)}</bdi>
                 </a>
               </li>
               <li className="flex gap-3 items-center justify-start">

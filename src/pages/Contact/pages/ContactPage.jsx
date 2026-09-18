@@ -20,7 +20,7 @@ import { FaWhatsapp, FaTelegramPlane } from 'react-icons/fa';
 import { submitContact } from '@/services';
 import { useSettings } from '@/hooks/useSettings';
 import { COLORS } from '@/utils/themeColors';
-import { OFFICIAL_CONTACT, OFFICIAL_SOCIAL_LINKS } from '@/constants/contact';
+import { OFFICIAL_CONTACT, OFFICIAL_SOCIAL_LINKS, formatPhoneNumber, getTelLink } from '@/constants/contact';
 
 export default function ContactPage() {
   const { settings } = useSettings();
@@ -93,13 +93,68 @@ export default function ContactPage() {
   };
 
   // Contacts fallback defaults with safe optional chaining
-  const address = settings?.contactInfo?.address || OFFICIAL_CONTACT.address;
-  const phone = settings?.contactInfo?.phone || OFFICIAL_CONTACT.phone;
-  const whatsapp = settings?.contactInfo?.whatsapp || OFFICIAL_SOCIAL_LINKS.whatsapp;
-  const email = settings?.contactInfo?.email || OFFICIAL_CONTACT.email;
+  const address =
+    settings?.contactInfo?.address &&
+    !settings.contactInfo.address.includes('123 Islamic Center') &&
+    !settings.contactInfo.address.includes('100 مینار روڈ')
+      ? settings.contactInfo.address
+      : OFFICIAL_CONTACT.address;
+
+  const phone =
+    settings?.contactInfo?.phone &&
+    !settings.contactInfo.phone.includes('555') &&
+    !settings.contactInfo.phone.includes('9876543210')
+      ? settings.contactInfo.phone
+      : OFFICIAL_CONTACT.phone;
+
+  const whatsapp =
+    settings?.contactInfo?.whatsapp &&
+    !settings.contactInfo.whatsapp.includes('555') &&
+    !settings.contactInfo.whatsapp.includes('9876543210') &&
+    settings.contactInfo.whatsapp.includes('channel')
+      ? settings.contactInfo.whatsapp
+      : OFFICIAL_SOCIAL_LINKS.whatsapp;
+
+  const email =
+    settings?.contactInfo?.email &&
+    !settings.contactInfo.email.includes('example.com') &&
+    !settings.contactInfo.email.includes('fikr') &&
+    !settings.contactInfo.email.includes('scholar@')
+      ? settings.contactInfo.email
+      : OFFICIAL_CONTACT.email;
+
   const socialLinks = {
-    ...OFFICIAL_SOCIAL_LINKS,
-    ...(settings?.socialLinks || {}),
+    facebook:
+      settings?.socialLinks?.facebook &&
+      !settings.socialLinks.facebook.includes('scholardemo') &&
+      !settings.socialLinks.facebook.includes('fikr') &&
+      settings.socialLinks.facebook.includes('share/1JcsQwS4h5')
+        ? settings.socialLinks.facebook
+        : OFFICIAL_SOCIAL_LINKS.facebook,
+
+    youtube:
+      settings?.socialLinks?.youtube &&
+      !settings.socialLinks.youtube.includes('scholardemo') &&
+      !settings.socialLinks.youtube.includes('fikr') &&
+      settings.socialLinks.youtube.includes('faizansarwarmisbahi')
+        ? settings.socialLinks.youtube
+        : OFFICIAL_SOCIAL_LINKS.youtube,
+
+    whatsapp:
+      settings?.socialLinks?.whatsapp &&
+      !settings.socialLinks.whatsapp.includes('555') &&
+      !settings.socialLinks.whatsapp.includes('9876543210') &&
+      settings.socialLinks.whatsapp.includes('channel')
+        ? settings.socialLinks.whatsapp
+        : OFFICIAL_SOCIAL_LINKS.whatsapp,
+
+    telegram:
+      settings?.socialLinks?.telegram &&
+      !settings.socialLinks.telegram.includes('scholardemo') &&
+      !settings.socialLinks.telegram.includes('fikr') &&
+      settings.socialLinks.telegram.includes('faizansarwarmisbahi')
+        ? settings.socialLinks.telegram
+        : OFFICIAL_SOCIAL_LINKS.telegram,
   };
 
   return (
@@ -215,11 +270,12 @@ export default function ContactPage() {
                   <div className="mt-1 space-y-1">
                     {phone && (
                       <a
-                        href={`tel:${phone}`}
-                        className="text-xs sm:text-sm font-semibold dir-ltr text-right hover:underline block"
-                        style={{ color: COLORS?.textPrimary }}
+                        href={getTelLink(phone)}
+                        dir="ltr"
+                        className="text-xs sm:text-sm font-semibold dir-ltr hover:underline block font-sans"
+                        style={{ color: COLORS?.textPrimary, direction: 'ltr', unicodeBidi: 'isolate', textAlign: isRTL ? 'right' : 'left' }}
                       >
-                        {phone}
+                        <bdi dir="ltr">{formatPhoneNumber(phone)}</bdi>
                       </a>
                     )}
                     {whatsapp && (

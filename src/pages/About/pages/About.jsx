@@ -22,14 +22,20 @@ import {
   UserCheck,
   Globe,
   X,
-  Check
+  Check,
+  Facebook,
+  Youtube,
+  Phone,
+  Mail
 } from 'lucide-react';
+import { FaWhatsapp, FaTelegramPlane } from 'react-icons/fa';
 import muftiSahebImg from '@/assets/images/muftiSaheb.png';
 import tarufBannerImg from '@/assets/images/taruf-banner.jpg';
 import logoImg from '@/assets/images/logo.jpeg';
 import { useSettings } from '@/hooks/useSettings';
 import { getPublications } from '@/services';
 import { COLORS } from '@/utils/themeColors';
+import { OFFICIAL_CONTACT, OFFICIAL_SOCIAL_LINKS, formatPhoneNumber, getTelLink } from '@/constants/contact';
 import './About.css';
 
 export default function About() {
@@ -60,10 +66,66 @@ export default function About() {
     };
   }, [activeArea]);
 
-  // Extract scholar profile data from API settings
+  // Extract scholar profile data from API settings with official fallbacks
   const scholarInfo = settings?.scholarInfo || {};
-  const contactInfo = settings?.contactInfo || {};
-  const socialLinks = settings?.socialLinks || {};
+  const contactInfo = {
+    address:
+      settings?.contactInfo?.address &&
+      !settings.contactInfo.address.includes('123 Islamic Center') &&
+      !settings.contactInfo.address.includes('100 مینار روڈ')
+        ? settings.contactInfo.address
+        : OFFICIAL_CONTACT.address,
+    phone:
+      settings?.contactInfo?.phone &&
+      !settings.contactInfo.phone.includes('555') &&
+      !settings.contactInfo.phone.includes('9876543210')
+        ? settings.contactInfo.phone
+        : OFFICIAL_CONTACT.phone,
+    whatsapp:
+      settings?.contactInfo?.whatsapp &&
+      !settings.contactInfo.whatsapp.includes('555') &&
+      !settings.contactInfo.whatsapp.includes('9876543210') &&
+      settings.contactInfo.whatsapp.includes('channel')
+        ? settings.contactInfo.whatsapp
+        : OFFICIAL_SOCIAL_LINKS.whatsapp,
+    email:
+      settings?.contactInfo?.email &&
+      !settings.contactInfo.email.includes('example.com') &&
+      !settings.contactInfo.email.includes('fikr') &&
+      !settings.contactInfo.email.includes('scholar@')
+        ? settings.contactInfo.email
+        : OFFICIAL_CONTACT.email,
+  };
+  const socialLinks = {
+    facebook:
+      settings?.socialLinks?.facebook &&
+      !settings.socialLinks.facebook.includes('scholardemo') &&
+      !settings.socialLinks.facebook.includes('fikr') &&
+      settings.socialLinks.facebook.includes('share/1JcsQwS4h5')
+        ? settings.socialLinks.facebook
+        : OFFICIAL_SOCIAL_LINKS.facebook,
+    youtube:
+      settings?.socialLinks?.youtube &&
+      !settings.socialLinks.youtube.includes('scholardemo') &&
+      !settings.socialLinks.youtube.includes('fikr') &&
+      settings.socialLinks.youtube.includes('faizansarwarmisbahi')
+        ? settings.socialLinks.youtube
+        : OFFICIAL_SOCIAL_LINKS.youtube,
+    telegram:
+      settings?.socialLinks?.telegram &&
+      !settings.socialLinks.telegram.includes('scholardemo') &&
+      !settings.socialLinks.telegram.includes('fikr') &&
+      settings.socialLinks.telegram.includes('faizansarwarmisbahi')
+        ? settings.socialLinks.telegram
+        : OFFICIAL_SOCIAL_LINKS.telegram,
+    whatsapp:
+      settings?.socialLinks?.whatsapp &&
+      !settings.socialLinks.whatsapp.includes('555') &&
+      !settings.socialLinks.whatsapp.includes('9876543210') &&
+      settings.socialLinks.whatsapp.includes('channel')
+        ? settings.socialLinks.whatsapp
+        : OFFICIAL_SOCIAL_LINKS.whatsapp,
+  };
 
   const scholarName =
     scholarInfo.fullName ||
@@ -1218,38 +1280,86 @@ export default function About() {
               </p>
             </div>
 
-            <div className="flex flex-wrap sm:flex-nowrap items-center justify-center sm:justify-end gap-2.5 shrink-0 w-full sm:w-auto">
-              {contactInfo.whatsapp && (
-                <a
-                  href={`https://wa.me/${contactInfo.whatsapp.replace(/[^0-9]/g, '')}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-4.5 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-xs transition-transform hover:-translate-y-0.5 shrink-0"
-                  style={{ backgroundColor: '#25D366', color: '#fff' }}
-                >
-                  <Send className="w-3.5 h-3.5" />
-                  <span>WhatsApp</span>
-                </a>
-              )}
-              {socialLinks.telegram && (
-                <a
-                  href={socialLinks.telegram}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-4.5 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-xs transition-transform hover:-translate-y-0.5 shrink-0"
-                  style={{ backgroundColor: '#0088cc', color: '#fff' }}
-                >
-                  <Send className="w-3.5 h-3.5" />
-                  <span>Telegram</span>
-                </a>
-              )}
+            <div className="flex flex-wrap items-center justify-center sm:justify-end gap-2 shrink-0 w-full sm:w-auto">
+              <a
+                href={socialLinks.whatsapp}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-3.5 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-xs transition-transform hover:-translate-y-0.5 shrink-0"
+                style={{ backgroundColor: '#25D366', color: '#fff' }}
+                title="WhatsApp Channel"
+              >
+                <FaWhatsapp className="w-4 h-4" />
+                <span>WhatsApp</span>
+              </a>
+              <a
+                href={socialLinks.telegram}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-3.5 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-xs transition-transform hover:-translate-y-0.5 shrink-0"
+                style={{ backgroundColor: '#0088cc', color: '#fff' }}
+                title="Telegram Channel"
+              >
+                <FaTelegramPlane className="w-4 h-4" />
+                <span>Telegram</span>
+              </a>
+              <a
+                href={socialLinks.youtube}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-3.5 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-xs transition-transform hover:-translate-y-0.5 shrink-0"
+                style={{ backgroundColor: '#FF0000', color: '#fff' }}
+                title="YouTube Channel"
+              >
+                <Youtube className="w-4 h-4" />
+                <span>YouTube</span>
+              </a>
+              <a
+                href={socialLinks.facebook}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-3.5 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-xs transition-transform hover:-translate-y-0.5 shrink-0"
+                style={{ backgroundColor: '#1877F2', color: '#fff' }}
+                title="Facebook Page"
+              >
+                <Facebook className="w-4 h-4" />
+                <span>Facebook</span>
+              </a>
               <Link
                 to="/ask"
-                className="about-urdu px-5 py-2.5 rounded-xl text-xs font-bold border transition-colors bg-[#1F1710] text-[#FAF5EE] hover:bg-[#34281E] border-[#A8793E]/50 shrink-0"
+                className="about-urdu px-4 py-2 rounded-xl text-xs font-bold border transition-colors bg-[#1F1710] text-[#FAF5EE] hover:bg-[#34281E] border-[#A8793E]/50 shrink-0"
               >
                 {isRTL ? 'استفتاء پوچھیں' : 'Ask Question'}
               </Link>
             </div>
+          </div>
+
+          {/* Quick Direct Contacts Bar */}
+          <div className="mt-4 pt-3.5 border-t border-[#A8793E]/30 flex flex-wrap items-center justify-between gap-3 text-xs text-[#DFC8A4]">
+            <div className="flex items-center gap-4 flex-wrap">
+              <a
+                href={getTelLink(contactInfo.phone)}
+                dir="ltr"
+                style={{ direction: 'ltr', unicodeBidi: 'isolate' }}
+                className="inline-flex items-center gap-1.5 hover:text-white transition-colors dir-ltr font-sans"
+              >
+                <Phone className="w-3.5 h-3.5 text-[#C5A572]" />
+                <bdi dir="ltr">{formatPhoneNumber(contactInfo.phone)}</bdi>
+              </a>
+              <a
+                href={`mailto:${contactInfo.email}`}
+                className="inline-flex items-center gap-1.5 hover:text-white transition-colors font-sans"
+              >
+                <Mail className="w-3.5 h-3.5 text-[#C5A572]" />
+                <span>{contactInfo.email}</span>
+              </a>
+            </div>
+            <Link
+              to="/contact"
+              className="text-[#C5A572] hover:text-white underline underline-offset-4 text-xs font-semibold"
+            >
+              {isRTL ? 'مکمل رابطہ صفحہ ›' : 'Full Contact Page ›'}
+            </Link>
           </div>
         </div>
 

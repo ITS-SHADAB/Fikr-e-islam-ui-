@@ -19,6 +19,7 @@ import { useSettings } from "@/hooks/useSettings";
 import { LectureCard, SectionSidebar, SectionLoader } from "@/components";
 import { COLORS } from "@/utils/themeColors";
 import { LECTURE_CATEGORIES, LECTURE_CATEGORY_TRANSLATIONS } from "@/utils/categories";
+import { OFFICIAL_SOCIAL_LINKS } from "@/constants/contact";
 
 export default function LecturesList() {
   const { settings } = useSettings();
@@ -62,7 +63,13 @@ export default function LecturesList() {
   };
 
   const getYoutubeTargetUrl = (url = "") => {
-    if (!url) return settings?.socialLinks?.youtube || "https://www.youtube.com";
+    if (!url) {
+      return settings?.socialLinks?.youtube &&
+        !settings.socialLinks.youtube.includes("fikr") &&
+        settings.socialLinks.youtube.includes("faizansarwarmisbahi")
+        ? settings.socialLinks.youtube
+        : OFFICIAL_SOCIAL_LINKS.youtube;
+    }
     const ytRegExp =
       /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|shorts\/|&v=)([^#&?]*).*/;
     const match = url.match(ytRegExp);
@@ -108,7 +115,11 @@ export default function LecturesList() {
   };
 
   const youtubeChannelUrl =
-    settings?.socialLinks?.youtube || "https://www.youtube.com";
+    settings?.socialLinks?.youtube &&
+    !settings.socialLinks.youtube.includes("fikr") &&
+    settings.socialLinks.youtube.includes("faizansarwarmisbahi")
+      ? settings.socialLinks.youtube
+      : OFFICIAL_SOCIAL_LINKS.youtube;
 
   return (
     <div

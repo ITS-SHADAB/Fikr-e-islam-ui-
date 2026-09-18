@@ -117,18 +117,32 @@ const normalizeLang = (lang) => {
 const isDummyContact = (contact) => {
   if (!contact) return true;
   return (
+    !contact.email ||
+    !contact.phone ||
     contact.email === 'scholar@islamicknowledge.com' ||
-    contact.phone?.includes('555-ISLAM') ||
+    contact.email.includes('example.com') ||
+    contact.email.includes('fikr') ||
+    contact.phone?.includes('555') ||
+    contact.phone?.includes('9876543210') ||
     contact.address?.includes('100 مینار روڈ') ||
-    contact.address?.includes('جامعہ عارفیہ')
+    contact.address?.includes('جامعہ عارفیہ') ||
+    contact.address?.includes('123 Islamic Center')
   );
 };
 
 const isDummySocial = (socials) => {
   if (!socials) return true;
   return (
+    !socials.telegram ||
+    !socials.whatsapp ||
+    !socials.youtube ||
+    !socials.facebook ||
     socials.facebook?.includes('scholardemo') ||
     socials.youtube?.includes('scholardemo') ||
+    socials.youtube?.includes('fikr') ||
+    socials.facebook?.includes('fikr') ||
+    !socials.youtube?.includes('faizansarwarmisbahi') ||
+    !socials.facebook?.includes('share/1JcsQwS4h5') ||
     socials.twitter?.includes('scholardemo') ||
     socials.instagram?.includes('scholardemo')
   );
@@ -146,28 +160,61 @@ const sanitizeContact = (contact) => {
   }
   return {
     ...contact,
-    address: contact.address || OFFICIAL_CONTACT.address,
-    phone: contact.phone || OFFICIAL_CONTACT.phone,
-    whatsapp: contact.whatsapp || OFFICIAL_SOCIAL_LINKS.whatsapp,
-    email: contact.email || OFFICIAL_CONTACT.email,
+    address:
+      contact.address && !contact.address.includes('123 Islamic Center') && !contact.address.includes('100 مینار روڈ')
+        ? contact.address
+        : OFFICIAL_CONTACT.address,
+    phone:
+      contact.phone && !contact.phone.includes('555') && !contact.phone.includes('9876543210')
+        ? (contact.phone.replace(/[^\d]/g, '').endsWith('8317780566') ? '+91 8317780566' : contact.phone)
+        : OFFICIAL_CONTACT.phone,
+    whatsapp:
+      contact.whatsapp && !contact.whatsapp.includes('555') && !contact.whatsapp.includes('9876543210') && contact.whatsapp.includes('channel')
+        ? contact.whatsapp
+        : OFFICIAL_SOCIAL_LINKS.whatsapp,
+    email:
+      contact.email && !contact.email.includes('example.com') && !contact.email.includes('fikr') && !contact.email.includes('scholar@')
+        ? contact.email
+        : OFFICIAL_CONTACT.email,
   };
 };
 
 const sanitizeSocials = (socials) => {
-  if (isDummySocial(socials)) {
-    return {
-      telegram: OFFICIAL_SOCIAL_LINKS.telegram,
-      whatsapp: OFFICIAL_SOCIAL_LINKS.whatsapp,
-      youtube: OFFICIAL_SOCIAL_LINKS.youtube,
-      facebook: OFFICIAL_SOCIAL_LINKS.facebook,
-    };
-  }
+  const safe = socials || {};
   return {
-    telegram: OFFICIAL_SOCIAL_LINKS.telegram,
-    whatsapp: OFFICIAL_SOCIAL_LINKS.whatsapp,
-    youtube: socials.youtube || OFFICIAL_SOCIAL_LINKS.youtube,
-    facebook: socials.facebook || OFFICIAL_SOCIAL_LINKS.facebook,
-    ...socials,
+    telegram:
+      safe.telegram &&
+      !safe.telegram.includes('scholardemo') &&
+      !safe.telegram.includes('fikr') &&
+      safe.telegram.includes('faizansarwarmisbahi')
+        ? safe.telegram
+        : OFFICIAL_SOCIAL_LINKS.telegram,
+    whatsapp:
+      safe.whatsapp &&
+      !safe.whatsapp.includes('scholardemo') &&
+      !safe.whatsapp.includes('555') &&
+      !safe.whatsapp.includes('9876543210') &&
+      safe.whatsapp.includes('channel')
+        ? safe.whatsapp
+        : OFFICIAL_SOCIAL_LINKS.whatsapp,
+    youtube:
+      safe.youtube &&
+      !safe.youtube.includes('scholardemo') &&
+      !safe.youtube.includes('example.com') &&
+      !safe.youtube.includes('fikr') &&
+      safe.youtube.includes('faizansarwarmisbahi')
+        ? safe.youtube
+        : OFFICIAL_SOCIAL_LINKS.youtube,
+    facebook:
+      safe.facebook &&
+      !safe.facebook.includes('scholardemo') &&
+      !safe.facebook.includes('example.com') &&
+      !safe.facebook.includes('fikr') &&
+      safe.facebook.includes('share/1JcsQwS4h5')
+        ? safe.facebook
+        : OFFICIAL_SOCIAL_LINKS.facebook,
+    twitter: safe.twitter || '',
+    instagram: safe.instagram || '',
   };
 };
 
