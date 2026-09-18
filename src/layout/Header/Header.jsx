@@ -926,11 +926,10 @@ export default function Header() {
                     <Link
                       key={item.href}
                       to={item.href}
-                      className={`group px-3 xl:px-3.5 py-1 xl:py-1.5 rounded-full text-[13.5px] xl:text-[14.5px] whitespace-nowrap transition-all duration-200 select-none flex items-center gap-1.5 border shrink-0 cursor-pointer shadow-xs ${
-                        isActive
-                          ? "border-[#DFC8A4] bg-[#3D2E22] text-[#DFC8A4] font-normal shadow-[0_0_10px_rgba(168,121,62,0.3)]"
-                          : "border-[#A8793E]/50 bg-[#2B2118]/90 text-[#F7F1E8] hover:border-[#DFC8A4] hover:text-[#FFF7D6] hover:bg-[#3D2E22] hover:shadow-[0_2px_8px_rgba(168,121,62,0.2)] font-normal hover:scale-[1.02] active:scale-95"
-                      }`}
+                      className={`group px-3 xl:px-3.5 py-1 xl:py-1.5 rounded-full text-[13.5px] xl:text-[14.5px] whitespace-nowrap transition-all duration-200 select-none flex items-center gap-1.5 border shrink-0 cursor-pointer shadow-xs ${isActive
+                        ? "border-[#DFC8A4] bg-[#3D2E22] text-[#DFC8A4] font-normal shadow-[0_0_10px_rgba(168,121,62,0.3)]"
+                        : "border-[#A8793E]/50 bg-[#2B2118]/90 text-[#F7F1E8] hover:border-[#DFC8A4] hover:text-[#FFF7D6] hover:bg-[#3D2E22] hover:shadow-[0_2px_8px_rgba(168,121,62,0.2)] font-normal hover:scale-[1.02] active:scale-95"
+                        }`}
                     >
                       <span className="tracking-wide leading-none">{item.label}</span>
                     </Link>
@@ -1212,11 +1211,10 @@ export default function Header() {
                             key={item.href}
                             to={item.href}
                             onClick={closeMenu}
-                            className={`px-3 py-1.5 rounded-xl text-sm sm:text-[15px] transition-all flex items-center gap-2 border shadow-xs ${
-                              isActive
-                                ? "bg-[#3D2E22] text-[#DFC8A4] font-normal border-[#DFC8A4] shadow-[0_0_8px_rgba(168,121,62,0.25)]"
-                                : "bg-[#2B2118]/60 border-[#A8793E]/35 text-[#F7F1E8] hover:bg-[#3D2E22] hover:border-[#DFC8A4] hover:text-[#DFC8A4] font-normal"
-                            }`}
+                            className={`px-3 py-1.5 rounded-xl text-sm sm:text-[15px] transition-all flex items-center gap-2 border shadow-xs ${isActive
+                              ? "bg-[#3D2E22] text-[#DFC8A4] font-normal border-[#DFC8A4] shadow-[0_0_8px_rgba(168,121,62,0.25)]"
+                              : "bg-[#2B2118]/60 border-[#A8793E]/35 text-[#F7F1E8] hover:bg-[#3D2E22] hover:border-[#DFC8A4] hover:text-[#DFC8A4] font-normal"
+                              }`}
                           >
                             {item.icon && (
                               <item.icon className="w-4 h-4 text-[#A8793E]" />
@@ -1324,6 +1322,7 @@ export default function Header() {
                 </motion.div>
               </motion.div>
             )}
+
           </AnimatePresence>,
           document.body
         )}
