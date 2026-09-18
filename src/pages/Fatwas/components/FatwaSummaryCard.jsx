@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Scale,
-  FileText,
   Download,
-  ExternalLink,
   ArrowRight,
+  BookOpen,
+  Minimize2,
+  Loader2,
 } from "lucide-react";
 import {
   IslamicBookSeal,
@@ -12,30 +13,18 @@ import {
   IslamicGeometricWatermark,
   CardGeometricTexture,
 } from "./FatwaDetailDecorativeAssets";
+import { PdfViewer } from "@/components";
 
 /**
  * FatwaSummaryCard - Section 2: Answer Summary & Integrated Download (جواب و خلاصہ)
- *
- * Exact visual recreation matching user's reference mockup:
- * - Outer Card: Radial gradient parchment (#F7F1E8) with Islamic geometric watermark
- * - Header Row: Left Capsule ("جواب وخلاصہ / Summary & Download") | Right Bismillah + Shamsa Medallion
- * - Box 1 (Summary Content):
- *    - Left gold vertical bar
- *    - Dynamic Urdu summary text in Payami Nastaleeq
- *    - Centered Gold Diamond Divider
- *    - "والله تعالى أعلم بالصواب"
- * - Box 2 (Download PDF Panel):
- *    - Tightly connected to Box 1 with precise ~18px gap (mt-3.5 sm:mt-4)
- *    - Minimal, exact height matching the reference image (no extra viewer toggle)
- *    - Left: Capsule ("مکمل فتویٰ ڈاؤنلوڈ کریں / Download Full PDF") + "اس فتویٰ کا مکمل متن ڈاؤنلوڈ کر کے پڑھ سکتے ہیں۔"
- *    - Right: Islamic Mihrab Arch + 3D PDF Document
- *    - Bottom: Two balanced action buttons (Dark Download button & Light New Tab button)
  */
 export default function FatwaSummaryCard({
   summary,
   pdfUrl,
   fatwaTitle = "",
   onOpenModal,
+  showEmbeddedPdf,
+  onToggleEmbedded,
   theme = {
     cardBg: "#F7F1E8",
     panelBg: "#FCF8F1",
@@ -49,11 +38,75 @@ export default function FatwaSummaryCard({
     cardShadow: "0 6px 25px rgba(43, 33, 24, 0.05)",
   },
 }) {
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  // Trigger actual file download in browser
+  const handleDownload = async (e) => {
+    e?.preventDefault();
+    e?.stopPropagation();
+    if (!pdfUrl || isDownloading) return;
+
+    setIsDownloading(true);
+
+    // Sanitize title for filename
+    const cleanTitle = (fatwaTitle || "fatwa")
+      .replace(/[/\\?%*:|"<>]/g, "-")
+      .replace(/\s+/g, "_")
+      .slice(0, 75);
+    const fileName = `${cleanTitle}.pdf`;
+
+    try {
+      // 1. Fetch file as blob to guarantee local browser download regardless of origin
+      const response = await fetch(pdfUrl);
+      if (!response.ok) {
+        throw new Error(`Fetch error: ${response.status}`);
+      }
+
+      const blob = await response.blob();
+      const pdfBlob = new Blob([blob], { type: "application/pdf" });
+      const blobUrl = window.URL.createObjectURL(pdfBlob);
+
+      const link = document.createElement("a");
+      link.style.display = "none";
+      link.href = blobUrl;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      setTimeout(() => {
+        window.URL.revokeObjectURL(blobUrl);
+      }, 1500);
+    } catch (error) {
+      console.warn("Direct blob download failed, falling back to direct attachment download:", error);
+
+      // 2. Fallback: If Cloudinary, inject fl_attachment for Content-Disposition header
+      let fallbackUrl = pdfUrl;
+      if (fallbackUrl.includes("res.cloudinary.com") && fallbackUrl.includes("/upload/")) {
+        if (!fallbackUrl.includes("fl_attachment")) {
+          fallbackUrl = fallbackUrl.replace("/upload/", "/upload/fl_attachment/");
+        }
+      }
+
+      const fallbackLink = document.createElement("a");
+      fallbackLink.style.display = "none";
+      fallbackLink.href = fallbackUrl;
+      fallbackLink.download = fileName;
+      fallbackLink.target = "_blank";
+      fallbackLink.rel = "noopener noreferrer";
+      document.body.appendChild(fallbackLink);
+      fallbackLink.click();
+      document.body.removeChild(fallbackLink);
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
   return (
     <section
       dir="ltr"
       aria-labelledby="summary-heading"
-      className="rounded-[20px] md:rounded-[24px] p-4 sm:p-6 md:p-7 border relative overflow-hidden transition-all duration-300"
+      className="rounded-[20px] md:rounded-[24px] p-3.5 sm:p-6 md:p-7 border relative overflow-hidden transition-all duration-300"
       style={{
         background: "radial-gradient(circle at 95% 0%, #DFCEB7 0%, #E9DEC9 28%, #F7F1E8 60%)",
         borderColor: theme.secondaryBorder,
@@ -73,10 +126,10 @@ export default function FatwaSummaryCard({
       </div>
 
       {/* ── HEADER ROW: Left Capsule | Right Bismillah + Islamic Book Medallion ── */}
-      <div className="flex items-center justify-between gap-2 sm:gap-3 mb-3.5 sm:mb-4 relative z-10">
-        {/* LEFT: Capsule ("جواب وخلاصہ / Summary & Download") */}
+      <div className="flex items-center justify-between gap-1.5 sm:gap-3 mb-3.5 sm:mb-4 relative z-10">
+        {/* LEFT: Capsule ("خلاصۂ جواب" responsive single line without English word) */}
         <div
-          className="inline-flex items-center gap-2.5 sm:gap-3 py-1 sm:py-1.5 px-3 sm:px-3.5 rounded-full border shadow-2xs"
+          className="inline-flex items-center gap-1.5 sm:gap-2.5 py-1 sm:py-1.5 px-2.5 sm:px-3.5 rounded-full border shadow-2xs whitespace-nowrap shrink-0"
           style={{
             backgroundColor: theme.noticeBg,
             borderColor: `${theme.secondaryBorder}60`,
@@ -84,46 +137,40 @@ export default function FatwaSummaryCard({
         >
           {/* Scales Icon Container */}
           <div
-            className="w-8 h-8 sm:w-8.5 sm:h-8.5 rounded-full flex items-center justify-center shrink-0 border shadow-xs"
+            className="w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center shrink-0 border shadow-xs"
             style={{
               backgroundColor: "#E4D5C2",
               borderColor: `${theme.secondaryBorder}60`,
               color: theme.darkBrown,
             }}
           >
-            <Scale className="w-4 h-4 stroke-[2.2] text-[#2B2118]" />
+            <Scale className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.2] text-[#2B2118]" />
           </div>
 
-          {/* Title Text Block */}
-          <div className="text-left flex flex-col justify-center pr-1 sm:pr-1.5">
-            <h2
-              id="summary-heading"
-              className="text-base sm:text-[18px] font-bold font-['Payami_Nastaleeq',serif] leading-tight"
-              style={{ color: theme.mainText }}
-            >
-              جواب وخلاصہ
-            </h2>
-            <span
-              className="text-[10px] sm:text-[11px] font-semibold block font-sans leading-none mt-0.5 tracking-tight"
-              style={{ color: theme.mainText }}
-            >
-              Summary & Download
+          {/* Urdu Title: Pure خلاصۂ جواب */}
+          <h2
+            id="summary-heading"
+            className="font-bold whitespace-nowrap leading-none pr-0.5 select-none"
+            style={{ color: theme.mainText }}
+          >
+            <span className="text-[14px] xs:text-[15.5px] sm:text-[17px] font-['Payami_Nastaleeq',serif] leading-none pt-0.5">
+              خلاصۂ جواب
             </span>
-          </div>
+          </h2>
         </div>
 
         {/* RIGHT: Bismillah Pill seamlessly connected into the Islamic Book Medallion */}
         <div className="flex items-center shrink-0 select-none">
           {/* Bismillah Pill */}
           <div
-            className="px-3 sm:px-4 py-1 rounded-l-full border-y border-l border-r-0 shadow-xs -mr-7 sm:-mr-8 md:-mr-9 z-0 flex items-center justify-center h-[28px] sm:h-[32px] md:h-[35px]"
+            className="px-2.5 xs:px-3 sm:px-4 py-1 rounded-l-full border-y border-l border-r-0 shadow-xs -mr-6 xs:-mr-7 sm:-mr-8 md:-mr-9 z-0 flex items-center justify-center h-[28px] sm:h-[32px] md:h-[35px]"
             style={{
               backgroundColor: "#38271A",
               borderColor: "rgba(168, 121, 62, 0.45)",
             }}
           >
             <span
-              className="quran-font text-[10.5px] sm:text-[12px] md:text-[12.5px] font-semibold tracking-wide whitespace-nowrap block leading-none select-none pr-5 sm:pr-6 md:pr-7"
+              className="quran-font text-[9.5px] xs:text-[11px] sm:text-[12px] md:text-[12.5px] font-semibold tracking-wide whitespace-nowrap block leading-none select-none pr-4 xs:pr-5 sm:pr-6 md:pr-7"
               style={{ color: "#F7F1E8" }}
             >
               بسم الله الرحمن الرحيم
@@ -132,14 +179,14 @@ export default function FatwaSummaryCard({
 
           {/* Ornate Islamic Book Medallion (Shamsa) */}
           <div className="z-10 relative drop-shadow-md">
-            <IslamicBookSeal className="w-[66px] h-[66px] sm:w-[78px] sm:h-[78px] md:w-[88px] md:h-[88px]" />
+            <IslamicBookSeal className="w-[58px] h-[58px] xs:w-[66px] xs:h-[66px] sm:w-[78px] sm:h-[78px] md:w-[88px] md:h-[88px]" />
           </div>
         </div>
       </div>
 
       {/* ── BOX 1: SUMMARY CONTENT PANEL (#FCF8F1) ── */}
       <div
-        className="rounded-[18px] p-4 sm:p-7 md:p-8 border relative shadow-2xs overflow-hidden z-10"
+        className="rounded-[18px] p-3.5 sm:p-7 md:p-8 border relative shadow-2xs overflow-hidden z-10"
         style={{
           backgroundColor: theme.panelBg,
           borderColor: theme.lightGold,
@@ -153,7 +200,7 @@ export default function FatwaSummaryCard({
         {/* Dynamic Urdu Summary Text with Left Gold Accent Bar */}
         <div className="relative pl-3.5 sm:pl-4 border-l-2 border-[#A8793E] py-1" dir="rtl">
           <p
-            className="text-[17px] sm:text-[19px] md:text-[21px] font-['Payami_Nastaleeq',serif] leading-[1.68] sm:leading-[1.8] font-normal whitespace-pre-line break-words text-right relative z-10"
+            className="text-[16px] xs:text-[17px] sm:text-[19px] md:text-[21px] font-['Payami_Nastaleeq',serif] leading-[1.68] sm:leading-[1.8] font-normal whitespace-pre-line break-words text-right relative z-10"
             style={{ color: theme.mainText }}
           >
             {summary || "تفصیلی فتویٰ کا متن درج نہیں ہے۔"}
@@ -177,110 +224,80 @@ export default function FatwaSummaryCard({
       {/* ── BOX 2: INTEGRATED DOWNLOAD PDF PANEL (#FCF8F1) ── */}
       {/* Tightly connected to Box 1 with mt-2 sm:mt-2.5 (8-10px) */}
       <div
-        className="mt-2 sm:mt-2.5 rounded-[18px] p-3.5 sm:p-4 md:p-5 pb-3.5 sm:pb-4 border relative shadow-2xs overflow-hidden z-10"
+        className="mt-2 sm:mt-2.5 rounded-[18px] p-3 sm:p-4 border relative shadow-2xs overflow-hidden z-10"
         style={{
           backgroundColor: theme.panelBg,
           borderColor: theme.lightGold,
         }}
       >
-        {/* Top Row: Left (Capsule) | Right (Short Urdu Description) */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 sm:gap-4 mb-3 sm:mb-3.5">
-          {/* LEFT: Capsule ("مکمل فتویٰ ڈاؤنلوڈ کریں / Download Full PDF") */}
-          <div
-            className="inline-flex items-center gap-2.5 sm:gap-3 py-1 px-3 sm:px-3.5 rounded-full border shadow-2xs shrink-0"
-            style={{
-              backgroundColor: theme.noticeBg,
-              borderColor: `${theme.secondaryBorder}60`,
-            }}
-          >
-            {/* Document Icon Container with light-tan outer circle and dark squircle icon */}
-            <div
-              className="w-8 h-8 sm:w-8.5 sm:h-8.5 rounded-full flex items-center justify-center shrink-0 border shadow-xs"
-              style={{
-                backgroundColor: "#E4D5C2",
-                borderColor: `${theme.secondaryBorder}60`,
-              }}
-            >
-              <div
-                className="w-5.5 h-5.5 sm:w-6 sm:h-6 rounded-[6px] flex items-center justify-center shadow-2xs"
-                style={{ backgroundColor: "#2C2118" }}
-              >
-                <FileText className="w-3.5 h-3.5 stroke-[2.2] text-white" />
-              </div>
-            </div>
-
-            {/* Title Text Block */}
-            <div className="text-left flex flex-col justify-center pr-1 sm:pr-1.5">
-              <h3
-                className="text-[14.5px] sm:text-[16px] font-bold font-['Payami_Nastaleeq',serif] leading-tight"
-                style={{ color: theme.mainText }}
-              >
-                مکمل فتویٰ ڈاؤنلوڈ کریں
-              </h3>
-              <span
-                className="text-[9.5px] sm:text-[10.5px] font-semibold block font-sans leading-none mt-0.5 tracking-tight"
-                style={{ color: theme.mainText }}
-              >
-                Download Full PDF
-              </span>
-            </div>
-          </div>
-
-          {/* RIGHT: Short Urdu Description */}
-          <p
-            dir="rtl"
-            className="text-right font-['Payami_Nastaleeq',serif] text-[16px] sm:text-[17.5px] md:text-[18.5px] leading-relaxed font-medium"
-            style={{ color: theme.mainText }}
-          >
-            اس فتویٰ کا مکمل متن ڈاؤنلوڈ کر کے پڑھ سکتے ہیں۔
-          </p>
-        </div>
-
-        {/* Bottom Row: Two Balanced Action Buttons */}
+        {/* Exactly Two Action Buttons: Left (Download) & Right (Online Read) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
-          {/* PRIMARY BUTTON: Dark Brown #2C2118 with Download Icon */}
-          <a
-            href={pdfUrl || "#"}
-            download={Boolean(pdfUrl)}
-            target={pdfUrl ? "_blank" : undefined}
-            rel="noopener noreferrer"
-            className="flex items-center justify-between px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-bold transition-all duration-200 cursor-pointer shadow-xs hover:opacity-95 active:scale-[0.99] min-h-[44px] sm:min-h-[48px]"
+          {/* BUTTON 1 (LEFT): Dark Brown #2C2118 with Actual Programmatic Download */}
+          <button
+            type="button"
+            onClick={handleDownload}
+            disabled={!pdfUrl || isDownloading}
+            title={pdfUrl ? "مکمل فتویٰ ڈاؤنلوڈ کریں" : "پی ڈی ایف دستیاب نہیں ہے"}
+            className="flex items-center justify-between px-3.5 sm:px-5 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-bold transition-all duration-200 cursor-pointer shadow-xs hover:opacity-95 active:scale-[0.99] min-h-[46px] sm:min-h-[48px] disabled:opacity-60 disabled:cursor-not-allowed select-none border-0"
             style={{
               backgroundColor: "#2C2118",
               color: "#FFFFFF",
             }}
           >
-            <Download className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-white shrink-0 stroke-[2.2]" />
-            <span className="font-['Payami_Nastaleeq',serif] text-sm sm:text-base tracking-wide">
-              PDF ڈاؤنلوڈ کریں
+            {isDownloading ? (
+              <Loader2 className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-[#D8C09A] shrink-0 animate-spin" />
+            ) : (
+              <Download className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-white shrink-0 stroke-[2.2]" />
+            )}
+            <span className="font-['Payami_Nastaleeq',serif] text-[14.5px] sm:text-base tracking-wide mx-2">
+              {isDownloading ? "ڈاؤنلوڈ ہو رہا ہے..." : "مکمل فتویٰ ڈاؤنلوڈ کریں"}
             </span>
-            <ArrowRight className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-white shrink-0" />
-          </a>
+            <ArrowRight
+              className={`w-4 h-4 sm:w-4.5 sm:h-4.5 text-white shrink-0 transition-opacity duration-200 ${
+                isDownloading ? "opacity-0" : "opacity-100"
+              }`}
+            />
+          </button>
 
-          {/* SECONDARY BUTTON: Crisp Cream with Dark Border and ExternalLink Icon */}
+          {/* BUTTON 2 (RIGHT): Crisp Cream with Dark Border - Toggles Online Reader */}
           <button
             type="button"
-            onClick={() => {
-              if (pdfUrl) {
-                window.open(pdfUrl, "_blank");
-              } else if (onOpenModal) {
-                onOpenModal();
-              }
-            }}
-            className="flex items-center justify-between px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl border font-bold transition-all duration-200 cursor-pointer shadow-xs hover:bg-[#F3E8D8] active:scale-[0.99] min-h-[44px] sm:min-h-[48px]"
+            onClick={onToggleEmbedded}
+            className="flex items-center justify-between px-3.5 sm:px-5 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl border font-bold transition-all duration-200 cursor-pointer shadow-xs hover:bg-[#F3E8D8] active:scale-[0.99] min-h-[46px] sm:min-h-[48px] select-none"
             style={{
-              backgroundColor: "#FAF6EF",
+              backgroundColor: showEmbeddedPdf ? `${theme.goldAccent}18` : "#FAF6EF",
               borderColor: "#2C2118",
               color: "#2C2118",
             }}
           >
-            <ExternalLink className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-[#2C2118] shrink-0 stroke-[2.2]" />
-            <span className="font-['Payami_Nastaleeq',serif] text-sm sm:text-base tracking-wide">
-              نئی ٹیب میں کھولیں
+            {showEmbeddedPdf ? (
+              <Minimize2 className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-[#2C2118] shrink-0 stroke-[2.2]" />
+            ) : (
+              <BookOpen className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-[#2C2118] shrink-0 stroke-[2.2]" />
+            )}
+            <span className="font-['Payami_Nastaleeq',serif] text-[14.5px] sm:text-base tracking-wide mx-2">
+              {showEmbeddedPdf ? "قاری بند کریں" : "آن لائن پڑھیں"}
             </span>
-            <ArrowRight className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-[#2C2118] shrink-0" />
+            <ArrowRight
+              className={`w-4 h-4 sm:w-4.5 sm:h-4.5 text-[#2C2118] shrink-0 transition-transform duration-200 ${
+                showEmbeddedPdf ? "rotate-90" : ""
+              }`}
+            />
           </button>
         </div>
+
+        {/* Embedded PDF Viewer beneath the two buttons when toggled */}
+        {showEmbeddedPdf && (
+          <div
+            className="w-full mt-3 rounded-xl overflow-hidden border shadow-inner"
+            style={{
+              height: "650px",
+              borderColor: theme.secondaryBorder,
+            }}
+          >
+            <PdfViewer url={pdfUrl} title={fatwaTitle} isModal={false} />
+          </div>
+        )}
       </div>
     </section>
   );

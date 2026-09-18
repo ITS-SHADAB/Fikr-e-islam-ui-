@@ -91,6 +91,7 @@ export default function FatwaDetail() {
   const related = detailData?.related || [];
 
   const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
+  const [showEmbeddedPdf, setShowEmbeddedPdf] = useState(false);
   const [copied, setCopied] = useState(false);
   const [isCommentsOpen, setIsCommentsOpen] = useState(false);
 
@@ -377,6 +378,8 @@ export default function FatwaDetail() {
             pdfUrl={pdfUrl}
             fatwaTitle={fatwa?.title}
             onOpenModal={() => setIsPdfModalOpen(true)}
+            showEmbeddedPdf={showEmbeddedPdf}
+            onToggleEmbedded={() => setShowEmbeddedPdf(!showEmbeddedPdf)}
             isRTL={isRTL}
             theme={THEME}
           />
