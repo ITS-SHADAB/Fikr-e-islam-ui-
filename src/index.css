@@ -313,6 +313,14 @@ p {
   text-align: right;
 }
 
+/* Standard Islamic Arabic Typography (Natural Naskh typography without forced extreme line-height) */
+.islamic-arabic-text {
+  font-family: 'Noto Naskh Arabic', 'Amiri', 'Traditional Arabic', serif !important;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  direction: rtl;
+}
+
 /* Prevent mid-word breaking in RTL */
 [dir="rtl"] p,
 [dir="rtl"] span,

@@ -315,7 +315,7 @@ export default function FatwaDetail() {
               <span className="flex items-center gap-1.5">
                 <Calendar className="w-3.5 h-3.5 text-accent" />
                 <span>
-                  {isRTL ? "تاریخ صدور:" : "Issued:"} {formattedDate}
+                  {isRTL ? "تاریخِ اشاعت:" : "Published:"} {formattedDate}
                 </span>
               </span>
             )}

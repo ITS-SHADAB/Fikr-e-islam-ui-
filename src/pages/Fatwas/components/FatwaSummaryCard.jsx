@@ -219,12 +219,15 @@ export default function FatwaSummaryCard({
         <GoldDiamondDivider className="my-4 sm:my-5" />
 
         {/* Scholarly Attestation */}
-        <div className="text-center relative z-10">
+        <div className="text-center relative z-10" dir="rtl">
           <div
-            className="text-lg sm:text-xl font-bold font-['Payami_Nastaleeq',serif]"
-            style={{ color: theme.mainText }}
+            className="islamic-arabic-text text-lg sm:text-xl font-bold tracking-normal select-none"
+            style={{
+              color: theme.mainText,
+              lineHeight: 1.6,
+            }}
           >
-            والله تعالى أعلم بالصواب
+            وَاللّٰهُ تَعَالَىٰ أَعْلَمُ
           </div>
         </div>
       </div>
@@ -261,9 +264,8 @@ export default function FatwaSummaryCard({
               {isDownloading ? "ڈاؤنلوڈ ہو رہا ہے..." : "مکمل فتویٰ ڈاؤنلوڈ کریں"}
             </span>
             <ArrowRight
-              className={`w-4 h-4 sm:w-4.5 sm:h-4.5 text-white shrink-0 transition-opacity duration-200 ${
-                isDownloading ? "opacity-0" : "opacity-100"
-              }`}
+              className={`w-4 h-4 sm:w-4.5 sm:h-4.5 text-white shrink-0 transition-opacity duration-200 ${isDownloading ? "opacity-0" : "opacity-100"
+                }`}
             />
           </button>
 
@@ -273,9 +275,8 @@ export default function FatwaSummaryCard({
             target="_blank"
             rel="noopener noreferrer"
             title={securePdfUrl ? "پی ڈی ایف آن لائن نئے ٹیب میں پڑھیں" : "پی ڈی ایف دستیاب نہیں ہے"}
-            className={`flex items-center justify-between px-3.5 sm:px-5 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl border font-bold transition-all duration-200 shadow-xs hover:bg-[#F3E8D8] active:scale-[0.99] min-h-[46px] sm:min-h-[48px] select-none ${
-              !securePdfUrl ? "opacity-60 pointer-events-none" : "cursor-pointer"
-            }`}
+            className={`flex items-center justify-between px-3.5 sm:px-5 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl border font-bold transition-all duration-200 shadow-xs hover:bg-[#F3E8D8] active:scale-[0.99] min-h-[46px] sm:min-h-[48px] select-none ${!securePdfUrl ? "opacity-60 pointer-events-none" : "cursor-pointer"
+              }`}
             style={{
               backgroundColor: "#FAF6EF",
               borderColor: "#2C2118",

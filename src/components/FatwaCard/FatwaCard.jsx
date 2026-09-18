@@ -230,31 +230,31 @@ export default function FatwaCard({ fatwa }) {
 
       {/* ── 3. Question Box (with Top-Right Wave Banner) ── */}
       {questionPreview && (
-        <div className="relative overflow-hidden rounded-[16px] sm:rounded-[18px] border border-[#DECDBB] bg-[#FCF9F4] p-3 sm:p-3.5 pt-8 sm:pt-8.5 shadow-2xs">
+        <div className="relative overflow-hidden rounded-[16px] sm:rounded-[18px] border border-[#DECDBB] bg-[#FCF9F4] px-3 sm:px-3.5 pb-3 sm:pb-3.5 pt-10 sm:pt-[42px] md:pt-[44px] shadow-2xs">
           {/* Top-Right Dark Brown Wave Shape Banner (Sleek, compact & centered) */}
-          <div className="absolute top-0 right-0 z-10 select-none h-7 sm:h-7.5 w-[140px] sm:w-[150px]">
+          <div className="absolute top-0 right-0 z-10 select-none h-7 sm:h-[30px] w-[145px] sm:w-[155px]">
             <svg
-              viewBox="0 0 150 30"
+              viewBox="0 0 155 30"
               preserveAspectRatio="none"
               className="w-full h-full block"
               fill="#3E2A1D"
             >
-              <path d="M0,0 C16,0 20,30 36,30 L150,30 L150,0 Z" />
+              <path d="M0,0 C16,0 20,30 36,30 L155,30 L155,0 Z" />
             </svg>
-            <div className="absolute top-0 right-0 h-full w-[105px] sm:w-[115px] flex items-center justify-center gap-2 text-[#FAF6EF] pointer-events-none px-1">
+            <div className="absolute top-0 right-0 h-full w-[110px] sm:w-[120px] flex items-center justify-center gap-2 text-[#FAF6EF] pointer-events-none px-1">
               {/* Question Icon on the RIGHT */}
               <div className="w-4 h-4 rounded-full bg-[#C8A46A] text-[#2B2118] font-bold text-[10px] flex items-center justify-center shrink-0 shadow-xs">
                 ?
               </div>
               {/* Text to the left of the icon */}
               <span className="text-[11px] sm:text-[12px] font-bold font-['Payami_Nastaleeq',serif] pt-0.5 leading-none whitespace-nowrap">
-                {isRTL ? "سوال کا حوالہ" : "Question Ref"}
+                {isRTL ? "سوال / استفتاء" : "Question / Istifta"}
               </span>
             </div>
           </div>
 
           {/* Urdu Question Text (Without quotation marks or left badge) */}
-          <p className="text-xs sm:text-[13px] text-[#3A2A1E] font-['Payami_Nastaleeq',serif] leading-[1.8] line-clamp-2 text-right px-3 sm:px-3.5 font-normal">
+          <p className="text-xs sm:text-[13px] text-[#3A2A1E] font-['Payami_Nastaleeq',serif] leading-[1.8] line-clamp-2 text-right px-2 sm:px-2.5 font-normal">
             {questionPreview}
           </p>
         </div>
@@ -262,7 +262,7 @@ export default function FatwaCard({ fatwa }) {
 
       {/* ── 4. Answer / Summary Box (with Top-Right Wave Banner) ── */}
       {answerPreview && (
-        <div className="relative overflow-hidden rounded-[16px] sm:rounded-[18px] border border-[#DECDBB] bg-[#FCF9F4] p-3 sm:p-3.5 pt-8 sm:pt-8.5 shadow-2xs">
+        <div className="relative overflow-hidden rounded-[16px] sm:rounded-[18px] border border-[#DECDBB] bg-[#FCF9F4] px-3 sm:px-3.5 pb-3 sm:pb-3.5 pt-10 sm:pt-[42px] md:pt-[44px] shadow-2xs">
           {/* Subtle Islamic Lace Texture Watermark */}
           <div className="absolute -bottom-6 -left-6 w-24 h-24 opacity-[0.05] pointer-events-none select-none">
             <svg viewBox="0 0 100 100" fill="currentColor" className="text-[#3E2A1D]">
@@ -272,7 +272,7 @@ export default function FatwaCard({ fatwa }) {
           </div>
 
           {/* Top-Right Dark Brown Wave Shape Banner (Static decorative banner) */}
-          <div className="absolute top-0 right-0 z-10 select-none h-7 sm:h-7.5 w-[135px] sm:w-[145px]">
+          <div className="absolute top-0 right-0 z-10 select-none h-7 sm:h-[30px] w-[135px] sm:w-[145px]">
             <svg
               viewBox="0 0 145 30"
               preserveAspectRatio="none"
@@ -288,7 +288,7 @@ export default function FatwaCard({ fatwa }) {
               </div>
               {/* Text to the left of the icon */}
               <span className="text-[11px] sm:text-[12px] font-bold font-['Payami_Nastaleeq',serif] pt-0.5 leading-none whitespace-nowrap">
-                {isRTL ? "خلاصہ جواب" : "Summary"}
+                {isRTL ? "خلاصۂ جواب" : "Summary"}
               </span>
             </div>
           </div>
@@ -299,7 +299,7 @@ export default function FatwaCard({ fatwa }) {
             className="block group/summary cursor-pointer"
             title={isRTL ? "مکمل فتویٰ پڑھیں" : "Read Full Fatwa"}
           >
-            <p className="text-xs sm:text-[13px] text-[#241A12] group-hover/summary:text-[#8C5E28] font-['Payami_Nastaleeq',serif] leading-[1.8] line-clamp-2 text-right px-3 sm:px-3.5 font-normal transition-colors">
+            <p className="text-xs sm:text-[13px] text-[#241A12] group-hover/summary:text-[#8C5E28] font-['Payami_Nastaleeq',serif] leading-[1.8] line-clamp-2 text-right px-2 sm:px-2.5 font-normal transition-colors">
               {answerPreview}
             </p>
           </Link>
@@ -321,23 +321,9 @@ export default function FatwaCard({ fatwa }) {
         </div>
       )}
 
-      {/* ── 6. Footer Action Bar (CTA Button + Share + Bookmark) ── */}
+      {/* ── 6. Footer Action Bar (Share & Bookmark on RIGHT in RTL, Mokammal Fatwa on LEFT in RTL) ── */}
       <div className="pt-2 mt-auto border-t border-[#DECDBB]/60 flex items-center justify-between gap-2">
-        {/* Left (in RTL): Primary CTA Button with Rich Gold Gradient */}
-        <Link
-          to={`/fatwas/${slug}`}
-          className="inline-flex items-center gap-1.5 sm:gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-[#B58546] via-[#A8793E] to-[#8C5E28] hover:from-[#A07238] hover:to-[#7A4F1E] text-white text-xs font-bold transition-all duration-200 shadow-xs hover:shadow-md cursor-pointer border border-[#C5A87C]/30"
-        >
-          {isRTL && (
-            <ArrowLeft className="w-3.5 h-3.5 transition-transform duration-200 group-hover:-translate-x-0.5" />
-          )}
-          <span>{isRTL ? "مکمل فتویٰ پڑھیں" : "Read Full Fatwa"}</span>
-          {!isRTL && (
-            <ArrowRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />
-          )}
-        </Link>
-
-        {/* Right (in RTL): Share & Bookmark Action Pills */}
+        {/* Right side (in RTL): Share & Bookmark Action Pills */}
         <div className="flex items-center gap-1.5">
           {/* Share Button */}
           <button
@@ -381,6 +367,20 @@ export default function FatwaCard({ fatwa }) {
             </span>
           </button>
         </div>
+
+        {/* Left side (in RTL): Primary CTA Button with Rich Gold Gradient */}
+        <Link
+          to={`/fatwas/${slug}`}
+          className="inline-flex items-center gap-1.5 sm:gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-[#B58546] via-[#A8793E] to-[#8C5E28] hover:from-[#A07238] hover:to-[#7A4F1E] text-white text-xs font-bold transition-all duration-200 shadow-xs hover:shadow-md cursor-pointer border border-[#C5A87C]/30"
+        >
+          {isRTL && (
+            <ArrowLeft className="w-3.5 h-3.5 transition-transform duration-200 group-hover:-translate-x-0.5" />
+          )}
+          <span>{isRTL ? "مکمل فتویٰ پڑھیں" : "Read Full Fatwa"}</span>
+          {!isRTL && (
+            <ArrowRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />
+          )}
+        </Link>
       </div>
 
       {/* ── Responsive Share Modal Dialog (Rendered via Portal to Document Body) ── */}
