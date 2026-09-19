@@ -29,6 +29,11 @@ import {
 } from "@/utils/categories";
 import { PdfViewer, Spinner } from "@/components";
 import CommentsSection from "@/components/CommentsSection";
+import {
+  MihrabArchBackground,
+  OliveBranchSilhouette,
+  PedestalStage,
+} from "@/components/PublicationCard/PublicationCard";
 
 import toast from "react-hot-toast";
 
@@ -92,6 +97,14 @@ export default function BookDetail() {
       ? "/assets/images/books/islamic-book-cover-green.jpg"
       : "/assets/images/books/islamic-book-cover.jpg";
   };
+
+  const [imgSrc, setImgSrc] = useState(() =>
+    getCoverImageSrc(book?.coverImage, book?.category)
+  );
+
+  useEffect(() => {
+    setImgSrc(getCoverImageSrc(book?.coverImage, book?.category));
+  }, [book?.coverImage, book?.category]);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -200,7 +213,22 @@ export default function BookDetail() {
   } = book;
 
   const pdfUrl = pdf?.url || (typeof pdf === "string" ? pdf : null);
-  const coverImageSrc = getCoverImageSrc(coverImage, category);
+
+  const handleImageError = () => {
+    const isGreen =
+      category === "Quran" ||
+      category === "Hadith" ||
+      category === "قرآن و تفاسیر" ||
+      category === "حدیث";
+    const fallback = isGreen
+      ? "/assets/images/books/islamic-book-cover-green.jpg"
+      : "/assets/images/books/islamic-book-cover.jpg";
+    if (imgSrc !== fallback) {
+      setImgSrc(fallback);
+    }
+  };
+
+  const coverImageSrc = imgSrc;
   const categoryLabel =
     PUBLICATION_CATEGORY_TRANSLATIONS[category] ||
     category ||
@@ -295,66 +323,44 @@ export default function BookDetail() {
           ══════════════════════════════════════════════════════════════ */}
           <div className="lg:col-span-4 lg:sticky lg:top-24 space-y-6">
             <div
-              className="rounded-2xl border shadow-md p-2 sm:p-7 transition-all flex flex-col items-center"
+              className="rounded-2xl border shadow-md p-3 sm:p-7 transition-all flex flex-col items-center"
               style={{
-                backgroundColor: COLORS.white,
-                borderColor: COLORS.border,
+                background: "linear-gradient(175deg, #FAF6EE 0%, #F6EFE5 50%, #F2E9DC 100%)",
+                borderColor: "rgba(168, 121, 62, 0.25)",
               }}
             >
-              {/* High-Resolution Book Cover Frame */}
-              <div
-                className="relative w-full max-w-[280px] aspect-[3/4] rounded-2xl overflow-hidden shadow-2xl border p-3 flex items-center justify-center select-none group"
-                style={{
-                  backgroundColor: COLORS.primary,
-                  borderColor: `${COLORS.accent}60`,
-                }}
-              >
-                {coverImageSrc ? (
-                  <div className="relative w-full h-full rounded-xl overflow-hidden shadow-inner border border-white/20 flex items-center justify-center">
-                    {/* Ambient Blurred Background to eliminate empty gaps without cutting off cover artwork */}
-                    <img
-                      src={coverImageSrc}
-                      alt=""
-                      aria-hidden="true"
-                      className="absolute inset-0 w-full h-full object-cover filter blur-lg opacity-30 scale-110 pointer-events-none"
-                      decoding="async"
-                    />
-                    {/* Crisp Foreground Book Cover: Full cover visible, zero text cropping! */}
-                    <img
-                      src={coverImageSrc}
-                      alt={title}
-                      className="relative z-10 w-full h-full object-contain drop-shadow-md transition-transform duration-500 group-hover:scale-105"
-                      decoding="async"
-                    />
-                  </div>
-                ) : (
-                  <div
-                    className="relative w-full h-full rounded-xl shadow-inner border flex items-center justify-center p-4 text-center"
-                    style={{
-                      backgroundColor: COLORS.background || "#FAF6F0",
-                      borderColor: COLORS.border,
-                    }}
-                  >
-                    <div className="space-y-3">
-                      <BookOpen
-                        className="w-16 h-16 mx-auto opacity-70"
-                        style={{ color: COLORS.primary }}
-                      />
-                      <span
-                        className="font-bold text-lg block line-clamp-2 font-serif"
-                        style={{ color: COLORS.primary }}
-                      >
-                        {title}
-                      </span>
-                      <span
-                        className="text-xs font-semibold block"
-                        style={{ color: COLORS.accent }}
-                      >
-                        {author}
-                      </span>
-                    </div>
-                  </div>
-                )}
+              {/* Grand 3D Islamic Mimbar Arch Stage (Exact Same as Home / All Books) */}
+              <div className="relative w-full flex flex-col items-center justify-end select-none pt-4 pb-2">
+                {/* Background Grand Islamic Mimbar Arch */}
+                <MihrabArchBackground className="absolute -inset-x-3 sm:-inset-x-4 -top-3.5 sm:-top-5 w-[calc(100%+24px)] sm:w-[calc(100%+32px)] h-[calc(100%+20px)] sm:h-[calc(100%+26px)] opacity-100" />
+
+                {/* Foliage Silhouette on Far Left */}
+                <OliveBranchSilhouette className="absolute -left-2 sm:-left-3 top-2 w-12 sm:w-16 h-36 sm:h-44 z-0 opacity-75" />
+
+                {/* Ambient Warm Radial Glow */}
+                <div
+                  className="absolute inset-0 rounded-full pointer-events-none filter blur-xl opacity-25 -z-10"
+                  style={{
+                    background:
+                      "radial-gradient(circle at 50% 40%, rgba(245, 226, 175, 0.4) 0%, rgba(250, 235, 200, 0.2) 45%, rgba(247, 241, 232, 0) 80%)",
+                  }}
+                />
+
+                {/* 3D Book Artwork resting on desk */}
+                <div className="relative z-10 w-[76%] sm:w-[80%] max-w-[245px] sm:max-w-[280px] h-[280px] sm:h-[320px] flex items-end justify-center transition-transform duration-500 ease-out hover:-translate-y-1">
+                  <img
+                    src={coverImageSrc}
+                    alt={title}
+                    className="w-full h-full object-contain object-bottom filter drop-shadow-[0_2px_4px_rgba(43,33,24,0.18)] origin-bottom-left rotate-[1.1deg]"
+                    decoding="async"
+                    onError={handleImageError}
+                  />
+                </div>
+
+                {/* Pedestal Stage (Base / Desk) */}
+                <div className="relative z-0 -mt-7 sm:-mt-8 w-[92%] sm:w-[94%] max-w-[285px] sm:max-w-[315px] mx-auto">
+                  <PedestalStage className="w-full" />
+                </div>
               </div>
 
               <div
@@ -939,6 +945,16 @@ export default function BookDetail() {
                             src={relCoverSrc}
                             alt={relBook.title}
                             className="w-full h-full object-cover rounded-lg"
+                            onError={(e) => {
+                              const isGreen =
+                                relBook.category === "Quran" ||
+                                relBook.category === "Hadith" ||
+                                relBook.category === "قرآن و تفاسیر" ||
+                                relBook.category === "حدیث";
+                              e.currentTarget.src = isGreen
+                                ? "/assets/images/books/islamic-book-cover-green.jpg"
+                                : "/assets/images/books/islamic-book-cover.jpg";
+                            }}
                           />
                         ) : (
                           <BookOpen className="w-6 h-6 text-white/80" />

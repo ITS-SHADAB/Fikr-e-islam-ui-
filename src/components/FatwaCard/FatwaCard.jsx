@@ -169,45 +169,45 @@ export default function FatwaCard({ fatwa }) {
   return (
     <article
       dir={isRTL ? "rtl" : "ltr"}
-      className="group relative flex flex-col h-full rounded-[22px] sm:rounded-[26px] border border-[#DECDBB] bg-gradient-to-b from-[#FAF7F2] via-[#FAF6EF] to-[#F5EEE3] overflow-hidden transition-all duration-300 hover:border-[#A8793E] hover:shadow-[0_12px_32px_rgba(43,33,24,0.12)] hover:-translate-y-1 p-3.5 sm:p-4 md:p-4.5 gap-2.5 sm:gap-3"
+      className="group relative flex flex-col h-full w-full max-w-full min-w-0 rounded-[20px] sm:rounded-[26px] border border-[#DECDBB] bg-gradient-to-b from-[#FAF7F2] via-[#FAF6EF] to-[#F5EEE3] overflow-hidden transition-all duration-300 hover:border-[#A8793E] hover:shadow-[0_12px_32px_rgba(43,33,24,0.12)] hover:-translate-y-1 p-3 sm:p-4 md:p-4.5 gap-2.5 sm:gap-3 box-border"
     >
       {/* ── 1. Top Meta Header (Category Pill + Date & Views Pill) ── */}
-      <div className="flex items-center justify-between gap-2 relative z-10">
+      <div className="flex items-center justify-between gap-1.5 sm:gap-2 relative z-10 flex-wrap w-full">
         {/* Right (in RTL): Category Pill */}
-        <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-bold bg-[#2A1D15] text-[#FAF6EF] shadow-2xs">
-          <BookOpen className="w-3.5 h-3.5 text-[#DFC8A4]" />
-          <span>{categoryLabel}</span>
+        <span className="inline-flex items-center gap-1.5 px-3 py-0.5 sm:px-3.5 sm:py-1 rounded-full text-[11px] sm:text-xs font-bold bg-[#2A1D15] text-[#FAF6EF] shadow-2xs shrink-0 max-w-[58%] truncate">
+          <BookOpen className="w-3.5 h-3.5 text-[#DFC8A4] shrink-0" />
+          <span className="truncate">{categoryLabel}</span>
         </span>
 
         {/* Left (in RTL): Connected Date & Views Capsule */}
-        <div className="inline-flex items-center gap-2 px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-[#EFE3D5] border border-[#DECDBB] text-[11px] sm:text-xs text-[#5A4535] shadow-2xs">
+        <div className="inline-flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-0.5 sm:py-1 rounded-full bg-[#EFE3D5] border border-[#DECDBB] text-[10px] sm:text-xs text-[#5A4535] shadow-2xs shrink-0">
           {formattedDate && (
             <span className="flex items-center gap-1">
-              <Calendar className="w-3 h-3 text-[#8C5E28]" />
+              <Calendar className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-[#8C5E28]" />
               <span>{formattedDate}</span>
             </span>
           )}
           {formattedDate && <div className="w-[1px] h-3 bg-[#DECDBB]" />}
           <span className="flex items-center gap-1">
-            <Eye className="w-3 h-3 text-[#8C5E28]" />
+            <Eye className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-[#8C5E28]" />
             <span>{viewCount}</span>
           </span>
         </div>
       </div>
 
       {/* ── 2. Title Section with Scales Emblem & Central Floral Flourish ── */}
-      <div className="relative z-10 pt-0.5">
-        <div className="flex items-center gap-2.5 sm:gap-3">
+      <div className="relative z-10 pt-0.5 w-full min-w-0">
+        <div className="flex items-center gap-2 sm:gap-3 w-full min-w-0">
           {/* Sharia Scales Emblem */}
-          <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-[#EFE3D3] border border-[#DECDBB] text-[#9E6D38] flex items-center justify-center shrink-0 shadow-2xs">
-            <Scale className="w-5 h-5 sm:w-5.5 sm:h-5.5" />
+          <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-[#EFE3D3] border border-[#DECDBB] text-[#9E6D38] flex items-center justify-center shrink-0 shadow-2xs">
+            <Scale className="w-4.5 h-4.5 sm:w-5.5 sm:h-5.5" />
           </div>
 
           {/* Title Text */}
-          <h3 className="flex-1 font-bold text-base sm:text-[18px] md:text-[19px] leading-[1.7] font-['Payami_Nastaleeq',serif] text-[#1E1711] line-clamp-2 text-right">
+          <h3 className="flex-1 min-w-0 font-bold text-sm sm:text-[18px] md:text-[19px] leading-[1.7] font-['Payami_Nastaleeq',serif] text-[#1E1711] line-clamp-2 text-right break-words">
             <Link
               to={`/fatwas/${slug}`}
-              className="hover:text-[#8C5E28] transition-colors"
+              className="hover:text-[#8C5E28] transition-colors block"
             >
               {title}
             </Link>
@@ -215,24 +215,24 @@ export default function FatwaCard({ fatwa }) {
         </div>
 
         {/* Delicate Golden Ornamental Divider */}
-        <div className="flex items-center justify-center gap-2 my-1 select-none">
-          <div className="h-[1px] w-12 sm:w-16 bg-gradient-to-r from-transparent to-[#C5A87C]" />
+        <div className="flex items-center justify-center gap-2 my-1 select-none overflow-hidden max-w-full">
+          <div className="h-[1px] w-8 sm:w-16 bg-gradient-to-r from-transparent to-[#C5A87C]" />
           <svg
             viewBox="0 0 24 24"
-            className="w-3.5 h-3.5 text-[#A8793E]"
+            className="w-3.5 h-3.5 text-[#A8793E] shrink-0"
             fill="currentColor"
           >
             <path d="M12 2 L14.5 9.5 L22 12 L14.5 14.5 L12 22 L9.5 14.5 L2 12 L9.5 9.5 Z" />
           </svg>
-          <div className="h-[1px] w-12 sm:w-16 bg-gradient-to-l from-transparent to-[#C5A87C]" />
+          <div className="h-[1px] w-8 sm:w-16 bg-gradient-to-l from-transparent to-[#C5A87C]" />
         </div>
       </div>
 
       {/* ── 3. Question Box (with Top-Right Wave Banner) ── */}
       {questionPreview && (
-        <div className="relative overflow-hidden rounded-[16px] sm:rounded-[18px] border border-[#DECDBB] bg-[#FCF9F4] px-3 sm:px-3.5 pb-3 sm:pb-3.5 pt-10 sm:pt-[42px] md:pt-[44px] shadow-2xs">
+        <div className="relative overflow-hidden rounded-[16px] sm:rounded-[18px] border border-[#DECDBB] bg-[#FCF9F4] px-2.5 sm:px-3.5 pb-2.5 sm:pb-3.5 pt-9 sm:pt-[42px] md:pt-[44px] shadow-2xs w-full min-w-0">
           {/* Top-Right Dark Brown Wave Shape Banner (Sleek, compact & centered) */}
-          <div className="absolute top-0 right-0 z-10 select-none h-7 sm:h-[30px] w-[145px] sm:w-[155px]">
+          <div className="absolute top-0 right-0 z-10 select-none h-6.5 sm:h-[30px] w-[130px] sm:w-[155px]">
             <svg
               viewBox="0 0 155 30"
               preserveAspectRatio="none"
@@ -241,20 +241,20 @@ export default function FatwaCard({ fatwa }) {
             >
               <path d="M0,0 C16,0 20,30 36,30 L155,30 L155,0 Z" />
             </svg>
-            <div className="absolute top-0 right-0 h-full w-[110px] sm:w-[120px] flex items-center justify-center gap-2 text-[#FAF6EF] pointer-events-none px-1">
+            <div className="absolute top-0 right-0 h-full w-[100px] sm:w-[120px] flex items-center justify-center gap-1.5 sm:gap-2 text-[#FAF6EF] pointer-events-none px-1">
               {/* Question Icon on the RIGHT */}
-              <div className="w-4 h-4 rounded-full bg-[#C8A46A] text-[#2B2118] font-bold text-[10px] flex items-center justify-center shrink-0 shadow-xs">
+              <div className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full bg-[#C8A46A] text-[#2B2118] font-bold text-[9px] sm:text-[10px] flex items-center justify-center shrink-0 shadow-xs">
                 ?
               </div>
               {/* Text to the left of the icon */}
-              <span className="text-[11px] sm:text-[12px] font-bold font-['Payami_Nastaleeq',serif] pt-0.5 leading-none whitespace-nowrap">
+              <span className="text-[10px] sm:text-[12px] font-bold font-['Payami_Nastaleeq',serif] pt-0.5 leading-none whitespace-nowrap">
                 {isRTL ? "سوال / استفتاء" : "Question / Istifta"}
               </span>
             </div>
           </div>
 
           {/* Urdu Question Text (Without quotation marks or left badge) */}
-          <p className="text-xs sm:text-[13px] text-[#3A2A1E] font-['Payami_Nastaleeq',serif] leading-[1.8] line-clamp-2 text-right px-2 sm:px-2.5 font-normal">
+          <p className="text-xs sm:text-[13px] text-[#3A2A1E] font-['Payami_Nastaleeq',serif] leading-[1.8] line-clamp-2 text-right px-1.5 sm:px-2.5 font-normal break-words">
             {questionPreview}
           </p>
         </div>
@@ -262,7 +262,7 @@ export default function FatwaCard({ fatwa }) {
 
       {/* ── 4. Answer / Summary Box (with Top-Right Wave Banner) ── */}
       {answerPreview && (
-        <div className="relative overflow-hidden rounded-[16px] sm:rounded-[18px] border border-[#DECDBB] bg-[#FCF9F4] px-3 sm:px-3.5 pb-3 sm:pb-3.5 pt-10 sm:pt-[42px] md:pt-[44px] shadow-2xs">
+        <div className="relative overflow-hidden rounded-[16px] sm:rounded-[18px] border border-[#DECDBB] bg-[#FCF9F4] px-2.5 sm:px-3.5 pb-2.5 sm:pb-3.5 pt-9 sm:pt-[42px] md:pt-[44px] shadow-2xs w-full min-w-0">
           {/* Subtle Islamic Lace Texture Watermark */}
           <div className="absolute -bottom-6 -left-6 w-24 h-24 opacity-[0.05] pointer-events-none select-none">
             <svg viewBox="0 0 100 100" fill="currentColor" className="text-[#3E2A1D]">
@@ -272,7 +272,7 @@ export default function FatwaCard({ fatwa }) {
           </div>
 
           {/* Top-Right Dark Brown Wave Shape Banner (Static decorative banner) */}
-          <div className="absolute top-0 right-0 z-10 select-none h-7 sm:h-[30px] w-[135px] sm:w-[145px]">
+          <div className="absolute top-0 right-0 z-10 select-none h-6.5 sm:h-[30px] w-[120px] sm:w-[145px]">
             <svg
               viewBox="0 0 145 30"
               preserveAspectRatio="none"
@@ -281,13 +281,13 @@ export default function FatwaCard({ fatwa }) {
             >
               <path d="M0,0 C16,0 20,30 36,30 L145,30 L145,0 Z" />
             </svg>
-            <div className="absolute top-0 right-0 h-full w-[100px] sm:w-[110px] flex items-center justify-center gap-2 text-[#FAF6EF] pointer-events-none px-1">
+            <div className="absolute top-0 right-0 h-full w-[90px] sm:w-[110px] flex items-center justify-center gap-1.5 sm:gap-2 text-[#FAF6EF] pointer-events-none px-1">
               {/* Summary Icon on the RIGHT */}
-              <div className="w-4 h-4 rounded-full bg-[#C8A46A] text-[#2B2118] flex items-center justify-center shrink-0 shadow-xs">
+              <div className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full bg-[#C8A46A] text-[#2B2118] flex items-center justify-center shrink-0 shadow-xs">
                 <FileText className="w-2.5 h-2.5 text-[#2B2118]" />
               </div>
               {/* Text to the left of the icon */}
-              <span className="text-[11px] sm:text-[12px] font-bold font-['Payami_Nastaleeq',serif] pt-0.5 leading-none whitespace-nowrap">
+              <span className="text-[10px] sm:text-[12px] font-bold font-['Payami_Nastaleeq',serif] pt-0.5 leading-none whitespace-nowrap">
                 {isRTL ? "خلاصۂ جواب" : "Summary"}
               </span>
             </div>
@@ -299,7 +299,7 @@ export default function FatwaCard({ fatwa }) {
             className="block group/summary cursor-pointer"
             title={isRTL ? "مکمل فتویٰ پڑھیں" : "Read Full Fatwa"}
           >
-            <p className="text-xs sm:text-[13px] text-[#241A12] group-hover/summary:text-[#8C5E28] font-['Payami_Nastaleeq',serif] leading-[1.8] line-clamp-2 text-right px-2 sm:px-2.5 font-normal transition-colors">
+            <p className="text-xs sm:text-[13px] text-[#241A12] group-hover/summary:text-[#8C5E28] font-['Payami_Nastaleeq',serif] leading-[1.8] line-clamp-2 text-right px-1.5 sm:px-2.5 font-normal transition-colors break-words">
               {answerPreview}
             </p>
           </Link>
@@ -308,23 +308,23 @@ export default function FatwaCard({ fatwa }) {
 
       {/* ── 5. Tags Section ── */}
       {tags.length > 0 && (
-        <div className="flex flex-wrap items-center justify-start gap-1.5 pt-0.5">
+        <div className="flex flex-wrap items-center justify-start gap-1.5 pt-0.5 w-full">
           {tags.slice(0, 3).map((tag, idx) => (
             <span
               key={idx}
-              className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-[#EFE3D5] border border-[#DECDBB] text-xs text-[#4A3728] font-medium hover:bg-[#E5D7C7] transition-colors"
+              className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-0.5 rounded-full bg-[#EFE3D5] border border-[#DECDBB] text-[11px] sm:text-xs text-[#4A3728] font-medium hover:bg-[#E5D7C7] transition-colors max-w-full truncate"
             >
-              <Tag className="w-3 h-3 text-[#8C5E28]" />
-              <span>{tag.startsWith('"') ? tag : `"${tag}"`}</span>
+              <Tag className="w-3 h-3 text-[#8C5E28] shrink-0" />
+              <span className="truncate">{tag.startsWith('"') ? tag : `"${tag}"`}</span>
             </span>
           ))}
         </div>
       )}
 
-      {/* ── 6. Footer Action Bar (Share & Bookmark on RIGHT in RTL, Mokammal Fatwa on LEFT in RTL) ── */}
-      <div className="pt-2 mt-auto border-t border-[#DECDBB]/60 flex items-center justify-between gap-2">
+      {/* ── 6. Footer Action Bar ── */}
+      <div className="pt-2 mt-auto border-t border-[#DECDBB]/60 flex flex-wrap items-center justify-between gap-2 w-full min-w-0">
         {/* Right side (in RTL): Share & Bookmark Action Pills */}
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
           {/* Share Button */}
           <button
             type="button"
@@ -333,18 +333,18 @@ export default function FatwaCard({ fatwa }) {
               e.stopPropagation();
               setShowShareModal(true);
             }}
-            className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full bg-[#EFE3D5] border border-[#DECDBB] text-xs font-semibold text-[#4A3728] hover:bg-[#E5D7C7] hover:border-[#A8793E]/60 transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1 px-2 sm:px-3 py-1.5 rounded-full bg-[#EFE3D5] border border-[#DECDBB] text-[11px] sm:text-xs font-semibold text-[#4A3728] hover:bg-[#E5D7C7] hover:border-[#A8793E]/60 transition-colors cursor-pointer"
             title={isRTL ? "شیئر کریں" : "Share"}
           >
-            <Share2 className="w-3.5 h-3.5 text-[#8C5E28]" />
-            <span>{isRTL ? "شیئر کریں" : "Share"}</span>
+            <Share2 className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#8C5E28] shrink-0" />
+            <span>{isRTL ? "شیئر" : "Share"}</span>
           </button>
 
           {/* Bookmark Button */}
           <button
             type="button"
             onClick={handleBookmark}
-            className={`inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full border text-xs font-semibold transition-colors cursor-pointer ${
+            className={`inline-flex items-center gap-1 px-2 sm:px-3 py-1.5 rounded-full border text-[11px] sm:text-xs font-semibold transition-colors cursor-pointer ${
               isSaved
                 ? "bg-[#9E6D38] border-[#9E6D38] text-white"
                 : "bg-[#EFE3D5] border-[#DECDBB] text-[#4A3728] hover:bg-[#E5D7C7] hover:border-[#A8793E]/60"
@@ -352,7 +352,7 @@ export default function FatwaCard({ fatwa }) {
             title={isRTL ? "محفوظ کریں" : "Save"}
           >
             <Bookmark
-              className={`w-3.5 h-3.5 ${
+              className={`w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0 ${
                 isSaved ? "text-white fill-white" : "text-[#8C5E28]"
               }`}
             />
@@ -360,7 +360,7 @@ export default function FatwaCard({ fatwa }) {
               {isRTL
                 ? isSaved
                   ? "محفوظ"
-                  : "محفوظ کریں"
+                  : "محفوظ"
                 : isSaved
                 ? "Saved"
                 : "Save"}
@@ -371,14 +371,14 @@ export default function FatwaCard({ fatwa }) {
         {/* Left side (in RTL): Primary CTA Button with Rich Gold Gradient */}
         <Link
           to={`/fatwas/${slug}`}
-          className="inline-flex items-center gap-1.5 sm:gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-[#B58546] via-[#A8793E] to-[#8C5E28] hover:from-[#A07238] hover:to-[#7A4F1E] text-white text-xs font-bold transition-all duration-200 shadow-xs hover:shadow-md cursor-pointer border border-[#C5A87C]/30"
+          className="inline-flex items-center gap-1 sm:gap-1.5 px-3 sm:px-4 py-1.5 rounded-full bg-gradient-to-r from-[#B58546] via-[#A8793E] to-[#8C5E28] hover:from-[#A07238] hover:to-[#7A4F1E] text-white text-[11px] sm:text-xs font-bold transition-all duration-200 shadow-xs hover:shadow-md cursor-pointer border border-[#C5A87C]/30 shrink-0"
         >
           {isRTL && (
-            <ArrowLeft className="w-3.5 h-3.5 transition-transform duration-200 group-hover:-translate-x-0.5" />
+            <ArrowLeft className="w-3 h-3 sm:w-3.5 sm:h-3.5 transition-transform duration-200 group-hover:-translate-x-0.5 shrink-0" />
           )}
-          <span>{isRTL ? "مکمل فتویٰ پڑھیں" : "Read Full Fatwa"}</span>
+          <span>{isRTL ? "مکمل فتویٰ" : "Read Full"}</span>
           {!isRTL && (
-            <ArrowRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />
+            <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 transition-transform duration-200 group-hover:translate-x-0.5 shrink-0" />
           )}
         </Link>
       </div>
