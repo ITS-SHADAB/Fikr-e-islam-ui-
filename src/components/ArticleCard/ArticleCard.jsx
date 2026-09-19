@@ -101,7 +101,7 @@ export default function ArticleCard({ article }) {
         </Link>
 
         {/* ── Card Body ── */}
-        <div className="p-4 sm:p-5 flex flex-col gap-3">
+        <div className="p-4 sm:p-5 flex flex-col gap-3 text-right" dir="rtl">
           {/* Top meta row (category if no image, date, reading time, views) */}
           <div className="flex items-center justify-between gap-2 flex-wrap">
             {!showImage && (
@@ -139,10 +139,11 @@ export default function ArticleCard({ article }) {
           </div>
 
           {/* Article Title */}
-          <Link to={detailUrl}>
+          <Link to={detailUrl} className="block w-full text-right">
             <h2
-              className="font-bold text-base sm:text-lg leading-[1.8] font-serif line-clamp-2 group-hover:underline transition-colors"
+              className="font-bold text-base sm:text-lg leading-[1.8] font-['Payami_Nastaleeq',serif] text-right line-clamp-2 group-hover:underline transition-colors w-full"
               style={{ color: COLORS?.primary }}
+              dir="rtl"
             >
               {article?.title}
             </h2>
@@ -151,8 +152,9 @@ export default function ArticleCard({ article }) {
           {/* Excerpt */}
           {excerpt && (
             <p
-              className="text-xs sm:text-sm leading-[2] line-clamp-3"
+              className="text-xs sm:text-sm leading-[2] line-clamp-3 text-right font-['Payami_Nastaleeq',serif]"
               style={{ color: COLORS?.textSecondary }}
+              dir="rtl"
             >
               {excerpt}
             </p>

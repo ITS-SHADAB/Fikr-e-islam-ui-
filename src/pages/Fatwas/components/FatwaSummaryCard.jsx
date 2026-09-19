@@ -213,23 +213,23 @@ export default function FatwaSummaryCard({
           >
             {summary || "تفصیلی فتویٰ کا متن درج نہیں ہے۔"}
           </p>
+
+          {/* Scholarly Attestation: directly below final line of Summary text in Payami Quran font */}
+          <div className="mt-2.5 sm:mt-3 text-right relative z-10">
+            <span
+              className="text-lg sm:text-xl md:text-[22px] font-bold tracking-normal select-none inline-block font-['Payami_Quran','Noto_Naskh_Arabic',serif]"
+              style={{
+                color: theme.mainText,
+                lineHeight: 1.6,
+              }}
+            >
+              وَاللّٰهُ تَعَالَىٰ أَعْلَمُ
+            </span>
+          </div>
         </div>
 
         {/* Centered Gold Diamond Divider: ──────── ◆ ──────── */}
-        <GoldDiamondDivider className="my-4 sm:my-5" />
-
-        {/* Scholarly Attestation */}
-        <div className="text-center relative z-10" dir="rtl">
-          <div
-            className="islamic-arabic-text text-lg sm:text-xl font-bold tracking-normal select-none"
-            style={{
-              color: theme.mainText,
-              lineHeight: 1.6,
-            }}
-          >
-            وَاللّٰهُ تَعَالَىٰ أَعْلَمُ
-          </div>
-        </div>
+        <GoldDiamondDivider className="mt-3.5 mb-1 sm:mt-4 sm:mb-1.5" />
       </div>
 
       {/* ── BOX 2: INTEGRATED DOWNLOAD PDF PANEL (#FCF8F1) ── */}

@@ -47,33 +47,30 @@ import { FATWA_TRANSLATIONS, LECTURE_TRANSLATIONS } from "@/utils/categories";
 import AnimatedFeatureCard from "../components/AnimatedFeatureCard";
 import HeroBannerSlider from "../components/HeroBannerSlider";
 
-function SectionHeading({ eyebrow, title, linkTo, linkLabel }) {
+function SectionHeading({ title, linkTo, linkLabel }) {
   const { settings } = useSettings();
   const language =
     settings?.language === "ur" || settings?.language === "Urdu" ? "ur" : "en";
 
   return (
-    <div className="flex items-end justify-between mb-2.5 sm:mb-4 md:mb-5 border-b-2 border-border pb-1.5 sm:pb-2.5">
+    <div className="flex items-center justify-between mb-2.5 sm:mb-3.5 border-b-2 border-border pb-1.5 sm:pb-2">
       <div
-        className={`border-accent ${language === "ur" ? "border-r-4 pr-4 text-right" : "border-l-4 pl-4 text-left"}`}
+        className={`border-accent flex items-center ${language === "ur" ? "border-r-4 pr-3 sm:pr-4 text-right" : "border-l-4 pl-3 sm:pl-4 text-left"}`}
       >
-        <span className="text-xs font-bold text-accent uppercase tracking-widest block mb-1">
-          {eyebrow}
-        </span>
-        <h2 className="text-2xl sm:text-3xl font-extrabold text-primary leading-none">
+        <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-primary leading-none pt-0.5">
           {title}
         </h2>
       </div>
       {linkTo && (
         <Link
           to={linkTo}
-          className="text-sm font-bold text-primary hover:text-accent flex items-center gap-1 transition-colors"
+          className="text-xs sm:text-sm font-bold text-primary hover:text-accent flex items-center gap-1 transition-colors shrink-0"
         >
           {linkLabel}{" "}
           {language === "en" ? (
-            <ArrowRight className="w-4 h-4" />
+            <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           ) : (
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           )}
         </Link>
       )}
@@ -380,9 +377,8 @@ export default function Home() {
       </section>
 
       {/* 2. LATEST ARTICLES */}
-      <section className="py-4 sm:py-6 md:py-8 mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-3 sm:py-4.5 md:py-6 mx-auto px-4 sm:px-6 lg:px-8">
         <SectionHeading
-          eyebrow={language === "en" ? "PROMOTING KNOWLEDGE" : "علم کا فروغ"}
           title={language === "en" ? "Latest Articles" : "تازہ ترین مقالات"}
           linkTo="/articles"
           linkLabel={language === "en" ? "All Articles" : "تمام مقالات"}
@@ -421,12 +417,9 @@ export default function Home() {
       </section>
 
       {/* 3. FEATURED FATWAS */}
-      <section className="bg-background border-y border-border py-4 sm:py-6 md:py-8">
+      <section className="bg-background border-y border-border py-3 sm:py-4.5 md:py-6">
         <div className="mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeading
-            eyebrow={
-              language === "en" ? "GUIDANCE & RULINGS" : "رہنمائی اور احکام"
-            }
             title={language === "en" ? "Featured Fatwas" : "منتخب فتاویٰ"}
             linkTo="/fatwas"
             linkLabel={language === "en" ? "All Rulings" : "تمام احکام"}
@@ -466,9 +459,8 @@ export default function Home() {
       </section>
 
       {/* 4. RECENT Q&A */}
-      <section className="py-4 sm:py-6 md:py-8 mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-3 sm:py-4.5 md:py-6 mx-auto px-4 sm:px-6 lg:px-8">
         <SectionHeading
-          eyebrow={language === "en" ? "MUTUAL GUIDANCE" : "باہمی رہنمائی"}
           title={language === "en" ? "Recent Q&A" : "حالیہ سوال و جواب"}
           linkTo="/qa"
           linkLabel={language === "en" ? "All Questions" : "تمام سوالات"}
@@ -602,12 +594,9 @@ export default function Home() {
       </section>
 
       {/* 5. LATEST PUBLICATIONS */}
-      <section className="py-4 sm:py-6 md:py-8 bg-white border-t border-border">
+      <section className="py-3 sm:py-4.5 md:py-6 bg-white border-t border-border">
         <div className="mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeading
-            eyebrow={
-              language === "en" ? "LIBRARY & ARCHIVE" : "مطبوعات و رسائل"
-            }
             title={
               language === "en" ? "Latest Publications" : "تازہ ترین مطبوعات"
             }
@@ -649,10 +638,9 @@ export default function Home() {
       </section>
 
       {/* 6. LATEST LECTURES */}
-      <section className="py-4 sm:py-6 md:py-8 bg-background border-t border-border">
+      <section className="py-3 sm:py-4.5 md:py-6 bg-background border-t border-border">
         <div className="mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeading
-            eyebrow={language === "en" ? "LECTURES & BAYANS" : "خطبات و بیانات"}
             title={language === "en" ? "Latest Lectures" : "تازہ ترین بیانات"}
             linkTo="/lectures"
             linkLabel={language === "en" ? "View All" : "سب دیکھیں"}
@@ -699,9 +687,9 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 6. EVENTS & CONTACT INFO (SPLIT) */}
+      {/* 7. EVENTS & CONTACT INFO (SPLIT) */}
       <section
-        className="py-4 sm:py-6 md:py-8 mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-7"
+        className="py-3 sm:py-4.5 md:py-6 mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-7"
         dir={language === "ur" ? "rtl" : "ltr"}
       >
         {/* Upcoming Programs */}
