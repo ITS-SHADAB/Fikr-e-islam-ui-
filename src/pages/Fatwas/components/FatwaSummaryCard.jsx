@@ -2,8 +2,6 @@ import React, { useState } from "react";
 import {
   Scale,
   Download,
-  ArrowRight,
-  BookOpen,
   Loader2,
 } from "lucide-react";
 import {

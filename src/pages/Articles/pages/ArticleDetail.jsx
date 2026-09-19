@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import {
   FileText,
-  Download,
   Calendar,
   User,
   Eye,
@@ -10,14 +9,7 @@ import {
   ArrowRight,
   ArrowLeft,
   Copy,
-  Check,
-  Clock,
-  Printer,
-  ChevronDown,
-  MessageSquare,
-  Home,
   BookOpen,
-  Bookmark,
 } from "lucide-react";
 import { getArticleBySlug, getArticles } from "@/services";
 import { useCachedContent } from "@/hooks/useContentCache";
@@ -50,11 +42,6 @@ const THEME = {
   noticeBg: "#EFE6D9",
   textMuted: "#685545",
   cardShadow: "0 8px 30px rgba(43, 33, 24, 0.06)",
-};
-
-const getReadingTime = (text = "") => {
-  const words = text?.trim()?.split(/\s+/)?.length || 0;
-  return Math.max(1, Math.ceil(words / 150));
 };
 
 export default function ArticleDetail() {

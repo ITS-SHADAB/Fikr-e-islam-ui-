@@ -13,7 +13,6 @@ import {
   Share2,
   Bookmark,
   Copy,
-  Check,
   ExternalLink,
   X,
 } from "lucide-react";
