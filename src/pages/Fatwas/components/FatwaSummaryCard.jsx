@@ -8,7 +8,6 @@ import {
 } from "lucide-react";
 import {
   IslamicBookSeal,
-  GoldDiamondDivider,
   IslamicGeometricWatermark,
   CardGeometricTexture,
 } from "./FatwaDetailDecorativeAssets";
@@ -212,20 +211,17 @@ export default function FatwaSummaryCard({
             style={{ color: theme.mainText }}
           >
             {summary || "تفصیلی فتویٰ کا متن درج نہیں ہے۔"}
+            {" "}
+            <span
+              className="quran-font font-bold inline-block mx-1 text-[17px] xs:text-[18px] sm:text-[20px] md:text-[22px]"
+              style={{
+                fontFamily: "'Payami Quran', 'Noto Naskh Arabic', serif",
+                color: theme.goldAccent || "#A8793E",
+              }}
+            >
+              واللہ تعالیٰ اعلم
+            </span>
           </p>
-        </div>
-
-        {/* Centered Gold Diamond Divider: ──────── ◆ ──────── */}
-        <GoldDiamondDivider className="my-3.5 sm:my-4.5" />
-
-        {/* Scholarly Attestation */}
-        <div className="text-center relative z-10">
-          <div
-            className="text-base sm:text-lg md:text-xl font-bold font-['Payami_Nastaleeq',serif]"
-            style={{ color: theme.mainText }}
-          >
-            واللہ تعالیٰ اعلم بالصواب
-          </div>
         </div>
       </div>
 
