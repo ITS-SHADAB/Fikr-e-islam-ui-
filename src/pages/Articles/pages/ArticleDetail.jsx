@@ -10,7 +10,19 @@ import {
   ArrowLeft,
   Copy,
   BookOpen,
+  Home,
+  Check,
+  Printer,
+  Download,
+  MessageSquare,
+  ChevronDown,
 } from "lucide-react";
+
+// Estimated reading time helper
+const getReadingTime = (text = "") => {
+  const words = text?.trim()?.split(/\s+/)?.filter(Boolean)?.length || 0;
+  return Math.max(1, Math.ceil(words / 200));
+};
 import { getArticleBySlug, getArticles } from "@/services";
 import { useCachedContent } from "@/hooks/useContentCache";
 import { STALE_TIMES } from "@/store/slices/contentSlice";

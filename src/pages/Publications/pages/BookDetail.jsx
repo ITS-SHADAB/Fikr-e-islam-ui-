@@ -7,6 +7,13 @@ import {
   User,
   ArrowRight,
   ArrowLeft,
+  Globe,
+  Sparkles,
+  ChevronUp,
+  ChevronDown,
+  MessageSquare,
+  Maximize2,
+  Minimize2,
 } from "lucide-react";
 import { getPublicationBySlug, getPublications } from "@/services";
 import { useCachedContent } from "@/hooks/useContentCache";

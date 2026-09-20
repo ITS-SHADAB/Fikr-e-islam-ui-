@@ -3,6 +3,8 @@ import {
   Scale,
   Download,
   Loader2,
+  ArrowRight,
+  BookOpen,
 } from "lucide-react";
 import {
   IslamicBookSeal,

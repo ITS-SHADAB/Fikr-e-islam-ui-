@@ -8,10 +8,16 @@ import {
   Calendar,
   User,
   ArrowLeft,
+  Building2,
+  Info,
 } from "lucide-react";
+import { PdfViewer } from "../PdfViewer";
 import { COLORS } from "@/utils/themeColors";
 import { BACKEND_URL } from "@/constants/urls";
-import { PUBLICATION_CATEGORY_TRANSLATIONS } from "@/utils/categories";
+import {
+  PUBLICATION_CATEGORY_TRANSLATIONS,
+  BOOK_LANGUAGE_TRANSLATIONS,
+} from "@/utils/categories";
 
 /* ── Grand Islamic Mimbar / Mihrab Arch Background for Book Stage ── */
 export function MihrabArchBackground({ className = "" }) {
