@@ -80,7 +80,7 @@ export default function FatwaCard({ fatwa }) {
   const fullShareUrl =
     typeof window !== "undefined" && window?.location?.origin
       ? `${window.location.origin}/fatwas/${fatwaIdentifier}`
-      : `https://fikr-e-islam.com/fatwas/${fatwaIdentifier}`;
+      : `https://muftifaizansarwar.in/fatwas/${fatwaIdentifier}`;
 
   const handleWhatsAppShare = (e) => {
     e?.preventDefault();

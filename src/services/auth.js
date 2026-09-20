@@ -73,8 +73,10 @@ export const checkAuthStatus = async () => {
 
     return response.data;
   } catch (error) {
-    // Silent error (useful for guest users)
-    console.error("Auth Status Error:", error);
+    // Expected 401 for guest users - do not pollute console
+    if (error.response?.status !== 401) {
+      console.error("Auth Status Error:", error);
+    }
 
     throw error;
   }

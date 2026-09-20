@@ -5,6 +5,10 @@
       "destination": "https://api.muftifaizansarwar.in/api/:path*"
     },
     {
+      "source": "/uploads/:path*",
+      "destination": "https://api.muftifaizansarwar.in/uploads/:path*"
+    },
+    {
       "source": "/(.*)",
       "destination": "/"
     }

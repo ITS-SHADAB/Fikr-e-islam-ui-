@@ -171,6 +171,9 @@ function CommentCard({ comment }) {
     if (comment.contentType === "fatwa") {
       return `/fatwas/${comment.contentId}`;
     }
+    if (comment.contentType === "book") {
+      return `/publications/${comment.contentId}`;
+    }
     return "#";
   };
 
