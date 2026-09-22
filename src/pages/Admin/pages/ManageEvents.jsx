@@ -25,6 +25,8 @@ import {
 } from 'lucide-react';
 import { getEvents, createEvent, updateEvent, deleteEvent } from '@/services';
 import { useSettings } from '@/hooks/useSettings';
+import { useDispatch } from 'react-redux';
+import { invalidateContentCache } from '@/store/slices/contentSlice';
 import { Input, Table, ConfirmationBox } from '@/components';
 import { getEventPosterUrl, getGoogleMapsUrl } from '@/utils/utils';
 
@@ -51,6 +53,7 @@ const formatDateForInput = (isoDateString) => {
 
 export default function ManageEvents() {
   const { settings } = useSettings();
+  const dispatch = useDispatch();
   const language = settings?.language === 'ur' || settings?.language === 'Urdu' ? 'ur' : 'en';
 
   // Events list state
@@ -407,18 +410,23 @@ export default function ManageEvents() {
 
       if (editingId) {
         await updateEvent(editingId, formData);
+        dispatch(invalidateContentCache({ type: 'events_list' }));
         showSuccess(
           language === 'en'
             ? 'Event updated successfully.'
             : 'پروگرام کامیابی سے اپ ڈیٹ ہو گیا۔'
         );
+        await loadEvents();
       } else {
         await createEvent(formData);
+        dispatch(invalidateContentCache({ type: 'events_list' }));
+        dispatch(invalidateContentCache({ type: 'content_counts' }));
         showSuccess(
           language === 'en'
             ? 'Event created successfully.'
             : 'پروگرام کامیابی سے شامل ہو گیا۔'
         );
+        await loadEvents();
       }
     } catch (err) {
       console.error('Failed to save event:', err);
@@ -443,11 +451,20 @@ export default function ManageEvents() {
     setActionError(null);
     try {
       await deleteEvent(id);
+      // 1. Delete API succeeds.
+      // 2. Remove deleted event from local state immediately.
+      setEvents((prev) => prev.filter((ev) => ev._id !== id));
+      // Invalidate Redux content cache across app
+      dispatch(invalidateContentCache({ type: 'events_list' }));
+      dispatch(invalidateContentCache({ type: 'content_counts' }));
+      // 3. Show success notification
       showSuccess(
         language === 'en'
           ? 'Event deleted successfully.'
           : 'پروگرام کامیابی سے حذف کر دیا گیا۔'
       );
+      // 4. Fetch latest events from backend & replace state with fresh response
+      await loadEvents();
     } catch (err) {
       setActionError(
         err.response?.data?.message || err.message || 'Failed to delete event'
@@ -468,7 +485,6 @@ export default function ManageEvents() {
     setPosterFile(null);
     setExistingPosterUrl(null);
     setPosterPreviewUrl(null);
-    loadEvents();
     setTimeout(() => setSuccess(false), 3500);
   };
 
