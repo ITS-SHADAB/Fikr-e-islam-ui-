@@ -21,10 +21,10 @@ export default function SeamlessMobileSlider({
 
   const count = items.length;
 
-  // Single item renders statically without slider
+  // Single item renders statically without slider on mobile only
   if (count <= 1) {
     return (
-      <div className="w-full select-none" dir={language === "ur" ? "rtl" : "ltr"}>
+      <div className="sm:hidden w-full select-none" dir={language === "ur" ? "rtl" : "ltr"}>
         {renderCard(items[0], 0, true)}
       </div>
     );

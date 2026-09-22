@@ -48,7 +48,19 @@ export default function EventsList() {
   const isRTL = language === 'ur';
 
   const { data: eventsData, loading, error } = useEventsList();
-  const events = Array.isArray(eventsData) ? eventsData : eventsData?.events || [];
+  const rawEvents = Array.isArray(eventsData) ? eventsData : eventsData?.events || [];
+
+  // Deduplicate events by _id
+  const events = useMemo(() => {
+    if (!Array.isArray(rawEvents)) return [];
+    const map = new Map();
+    rawEvents.forEach((item) => {
+      if (item && item._id) {
+        map.set(item._id, item);
+      }
+    });
+    return Array.from(map.values());
+  }, [rawEvents]);
 
   // Calendar State
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -715,7 +727,7 @@ export default function EventsList() {
               ) : displayedEvents?.length > 0 ? (
                 <div className="space-y-4">
                   {displayedEvents.map((event) => (
-                    <EventCard key={event?._id} event={event} />
+                    <EventCard key={event._id} event={event} />
                   ))}
                 </div>
               ) : (

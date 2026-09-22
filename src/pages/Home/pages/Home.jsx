@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import {
   BookOpen,
@@ -168,8 +168,21 @@ export default function Home() {
   const fatwas = Array.isArray(fatwasData?.fatwas) ? fatwasData.fatwas : [];
   const questions = Array.isArray(questionsData?.questions) ? questionsData.questions : [];
   const publications = Array.isArray(publicationsData?.books) ? publicationsData.books : [];
-  const lectures = Array.isArray(lecturesData) ? lecturesData : [];
-  const events = Array.isArray(eventsData) ? eventsData : [];
+  const lectures = Array.isArray(lecturesData)
+    ? lecturesData
+    : Array.isArray(lecturesData?.lectures)
+      ? lecturesData.lectures
+      : [];
+  const rawEvents = Array.isArray(eventsData) ? eventsData : eventsData?.events || [];
+  const events = useMemo(() => {
+    const map = new Map();
+    rawEvents.forEach((item) => {
+      if (item && item._id) {
+        map.set(item._id, item);
+      }
+    });
+    return Array.from(map.values());
+  }, [rawEvents]);
 
   const [activeMedia, setActiveMedia] = useState(null);
 
@@ -663,19 +676,21 @@ export default function Home() {
               </div>
 
               {/* Mobile: one-by-one Seamless infinite slider */}
-              <SeamlessMobileSlider
-                items={lectures.slice(0, 3)}
-                language={language}
-                duration={500}
-                activeDotColor={COLORS.primary}
-                dotColor={COLORS.border}
-                renderCard={(lec) => (
-                  <LectureCard
-                    lecture={lec}
-                    onPlay={handleLectureAction}
-                  />
-                )}
-              />
+              <div className="block sm:hidden">
+                <SeamlessMobileSlider
+                  items={lectures.slice(0, 3)}
+                  language={language}
+                  duration={500}
+                  activeDotColor={COLORS.primary}
+                  dotColor={COLORS.border}
+                  renderCard={(lec) => (
+                    <LectureCard
+                      lecture={lec}
+                      onPlay={handleLectureAction}
+                    />
+                  )}
+                />
+              </div>
             </>
           ) : (
             <p className="text-slate-400 text-center py-6">
@@ -725,14 +740,16 @@ export default function Home() {
               </div>
 
               {/* Mobile: one-by-one Seamless infinite slider */}
-              <SeamlessMobileSlider
-                items={events.slice(0, 3)}
-                language={language}
-                duration={500}
-                activeDotColor={COLORS.primary}
-                dotColor={COLORS.border}
-                renderCard={(event) => <EventCard event={event} />}
-              />
+              <div className="block sm:hidden">
+                <SeamlessMobileSlider
+                  items={events.slice(0, 3)}
+                  language={language}
+                  duration={500}
+                  activeDotColor={COLORS.primary}
+                  dotColor={COLORS.border}
+                  renderCard={(event) => <EventCard event={event} />}
+                />
+              </div>
             </>
           ) : (
             <p className="text-slate-400 text-center py-6">
