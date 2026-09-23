@@ -118,9 +118,10 @@ export default function Footer() {
                 href={socialLinks.facebook}
                 target="_blank"
                 rel="noopener noreferrer"
-                style={{ color: "#F7F1E8", borderColor: "#A8793E" }}
-                className="p-2 rounded-xl bg-[#3D2E22] border hover:text-[#DFC8A4] hover:border-[#DFC8A4] transition-colors"
+                style={{ backgroundColor: '#1877F2', borderColor: '#1877F2', color: '#ffffff' }}
+                className="p-2 rounded-xl border shadow-xs hover:opacity-90 hover:scale-105 transition-all flex items-center justify-center"
                 aria-label="Facebook"
+                title="Facebook"
               >
                 <Facebook className="w-4 h-4" />
               </a>
@@ -130,9 +131,10 @@ export default function Footer() {
                 href={socialLinks.youtube}
                 target="_blank"
                 rel="noopener noreferrer"
-                style={{ color: "#F7F1E8", borderColor: "#A8793E" }}
-                className="p-2 rounded-xl bg-[#3D2E22] border hover:text-[#DFC8A4] hover:border-[#DFC8A4] transition-colors"
+                style={{ backgroundColor: '#FF0000', borderColor: '#FF0000', color: '#ffffff' }}
+                className="p-2 rounded-xl border shadow-xs hover:opacity-90 hover:scale-105 transition-all flex items-center justify-center"
                 aria-label="YouTube"
+                title="YouTube"
               >
                 <Youtube className="w-4 h-4" />
               </a>
@@ -142,9 +144,10 @@ export default function Footer() {
                 href={socialLinks.whatsapp}
                 target="_blank"
                 rel="noopener noreferrer"
-                style={{ color: "#F7F1E8", borderColor: "#A8793E" }}
-                className="p-2 rounded-xl bg-[#3D2E22] border hover:text-[#DFC8A4] hover:border-[#DFC8A4] transition-colors"
+                style={{ backgroundColor: '#25D366', borderColor: '#25D366', color: '#ffffff' }}
+                className="p-2 rounded-xl border shadow-xs hover:opacity-90 hover:scale-105 transition-all flex items-center justify-center"
                 aria-label="WhatsApp"
+                title="WhatsApp Channel"
               >
                 <FaWhatsapp className="w-4 h-4" />
               </a>
@@ -154,9 +157,10 @@ export default function Footer() {
                 href={socialLinks.telegram}
                 target="_blank"
                 rel="noopener noreferrer"
-                style={{ color: "#F7F1E8", borderColor: "#A8793E" }}
-                className="p-2 rounded-xl bg-[#3D2E22] border hover:text-[#DFC8A4] hover:border-[#DFC8A4] transition-colors"
+                style={{ backgroundColor: '#0088cc', borderColor: '#0088cc', color: '#ffffff' }}
+                className="p-2 rounded-xl border shadow-xs hover:opacity-90 hover:scale-105 transition-all flex items-center justify-center"
                 aria-label="Telegram"
+                title="Telegram Channel"
               >
                 <FaTelegramPlane className="w-4 h-4" />
               </a>
@@ -257,10 +261,10 @@ export default function Footer() {
                   className="inline-flex items-center gap-1.5 text-[#F7F1E8] hover:text-[#DFC8A4] transition-colors"
                 >
                   <span
-                    style={{ color: "#F7F1E8", backgroundColor: "#3D2E22", borderColor: "#A8793E" }}
-                    className="font-bold text-xs rounded px-2 py-0.5 border flex items-center gap-1.5"
+                    style={{ color: "#ffffff", backgroundColor: "#25D366", borderColor: "#25D366" }}
+                    className="font-bold text-xs rounded-lg px-2.5 py-1 border flex items-center gap-1.5 shadow-2xs hover:brightness-105 transition-all"
                   >
-                    <FaWhatsapp className="w-3.5 h-3.5 text-[#25D366]" />
+                    <FaWhatsapp className="w-3.5 h-3.5 text-white" />
                     {language === 'en' ? 'WhatsApp Channel' : 'واٹس ایپ چینل'}
                   </span>
                 </a>

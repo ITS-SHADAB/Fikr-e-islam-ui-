@@ -21,6 +21,7 @@ import {
   Minimize2,
   Info,
 } from "lucide-react";
+import { FaWhatsapp } from "react-icons/fa";
 import { getFatwaBySlug, getFatwas } from "@/services";
 import { useCachedContent } from "@/hooks/useContentCache";
 import { STALE_TIMES } from "@/store/slices/contentSlice";
@@ -398,15 +399,15 @@ export default function FatwaDetail() {
 
             <button
               onClick={() => handleShare("whatsapp")}
-              className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl border cursor-pointer transition-colors"
+              className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl border cursor-pointer transition-all shadow-xs hover:brightness-105 active:scale-95"
               style={{
-                borderColor: "#bbf7d0",
-                color: "#15803d",
-                backgroundColor: "#f0fdf4",
+                borderColor: "#25D366",
+                color: "#ffffff",
+                backgroundColor: "#25D366",
               }}
             >
-              <Share2 className="w-3.5 h-3.5" />
-              <span className="font-['Payami_Nastaleeq',serif]">
+              <FaWhatsapp className="w-3.5 h-3.5 text-white" />
+              <span className="font-['Payami_Nastaleeq',serif] pt-0.5">
                 {isRTL ? "واٹس ایپ" : "WhatsApp"}
               </span>
             </button>

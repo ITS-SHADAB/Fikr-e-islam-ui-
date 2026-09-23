@@ -284,9 +284,9 @@ export default function ContactPage() {
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-1.5 text-xs font-bold transition-opacity hover:opacity-80"
-                        style={{ color: '#16a34a' }}
+                        style={{ color: '#25D366' }}
                       >
-                        <FaWhatsapp className="w-3.5 h-3.5" />
+                        <FaWhatsapp className="w-3.5 h-3.5" style={{ color: '#25D366' }} />
                         <span>{isRTL ? 'واٹس ایپ چینل پر تشریف لائیں' : 'Join WhatsApp Channel'}</span>
                         <ExternalLink className="w-3 h-3" />
                       </a>
@@ -357,10 +357,10 @@ export default function ContactPage() {
                     href={socialLinks.facebook}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-9 h-9 rounded-xl flex items-center justify-center transition-all hover:scale-105 border"
+                    className="w-9 h-9 rounded-xl flex items-center justify-center transition-all hover:scale-105 border shadow-xs hover:brightness-110"
                     style={{
-                      backgroundColor: 'rgba(255,255,255,0.1)',
-                      borderColor: 'rgba(255,255,255,0.2)',
+                      backgroundColor: '#1877F2',
+                      borderColor: '#1877F2',
                       color: '#ffffff',
                     }}
                     title="Facebook"
@@ -373,10 +373,10 @@ export default function ContactPage() {
                     href={socialLinks.youtube}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-9 h-9 rounded-xl flex items-center justify-center transition-all hover:scale-105 border"
+                    className="w-9 h-9 rounded-xl flex items-center justify-center transition-all hover:scale-105 border shadow-xs hover:brightness-110"
                     style={{
-                      backgroundColor: 'rgba(255,255,255,0.1)',
-                      borderColor: 'rgba(255,255,255,0.2)',
+                      backgroundColor: '#FF0000',
+                      borderColor: '#FF0000',
                       color: '#ffffff',
                     }}
                     title="YouTube"
@@ -389,10 +389,10 @@ export default function ContactPage() {
                     href={socialLinks.whatsapp}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-9 h-9 rounded-xl flex items-center justify-center transition-all hover:scale-105 border"
+                    className="w-9 h-9 rounded-xl flex items-center justify-center transition-all hover:scale-105 border shadow-xs hover:brightness-110"
                     style={{
-                      backgroundColor: 'rgba(255,255,255,0.1)',
-                      borderColor: 'rgba(255,255,255,0.2)',
+                      backgroundColor: '#25D366',
+                      borderColor: '#25D366',
                       color: '#ffffff',
                     }}
                     title="WhatsApp Channel"
@@ -405,10 +405,10 @@ export default function ContactPage() {
                     href={socialLinks.telegram}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-9 h-9 rounded-xl flex items-center justify-center transition-all hover:scale-105 border"
+                    className="w-9 h-9 rounded-xl flex items-center justify-center transition-all hover:scale-105 border shadow-xs hover:brightness-110"
                     style={{
-                      backgroundColor: 'rgba(255,255,255,0.1)',
-                      borderColor: 'rgba(255,255,255,0.2)',
+                      backgroundColor: '#0088cc',
+                      borderColor: '#0088cc',
                       color: '#ffffff',
                     }}
                     title="Telegram"

@@ -17,6 +17,7 @@ import {
   MessageSquare,
   ChevronDown,
 } from "lucide-react";
+import { FaWhatsapp } from "react-icons/fa";
 
 // Estimated reading time helper
 const getReadingTime = (text = "") => {
@@ -469,14 +470,14 @@ export default function ArticleDetail() {
             {/* WhatsApp Share */}
             <button
               onClick={() => handleShare("whatsapp")}
-              className="flex items-center gap-1.5 text-xs sm:text-sm font-semibold font-['Payami_Nastaleeq',serif] px-3.5 py-2.5 rounded-xl border cursor-pointer transition-colors shadow-xs"
+              className="flex items-center gap-1.5 text-xs sm:text-sm font-semibold font-['Payami_Nastaleeq',serif] px-3.5 py-2.5 rounded-xl border cursor-pointer transition-all shadow-xs hover:brightness-105 active:scale-95 text-white"
               style={{
-                borderColor: "#bbf7d0",
-                color: "#15803d",
-                backgroundColor: "#f0fdf4",
+                borderColor: "#25D366",
+                color: "#ffffff",
+                backgroundColor: "#25D366",
               }}
             >
-              <Share2 className="w-4 h-4" />
+              <FaWhatsapp className="w-4 h-4 text-white" />
               <span>{isRTL ? "واٹس ایپ پر شیئر کریں" : "Share on WhatsApp"}</span>
             </button>
 

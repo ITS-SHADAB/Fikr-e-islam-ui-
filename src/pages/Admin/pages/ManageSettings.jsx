@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Save, AlertTriangle, Settings, CheckCircle, Info, PhoneCall, Globe, Search, User } from 'lucide-react';
+import { ArrowRight, Save, AlertTriangle, Settings, CheckCircle, Info, PhoneCall, Globe, Search, User, Facebook, Youtube } from 'lucide-react';
+import { FaWhatsapp, FaTelegramPlane } from 'react-icons/fa';
 import { useSettings } from '@/hooks/useSettings';
 import { Input } from '../../../components/Input';
 import { ImageViewer, ConfirmationBox } from '@/components';
@@ -488,8 +489,9 @@ export default function ManageSettings() {
             <div className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 uppercase mb-1">
-                    {language === 'en' ? 'Facebook Profile Link' : 'فیس بک پروفائل کا لنک'}
+                  <label className="flex items-center gap-1.5 text-xs font-bold text-slate-500 uppercase mb-1">
+                    <Facebook className="w-3.5 h-3.5 text-[#1877F2]" />
+                    <span>{language === 'en' ? 'Facebook Profile Link' : 'فیس بک پروفائل کا لنک'}</span>
                   </label>
                   <Input
                     type="url"
@@ -501,8 +503,9 @@ export default function ManageSettings() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 uppercase mb-1">
-                    {language === 'en' ? 'YouTube Channel Link' : 'یوٹیوب چینل کا لنک'}
+                  <label className="flex items-center gap-1.5 text-xs font-bold text-slate-500 uppercase mb-1">
+                    <Youtube className="w-3.5 h-3.5 text-[#FF0000]" />
+                    <span>{language === 'en' ? 'YouTube Channel Link' : 'یوٹیوب چینل کا لنک'}</span>
                   </label>
                   <Input
                     type="url"
@@ -546,8 +549,9 @@ export default function ManageSettings() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 uppercase mb-1">
-                    {language === 'en' ? 'Telegram Channel Link' : 'ٹیلیگرام چینل کا لنک'}
+                  <label className="flex items-center gap-1.5 text-xs font-bold text-slate-500 uppercase mb-1">
+                    <FaTelegramPlane className="w-3.5 h-3.5 text-[#0088cc]" />
+                    <span>{language === 'en' ? 'Telegram Channel Link' : 'ٹیلیگرام چینل کا لنک'}</span>
                   </label>
                   <Input
                     type="url"
@@ -559,8 +563,9 @@ export default function ManageSettings() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 uppercase mb-1">
-                    {language === 'en' ? 'WhatsApp Channel Link' : 'واٹس ایپ چینل کا لنک'}
+                  <label className="flex items-center gap-1.5 text-xs font-bold text-slate-500 uppercase mb-1">
+                    <FaWhatsapp className="w-3.5 h-3.5 text-[#25D366]" />
+                    <span>{language === 'en' ? 'WhatsApp Channel Link' : 'واٹس ایپ چینل کا لنک'}</span>
                   </label>
                   <Input
                     type="url"
