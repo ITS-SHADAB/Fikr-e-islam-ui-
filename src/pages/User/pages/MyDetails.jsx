@@ -1,228 +1,356 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { Navigate, Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   User,
   Mail,
   Phone,
   ShieldCheck,
   Calendar,
-  MessageCircle,
+  MessageSquare,
   HelpCircle,
-  Clock,
-  CheckCircle2,
-  Tag,
   BookOpen,
   FileText,
   Scale,
   AlertCircle,
   RefreshCw,
-  ArrowLeft,
-  Star,
-  Activity,
-  Building2,
-  ExternalLink,
-  Edit2,
+  Edit3,
   Camera,
-  Upload,
   X,
+  ChevronLeft,
+  ChevronRight,
+  MoreVertical,
+  Trash2,
+  ExternalLink,
+  Settings,
+  Home,
+  LogOut,
+  Activity,
+  Layers,
+  ArrowRight,
 } from "lucide-react";
-import { getMyComments, getMyQuestions, updateMyProfile } from "@/services";
-import { updateUserProfile } from "@/store/slices/authSlice";
-import { COLORS } from "@/utils/themeColors";
+import {
+  getMyComments,
+  getMyQuestions,
+  updateMyProfile,
+  deleteComment,
+} from "@/services";
+import { updateUserProfile, logout } from "@/store/slices/authSlice";
 import { useAuthModal } from "@/context/AuthModalContext";
 import { Spinner, Modal } from "@/components";
 import toast from "react-hot-toast";
 
-/* ── Helpers ──────────────────────────────────────────────────────────── */
-function fmt(date) {
-  if (!date) return "—";
-  return new Date(date).toLocaleDateString("en-GB", {
+/* ── Typography & Direction Helpers ───────────────────────────────────── */
+function isUrduText(text) {
+  if (!text) return false;
+  return /[\u0600-\u06FF\u0750-\u077F]/.test(text);
+}
+
+const URDU_MONTHS = [
+  "جنوری",
+  "فروری",
+  "مارچ",
+  "اپریل",
+  "مئی",
+  "جون",
+  "جولائی",
+  "اگست",
+  "ستمبر",
+  "اکتوبر",
+  "نومبر",
+  "دسمبر",
+];
+
+function formatUrduDate(dateStr) {
+  if (!dateStr) return "—";
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return "—";
+  const day = String(d.getDate()).padStart(2, "0");
+  const month = URDU_MONTHS[d.getMonth()] || "ستمبر";
+  const year = d.getFullYear();
+  return `${day} ${month} ${year}`;
+}
+
+function formatEnglishDate(dateStr) {
+  if (!dateStr) return "—";
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return "—";
+  return d.toLocaleDateString("en-GB", {
     day: "2-digit",
     month: "short",
     year: "numeric",
   });
 }
 
-const CONTENT_ICON = { article: FileText, book: BookOpen, fatwa: Scale };
-const CONTENT_LABEL = { article: "Article", book: "Book", fatwa: "Fatwa" };
-const CONTENT_COLOR = {
-  article: "text-primary bg-[#F7F4EF] border-[#D8CDBF]",
-  book: "text-emerald-700 bg-emerald-50 border-emerald-250",
-  fatwa: "text-amber-700 bg-amber-50 border-amber-250",
+/* ── Content Type Icon & Style Config ─────────────────────────────────── */
+const CONTENT_STYLE = {
+  fatwa: {
+    icon: Scale,
+    label: "FATWA",
+    urduLabel: "فتاویٰ",
+    badgeClass: "bg-[#F3E8DC] text-[#7A5328] border-[#DFC8B2]",
+    iconBoxClass: "bg-[#F7EFE6] text-[#A8793E] border-[#E8D7C3]",
+    getRoute: (c) => `/fatwas/${c.contentSlug || c.contentId}`,
+  },
+  book: {
+    icon: BookOpen,
+    label: "BOOK",
+    urduLabel: "کتابیں",
+    badgeClass: "bg-[#E5F2EC] text-[#1E6B47] border-[#C1DFD1]",
+    iconBoxClass: "bg-[#EAF5F0] text-[#1E7F55] border-[#C8E5D8]",
+    getRoute: (c) => `/publications/${c.contentSlug || c.contentId}`,
+  },
+  article: {
+    icon: FileText,
+    label: "ARTICLE",
+    urduLabel: "مضامین",
+    badgeClass: "bg-[#EFE7DC] text-[#4F3C2C] border-[#D8C7B3]",
+    iconBoxClass: "bg-[#F0EAE1] text-[#3A2B20] border-[#DFD4C4]",
+    getRoute: (c) => `/articles/${c.contentSlug || c.contentId}`,
+  },
+  question: {
+    icon: HelpCircle,
+    label: "QUESTION",
+    urduLabel: "سوالات",
+    badgeClass: "bg-[#E4ECF6] text-[#2C4A73] border-[#BACEE4]",
+    iconBoxClass: "bg-[#EBF1F8] text-[#2C4A73] border-[#CAD9EC]",
+    getRoute: (c) => `/qa/${c.contentSlug || c.contentId}`,
+  },
 };
 
-/* ── Avatar ───────────────────────────────────────────────────────────── */
-function Avatar({ user }) {
+/* ── Avatar Component ─────────────────────────────────────────────────── */
+function UserAvatar({ user, className = "w-20 h-20 sm:w-24 sm:h-24" }) {
   const initials = (user?.name || "U")
     .split(" ")
     .map((w) => w[0])
     .join("")
     .slice(0, 2)
     .toUpperCase();
+
   const imgUrl =
     typeof user?.profileImage === "string"
       ? user.profileImage
       : user?.profileImage?.url;
+
   const [imgFailed, setImgFailed] = useState(false);
 
   if (imgUrl && !imgFailed) {
     return (
       <img
         src={imgUrl}
-        alt={user.name}
+        alt={user?.name || "User Avatar"}
         onError={() => setImgFailed(true)}
-        className="w-24 h-24 rounded-none object-cover border-4 border-white shadow-md shrink-0"
+        className={`${className} rounded-2xl object-cover border-2 border-[#C49A5A]/50 shadow-md shrink-0`}
       />
     );
   }
+
   return (
     <div
-      style={{ backgroundColor: COLORS.primary }}
-      className="w-24 h-24 border-4 border-white shadow-md flex items-center justify-center text-white text-3xl font-bold shrink-0"
+      className={`${className} rounded-2xl bg-gradient-to-br from-[#4A3B7A] to-[#2B1B54] border-2 border-[#C49A5A]/40 shadow-md flex items-center justify-center text-white text-2xl sm:text-3xl font-bold tracking-wider shrink-0`}
     >
       {initials}
     </div>
   );
 }
 
-/* ── Stat box ─────────────────────────────────────────────────────────── */
-function StatBox({ icon: Icon, value, label }) {
+/* ── Scholarly Empty State ────────────────────────────────────────────── */
+function EmptyState({
+  title = "ابھی کوئی تبصرہ موجود نہیں",
+  description = "آپ کے تبصرے یہاں نظر آئیں گے۔",
+  actionText = "مواد دیکھیں",
+  actionLink = "/articles",
+}) {
   return (
-    <div
-      style={{
-        backgroundColor: "rgba(255, 255, 255, 0.1)",
-        borderColor: "rgba(255, 255, 255, 0.2)",
-      }}
-      className="flex items-center gap-3 border px-4 py-2 w-full sm:w-auto"
-    >
-      <div style={{ color: COLORS.accent }}>
-        <Icon className="w-5 h-5" />
+    <div className="flex flex-col items-center justify-center py-16 px-4 text-center rounded-[20px] bg-[#FBF7F0] border border-[#D8C6AC] shadow-sm my-4">
+      <div className="w-16 h-16 rounded-2xl bg-[#EFE4D5] border border-[#D8C6AC] flex items-center justify-center mb-4 text-[#A8793E] shadow-inner">
+        <MessageSquare className="w-8 h-8 opacity-80" />
       </div>
-      <div>
-        <p className="text-white font-bold text-lg leading-none">{value}</p>
-        <p className="text-white/80 text-[10px] font-bold uppercase tracking-wider mt-1">
-          {label}
-        </p>
-      </div>
-    </div>
-  );
-}
-
-/* ── Info tile ────────────────────────────────────────────────────────── */
-function InfoTile({ icon: Icon, label, value }) {
-  return (
-    <div
-      style={{ borderColor: COLORS.border }}
-      className="flex items-center gap-3 bg-white rounded-none px-4 py-3 border-2"
-    >
-      <div
-        style={{ borderColor: COLORS.border }}
-        className="w-8 h-8 bg-slate-100 rounded-none flex items-center justify-center border shrink-0"
-      >
-        <Icon className="w-4 h-4" style={{ color: COLORS.primary }} />
-      </div>
-      <div className="min-w-0">
-        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
-          {label}
-        </p>
-        <p className="text-sm font-bold text-slate-800 truncate leading-snug mt-0.5">
-          {value}
-        </p>
-      </div>
-    </div>
-  );
-}
-
-/* ── Spinner / empty ──────────────────────────────────────────────────── */
-function Loader() {
-  return (
-    <div className="flex items-center justify-center py-16">
-      <Spinner size="md" text="لوڈ ہو رہا ہے..." />
-    </div>
-  );
-}
-
-function Empty({ icon: Icon, message }) {
-  return (
-    <div
-      style={{ borderColor: COLORS.border }}
-      className="flex flex-col items-center justify-center py-14 text-center gap-3 bg-slate-50 border"
-    >
-      <Icon className="w-8 h-8 text-slate-400" />
-      <p className="text-xs text-slate-600 font-bold max-w-[200px] leading-snug">
-        {message}
+      <h3 className="font-urdu text-2xl text-[#21170F] font-bold mb-1" dir="rtl">
+        {title}
+      </h3>
+      <p className="font-urdu text-sm sm:text-base text-[#5F554B] max-w-md leading-relaxed mb-6" dir="rtl">
+        {description}
       </p>
+      {actionLink && (
+        <Link
+          to={actionLink}
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#2B2118] text-[#F7F1E8] font-urdu text-sm hover:bg-[#3A2B20] transition-colors border border-[#A8793E]/40 shadow-sm"
+          dir="rtl"
+        >
+          <span>{actionText}</span>
+          <ArrowRight className="w-4 h-4 text-[#C49A5A]" />
+        </Link>
+      )}
     </div>
   );
 }
 
-/* ── Comment card ─────────────────────────────────────────────────────── */
-function CommentCard({ comment }) {
-  const ContentIcon = CONTENT_ICON[comment.contentType] || FileText;
-  const contentColor =
-    CONTENT_COLOR[comment.contentType] ||
-    "text-slate-700 bg-slate-100 border-slate-350";
+/* ── Skeleton Loading Cards ───────────────────────────────────────────── */
+function SkeletonCards({ count = 4 }) {
+  return (
+    <div className="space-y-4">
+      {Array.from({ length: count }).map((_, i) => (
+        <div
+          key={i}
+          className="p-5 rounded-[18px] bg-[#FBF7F0] border border-[#D8C6AC] shadow-sm animate-pulse flex items-start gap-4"
+        >
+          <div className="w-12 h-12 rounded-xl bg-[#EFE4D5] shrink-0" />
+          <div className="flex-1 space-y-3">
+            <div className="h-4 bg-[#EFE4D5] rounded-md w-3/4" />
+            <div className="h-3 bg-[#EFE4D5] rounded-md w-1/2" />
+            <div className="flex items-center gap-3 pt-2">
+              <div className="h-5 bg-[#EFE4D5] rounded-md w-16" />
+              <div className="h-4 bg-[#EFE4D5] rounded-md w-32" />
+            </div>
+          </div>
+          <div className="w-24 h-4 bg-[#EFE4D5] rounded-md shrink-0 hidden sm:block" />
+        </div>
+      ))}
+    </div>
+  );
+}
 
-  const getDetailLink = () => {
-    if (comment.contentType === "article") {
-      return `/articles/${comment.contentId}`;
+/* ── Single Comment Card ──────────────────────────────────────────────── */
+function CommentCard({ comment, onDelete, openMenuId, setOpenMenuId }) {
+  const isMenuOpen = openMenuId === comment._id;
+  const menuRef = useRef(null);
+
+  const styleConfig =
+    CONTENT_STYLE[comment.contentType] || CONTENT_STYLE.article;
+  const ContentIcon = styleConfig.icon;
+  const contentRoute = styleConfig.getRoute(comment);
+
+  const isUrdu = isUrduText(comment.text);
+  const formattedDate = formatUrduDate(comment.createdAt);
+
+  // Close dropdown on click outside
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        if (openMenuId === comment._id) {
+          setOpenMenuId(null);
+        }
+      }
     }
-    if (comment.contentType === "fatwa") {
-      return `/fatwas/${comment.contentId}`;
+    if (isMenuOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
     }
-    if (comment.contentType === "book") {
-      return `/publications/${comment.contentId}`;
-    }
-    return "#";
-  };
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isMenuOpen, comment._id, openMenuId, setOpenMenuId]);
 
   return (
-    <Link
-      to={getDetailLink()}
-      style={{ borderColor: COLORS.border }}
-      className="block bg-white border-2 p-4 hover:bg-slate-50 transition-colors duration-150 decoration-none text-inherit cursor-pointer"
-    >
-      <div className="flex items-start gap-3">
-        <div
-          className={`w-8 h-8 rounded-none border flex items-center justify-center shrink-0 mt-0.5 ${contentColor}`}
-        >
-          <ContentIcon className="w-4 h-4" />
-        </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-sm text-slate-800 font-medium leading-relaxed">
-            {comment.text}
-          </p>
-          <div className="flex items-center gap-2 mt-3 flex-wrap">
-            <span
-              style={{ borderColor: COLORS.border }}
-              className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-slate-600 bg-slate-100 px-2 py-0.5 border"
+    <div className="group relative rounded-[18px] bg-[#FBF7F0] border border-[#D8C6AC] hover:border-[#B58A4D] p-4 sm:p-5 shadow-[0_4px_18px_rgba(43,33,24,0.04)] hover:shadow-[0_6px_22px_rgba(43,33,24,0.08)] transition-all duration-200">
+      <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
+        {/* Left side: Icon + Comment Content */}
+        <div className="flex items-start gap-3.5 sm:gap-4 flex-1 min-w-0">
+          {/* Content Type Icon */}
+          <div
+            className={`w-11 h-11 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl border flex items-center justify-center shrink-0 mt-0.5 shadow-xs ${styleConfig.iconBoxClass}`}
+          >
+            <ContentIcon className="w-5 h-5 sm:w-6 sm:h-6" />
+          </div>
+
+          {/* Comment Body */}
+          <div className="flex-1 min-w-0">
+            {/* Comment Text */}
+            <div
+              className={`text-[#241C16] text-[15px] sm:text-base leading-relaxed ${
+                isUrdu
+                  ? "font-urdu text-right leading-[2.3] text-lg"
+                  : "font-serif text-left font-normal"
+              }`}
+              dir={isUrdu ? "rtl" : "ltr"}
             >
-              <Tag className="w-2.5 h-2.5" />
-              {CONTENT_LABEL[comment.contentType] || comment.contentType}
-            </span>
-            <span className="inline-flex items-center gap-1 text-[10px] text-slate-500 font-bold">
-              <Clock className="w-2.5 h-2.5" />
-              {fmt(comment.createdAt)}
-            </span>
-            {comment.isApproved ? (
-              <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-250 px-2 py-0.5">
-                <CheckCircle2 className="w-2.5 h-2.5" /> Approved
+              {comment.text}
+            </div>
+
+            {/* Content Badge + Related Title Link */}
+            <div className="flex items-center gap-2 mt-3 flex-wrap text-xs">
+              <span
+                className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[10.5px] font-bold tracking-wider uppercase border ${styleConfig.badgeClass}`}
+              >
+                {styleConfig.label}
               </span>
-            ) : (
-              <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-250 px-2 py-0.5">
-                <AlertCircle className="w-2.5 h-2.5" /> Pending
-              </span>
+
+              <span className="text-[#A8793E] select-none text-xs">•</span>
+
+              <Link
+                to={contentRoute}
+                className="font-medium text-[#5F554B] hover:text-[#21170F] hover:underline truncate max-w-[280px] sm:max-w-md transition-colors"
+                title={comment.contentTitle || "مواد دیکھیں"}
+              >
+                {comment.contentTitle || `${styleConfig.label} #${comment.contentId?.slice(-6)}`}
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        {/* Right side: Date + 3-Dot Actions Menu */}
+        <div className="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto pt-2 sm:pt-0 border-t sm:border-t-0 border-[#D8C6AC]/50 shrink-0">
+          {/* Formatted Date */}
+          <div
+            className="flex items-center gap-1.5 text-xs text-[#7A7066] font-medium"
+            dir="rtl"
+          >
+            <Calendar className="w-3.5 h-3.5 text-[#A8793E]" />
+            <span className="font-urdu text-sm text-[#5F554B]">
+              {formattedDate}
+            </span>
+          </div>
+
+          {/* Three-Dot Menu */}
+          <div className="relative" ref={menuRef}>
+            <button
+              type="button"
+              onClick={() =>
+                setOpenMenuId(isMenuOpen ? null : comment._id)
+              }
+              aria-label="Actions"
+              className="w-8 h-8 rounded-lg flex items-center justify-center text-[#7A7066] hover:text-[#21170F] hover:bg-[#EFE4D5] transition-colors cursor-pointer"
+            >
+              <MoreVertical className="w-4 h-4" />
+            </button>
+
+            {/* Dropdown Menu */}
+            {isMenuOpen && (
+              <div
+                className="absolute right-0 sm:right-auto sm:left-auto top-full mt-1 w-44 rounded-xl bg-[#FBF7F0] border border-[#B58A4D] shadow-xl py-1.5 z-30 font-urdu text-right animate-in fade-in zoom-in-95 duration-100"
+                dir="rtl"
+              >
+                <Link
+                  to={contentRoute}
+                  onClick={() => setOpenMenuId(null)}
+                  className="flex items-center gap-2 px-3.5 py-2 text-sm text-[#241C16] hover:bg-[#EFE4D5] transition-colors"
+                >
+                  <ExternalLink className="w-3.5 h-3.5 text-[#A8793E]" />
+                  <span>مواد دیکھیں</span>
+                </Link>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setOpenMenuId(null);
+                    onDelete(comment);
+                  }}
+                  className="w-full flex items-center gap-2 px-3.5 py-2 text-sm text-red-700 hover:bg-red-50 transition-colors text-right cursor-pointer"
+                >
+                  <Trash2 className="w-3.5 h-3.5 text-red-500" />
+                  <span>تبصرہ حذف کریں</span>
+                </button>
+              </div>
             )}
           </div>
         </div>
       </div>
-    </Link>
+    </div>
   );
 }
 
-/* ── Question card ────────────────────────────────────────────────────── */
-function QuestionCard({ question }) {
+/* ── Single Question Card ─────────────────────────────────────────────── */
+function UserQuestionCard({ question }) {
   const title = question.questionTitle || question.question || "بلا عنوان سوال";
   const rawAnswer = question.answerContent || question.answer || "";
   const cleanAnswer = rawAnswer.replace(/<[^>]*>?/gm, "").trim();
@@ -234,169 +362,138 @@ function QuestionCard({ question }) {
     (!isAnswered && question.status !== "rejected");
   const isRejected = question.status === "rejected";
 
-  // First 50 characters preview
-  const isLong = cleanAnswer.length > 50;
-  const previewText = isLong ? cleanAnswer.slice(0, 50) + "..." : cleanAnswer;
+  const isLong = cleanAnswer.length > 70;
+  const previewText = isLong ? cleanAnswer.slice(0, 70) + "..." : cleanAnswer;
+  const formattedDate = formatUrduDate(question.createdAt);
 
-  const cardContent = (
-    <article
-      className="relative bg-white border rounded-2xl overflow-hidden transition-all duration-200 hover:shadow-md cursor-pointer"
-      style={{
-        borderColor: COLORS.border,
-        borderRightWidth: "4px",
-        borderRightColor: isAnswered
-          ? COLORS.primary
-          : isRejected
-            ? "#ef4444"
-            : COLORS.accent,
-      }}
-    >
-      {/* Card Body */}
-      <div className="pt-4 pb-3 px-4 sm:px-5 space-y-2.5" dir="rtl">
-        {/* Meta Row: date + status badges */}
-        <div className="flex flex-wrap items-center justify-end gap-2 text-[11px] text-slate-500">
-          <span className="inline-flex items-center gap-1 font-medium">
-            <Calendar className="w-3 h-3 text-slate-400" />
-            {fmt(question.createdAt)}
-          </span>
-          <span className="text-slate-300 select-none">|</span>
-          {isAnswered && (
-            <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
-              <CheckCircle2 className="w-2.5 h-2.5" /> جواب شدہ
-            </span>
-          )}
-          {isPending && (
-            <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">
-              <AlertCircle className="w-2.5 h-2.5" /> زیرِ غور
-            </span>
-          )}
-          {isRejected && (
-            <span className="inline-flex items-center gap-1 text-[10px] font-bold text-red-700 bg-red-50 border border-red-200 px-2 py-0.5 rounded-full">
-              <AlertCircle className="w-2.5 h-2.5" /> مسترد
-            </span>
-          )}
+  const card = (
+    <div className="rounded-[18px] bg-[#FBF7F0] border border-[#D8C6AC] hover:border-[#B58A4D] p-5 shadow-[0_4px_18px_rgba(43,33,24,0.04)] hover:shadow-md transition-all duration-200">
+      <div className="flex flex-col gap-3" dir="rtl">
+        {/* Meta row */}
+        <div className="flex items-center justify-between text-xs">
+          <div className="flex items-center gap-2">
+            {isAnswered && (
+              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-300">
+                جواب شدہ
+              </span>
+            )}
+            {isPending && (
+              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold text-amber-800 bg-amber-50 border border-amber-300">
+                زیرِ غور
+              </span>
+            )}
+            {isRejected && (
+              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold text-red-800 bg-red-50 border border-red-300">
+                مسترد
+              </span>
+            )}
+          </div>
+
+          <div className="flex items-center gap-1.5 text-[#7A7066]">
+            <Calendar className="w-3.5 h-3.5 text-[#A8793E]" />
+            <span className="font-urdu text-sm">{formattedDate}</span>
+          </div>
         </div>
 
-        {/* Question Title with سوال badge */}
-        <div className="flex items-baseline gap-2 flex-wrap" dir="rtl">
-          <span
-            className="inline-flex items-center gap-1 shrink-0 px-2 py-0.5 rounded-md text-[11px] font-bold"
-            style={{
-              backgroundColor: `${COLORS.primary}12`,
-              color: COLORS.primary,
-            }}
-          >
-            <HelpCircle className="w-3 h-3" />
+        {/* Question Title */}
+        <div className="flex items-baseline gap-2">
+          <span className="px-2 py-0.5 rounded-md text-[11px] font-bold bg-[#2B2118]/10 text-[#2B2118] shrink-0 font-urdu">
             سوال
           </span>
-          <h3
-            className={`text-sm sm:text-base font-bold leading-relaxed font-['Noto_Nastaliq_Urdu'] text-slate-900 flex-1`}
-          >
+          <h4 className="font-urdu text-lg sm:text-xl font-bold text-[#21170F] leading-relaxed">
             {title}
-          </h3>
+          </h4>
         </div>
 
-        {/* Answer preview with جواب badge */}
+        {/* Answer Snippet */}
         {cleanAnswer && (
-          <div className="flex items-baseline gap-2 flex-wrap" dir="rtl">
-            <span
-              className="inline-flex items-center gap-1 shrink-0 px-2 py-0.5 rounded-md text-[11px] font-bold"
-              style={{
-                backgroundColor: `${COLORS.accent}18`,
-                color: COLORS.accent,
-              }}
-            >
-              <BookOpen className="w-3 h-3" />
+          <div className="bg-[#F7F1E8] border border-[#D8C6AC]/60 p-3 rounded-xl mt-1 flex items-baseline gap-2">
+            <span className="px-2 py-0.5 rounded-md text-[11px] font-bold bg-[#A8793E]/15 text-[#A8793E] shrink-0 font-urdu">
               جواب
             </span>
-            <p
-              className={`text-xs sm:text-sm text-slate-600 leading-relaxed font-['Noto_Nastaliq_Urdu'] flex-1`}
-            >
+            <p className="font-urdu text-sm text-[#5F554B] leading-relaxed flex-1">
               {previewText}
             </p>
           </div>
         )}
-      </div>
 
-      {/* Footer Row */}
-      <div
-        className="border-t px-4 sm:px-5 py-2.5 flex items-center justify-between"
-        style={{ borderColor: `${COLORS.border}99` }}
-        dir="rtl"
-      >
-        <div className="flex items-center gap-1.5 text-[11px] text-slate-400 font-medium">
-          <Building2 className="w-3.5 h-3.5" />
-          <span>دار الافتاء و تحقیق</span>
-        </div>
+        {/* View Detail Link if answered */}
         {question.slug && isAnswered && (
-          <span
-            className="inline-flex items-center gap-1 text-[11px] font-bold hover:underline"
-            style={{ color: COLORS.primary }}
-          >
-            <span>مکمل تفصیل</span>
-            <ExternalLink className="w-3 h-3" />
-          </span>
+          <div className="pt-2 flex justify-end">
+            <span className="inline-flex items-center gap-1 font-urdu text-sm text-[#A8793E] hover:text-[#21170F] font-bold">
+              <span>مکمل جواب دیکھیں</span>
+              <ExternalLink className="w-3.5 h-3.5" />
+            </span>
+          </div>
         )}
       </div>
-    </article>
+    </div>
   );
 
   if (question.slug && isAnswered) {
     return (
       <Link to={`/qa/${question.slug}`} className="block">
-        {cardContent}
+        {card}
       </Link>
     );
   }
 
-  return cardContent;
+  return card;
 }
 
-/* ── Column header ────────────────────────────────────────────────────── */
-function ColHeader({ icon: Icon, title, count, iconBg }) {
+/* ── Profile Overview Information Tile ────────────────────────────────── */
+function InfoCard({ icon: Icon, urduLabel, englishLabel, value }) {
   return (
-    <div
-      style={{ borderColor: COLORS.border }}
-      className="flex items-center justify-between mb-4 pb-3 border-b-2"
-    >
-      <div className="flex items-center gap-2">
-        <div
-          style={{
-            backgroundColor: COLORS.primary,
-            borderColor: COLORS.accent,
-          }}
-          className="w-8 h-8 border flex items-center justify-center"
-        >
-          <Icon className="w-4 h-4 text-white" />
-        </div>
-        <h2 className="text-sm font-bold text-slate-800 uppercase tracking-wider">
-          {title}
-        </h2>
+    <div className="p-4 rounded-[16px] bg-[#FBF7F0] border border-[#D8C6AC] shadow-xs flex items-center gap-3.5">
+      <div className="w-11 h-11 rounded-xl bg-[#EFE4D5] border border-[#D8C6AC] flex items-center justify-center shrink-0 text-[#A8793E]">
+        <Icon className="w-5 h-5" />
       </div>
-      <span
-        style={{ borderColor: COLORS.border }}
-        className="text-xs font-bold text-slate-700 bg-slate-200 border px-2.5 py-1"
-      >
-        {count}
-      </span>
+      <div className="min-w-0">
+        <p className="text-[10px] uppercase font-bold text-[#7A7066] tracking-wider">
+          {englishLabel} • <span className="font-urdu text-xs">{urduLabel}</span>
+        </p>
+        <p className="text-sm sm:text-base font-bold text-[#21170F] truncate mt-0.5">
+          {value || "—"}
+        </p>
+      </div>
     </div>
   );
 }
 
 /* ════════════════════════════════════════════════════════════════════════
-   Main Page
+   MAIN MY DETAILS COMPONENT
 ═══════════════════════════════════════════════════════════════════════ */
 export default function MyDetails() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { openLogin } = useAuthModal();
   const { isAuthenticated, loggedInUser } = useSelector((s) => s.auth);
 
+  // Active Tab: comments (default), overview, questions, settings
+  const [activeTab, setActiveTab] = useState("comments");
+
+  // Data states
   const [comments, setComments] = useState([]);
   const [questions, setQuestions] = useState([]);
   const [loadingC, setLoadingC] = useState(true);
   const [loadingQ, setLoadingQ] = useState(true);
+  const [errorC, setErrorC] = useState(null);
 
-  // Edit Profile State
+  // Filter state for comments: "all", "article", "fatwa", "book", "question"
+  const [activeFilter, setActiveFilter] = useState("all");
+
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 6;
+
+  // 3-dot menu state
+  const [openMenuId, setOpenMenuId] = useState(null);
+
+  // Delete comment confirmation modal state
+  const [deleteConfirmComment, setDeleteConfirmComment] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  // Edit Profile Modal
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [editName, setEditName] = useState("");
   const [editPhone, setEditPhone] = useState("");
@@ -405,6 +502,111 @@ export default function MyDetails() {
   const [editLoading, setEditLoading] = useState(false);
   const [editError, setEditError] = useState("");
 
+  // Fetch comments & questions
+  const loadComments = () => {
+    setLoadingC(true);
+    setErrorC(null);
+    getMyComments()
+      .then((d) => {
+        const list = Array.isArray(d?.comments)
+          ? d.comments
+          : Array.isArray(d)
+          ? d
+          : [];
+        setComments(list);
+      })
+      .catch((err) => {
+        setErrorC("تبصرے لوڈ نہیں ہو سکے۔");
+        setComments([]);
+      })
+      .finally(() => setLoadingC(false));
+  };
+
+  const loadQuestions = () => {
+    setLoadingQ(true);
+    getMyQuestions()
+      .then((d) => {
+        const list = Array.isArray(d?.questions)
+          ? d.questions
+          : Array.isArray(d)
+          ? d
+          : [];
+        setQuestions(list);
+      })
+      .catch(() => setQuestions([]))
+      .finally(() => setLoadingQ(false));
+  };
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    loadComments();
+    loadQuestions();
+  }, [isAuthenticated]);
+
+  // Reset page when filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeFilter]);
+
+  // Compute counts for filters
+  const filterCounts = useMemo(() => {
+    const counts = {
+      all: comments.length,
+      article: 0,
+      fatwa: 0,
+      book: 0,
+      question: questions.length,
+    };
+    for (const c of comments) {
+      if (c.contentType === "article") counts.article += 1;
+      else if (c.contentType === "fatwa") counts.fatwa += 1;
+      else if (c.contentType === "book") counts.book += 1;
+    }
+    return counts;
+  }, [comments, questions]);
+
+  // Filtered comments list
+  const filteredComments = useMemo(() => {
+    if (activeFilter === "all") return comments;
+    if (activeFilter === "question") return [];
+    return comments.filter((c) => c.contentType === activeFilter);
+  }, [comments, activeFilter]);
+
+  // Pagination computation
+  const totalItems =
+    activeFilter === "question" ? questions.length : filteredComments.length;
+  const totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage));
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const currentComments = filteredComments.slice(
+    startIndex,
+    startIndex + itemsPerPage
+  );
+  const currentQuestions = questions.slice(
+    startIndex,
+    startIndex + itemsPerPage
+  );
+
+  // Delete Comment Handler
+  const handleDeleteComment = async () => {
+    if (!deleteConfirmComment) return;
+    try {
+      setIsDeleting(true);
+      await deleteComment(deleteConfirmComment._id);
+      setComments((prev) =>
+        prev.filter((c) => c._id !== deleteConfirmComment._id)
+      );
+      toast.success("تبصرہ کامیابی سے حذف کر دیا گیا");
+      setDeleteConfirmComment(null);
+    } catch (err) {
+      toast.error(
+        err.response?.data?.message || err.message || "تبصرہ حذف کرنے میں ناکامی"
+      );
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  // Edit Profile Handlers
   const openEditModal = () => {
     setEditName(loggedInUser?.name || "");
     setEditPhone(loggedInUser?.contactPhone || "");
@@ -427,14 +629,14 @@ export default function MyDetails() {
     setEditError("");
 
     if (!editName.trim()) {
-      setEditError("Name is required / نام درکار ہے");
+      setEditError("نام درکار ہے / Name is required");
       return;
     }
 
     const phoneRegex = /^[6-9]\d{9}$/;
     if (editPhone.trim() && !phoneRegex.test(editPhone.trim())) {
       setEditError(
-        "Contact phone must be a valid 10-digit number starting with 6-9."
+        "رابطہ نمبر درست ۱۰ ہندسی ہونا چاہیے۔ / Must be valid 10 digits starting with 6-9."
       );
       return;
     }
@@ -453,216 +655,858 @@ export default function MyDetails() {
       const res = await updateMyProfile(formData);
       if (res?.success) {
         dispatch(updateUserProfile(res.data));
-        toast.success(res.message || "Profile updated successfully!");
+        toast.success(res.message || "پروفائل کامیابی سے تبدیل ہو گئی!");
         setIsEditOpen(false);
       }
     } catch (err) {
       setEditError(
-        err.response?.data?.message || err.message || "Failed to update profile."
+        err.response?.data?.message ||
+          err.message ||
+          "پروفائل اپ ڈیٹ کرنے میں غلطی ہوئی۔"
       );
     } finally {
       setEditLoading(false);
     }
   };
 
-  useEffect(() => {
-    if (!isAuthenticated) return;
+  const handleLogout = () => {
+    if (window.confirm("کیا آپ واقعی لاگ آؤٹ کرنا چاہتے ہیں؟")) {
+      dispatch(logout());
+      navigate("/");
+    }
+  };
 
-    getMyComments()
-      .then((d) =>
-        setComments(
-          Array.isArray(d?.comments) ? d.comments : Array.isArray(d) ? d : []
-        )
-      )
-      .catch(() => setComments([]))
-      .finally(() => setLoadingC(false));
-
-    getMyQuestions()
-      .then((d) =>
-        setQuestions(
-          Array.isArray(d?.questions) ? d.questions : Array.isArray(d) ? d : []
-        )
-      )
-      .catch(() => setQuestions([]))
-      .finally(() => setLoadingQ(false));
-  }, [isAuthenticated]);
-
+  // Unauthenticated view
   if (!isAuthenticated) {
     return (
-      <div className="min-h-[70vh] flex items-center justify-center p-4 bg-slate-50 text-center font-sans">
-        <div className="max-w-md w-full bg-white p-8 rounded-2xl border border-slate-200 shadow-xs space-y-4">
-          <User className="w-12 h-12 mx-auto text-slate-400" />
-          <h2 className="text-lg font-bold text-slate-800">
-            Please Sign In / لاگ ان کریں
+      <div className="min-h-[75vh] flex items-center justify-center p-4 bg-[#F3E8DA]">
+        <div className="max-w-md w-full bg-[#FBF7F0] p-8 rounded-[22px] border border-[#D8C6AC] shadow-lg text-center space-y-5">
+          <div className="w-16 h-16 rounded-2xl bg-[#EFE4D5] border border-[#D8C6AC] flex items-center justify-center mx-auto text-[#A8793E]">
+            <User className="w-8 h-8" />
+          </div>
+          <h2 className="font-urdu text-2xl font-bold text-[#21170F]" dir="rtl">
+            براہ کرم لاگ ان کریں
           </h2>
-          <p className="text-xs text-slate-500">
-            Sign in to view your submitted questions and comments.
+          <p className="font-urdu text-sm sm:text-base text-[#5F554B] leading-relaxed" dir="rtl">
+            اپنے تبصرے، سوالات اور پروفائل کی تفصیلات دیکھنے کے لیے اکاؤنٹ میں لاگ ان کریں۔
           </p>
           <button
             type="button"
             onClick={openLogin}
-            className="px-6 py-2.5 text-white rounded-xl font-bold text-xs shadow-xs hover:opacity-90 transition-all cursor-pointer inline-flex items-center gap-1.5 mx-auto"
-            style={{ backgroundColor: COLORS.primary }}
+            className="w-full py-3 px-6 rounded-xl bg-[#2B2118] text-[#F7F1E8] font-urdu text-base font-bold shadow-md hover:bg-[#3A2B20] transition-colors border border-[#A8793E]/40 cursor-pointer"
           >
-            Sign In / لاگ ان
+            لاگ ان کریں / Sign In
           </button>
         </div>
-
       </div>
     );
   }
 
   const user = loggedInUser;
+  const isAdmin = user?.role === "admin";
 
   return (
-    <div className="w-full min-h-screen bg-slate-100 py-6" dir="ltr">
-      <div className="w-full  mx-auto px-4 sm:px-6 space-y-6">
-        {/* ── Header Banner (Using colors matching the theme: Dark Brown & Soft Gold accent) ── */}
-        <div
-          style={{
-            backgroundColor: COLORS.primary,
-            borderColor: COLORS.accent,
-          }}
-          className="w-full border-b-4 p-6 sm:p-8"
-        >
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-            <div className="flex items-center gap-4">
-              <Avatar user={user} />
-              <div>
-                <h1 className="text-2xl sm:text-3xl font-extrabold text-white leading-tight">
-                  {user?.name || "User"}
-                </h1>
-                <div className="flex items-center gap-2 mt-1">
-                  <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest text-slate-200">
-                    <ShieldCheck className="w-3.5 h-3.5" />
-                    {user?.role === "admin"
-                      ? "Administrator"
-                      : "Registered User"}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Stat Boxes */}
-            <div className="flex flex-wrap gap-2 w-full sm:w-auto">
-              <StatBox
-                icon={MessageCircle}
-                value={comments.length}
-                label="Comments"
-              />
-              <StatBox
-                icon={HelpCircle}
-                value={questions.length}
-                label="Questions"
-              />
-              <StatBox
-                icon={Activity}
-                value={comments.length + questions.length}
-                label="Total Actions"
-              />
-            </div>
+    <div className="min-h-screen bg-[#F3E8DA] text-[#241C16] py-6 sm:py-10 px-3 sm:px-6 lg:px-8 selection:bg-[#A8793E]/20">
+      <div className="max-w-7xl mx-auto space-y-6">
+        {/* ── Breadcrumb Bar ────────────────────────────────────────────── */}
+        <div className="flex items-center justify-between text-xs sm:text-sm text-[#7A7066] px-1">
+          <div className="flex items-center gap-2">
+            <Link
+              to="/"
+              className="inline-flex items-center gap-1.5 hover:text-[#21170F] transition-colors font-medium"
+            >
+              <Home className="w-4 h-4 text-[#A8793E]" />
+              <span className="hidden sm:inline">ہوم</span>
+            </Link>
+            <span className="text-[#A8793E]/50 select-none">/</span>
+            <span
+              onClick={() => setActiveTab("overview")}
+              className="cursor-pointer hover:text-[#21170F] font-urdu text-sm"
+            >
+              پروفائل
+            </span>
+            <span className="text-[#A8793E]/50 select-none">/</span>
+            <span className="font-urdu text-sm text-[#21170F] font-bold">
+              {activeTab === "comments"
+                ? "میرے تبصرے"
+                : activeTab === "questions"
+                ? "میرے سوالات"
+                : activeTab === "settings"
+                ? "اکاؤنٹ کی ترتیبات"
+                : "پروفائل کا جائزہ"}
+            </span>
           </div>
-        </div>
 
-        {/* Action Link Row */}
-        <div
-          style={{ borderColor: COLORS.border }}
-          className="flex justify-between items-center bg-white border-2 p-3 flex-wrap gap-2"
-        >
-          <Link
-            to="/"
-            style={{ color: COLORS.primary }}
-            className="inline-flex items-center gap-1.5 hover:opacity-80 text-xs font-bold uppercase tracking-wider"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Back to official portal
-          </Link>
           <button
             type="button"
             onClick={openEditModal}
-            style={{ backgroundColor: COLORS.primary }}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-white text-xs font-bold hover:opacity-90 transition-all shadow-xs cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#FBF7F0] border border-[#D8C6AC] hover:border-[#B58A4D] text-[#3A2B20] font-urdu text-xs font-bold transition-all shadow-2xs cursor-pointer"
+            dir="rtl"
           >
-            <Edit2 className="w-3.5 h-3.5" />
-            <span>Edit Profile / پروفائل میں ترمیم</span>
+            <Edit3 className="w-3.5 h-3.5 text-[#A8793E]" />
+            <span>پروفائل میں ترمیم</span>
           </button>
         </div>
 
-        {/* Info Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          <InfoTile
-            icon={Mail}
-            label="Email Address"
-            value={user?.loginEmail || user?.email || "—"}
-          />
-          <InfoTile
-            icon={Phone}
-            label="Phone Number"
-            value={user?.loginPhone || user?.contactPhone || "—"}
-          />
-          <InfoTile
-            icon={Calendar}
-            label="Member Since"
-            value={fmt(user?.createdAt)}
-          />
-          <InfoTile
-            icon={User}
-            label="User Role"
-            value={user?.role === "admin" ? "Administrator" : "Registered User"}
-          />
+        {/* ── Mobile Navigation Tabs (< 768px) ─────────────────────────── */}
+        <div className="block md:hidden bg-[#21170F] rounded-[18px] p-3 border border-[#B58A4D]/30 shadow-md">
+          {/* User mini badge */}
+          <div className="flex items-center gap-3 pb-3 border-b border-[#A8793E]/20">
+            <UserAvatar user={user} className="w-12 h-12" />
+            <div className="min-w-0">
+              <h2 className="text-white text-base font-bold truncate">
+                {user?.name || "User"}
+              </h2>
+              <div className="flex items-center gap-1 text-[11px] text-[#C49A5A] font-urdu">
+                <ShieldCheck className="w-3 h-3 text-[#C49A5A]" />
+                <span>{isAdmin ? "ایڈمنسٹریٹر" : "صارف"}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Horizontal scroll tabs */}
+          <div className="flex items-center gap-2 pt-2.5 overflow-x-auto no-scrollbar" dir="rtl">
+            <button
+              type="button"
+              onClick={() => setActiveTab("comments")}
+              className={`px-3.5 py-1.5 rounded-full font-urdu text-xs whitespace-nowrap flex items-center gap-1.5 transition-all ${
+                activeTab === "comments"
+                  ? "bg-[#F7F1E8] text-[#2B2118] font-bold shadow-xs"
+                  : "bg-white/10 text-white/80 hover:bg-white/20"
+              }`}
+            >
+              <MessageSquare className="w-3.5 h-3.5" />
+              <span>میرے تبصرے</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab("overview")}
+              className={`px-3.5 py-1.5 rounded-full font-urdu text-xs whitespace-nowrap flex items-center gap-1.5 transition-all ${
+                activeTab === "overview"
+                  ? "bg-[#F7F1E8] text-[#2B2118] font-bold shadow-xs"
+                  : "bg-white/10 text-white/80 hover:bg-white/20"
+              }`}
+            >
+              <User className="w-3.5 h-3.5" />
+              <span>پروفائل کا جائزہ</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab("questions")}
+              className={`px-3.5 py-1.5 rounded-full font-urdu text-xs whitespace-nowrap flex items-center gap-1.5 transition-all ${
+                activeTab === "questions"
+                  ? "bg-[#F7F1E8] text-[#2B2118] font-bold shadow-xs"
+                  : "bg-white/10 text-white/80 hover:bg-white/20"
+              }`}
+            >
+              <HelpCircle className="w-3.5 h-3.5" />
+              <span>میرے سوالات</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={openEditModal}
+              className="px-3.5 py-1.5 rounded-full font-urdu text-xs whitespace-nowrap flex items-center gap-1.5 bg-white/10 text-white/80 hover:bg-white/20 transition-all"
+            >
+              <Edit3 className="w-3.5 h-3.5" />
+              <span>پروفائل میں ترمیم</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab("settings")}
+              className={`px-3.5 py-1.5 rounded-full font-urdu text-xs whitespace-nowrap flex items-center gap-1.5 transition-all ${
+                activeTab === "settings"
+                  ? "bg-[#F7F1E8] text-[#2B2118] font-bold shadow-xs"
+                  : "bg-white/10 text-white/80 hover:bg-white/20"
+              }`}
+            >
+              <Settings className="w-3.5 h-3.5" />
+              <span>ترتیبات</span>
+            </button>
+          </div>
         </div>
 
-        {/* Columns */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Comments Column */}
-          <div
-            style={{ borderColor: COLORS.border }}
-            className="bg-white border-2 p-5 flex flex-col"
-          >
-            <ColHeader
-              icon={MessageCircle}
-              title="My Comments"
-              count={loadingC ? "—" : comments.length}
-            />
-            {loadingC ? (
-              <Loader />
-            ) : comments.length === 0 ? (
-              <Empty icon={MessageCircle} message="No comments posted yet." />
-            ) : (
-              <div className="overflow-y-auto space-y-3 max-h-[460px] pr-1">
-                {comments.map((c) => (
-                  <CommentCard key={c._id} comment={c} />
-                ))}
+        {/* ── Main Two-Column Layout ────────────────────────────────────── */}
+        <div className="flex flex-col md:flex-row gap-6 items-start">
+          {/* ════════════════════════════════════════════════════════════════
+              DESKTOP SIDEBAR (Left Column)
+          ═════════════════════════════════════════════════════════════════ */}
+          <aside className="hidden md:flex w-72 lg:w-80 shrink-0 bg-[#21170F] text-[#F7F1E8] rounded-[22px] border border-[#B58A4D]/35 p-6 shadow-xl flex-col min-h-[640px] relative overflow-hidden select-none">
+            {/* Top User Info Section */}
+            <div className="flex flex-col items-center text-center pb-6 border-b border-[#A8793E]/25">
+              <UserAvatar user={user} className="w-24 h-24 mb-3" />
+              <h2 className="text-white text-xl lg:text-2xl font-bold tracking-wide uppercase font-serif">
+                {user?.name || "MD SHADAB"}
+              </h2>
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold text-[#C49A5A] bg-[#2B2118] border border-[#A8793E]/30 mt-2 font-urdu">
+                <ShieldCheck className="w-3.5 h-3.5 text-[#C49A5A]" />
+                <span>{isAdmin ? "ایڈمنسٹریٹر" : "رجسٹرڈ صارف"}</span>
               </div>
-            )}
-          </div>
+            </div>
 
-          {/* Questions Column */}
-          <div
-            style={{ borderColor: COLORS.border }}
-            className="bg-white border-2 p-5 flex flex-col"
-          >
-            <ColHeader
-              icon={HelpCircle}
-              title="My Questions"
-              count={loadingQ ? "—" : questions.length}
-            />
-            {loadingQ ? (
-              <Loader />
-            ) : questions.length === 0 ? (
-              <Empty icon={HelpCircle} message="No questions submitted yet." />
-            ) : (
-              <div className="overflow-y-auto space-y-3 max-h-[460px] pr-1">
-                {questions.map((q) => (
-                  <QuestionCard key={q._id} question={q} />
-                ))}
+            {/* Navigation Menu List */}
+            <nav className="py-6 space-y-2 flex-1" dir="rtl">
+              <button
+                type="button"
+                onClick={() => setActiveTab("overview")}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-urdu text-base transition-all duration-150 cursor-pointer ${
+                  activeTab === "overview"
+                    ? "bg-[#F7F1E8] text-[#2B2118] font-bold shadow-md"
+                    : "text-white/80 hover:bg-white/10 hover:text-white"
+                }`}
+              >
+                <User
+                  className={`w-5 h-5 ${
+                    activeTab === "overview" ? "text-[#A8793E]" : "text-[#C49A5A]"
+                  }`}
+                />
+                <span>پروفائل کا جائزہ</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveTab("comments")}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-urdu text-base transition-all duration-150 cursor-pointer ${
+                  activeTab === "comments"
+                    ? "bg-[#F7F1E8] text-[#2B2118] font-bold shadow-md"
+                    : "text-white/80 hover:bg-white/10 hover:text-white"
+                }`}
+              >
+                <MessageSquare
+                  className={`w-5 h-5 ${
+                    activeTab === "comments" ? "text-[#A8793E]" : "text-[#C49A5A]"
+                  }`}
+                />
+                <span>میرے تبصرے</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveTab("questions")}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-urdu text-base transition-all duration-150 cursor-pointer ${
+                  activeTab === "questions"
+                    ? "bg-[#F7F1E8] text-[#2B2118] font-bold shadow-md"
+                    : "text-white/80 hover:bg-white/10 hover:text-white"
+                }`}
+              >
+                <HelpCircle
+                  className={`w-5 h-5 ${
+                    activeTab === "questions" ? "text-[#A8793E]" : "text-[#C49A5A]"
+                  }`}
+                />
+                <span>میرے سوالات</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={openEditModal}
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-urdu text-base text-white/80 hover:bg-white/10 hover:text-white transition-all duration-150 cursor-pointer"
+              >
+                <Edit3 className="w-5 h-5 text-[#C49A5A]" />
+                <span>پروفائل میں ترمیم</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveTab("settings")}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-urdu text-base transition-all duration-150 cursor-pointer ${
+                  activeTab === "settings"
+                    ? "bg-[#F7F1E8] text-[#2B2118] font-bold shadow-md"
+                    : "text-white/80 hover:bg-white/10 hover:text-white"
+                }`}
+              >
+                <Settings
+                  className={`w-5 h-5 ${
+                    activeTab === "settings" ? "text-[#A8793E]" : "text-[#C49A5A]"
+                  }`}
+                />
+                <span>اکاؤنٹ کی ترتیبات</span>
+              </button>
+            </nav>
+
+            {/* Bottom Ornamental Quote Cartouche */}
+            <div className="mt-auto pt-6 border-t border-[#A8793E]/20 text-center relative overflow-hidden">
+              <div className="relative z-10 flex flex-col items-center">
+                <div className="text-[#C49A5A] mb-2 flex items-center justify-center gap-2">
+                  <div className="h-[1px] w-6 bg-gradient-to-r from-transparent to-[#C49A5A]/50" />
+                  <BookOpen className="w-5 h-5 text-[#C49A5A]" />
+                  <div className="h-[1px] w-6 bg-gradient-to-l from-transparent to-[#C49A5A]/50" />
+                </div>
+                <p
+                  className="font-urdu text-sm text-[#E6D7C3] leading-relaxed px-2"
+                  dir="rtl"
+                >
+                  علم کا اشتراک ایک بہتر امت کی تعمیر کی طرف پہلا قدم ہے۔
+                </p>
+                <div className="mt-2 text-[#C49A5A]/70 text-xs">❖</div>
+              </div>
+            </div>
+          </aside>
+
+          {/* ════════════════════════════════════════════════════════════════
+              MAIN CONTENT AREA (Right Column)
+          ═════════════════════════════════════════════════════════════════ */}
+          <main className="flex-1 w-full space-y-6">
+            {/* ─── TAB 1: MY COMMENTS (میرے تبصرے) ─── */}
+            {activeTab === "comments" && (
+              <>
+                {/* Hero Banner Section */}
+                <div className="relative rounded-[22px] bg-[#FBF7F0] border border-[#D8C6AC] shadow-xs p-6 sm:p-7 overflow-hidden">
+                  <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+                    {/* Left: Comment icon + Urdu title + description */}
+                    <div className="flex items-start gap-4 sm:gap-5 flex-1 w-full">
+                      <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-[#2B2118] border border-[#A8793E]/40 flex items-center justify-center shrink-0 shadow-md">
+                        <MessageSquare className="w-7 h-7 sm:w-8 sm:h-8 text-[#F7F1E8]" />
+                      </div>
+
+                      <div className="flex-1 text-right" dir="rtl">
+                        <h1 className="font-urdu text-3xl sm:text-4xl lg:text-[40px] font-bold text-[#21170F] tracking-wide leading-tight">
+                          میرے تبصرے
+                        </h1>
+                        <p className="font-urdu text-sm sm:text-base text-[#5F554B] leading-relaxed mt-2 max-w-xl">
+                          یہاں آپ اپنے تمام تبصرے دیکھ سکتے ہیں جو آپ نے مضامین، فتاویٰ، کتب اور دیگر مواد پر کیے ہیں۔
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Right: Islamic Scholarly Vignette Card */}
+                    <div className="hidden lg:flex items-center justify-center p-2 min-w-[260px] max-w-[300px]">
+                      <div className="relative w-full py-4 px-5 rounded-2xl bg-gradient-to-b from-[#FFFDF9] to-[#F5ECE0] border border-[#D8C6AC] shadow-inner text-center overflow-hidden">
+                        <div className="relative z-10 flex flex-col items-center">
+                          <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-[#C49A5A]/40 mb-2 shadow-xs bg-[#EFE4D5]">
+                            <img
+                              src="/assets/images/scholarly_quill_books.jpg"
+                              alt="Scholarship Emblem"
+                              onError={(e) => {
+                                e.target.style.display = "none";
+                              }}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                          <p
+                            className="font-urdu text-base text-[#21170F] font-bold leading-snug"
+                            dir="rtl"
+                          >
+                            اچھے کلمات
+                          </p>
+                          <p
+                            className="font-urdu text-sm text-[#5F554B] leading-snug"
+                            dir="rtl"
+                          >
+                            صدقہ جاریہ ہیں۔
+                          </p>
+                          <div className="mt-1 flex items-center justify-center gap-1.5 text-[#A8793E]">
+                            <div className="h-[1px] w-5 bg-[#A8793E]/40" />
+                            <span className="text-[10px]">❖</span>
+                            <div className="h-[1px] w-5 bg-[#A8793E]/40" />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Filter Tabs Row */}
+                <div
+                  className="flex items-center gap-2.5 overflow-x-auto no-scrollbar py-1"
+                  dir="rtl"
+                >
+                  {/* Filter: All (تمام) */}
+                  <button
+                    type="button"
+                    onClick={() => setActiveFilter("all")}
+                    className={`inline-flex items-center gap-2 px-4 py-2 rounded-full font-urdu text-sm transition-all duration-150 cursor-pointer shrink-0 ${
+                      activeFilter === "all"
+                        ? "bg-[#2B2118] text-[#F7F1E8] font-bold shadow-sm border border-[#A8793E]/40"
+                        : "bg-[#FBF7F0] text-[#241C16] border border-[#D8C6AC] hover:bg-[#EFE4D5]"
+                    }`}
+                  >
+                    <MessageSquare className="w-4 h-4 text-[#A8793E]" />
+                    <span>تمام</span>
+                    <span
+                      className={`text-xs px-2 py-0.5 rounded-full font-sans font-bold ${
+                        activeFilter === "all"
+                          ? "bg-white/20 text-white"
+                          : "bg-[#EFE4D5] text-[#5F554B]"
+                      }`}
+                    >
+                      {filterCounts.all}
+                    </span>
+                  </button>
+
+                  {/* Filter: Articles (مضامین) */}
+                  <button
+                    type="button"
+                    onClick={() => setActiveFilter("article")}
+                    className={`inline-flex items-center gap-2 px-4 py-2 rounded-full font-urdu text-sm transition-all duration-150 cursor-pointer shrink-0 ${
+                      activeFilter === "article"
+                        ? "bg-[#2B2118] text-[#F7F1E8] font-bold shadow-sm border border-[#A8793E]/40"
+                        : "bg-[#FBF7F0] text-[#241C16] border border-[#D8C6AC] hover:bg-[#EFE4D5]"
+                    }`}
+                  >
+                    <FileText className="w-4 h-4 text-[#3A2B20]" />
+                    <span>مضامین</span>
+                    <span
+                      className={`text-xs px-2 py-0.5 rounded-full font-sans font-bold ${
+                        activeFilter === "article"
+                          ? "bg-white/20 text-white"
+                          : "bg-[#EFE4D5] text-[#5F554B]"
+                      }`}
+                    >
+                      {filterCounts.article}
+                    </span>
+                  </button>
+
+                  {/* Filter: Fatwas (فتاویٰ) */}
+                  <button
+                    type="button"
+                    onClick={() => setActiveFilter("fatwa")}
+                    className={`inline-flex items-center gap-2 px-4 py-2 rounded-full font-urdu text-sm transition-all duration-150 cursor-pointer shrink-0 ${
+                      activeFilter === "fatwa"
+                        ? "bg-[#2B2118] text-[#F7F1E8] font-bold shadow-sm border border-[#A8793E]/40"
+                        : "bg-[#FBF7F0] text-[#241C16] border border-[#D8C6AC] hover:bg-[#EFE4D5]"
+                    }`}
+                  >
+                    <Scale className="w-4 h-4 text-[#A8793E]" />
+                    <span>فتاویٰ</span>
+                    <span
+                      className={`text-xs px-2 py-0.5 rounded-full font-sans font-bold ${
+                        activeFilter === "fatwa"
+                          ? "bg-white/20 text-white"
+                          : "bg-[#EFE4D5] text-[#5F554B]"
+                      }`}
+                    >
+                      {filterCounts.fatwa}
+                    </span>
+                  </button>
+
+                  {/* Filter: Books (کتابیں) */}
+                  <button
+                    type="button"
+                    onClick={() => setActiveFilter("book")}
+                    className={`inline-flex items-center gap-2 px-4 py-2 rounded-full font-urdu text-sm transition-all duration-150 cursor-pointer shrink-0 ${
+                      activeFilter === "book"
+                        ? "bg-[#2B2118] text-[#F7F1E8] font-bold shadow-sm border border-[#A8793E]/40"
+                        : "bg-[#FBF7F0] text-[#241C16] border border-[#D8C6AC] hover:bg-[#EFE4D5]"
+                    }`}
+                  >
+                    <BookOpen className="w-4 h-4 text-[#1E7F55]" />
+                    <span>کتابیں</span>
+                    <span
+                      className={`text-xs px-2 py-0.5 rounded-full font-sans font-bold ${
+                        activeFilter === "book"
+                          ? "bg-white/20 text-white"
+                          : "bg-[#EFE4D5] text-[#5F554B]"
+                      }`}
+                    >
+                      {filterCounts.book}
+                    </span>
+                  </button>
+
+                  {/* Filter: Questions (سوالات) */}
+                  <button
+                    type="button"
+                    onClick={() => setActiveFilter("question")}
+                    className={`inline-flex items-center gap-2 px-4 py-2 rounded-full font-urdu text-sm transition-all duration-150 cursor-pointer shrink-0 ${
+                      activeFilter === "question"
+                        ? "bg-[#2B2118] text-[#F7F1E8] font-bold shadow-sm border border-[#A8793E]/40"
+                        : "bg-[#FBF7F0] text-[#241C16] border border-[#D8C6AC] hover:bg-[#EFE4D5]"
+                    }`}
+                  >
+                    <HelpCircle className="w-4 h-4 text-[#2C4A73]" />
+                    <span>سوالات</span>
+                    <span
+                      className={`text-xs px-2 py-0.5 rounded-full font-sans font-bold ${
+                        activeFilter === "question"
+                          ? "bg-white/20 text-white"
+                          : "bg-[#EFE4D5] text-[#5F554B]"
+                      }`}
+                    >
+                      {filterCounts.question}
+                    </span>
+                  </button>
+                </div>
+
+                {/* ── Comment Cards List ── */}
+                {loadingC ? (
+                  <SkeletonCards count={4} />
+                ) : errorC ? (
+                  <div className="p-8 text-center bg-[#FBF7F0] border border-red-200 rounded-[20px] space-y-3 font-urdu">
+                    <p className="text-red-700 text-lg font-bold">
+                      تبصرے لوڈ نہیں ہو سکے
+                    </p>
+                    <p className="text-sm text-[#5F554B]">
+                      براہ کرم دوبارہ کوشش کریں۔
+                    </p>
+                    <button
+                      type="button"
+                      onClick={loadComments}
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-[#2B2118] text-white rounded-xl text-sm font-urdu hover:bg-[#3A2B20] transition-colors cursor-pointer"
+                    >
+                      <RefreshCw className="w-4 h-4" />
+                      <span>دوبارہ کوشش کریں</span>
+                    </button>
+                  </div>
+                ) : activeFilter === "question" ? (
+                  /* Display Questions if question filter clicked */
+                  questions.length === 0 ? (
+                    <EmptyState
+                      title="ابھی کوئی سوال موجود نہیں"
+                      description="آپ کے پوچھے گئے سوالات یہاں نظر آئیں گے۔"
+                      actionText="سوال پوچھیں"
+                      actionLink="/ask"
+                    />
+                  ) : (
+                    <div className="space-y-4">
+                      {currentQuestions.map((q) => (
+                        <UserQuestionCard key={q._id} question={q} />
+                      ))}
+                    </div>
+                  )
+                ) : filteredComments.length === 0 ? (
+                  <EmptyState
+                    title="ابھی کوئی تبصرہ موجود نہیں"
+                    description="آپ کے تبصرے یہاں نظر آئیں گے۔"
+                    actionText="مواد دیکھیں"
+                    actionLink="/articles"
+                  />
+                ) : (
+                  <div className="space-y-4">
+                    {currentComments.map((comment) => (
+                      <CommentCard
+                        key={comment._id}
+                        comment={comment}
+                        onDelete={(c) => setDeleteConfirmComment(c)}
+                        openMenuId={openMenuId}
+                        setOpenMenuId={setOpenMenuId}
+                      />
+                    ))}
+                  </div>
+                )}
+
+                {/* ── Pagination Controls ── */}
+                {totalItems > 0 && (
+                  <div className="pt-4 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-[#D8C6AC]/50">
+                    {/* Urdu summary count */}
+                    <p className="font-urdu text-sm text-[#5F554B]" dir="rtl">
+                      کل {totalItems} {activeFilter === "question" ? "سوالات" : "تبصروں"} میں سے{" "}
+                      {startIndex + 1} تا{" "}
+                      {Math.min(startIndex + itemsPerPage, totalItems)} دکھائے جا رہے ہیں۔
+                    </p>
+
+                    {/* Pagination buttons */}
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                        disabled={currentPage === 1}
+                        className="w-9 h-9 rounded-full bg-[#FBF7F0] border border-[#D8C6AC] text-[#3A2B20] hover:bg-[#EFE4D5] flex items-center justify-center disabled:opacity-40 disabled:pointer-events-none transition-colors cursor-pointer"
+                        title="پچھلا صفحہ"
+                      >
+                        <ChevronLeft className="w-4 h-4" />
+                      </button>
+
+                      {/* Pages indicators */}
+                      {Array.from({ length: totalPages }).map((_, idx) => {
+                        const pageNum = idx + 1;
+                        // For large pages, limit window
+                        if (
+                          totalPages > 5 &&
+                          Math.abs(pageNum - currentPage) > 2 &&
+                          pageNum !== 1 &&
+                          pageNum !== totalPages
+                        ) {
+                          return null;
+                        }
+                        return (
+                          <button
+                            key={pageNum}
+                            type="button"
+                            onClick={() => setCurrentPage(pageNum)}
+                            className={`w-9 h-9 rounded-full text-sm font-bold flex items-center justify-center transition-all cursor-pointer ${
+                              currentPage === pageNum
+                                ? "bg-[#21170F] text-white shadow-sm"
+                                : "bg-[#FBF7F0] border border-[#D8C6AC] text-[#3A2B20] hover:bg-[#EFE4D5]"
+                            }`}
+                          >
+                            {pageNum}
+                          </button>
+                        );
+                      })}
+
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setCurrentPage((p) => Math.min(totalPages, p + 1))
+                        }
+                        disabled={currentPage === totalPages}
+                        className="w-9 h-9 rounded-full bg-[#FBF7F0] border border-[#D8C6AC] text-[#3A2B20] hover:bg-[#EFE4D5] flex items-center justify-center disabled:opacity-40 disabled:pointer-events-none transition-colors cursor-pointer"
+                        title="اگلا صفحہ"
+                      >
+                        <ChevronRight className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+
+            {/* ─── TAB 2: PROFILE OVERVIEW (پروفائل کا جائزہ) ─── */}
+            {activeTab === "overview" && (
+              <div className="space-y-6">
+                {/* Stats Row */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  {/* Comments count */}
+                  <div className="p-5 rounded-[20px] bg-[#FBF7F0] border border-[#D8C6AC] shadow-xs flex items-center justify-between">
+                    <div>
+                      <p className="font-sans text-3xl font-extrabold text-[#21170F]">
+                        {comments.length}
+                      </p>
+                      <p className="font-urdu text-base text-[#5F554B] mt-1" dir="rtl">
+                        میرے تبصرے
+                      </p>
+                    </div>
+                    <div className="w-12 h-12 rounded-xl bg-[#EFE4D5] border border-[#D8C6AC] flex items-center justify-center text-[#A8793E]">
+                      <MessageSquare className="w-6 h-6" />
+                    </div>
+                  </div>
+
+                  {/* Questions count */}
+                  <div className="p-5 rounded-[20px] bg-[#FBF7F0] border border-[#D8C6AC] shadow-xs flex items-center justify-between">
+                    <div>
+                      <p className="font-sans text-3xl font-extrabold text-[#21170F]">
+                        {questions.length}
+                      </p>
+                      <p className="font-urdu text-base text-[#5F554B] mt-1" dir="rtl">
+                        میرے سوالات
+                      </p>
+                    </div>
+                    <div className="w-12 h-12 rounded-xl bg-[#EFE4D5] border border-[#D8C6AC] flex items-center justify-center text-[#2C4A73]">
+                      <HelpCircle className="w-6 h-6" />
+                    </div>
+                  </div>
+
+                  {/* Total Actions */}
+                  <div className="p-5 rounded-[20px] bg-[#FBF7F0] border border-[#D8C6AC] shadow-xs flex items-center justify-between">
+                    <div>
+                      <p className="font-sans text-3xl font-extrabold text-[#21170F]">
+                        {comments.length + questions.length}
+                      </p>
+                      <p className="font-urdu text-base text-[#5F554B] mt-1" dir="rtl">
+                        کل سرگرمیاں
+                      </p>
+                    </div>
+                    <div className="w-12 h-12 rounded-xl bg-[#EFE4D5] border border-[#D8C6AC] flex items-center justify-center text-[#1E7F55]">
+                      <Activity className="w-6 h-6" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Profile Information Tiles */}
+                <div className="rounded-[22px] bg-[#FBF7F0] border border-[#D8C6AC] p-6 shadow-xs space-y-4">
+                  <div className="flex items-center justify-between border-b border-[#D8C6AC]/60 pb-3" dir="rtl">
+                    <h3 className="font-urdu text-xl font-bold text-[#21170F]">
+                      بنیادی معلومات
+                    </h3>
+                    <button
+                      type="button"
+                      onClick={openEditModal}
+                      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-[#2B2118] text-[#F7F1E8] font-urdu text-xs hover:bg-[#3A2B20] transition-colors"
+                    >
+                      <Edit3 className="w-3 h-3 text-[#C49A5A]" />
+                      <span>ترمیم کریں</span>
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <InfoCard
+                      icon={Mail}
+                      englishLabel="Email Address"
+                      urduLabel="ای میل ایڈریس"
+                      value={user?.loginEmail || user?.email}
+                    />
+
+                    <InfoCard
+                      icon={Phone}
+                      englishLabel="Phone Number"
+                      urduLabel="رابطہ نمبر"
+                      value={user?.loginPhone || user?.contactPhone}
+                    />
+
+                    <InfoCard
+                      icon={Calendar}
+                      englishLabel="Member Since"
+                      urduLabel="رکنیت کی تاریخ"
+                      value={formatUrduDate(user?.createdAt)}
+                    />
+
+                    <InfoCard
+                      icon={ShieldCheck}
+                      englishLabel="User Role"
+                      urduLabel="صارف کا کردار"
+                      value={isAdmin ? "Administrator (ایڈمنسٹریٹر)" : "Registered User (صارف)"}
+                    />
+                  </div>
+                </div>
               </div>
             )}
-          </div>
+
+            {/* ─── TAB 3: MY QUESTIONS (میرے سوالات) ─── */}
+            {activeTab === "questions" && (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-5 rounded-[20px] bg-[#FBF7F0] border border-[#D8C6AC]" dir="rtl">
+                  <div>
+                    <h2 className="font-urdu text-2xl font-bold text-[#21170F]">
+                      میرے سوالات
+                    </h2>
+                    <p className="font-urdu text-sm text-[#5F554B]">
+                      دار الافتاء کو ارسال کیے گئے آپ کے شرعی سوالات اور ان کے جوابات۔
+                    </p>
+                  </div>
+                  <Link
+                    to="/ask"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#2B2118] text-[#F7F1E8] font-urdu text-sm hover:bg-[#3A2B20] transition-colors shadow-xs"
+                  >
+                    <span>نیا سوال پوچھیں</span>
+                    <ArrowRight className="w-4 h-4 text-[#C49A5A]" />
+                  </Link>
+                </div>
+
+                {loadingQ ? (
+                  <SkeletonCards count={3} />
+                ) : questions.length === 0 ? (
+                  <EmptyState
+                    title="ابھی کوئی سوال موجود نہیں"
+                    description="آپ نے ابھی تک کوئی سوال ارسال نہیں کیا ہے۔"
+                    actionText="نیا سوال پوچھیں"
+                    actionLink="/ask"
+                  />
+                ) : (
+                  <div className="space-y-4">
+                    {questions.map((q) => (
+                      <UserQuestionCard key={q._id} question={q} />
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* ─── TAB 4: SETTINGS (اکاؤنٹ کی ترتیبات) ─── */}
+            {activeTab === "settings" && (
+              <div className="space-y-6">
+                <div className="rounded-[22px] bg-[#FBF7F0] border border-[#D8C6AC] p-6 shadow-xs space-y-4" dir="rtl">
+                  <h3 className="font-urdu text-xl font-bold text-[#21170F] border-b border-[#D8C6AC]/60 pb-3">
+                    اکاؤنٹ کی ترتیبات
+                  </h3>
+
+                  <div className="space-y-3 font-urdu text-sm text-[#5F554B]">
+                    <div className="p-4 rounded-xl bg-[#F7F1E8] border border-[#D8C6AC]/60 flex items-center justify-between">
+                      <div>
+                        <p className="text-[#21170F] font-bold text-base">
+                          ذاتی معلومات اور تصویر
+                        </p>
+                        <p className="text-xs text-[#7A7066] mt-0.5">
+                          اپنا نام، موبائل نمبر یا پروفائل فوٹو تبدیل کریں۔
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={openEditModal}
+                        className="px-4 py-2 rounded-xl bg-[#2B2118] text-white text-xs font-bold hover:bg-[#3A2B20] transition-colors cursor-pointer"
+                      >
+                        تبدیل کریں
+                      </button>
+                    </div>
+
+                    <div className="p-4 rounded-xl bg-[#F7F1E8] border border-[#D8C6AC]/60 flex items-center justify-between">
+                      <div>
+                        <p className="text-[#21170F] font-bold text-base">
+                          پاس ورڈ ری سیٹ
+                        </p>
+                        <p className="text-xs text-[#7A7066] mt-0.5">
+                          اپنا پاس ورڈ ری سیٹ کرنے کے لیے لنک حاصل کریں۔
+                        </p>
+                      </div>
+                      <Link
+                        to="/forgot-password"
+                        className="px-4 py-2 rounded-xl bg-[#FBF7F0] border border-[#D8C6AC] text-[#21170F] text-xs font-bold hover:bg-[#EFE4D5] transition-colors"
+                      >
+                        پاس ورڈ بھول گئے؟
+                      </Link>
+                    </div>
+
+                    <div className="p-4 rounded-xl bg-red-50 border border-red-200 flex items-center justify-between">
+                      <div>
+                        <p className="text-red-800 font-bold text-base">
+                          اکاؤنٹ سے لاگ آؤٹ
+                        </p>
+                        <p className="text-xs text-red-600 mt-0.5">
+                          اپنے سیشن کو محفوظ طریقے سے ختم کریں۔
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleLogout}
+                        className="px-4 py-2 rounded-xl bg-red-600 text-white text-xs font-bold hover:bg-red-700 transition-colors cursor-pointer flex items-center gap-1.5"
+                      >
+                        <LogOut className="w-3.5 h-3.5" />
+                        <span>لاگ آؤٹ</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </main>
         </div>
       </div>
 
-      {/* Edit Profile Modal */}
+      {/* ─── DELETE CONFIRMATION MODAL ─── */}
+      <Modal
+        isOpen={Boolean(deleteConfirmComment)}
+        onClose={() => setDeleteConfirmComment(null)}
+        title="تبصرہ حذف کریں"
+        maxWidth="max-w-md"
+        dir="rtl"
+      >
+        <div className="p-4 space-y-4 font-urdu text-right" dir="rtl">
+          <p className="text-base text-[#21170F] leading-relaxed">
+            کیا آپ واقعی یہ تبصرہ حذف کرنا چاہتے ہیں؟ یہ عمل واپس نہیں کیا جا سکتا۔
+          </p>
+          <div className="p-3 bg-[#F7F1E8] rounded-xl border border-[#D8C6AC] text-sm text-[#5F554B] italic">
+            "{deleteConfirmComment?.text}"
+          </div>
+          <div className="flex items-center justify-end gap-3 pt-3 border-t border-[#D8C6AC]">
+            <button
+              type="button"
+              onClick={() => setDeleteConfirmComment(null)}
+              className="px-4 py-2 rounded-xl border border-[#D8C6AC] text-sm text-[#5F554B] hover:bg-[#EFE4D5] transition-colors cursor-pointer"
+            >
+              منسوخ کریں
+            </button>
+            <button
+              type="button"
+              disabled={isDeleting}
+              onClick={handleDeleteComment}
+              className="px-5 py-2 rounded-xl bg-red-700 text-white text-sm font-bold hover:bg-red-800 transition-colors cursor-pointer flex items-center gap-2 disabled:opacity-50"
+            >
+              {isDeleting ? (
+                <>
+                  <Spinner size="sm" />
+                  <span>حذف ہو رہا ہے...</span>
+                </>
+              ) : (
+                <span>ہاں، حذف کریں</span>
+              )}
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* ─── EDIT PROFILE MODAL ─── */}
       <Modal
         isOpen={isEditOpen}
         onClose={() => setIsEditOpen(false)}
@@ -678,32 +1522,29 @@ export default function MyDetails() {
             </div>
           )}
 
-          {/* Avatar / Photo Upload */}
+          {/* Photo Upload */}
           <div className="flex flex-col items-center justify-center gap-3 py-2">
             <div className="relative">
               {previewImage ? (
                 <img
                   src={previewImage}
                   alt="Preview"
-                  className="w-20 h-20 rounded-full object-cover border-2 border-primary shadow-sm"
+                  className="w-20 h-20 rounded-2xl object-cover border-2 border-[#A8793E] shadow-sm"
                 />
               ) : user?.profileImage?.url ? (
                 <img
                   src={user.profileImage.url}
                   alt={user.name}
-                  className="w-20 h-20 rounded-full object-cover border-2 border-primary shadow-sm"
+                  className="w-20 h-20 rounded-2xl object-cover border-2 border-[#A8793E] shadow-sm"
                 />
               ) : (
-                <div
-                  style={{ backgroundColor: COLORS.primary }}
-                  className="w-20 h-20 rounded-full border-2 border-white shadow-sm flex items-center justify-center text-white text-2xl font-bold"
-                >
+                <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-[#4A3B7A] to-[#2B1B54] border-2 border-[#A8793E] shadow-sm flex items-center justify-center text-white text-2xl font-bold">
                   {(user?.name || "U")[0]?.toUpperCase()}
                 </div>
               )}
               <label
                 htmlFor="profile-image-upload"
-                className="absolute bottom-0 right-0 p-1.5 rounded-full bg-primary text-white hover:bg-primary/90 cursor-pointer shadow-md transition-colors"
+                className="absolute bottom-0 right-0 p-1.5 rounded-full bg-[#2B2118] text-[#F7F1E8] hover:bg-[#3A2B20] cursor-pointer shadow-md transition-colors border border-[#A8793E]"
                 title="Change Photo"
               >
                 <Camera className="w-3.5 h-3.5" />
@@ -716,14 +1557,14 @@ export default function MyDetails() {
                 />
               </label>
             </div>
-            <span className="text-[11px] text-slate-500 font-medium">
-              Click camera icon to change photo
+            <span className="text-[11px] text-slate-500 font-medium font-urdu">
+              تصویر تبدیل کرنے کے لیے کیمرہ آئیکن پر کلک کریں
             </span>
           </div>
 
-          {/* Name Field */}
+          {/* Full Name */}
           <div className="space-y-1">
-            <label className="block text-xs font-bold text-slate-600 uppercase tracking-wide">
+            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide">
               Full Name / مکمل نام *
             </label>
             <input
@@ -732,13 +1573,13 @@ export default function MyDetails() {
               onChange={(e) => setEditName(e.target.value)}
               required
               placeholder="Your full name"
-              className="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl outline-none focus:border-primary transition-colors"
+              className="w-full px-3 py-2 text-sm border border-[#D8C6AC] bg-[#FBF7F0] rounded-xl outline-none focus:border-[#A8793E] transition-colors"
             />
           </div>
 
-          {/* Contact Phone Field */}
+          {/* Contact Phone */}
           <div className="space-y-1">
-            <label className="block text-xs font-bold text-slate-600 uppercase tracking-wide">
+            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide">
               Contact Phone / رابطہ نمبر
             </label>
             <input
@@ -746,27 +1587,26 @@ export default function MyDetails() {
               value={editPhone}
               onChange={(e) => setEditPhone(e.target.value)}
               placeholder="e.g. 9876543210 (10 digits)"
-              className="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl outline-none focus:border-primary transition-colors"
+              className="w-full px-3 py-2 text-sm border border-[#D8C6AC] bg-[#FBF7F0] rounded-xl outline-none focus:border-[#A8793E] transition-colors"
             />
-            <span className="text-[10.5px] text-slate-400 block">
+            <span className="text-[10.5px] text-slate-500 block">
               10-digit mobile number starting with 6, 7, 8, or 9
             </span>
           </div>
 
-          {/* Buttons */}
-          <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-200">
+          {/* Action Buttons */}
+          <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#D8C6AC]">
             <button
               type="button"
               onClick={() => setIsEditOpen(false)}
-              className="px-4 py-2 border border-slate-300 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-colors cursor-pointer"
+              className="px-4 py-2 border border-[#D8C6AC] rounded-xl text-xs font-semibold text-slate-600 hover:bg-[#EFE4D5] transition-colors cursor-pointer"
             >
               Cancel / منسوخ
             </button>
             <button
               type="submit"
               disabled={editLoading}
-              style={{ backgroundColor: COLORS.primary }}
-              className="px-5 py-2 rounded-xl text-xs font-bold text-white hover:opacity-90 transition-all shadow-xs disabled:opacity-50 cursor-pointer flex items-center gap-1.5"
+              className="px-5 py-2 rounded-xl text-xs font-bold text-[#F7F1E8] bg-[#2B2118] hover:bg-[#3A2B20] transition-all shadow-xs disabled:opacity-50 cursor-pointer flex items-center gap-1.5 border border-[#A8793E]/40"
             >
               {editLoading ? (
                 <>
