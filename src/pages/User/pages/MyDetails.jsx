@@ -1021,11 +1021,13 @@ export default function MyDetails() {
               className={`px-3 py-2.5 rounded-xl font-urdu text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer ${
                 activeTab === "comments" && activeFilter !== "question"
                   ? "bg-[#F7F1E8] text-[#2B2118] font-bold shadow-sm border border-[#A8793E]/40"
-                  : "bg-white/10 text-white/90 hover:bg-white/20 border border-white/10"
+                  : "bg-black/35 text-[#E5C48A] hover:bg-black/50 hover:text-white border border-[#C49A5A]/35"
               }`}
             >
-              <MessageSquare className={`w-4 h-4 ${activeTab === "comments" && activeFilter !== "question" ? "text-[#A8793E]" : "text-[#C49A5A]"}`} />
-              <span>میرے تبصرے</span>
+              <MessageSquare className={`w-4 h-4 shrink-0 ${activeTab === "comments" && activeFilter !== "question" ? "text-[#A8793E]" : "text-[#C49A5A]"}`} />
+              <span className={activeTab === "comments" && activeFilter !== "question" ? "text-[#2B2118]" : "text-[#E5C48A]"}>
+                میرے تبصرے
+              </span>
             </button>
 
             <button
@@ -1034,11 +1036,13 @@ export default function MyDetails() {
               className={`px-3 py-2.5 rounded-xl font-urdu text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer ${
                 activeTab === "overview"
                   ? "bg-[#F7F1E8] text-[#2B2118] font-bold shadow-sm border border-[#A8793E]/40"
-                  : "bg-white/10 text-white/90 hover:bg-white/20 border border-white/10"
+                  : "bg-black/35 text-[#E5C48A] hover:bg-black/50 hover:text-white border border-[#C49A5A]/35"
               }`}
             >
-              <User className={`w-4 h-4 ${activeTab === "overview" ? "text-[#A8793E]" : "text-[#C49A5A]"}`} />
-              <span>پروفائل کا جائزہ</span>
+              <User className={`w-4 h-4 shrink-0 ${activeTab === "overview" ? "text-[#A8793E]" : "text-[#C49A5A]"}`} />
+              <span className={activeTab === "overview" ? "text-[#2B2118]" : "text-[#E5C48A]"}>
+                پروفائل کا جائزہ
+              </span>
             </button>
 
             <button
@@ -1050,20 +1054,22 @@ export default function MyDetails() {
               className={`px-3 py-2.5 rounded-xl font-urdu text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer ${
                 activeTab === "questions" || (activeTab === "comments" && activeFilter === "question")
                   ? "bg-[#F7F1E8] text-[#2B2118] font-bold shadow-sm border border-[#A8793E]/40"
-                  : "bg-white/10 text-white/90 hover:bg-white/20 border border-white/10"
+                  : "bg-black/35 text-[#E5C48A] hover:bg-black/50 hover:text-white border border-[#C49A5A]/35"
               }`}
             >
-              <HelpCircle className={`w-4 h-4 ${activeTab === "questions" || (activeTab === "comments" && activeFilter === "question") ? "text-[#A8793E]" : "text-[#C49A5A]"}`} />
-              <span>میرے سوالات</span>
+              <HelpCircle className={`w-4 h-4 shrink-0 ${activeTab === "questions" || (activeTab === "comments" && activeFilter === "question") ? "text-[#A8793E]" : "text-[#C49A5A]"}`} />
+              <span className={activeTab === "questions" || (activeTab === "comments" && activeFilter === "question") ? "text-[#2B2118]" : "text-[#E5C48A]"}>
+                میرے سوالات
+              </span>
             </button>
 
             <button
               type="button"
               onClick={openEditModal}
-              className="px-3 py-2.5 rounded-xl font-urdu text-xs sm:text-sm flex items-center justify-center gap-2 bg-white/10 text-white/90 hover:bg-white/20 border border-white/10 transition-all cursor-pointer"
+              className="px-3 py-2.5 rounded-xl font-urdu text-xs sm:text-sm flex items-center justify-center gap-2 bg-black/35 text-[#E5C48A] hover:bg-black/50 hover:text-white border border-[#C49A5A]/35 transition-all cursor-pointer"
             >
-              <Edit3 className="w-4 h-4 text-[#C49A5A]" />
-              <span>پروفائل میں ترمیم</span>
+              <Edit3 className="w-4 h-4 shrink-0 text-[#C49A5A]" />
+              <span className="text-[#E5C48A]">پروفائل میں ترمیم</span>
             </button>
 
             <button
@@ -1072,11 +1078,13 @@ export default function MyDetails() {
               className={`col-span-2 sm:col-span-1 px-3 py-2.5 rounded-xl font-urdu text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer ${
                 activeTab === "settings"
                   ? "bg-[#F7F1E8] text-[#2B2118] font-bold shadow-sm border border-[#A8793E]/40"
-                  : "bg-white/10 text-white/90 hover:bg-white/20 border border-white/10"
+                  : "bg-black/35 text-[#E5C48A] hover:bg-black/50 hover:text-white border border-[#C49A5A]/35"
               }`}
             >
-              <Settings className={`w-4 h-4 ${activeTab === "settings" ? "text-[#A8793E]" : "text-[#C49A5A]"}`} />
-              <span>اکاؤنٹ کی ترتیبات</span>
+              <Settings className={`w-4 h-4 shrink-0 ${activeTab === "settings" ? "text-[#A8793E]" : "text-[#C49A5A]"}`} />
+              <span className={activeTab === "settings" ? "text-[#2B2118]" : "text-[#E5C48A]"}>
+                اکاؤنٹ کی ترتیبات
+              </span>
             </button>
           </div>
         </div>
@@ -1105,7 +1113,7 @@ export default function MyDetails() {
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-urdu text-base transition-all duration-150 cursor-pointer ${
                   activeTab === "overview"
                     ? "bg-[#F7F1E8] text-[#2B2118] font-bold shadow-md"
-                    : "text-white/80 hover:bg-white/10 hover:text-white"
+                    : "text-[#E5C48A] hover:bg-white/10 hover:text-white"
                 }`}
               >
                 <User
@@ -1122,7 +1130,7 @@ export default function MyDetails() {
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-urdu text-base transition-all duration-150 cursor-pointer ${
                   activeTab === "comments"
                     ? "bg-[#F7F1E8] text-[#2B2118] font-bold shadow-md"
-                    : "text-white/80 hover:bg-white/10 hover:text-white"
+                    : "text-[#E5C48A] hover:bg-white/10 hover:text-white"
                 }`}
               >
                 <MessageSquare
@@ -1139,7 +1147,7 @@ export default function MyDetails() {
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-urdu text-base transition-all duration-150 cursor-pointer ${
                   activeTab === "questions"
                     ? "bg-[#F7F1E8] text-[#2B2118] font-bold shadow-md"
-                    : "text-white/80 hover:bg-white/10 hover:text-white"
+                    : "text-[#E5C48A] hover:bg-white/10 hover:text-white"
                 }`}
               >
                 <HelpCircle
@@ -1153,7 +1161,7 @@ export default function MyDetails() {
               <button
                 type="button"
                 onClick={openEditModal}
-                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-urdu text-base text-white/80 hover:bg-white/10 hover:text-white transition-all duration-150 cursor-pointer"
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-urdu text-base text-[#E5C48A] hover:bg-white/10 hover:text-white transition-all duration-150 cursor-pointer"
               >
                 <Edit3 className="w-5 h-5 text-[#C49A5A]" />
                 <span>پروفائل میں ترمیم</span>
@@ -1165,7 +1173,7 @@ export default function MyDetails() {
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-urdu text-base transition-all duration-150 cursor-pointer ${
                   activeTab === "settings"
                     ? "bg-[#F7F1E8] text-[#2B2118] font-bold shadow-md"
-                    : "text-white/80 hover:bg-white/10 hover:text-white"
+                    : "text-[#E5C48A] hover:bg-white/10 hover:text-white"
                 }`}
               >
                 <Settings
