@@ -40,6 +40,7 @@ import {
   LectureCard,
   PublicationCard,
   EventCard,
+  QaCard,
   SectionLoader,
 } from "@/components";
 import SeamlessMobileSlider from "../components/SeamlessMobileSlider";
@@ -51,26 +52,33 @@ function SectionHeading({ title, linkTo, linkLabel }) {
   const { settings } = useSettings();
   const language =
     settings?.language === "ur" || settings?.language === "Urdu" ? "ur" : "en";
+  const isRTL = language === "ur";
 
   return (
-    <div className="flex items-center justify-between mb-2.5 sm:mb-3.5 border-b-2 border-border pb-1.5 sm:pb-2">
+    <div className="flex items-center justify-between mb-2.5 sm:mb-3.5 border-b border-[#A8793E]/35 pb-1.5 sm:pb-2">
       <div
-        className={`border-accent flex items-center ${language === "ur" ? "border-r-4 pr-3 sm:pr-4 text-right" : "border-l-4 pl-3 sm:pl-4 text-left"}`}
+        className={`flex items-center ${isRTL ? "border-r-4 border-[#C8A46A] pr-3 sm:pr-4 text-right" : "border-l-4 border-[#C8A46A] pl-3 sm:pl-4 text-left"}`}
       >
-        <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-primary leading-none pt-0.5">
+        <h2
+          className={`text-xl sm:text-2xl md:text-3xl font-extrabold text-primary leading-none pt-0.5 ${
+            isRTL ? "font-['Payami_Nastaleeq',serif]" : ""
+          }`}
+        >
           {title}
         </h2>
       </div>
       {linkTo && (
         <Link
           to={linkTo}
-          className="text-xs sm:text-sm font-bold text-primary hover:text-accent flex items-center gap-1 transition-colors shrink-0"
+          className={`text-xs sm:text-sm font-bold text-primary hover:text-accent flex items-center gap-1 transition-colors shrink-0 ${
+            isRTL ? "font-['Payami_Nastaleeq',serif]" : ""
+          }`}
         >
-          {linkLabel}{" "}
+          <span>{linkLabel}</span>{" "}
           {language === "en" ? (
-            <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#A8793E]" />
           ) : (
-            <ArrowLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            <ArrowLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#A8793E]" />
           )}
         </Link>
       )}
@@ -484,58 +492,10 @@ export default function Home() {
         ) : questions && questions.length > 0 ? (
           <>
             {/* Desktop: grid */}
-            <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {questions.slice(0, 3).map((q) => {
-                const qaDetailUrl = `/qa/${q.slug || q._id}`;
-                return (
-                  <div
-                    key={q._id}
-                    className={`premium-card p-6 flex flex-col justify-between h-full bg-white ${language === "ur" ? "text-right" : "text-left"} relative overflow-hidden group`}
-                  >
-                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-accent via-primary to-accent" />
-
-                    <div>
-                      <div className="flex items-center justify-between text-xs text-slate-500 mb-4">
-                        <span className="bg-secondary text-textSecondary font-bold px-2.5 py-1 rounded-full text-[10px]">
-                          {language === "ur"
-                            ? FATWA_TRANSLATIONS[q.category] || q.category
-                            : q.category}
-                        </span>
-                        <span>
-                          {new Date(
-                            q.answeredAt || q.updatedAt
-                          ).toLocaleDateString(
-                            language === "ur" ? "ur-PK" : "en-US"
-                          )}
-                        </span>
-                      </div>
-                      <Link to={qaDetailUrl} className="block group-hover:underline">
-                        <h4 className="text-md font-bold text-slate-900 mb-2 line-clamp-2">
-                          {q.questionTitle}
-                        </h4>
-                      </Link>
-                      <p className="text-slate-700 text-xs line-clamp-3 mb-4">
-                        "{q.detailedQuestion}"
-                      </p>
-                    </div>
-                    <Link
-                      to={qaDetailUrl}
-                      className="text-xs font-bold text-primary hover:text-accent flex items-center gap-1 group-hover:gap-2 transition-all"
-                    >
-                      {language === "en"
-                        ? "View Answer"
-                        : "مفتی صاحب کا جواب دیکھیں"}
-                      <span>
-                        {language === "en" ? (
-                          <ArrowRight className="w-3.5 h-3.5" />
-                        ) : (
-                          <ArrowLeft className="w-3.5 h-3.5" />
-                        )}
-                      </span>
-                    </Link>
-                  </div>
-                );
-              })}
+            <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6">
+              {questions.slice(0, 3).map((q) => (
+                <QaCard key={q._id} question={q} />
+              ))}
             </div>
 
             {/* Mobile: one-by-one slider with Seamless infinite swipe */}
@@ -545,56 +505,7 @@ export default function Home() {
               duration={500}
               activeDotColor={COLORS.primary}
               dotColor={COLORS.border}
-              renderCard={(q) => {
-                const qaDetailUrl = `/qa/${q.slug || q._id}`;
-                return (
-                  <div
-                    className={`premium-card p-6 flex flex-col justify-between min-h-[220px] bg-white ${language === "ur" ? "text-right" : "text-left"} relative overflow-hidden group shadow-sm`}
-                  >
-                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-accent via-primary to-accent" />
-
-                    <div>
-                      <div className="flex items-center justify-between text-xs text-slate-500 mb-4">
-                        <span className="bg-secondary text-textSecondary font-bold px-2.5 py-1 rounded-full text-[10px]">
-                          {language === "ur"
-                            ? FATWA_TRANSLATIONS[q.category] || q.category
-                            : q.category}
-                        </span>
-                        <span>
-                          {new Date(
-                            q.answeredAt || q.updatedAt
-                          ).toLocaleDateString(
-                            language === "ur" ? "ur-PK" : "en-US"
-                          )}
-                        </span>
-                      </div>
-                      <Link to={qaDetailUrl} className="block">
-                        <h4 className="text-md font-bold text-slate-900 mb-2 line-clamp-2">
-                          {q.questionTitle}
-                        </h4>
-                      </Link>
-                      <p className="text-slate-700 text-xs line-clamp-3 mb-4">
-                        "{q.detailedQuestion}"
-                      </p>
-                    </div>
-                    <Link
-                      to={qaDetailUrl}
-                      className="text-xs font-bold text-primary hover:text-accent flex items-center gap-1 group-hover:gap-2 transition-all mt-2"
-                    >
-                      {language === "en"
-                        ? "View Answer"
-                        : "مفتی صاحب کا جواب دیکھیں"}
-                      <span>
-                        {language === "en" ? (
-                          <ArrowRight className="w-3.5 h-3.5" />
-                        ) : (
-                          <ArrowLeft className="w-3.5 h-3.5" />
-                        )}
-                      </span>
-                    </Link>
-                  </div>
-                );
-              }}
+              renderCard={(q) => <QaCard question={q} />}
             />
           </>
         ) : (

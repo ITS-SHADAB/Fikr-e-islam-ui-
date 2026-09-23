@@ -13,6 +13,7 @@ export * from "./EventCard";
 export * from "./FatwaCard";
 export * from "./LectureCard";
 export * from "./PublicationCard";
+export * from "./QaCard";
 
 // Layout helper components
 export * from "./FeatureCards";
