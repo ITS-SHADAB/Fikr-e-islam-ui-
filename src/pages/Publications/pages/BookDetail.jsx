@@ -225,23 +225,63 @@ export default function BookDetail() {
     PUBLICATION_CATEGORY_TRANSLATIONS[category] ||
     category ||
     (isRTL ? "کتب و رسائل" : "Books");
+  const bookLang = book?.language || blanguage || "Urdu";
   const languageLabel =
-    BOOK_LANGUAGE_TRANSLATIONS[blanguage] ||
-    blanguage ||
+    BOOK_LANGUAGE_TRANSLATIONS[bookLang] ||
+    bookLang ||
     (isRTL ? "اردو" : "Urdu");
 
-  const formattedDate = publishDate
-    ? new Date(publishDate).toLocaleDateString(isRTL ? "ur-PK" : "en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    })
-    : "";
+  // Robust date fallback and multi-resolution responsive formatting
+  const rawDate =
+    publishDate ||
+    book?.publishDate ||
+    book?.createdAt ||
+    book?.updatedAt ||
+    book?.year ||
+    book?.publishedYear;
+
+  const formatPublicationDate = (d) => {
+    if (!d) return { full: "—", mobileLine1: "—", mobileLine2: "" };
+    if (/^\d{4}$/.test(String(d).trim())) {
+      const yr = String(d).trim();
+      const yrDisplay = isRTL ? `${yr}ء` : yr;
+      return { full: yrDisplay, mobileLine1: yrDisplay, mobileLine2: "" };
+    }
+    const dt = new Date(d);
+    if (isNaN(dt.getTime())) {
+      const fallbackStr = String(d).slice(0, 15);
+      return { full: fallbackStr, mobileLine1: fallbackStr, mobileLine2: "" };
+    }
+    const day = dt.getDate();
+    const year = dt.getFullYear();
+    const urduMonths = [
+      "جنوری", "فروری", "مارچ", "اپریل", "مئی", "جون",
+      "جولائی", "اگست", "ستمبر", "اکتوبر", "نومبر", "دسمبر"
+    ];
+    const enMonths = [
+      "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+    ];
+    const month = isRTL ? urduMonths[dt.getMonth()] : enMonths[dt.getMonth()];
+    const yrFormatted = isRTL ? `${year}ء` : `${year}`;
+
+    return {
+      full: `${day} ${month} ${yrFormatted}`,
+      mobileLine1: `${day} ${month}`,
+      mobileLine2: `${yrFormatted}`,
+    };
+  };
+
+  const {
+    full: fullFormattedDate,
+    mobileLine1,
+    mobileLine2,
+  } = formatPublicationDate(rawDate);
 
   return (
     <div
       dir={isRTL ? "rtl" : "ltr"}
-      className="min-h-screen py-2 sm:py-4 md:py-5"
+      className="w-full py-2.5 sm:py-4 md:py-5 pb-6 sm:pb-8 md:pb-10"
       style={{ backgroundColor: COLORS.background }}
     >
       <div className="w-full max-w-4xl lg:max-w-5xl mx-auto px-3 sm:px-6 space-y-2.5 sm:space-y-3.5">
@@ -367,19 +407,19 @@ export default function BookDetail() {
                 backgroundColor: "rgba(255, 255, 255, 0.55)",
               }}
             >
-              {/* Stat 1: Topic / موضوع */}
+              {/* Stat 1: Language / زبان */}
               <div className="flex flex-col items-center justify-center px-1 min-w-0">
                 <div className="flex items-center gap-1 text-[#8C6239] mb-0.5">
-                  <Tag className="w-3 h-3 shrink-0" />
+                  <Globe className="w-3 h-3 shrink-0" />
                   <span className="text-[10px] sm:text-[11px] font-medium font-serif">
-                    {isRTL ? "موضوع" : "Subject"}
+                    {isRTL ? "زبان" : "Language"}
                   </span>
                 </div>
                 <span
                   className="text-[11px] sm:text-xs font-bold font-serif text-[#2B1E16] break-words line-clamp-1 max-w-full"
-                  title={categoryLabel}
+                  title={languageLabel}
                 >
-                  {categoryLabel}
+                  {languageLabel}
                 </span>
               </div>
 
@@ -399,20 +439,35 @@ export default function BookDetail() {
                 </span>
               </div>
 
-              {/* Stat 3: Published / اشاعت */}
-              <div className="flex flex-col items-center justify-center px-1 min-w-0">
-                <div className="flex items-center gap-1 text-[#8C6239] mb-0.5">
+              {/* Stat 3: Publication Date / تاریخِ اشاعت */}
+              <div className="flex flex-col items-center justify-center px-0.5 sm:px-1 min-w-0">
+                <div className="flex items-center justify-center gap-1 text-[#8C6239] mb-0.5 text-center">
                   <Calendar className="w-3 h-3 shrink-0" />
-                  <span className="text-[10px] sm:text-[11px] font-medium font-serif">
-                    {isRTL ? "اشاعت" : "Published"}
+                  <span className="text-[8px] xs:text-[9px] sm:text-[10.5px] font-medium font-serif shrink-0 whitespace-nowrap">
+                    {isRTL ? "تاریخِ اشاعت" : "Publication Date"}
                   </span>
                 </div>
-                <span
-                  className="text-[10.5px] sm:text-xs font-bold font-serif text-[#2B1E16] break-words line-clamp-1 max-w-full"
-                  title={formattedDate}
+                {/* Responsive Date: Exactly 1 line on desktop, exactly 2 lines on small mobile screen */}
+                <div
+                  className="font-bold font-serif text-[#2B1E16] text-center max-w-full"
+                  title={fullFormattedDate}
                 >
-                  {formattedDate || "—"}
-                </span>
+                  {/* Big screen: exactly 1 line */}
+                  <span className="hidden sm:inline text-xs whitespace-nowrap">
+                    {fullFormattedDate}
+                  </span>
+                  {/* Small screen: exactly 2 lines */}
+                  <span className="flex sm:hidden flex-col items-center justify-center leading-tight">
+                    <span className="text-[9px] xs:text-[10px] leading-tight whitespace-nowrap">
+                      {mobileLine1}
+                    </span>
+                    {mobileLine2 && (
+                      <span className="text-[8px] xs:text-[8.5px] text-[#5C3E20]/90 leading-tight whitespace-nowrap mt-0.5">
+                        {mobileLine2}
+                      </span>
+                    )}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
@@ -725,141 +780,14 @@ export default function BookDetail() {
           )}
         </div>
 
-        {/* ══════════════════════════════════════════════════════════════
-            6. BOOK DETAILS SECTION ("کتاب کی تفصیلات") 2x2 Grid
-        ══════════════════════════════════════════════════════════════ */}
-        <div
-          className="rounded-2xl border p-3 sm:p-3.5 space-y-2 sm:space-y-2.5 shadow-2xs"
-          style={{
-            backgroundColor: "#FAF6EE",
-            borderColor: "rgba(217, 164, 88, 0.35)",
-          }}
-        >
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-[#4A3728] text-[#DFC07C] flex items-center justify-center shadow-xs">
-              <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-            </div>
-            <h3
-              className="text-xs sm:text-sm font-bold font-serif"
-              style={{ color: COLORS.primary }}
-            >
-              {isRTL ? "کتاب کی تفصیلات" : "Book Details"}
-            </h3>
-          </div>
-
-          <div className="grid grid-cols-2 gap-2 sm:gap-2.5">
-            {/* Card 1: Category / موضوع */}
-            <div
-              className="relative rounded-xl sm:rounded-2xl border p-2.5 sm:p-3 flex items-center justify-between gap-2 shadow-2xs"
-              style={{
-                backgroundColor: "#FDFBF7",
-                borderColor: "#EBDDC9",
-              }}
-            >
-              <div className="flex-1 min-w-0">
-                <span className="text-[8.5px] sm:text-[10px] block text-amber-950/65 font-medium font-serif leading-tight">
-                  {isRTL ? "موضوع" : "Subject"}
-                </span>
-                <span
-                  className="text-[11px] sm:text-xs font-bold block font-serif mt-0.5 leading-snug break-words"
-                  style={{ color: "#2B1E16" }}
-                  title={categoryLabel}
-                >
-                  {categoryLabel}
-                </span>
-              </div>
-              <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center shrink-0 bg-[#F3EADB] text-[#8C6239]">
-                <Tag className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-              </div>
-            </div>
-
-            {/* Card 2: Author / مصنف - Accommodates Long Names Without Hiding */}
-            <div
-              className="relative rounded-xl sm:rounded-2xl border p-2.5 sm:p-3 flex items-start sm:items-center justify-between gap-2 shadow-2xs"
-              style={{
-                backgroundColor: "#FDFBF7",
-                borderColor: "#EBDDC9",
-              }}
-            >
-              <div className="flex-1 min-w-0">
-                <span className="text-[8.5px] sm:text-[10px] block text-amber-950/65 font-medium font-serif leading-tight">
-                  {isRTL ? "مصنف" : "Author"}
-                </span>
-                <span
-                  className="text-[11px] sm:text-xs font-bold block font-serif mt-0.5 leading-snug break-words"
-                  style={{ color: "#2B1E16" }}
-                  title={author}
-                >
-                  {author}
-                </span>
-              </div>
-              <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center shrink-0 bg-[#F3EADB] text-[#8C6239] mt-0.5 sm:mt-0">
-                <User className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-              </div>
-            </div>
-
-            {/* Card 3: Pages / صفحات */}
-            <div
-              className="relative rounded-xl sm:rounded-2xl border p-2.5 sm:p-3 flex items-center justify-between gap-2 shadow-2xs"
-              style={{
-                backgroundColor: "#FDFBF7",
-                borderColor: "#EBDDC9",
-              }}
-            >
-              <div className="flex-1 min-w-0">
-                <span className="text-[8.5px] sm:text-[10px] block text-amber-950/65 font-medium font-serif leading-tight">
-                  {isRTL ? "صفحات" : "Pages"}
-                </span>
-                <span
-                  className="text-[11px] sm:text-xs font-bold block font-serif mt-0.5 leading-snug break-words"
-                  style={{ color: "#2B1E16" }}
-                >
-                  {pageCount
-                    ? isRTL
-                      ? `${pageCount} صفحات`
-                      : `${pageCount} Pages`
-                    : "—"}
-                </span>
-              </div>
-              <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center shrink-0 bg-[#F3EADB] text-[#8C6239]">
-                <BookOpen className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-              </div>
-            </div>
-
-            {/* Card 4: Publication Date / اشاعت */}
-            <div
-              className="relative rounded-xl sm:rounded-2xl border p-2.5 sm:p-3 flex items-center justify-between gap-2 shadow-2xs"
-              style={{
-                backgroundColor: "#FDFBF7",
-                borderColor: "#EBDDC9",
-              }}
-            >
-              <div className="flex-1 min-w-0">
-                <span className="text-[8.5px] sm:text-[10px] block text-amber-950/65 font-medium font-serif leading-tight">
-                  {isRTL ? "اشاعت" : "Published"}
-                </span>
-                <span
-                  className="text-[11px] sm:text-xs font-bold block font-serif mt-0.5 leading-snug break-words"
-                  style={{ color: "#2B1E16" }}
-                  title={formattedDate}
-                >
-                  {formattedDate || "—"}
-                </span>
-              </div>
-              <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center shrink-0 bg-[#F3EADB] text-[#8C6239]">
-                <Calendar className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-              </div>
-            </div>
-          </div>
-        </div>
 
         {/* ══════════════════════════════════════════════════════════════
             7. RELATED BOOKS SECTION
         ══════════════════════════════════════════════════════════════ */}
         {relatedBooks?.length > 0 && (
           <div
-            className="mt-5 sm:mt-7 pt-4 sm:pt-5 border-t"
-            style={{ borderColor: `${COLORS.border}80` }}
+            className="mt-4 sm:mt-5 pt-3 sm:pt-4 border-t"
+            style={{ borderColor: `${COLORS.border}70` }}
           >
             <div className="flex items-center justify-between mb-3 sm:mb-4">
               <div>

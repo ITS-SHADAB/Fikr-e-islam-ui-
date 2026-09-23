@@ -166,7 +166,7 @@ export default function MainLayout() {
       <Header />
 
       {/* Main page content area */}
-      <main className={pageTransitionClass}>
+      <main className={`flex-1 flex flex-col ${pageTransitionClass}`}>
         <Suspense
           fallback={
             <div className="flex items-center justify-center min-h-[40vh] w-full py-12">
