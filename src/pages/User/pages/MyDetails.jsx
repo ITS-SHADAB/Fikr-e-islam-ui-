@@ -34,6 +34,8 @@ import {
   getMyQuestions,
   updateMyProfile,
   deleteComment,
+  updateMyQuestion,
+  deleteMyQuestion,
 } from "@/services";
 import { updateUserProfile, logout } from "@/store/slices/authSlice";
 import { useAuthModal } from "@/context/AuthModalContext";
@@ -119,7 +121,7 @@ const CONTENT_STYLE = {
 };
 
 /* ── Avatar Component ─────────────────────────────────────────────────── */
-function UserAvatar({ user, className = "w-20 h-20 sm:w-24 sm:h-24" }) {
+function UserAvatar({ user, size = "md" }) {
   const initials = (user?.name || "U")
     .split(" ")
     .map((w) => w[0])
@@ -134,22 +136,36 @@ function UserAvatar({ user, className = "w-20 h-20 sm:w-24 sm:h-24" }) {
 
   const [imgFailed, setImgFailed] = useState(false);
 
-  if (imgUrl && !imgFailed) {
-    return (
-      <img
-        src={imgUrl}
-        alt={user?.name || "User Avatar"}
-        onError={() => setImgFailed(true)}
-        className={`${className} rounded-2xl object-cover border-2 border-[#C49A5A]/50 shadow-md shrink-0`}
-      />
-    );
-  }
+  // Exact fixed size configurations to ensure the avatar never blows out:
+  // sm: mobile avatar (56px x 56px)
+  // md: standard avatar (72px x 72px)
+  // lg: desktop sidebar avatar (80px x 80px)
+  const sizeMap = {
+    sm: "w-14 h-14 min-w-[56px] min-h-[56px] max-w-[56px] max-h-[56px] text-lg",
+    md: "w-18 h-18 sm:w-20 sm:h-20 min-w-[72px] min-h-[72px] max-w-[80px] max-h-[80px] text-xl",
+    lg: "w-20 h-20 min-w-[80px] min-h-[80px] max-w-[80px] max-h-[80px] text-2xl",
+  };
+
+  const containerClass = sizeMap[size] || sizeMap.md;
 
   return (
     <div
-      className={`${className} rounded-2xl bg-gradient-to-br from-[#4A3B7A] to-[#2B1B54] border-2 border-[#C49A5A]/40 shadow-md flex items-center justify-center text-white text-2xl sm:text-3xl font-bold tracking-wider shrink-0`}
+      className={`${containerClass} aspect-square rounded-2xl overflow-hidden shrink-0 border-2 border-[#C49A5A]/50 shadow-md relative bg-gradient-to-br from-[#4A3B7A] to-[#2B1B54] flex items-center justify-center`}
+      style={{ aspectRatio: "1 / 1" }}
     >
-      {initials}
+      {imgUrl && !imgFailed ? (
+        <img
+          src={imgUrl}
+          alt={user?.name || "User Avatar"}
+          onError={() => setImgFailed(true)}
+          className="w-full h-full object-cover object-center block"
+          style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center" }}
+        />
+      ) : (
+        <span className="text-white font-bold tracking-wider select-none font-serif">
+          {initials}
+        </span>
+      )}
     </div>
   );
 }
@@ -301,8 +317,12 @@ function CommentCard({ comment, onDelete, openMenuId, setOpenMenuId }) {
             </span>
           </div>
 
-          {/* Three-Dot Menu */}
-          <div className="relative" ref={menuRef}>
+          {/* Three-Dot Menu Action Wrapper */}
+          <div
+            ref={menuRef}
+            className="relative shrink-0"
+            style={{ position: "relative" }}
+          >
             <button
               type="button"
               onClick={() =>
@@ -314,10 +334,23 @@ function CommentCard({ comment, onDelete, openMenuId, setOpenMenuId }) {
               <MoreVertical className="w-4 h-4" />
             </button>
 
-            {/* Dropdown Menu */}
+            {/* Dropdown Menu (Floating Overlay - completely out of normal document flow) */}
             {isMenuOpen && (
               <div
-                className="absolute right-0 sm:right-auto sm:left-auto top-full mt-1 w-44 rounded-xl bg-[#FBF7F0] border border-[#B58A4D] shadow-xl py-1.5 z-30 font-urdu text-right animate-in fade-in zoom-in-95 duration-100"
+                className="absolute left-0 rounded-xl py-1.5 font-urdu text-right shadow-lg"
+                style={{
+                  position: "absolute",
+                  left: 0,
+                  right: "auto",
+                  top: "calc(100% + 8px)",
+                  zIndex: 100,
+                  width: "11rem",
+                  maxWidth: "calc(100vw - 36px)",
+                  backgroundColor: "#FBF7F0",
+                  border: "1px solid #D8C6AC",
+                  boxShadow:
+                    "0 10px 25px -5px rgba(43, 33, 24, 0.12), 0 8px 10px -6px rgba(43, 33, 24, 0.06)",
+                }}
                 dir="rtl"
               >
                 <Link
@@ -350,7 +383,16 @@ function CommentCard({ comment, onDelete, openMenuId, setOpenMenuId }) {
 }
 
 /* ── Single Question Card ─────────────────────────────────────────────── */
-function UserQuestionCard({ question }) {
+function UserQuestionCard({
+  question,
+  onEdit,
+  onDelete,
+  openMenuId,
+  setOpenMenuId,
+}) {
+  const isMenuOpen = openMenuId === question._id;
+  const menuRef = useRef(null);
+
   const title = question.questionTitle || question.question || "بلا عنوان سوال";
   const rawAnswer = question.answerContent || question.answer || "";
   const cleanAnswer = rawAnswer.replace(/<[^>]*>?/gm, "").trim();
@@ -362,14 +404,31 @@ function UserQuestionCard({ question }) {
     (!isAnswered && question.status !== "rejected");
   const isRejected = question.status === "rejected";
 
-  const isLong = cleanAnswer.length > 70;
-  const previewText = isLong ? cleanAnswer.slice(0, 70) + "..." : cleanAnswer;
+  const isLong = cleanAnswer.length > 90;
+  const previewText = isLong ? cleanAnswer.slice(0, 90) + "..." : cleanAnswer;
   const formattedDate = formatUrduDate(question.createdAt);
 
-  const card = (
-    <div className="rounded-[18px] bg-[#FBF7F0] border border-[#D8C6AC] hover:border-[#B58A4D] p-5 shadow-[0_4px_18px_rgba(43,33,24,0.04)] hover:shadow-md transition-all duration-200">
+  // Close dropdown on click outside
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        if (openMenuId === question._id) {
+          setOpenMenuId(null);
+        }
+      }
+    }
+    if (isMenuOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isMenuOpen, question._id, openMenuId, setOpenMenuId]);
+
+  return (
+    <div className="group relative rounded-[18px] bg-[#FBF7F0] border border-[#D8C6AC] hover:border-[#B58A4D] p-4 sm:p-5 shadow-[0_4px_18px_rgba(43,33,24,0.04)] hover:shadow-md transition-all duration-200">
       <div className="flex flex-col gap-3" dir="rtl">
-        {/* Meta row */}
+        {/* Meta row: Status badge (Right) + Date & 3-Dot Actions (Left) */}
         <div className="flex items-center justify-between text-xs">
           <div className="flex items-center gap-2">
             {isAnswered && (
@@ -387,11 +446,97 @@ function UserQuestionCard({ question }) {
                 مسترد
               </span>
             )}
+            {question.isEdited && (
+              <span className="text-[10px] text-[#8C7A6B] bg-[#EFE4D5]/70 px-2 py-0.5 rounded-md font-urdu">
+                ترمیم شدہ
+              </span>
+            )}
           </div>
 
-          <div className="flex items-center gap-1.5 text-[#7A7066]">
-            <Calendar className="w-3.5 h-3.5 text-[#A8793E]" />
-            <span className="font-urdu text-sm">{formattedDate}</span>
+          <div className="flex items-center gap-2">
+            {/* Formatted Date */}
+            <div className="flex items-center gap-1.5 text-[#7A7066]">
+              <Calendar className="w-3.5 h-3.5 text-[#A8793E]" />
+              <span className="font-urdu text-sm">{formattedDate}</span>
+            </div>
+
+            {/* Three-Dot Actions Menu Wrapper */}
+            <div
+              ref={menuRef}
+              className="relative shrink-0"
+              style={{ position: "relative" }}
+            >
+              <button
+                type="button"
+                onClick={() => setOpenMenuId(isMenuOpen ? null : question._id)}
+                aria-label="سوال کے اختیارات"
+                className="w-8 h-8 rounded-lg flex items-center justify-center text-[#7A7066] hover:text-[#21170F] hover:bg-[#EFE4D5] transition-colors cursor-pointer"
+              >
+                <MoreVertical className="w-4 h-4" />
+              </button>
+
+              {/* Dropdown Menu (Floating Overlay - completely out of normal document flow) */}
+              {isMenuOpen && (
+                <div
+                  className="absolute left-0 rounded-xl py-1.5 font-urdu text-right shadow-lg"
+                  style={{
+                    position: "absolute",
+                    left: 0,
+                    top: "calc(100% + 8px)",
+                    zIndex: 100,
+                    width: "12rem",
+                    maxWidth: "calc(100vw - 36px)",
+                    backgroundColor: "#FBF7F0",
+                    border: "1px solid #D8C6AC",
+                    boxShadow:
+                      "0 10px 25px -5px rgba(43, 33, 24, 0.12), 0 8px 10px -6px rgba(43, 33, 24, 0.06)",
+                  }}
+                  dir="rtl"
+                >
+                  {/* View Full Answer (if answered) */}
+                  {question.slug && isAnswered && (
+                    <Link
+                      to={`/qa/${question.slug}`}
+                      onClick={() => setOpenMenuId(null)}
+                      className="flex items-center gap-2 px-3.5 py-2 text-sm text-[#241C16] hover:bg-[#EFE4D5] transition-colors"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5 text-[#A8793E]" />
+                      <span>مکمل جواب دیکھیں</span>
+                    </Link>
+                  )}
+
+                  {/* Edit Question (if pending) */}
+                  {isPending && onEdit && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setOpenMenuId(null);
+                        onEdit(question);
+                      }}
+                      className="w-full flex items-center gap-2 px-3.5 py-2 text-sm text-[#241C16] hover:bg-[#EFE4D5] transition-colors text-right cursor-pointer"
+                    >
+                      <Edit3 className="w-3.5 h-3.5 text-[#A8793E]" />
+                      <span>سوال میں ترمیم کریں</span>
+                    </button>
+                  )}
+
+                  {/* Delete Question (if pending) */}
+                  {isPending && onDelete && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setOpenMenuId(null);
+                        onDelete(question);
+                      }}
+                      className="w-full flex items-center gap-2 px-3.5 py-2 text-sm text-red-700 hover:bg-red-50 transition-colors text-right cursor-pointer"
+                    >
+                      <Trash2 className="w-3.5 h-3.5 text-red-500" />
+                      <span>سوال حذف کریں</span>
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
@@ -400,10 +545,26 @@ function UserQuestionCard({ question }) {
           <span className="px-2 py-0.5 rounded-md text-[11px] font-bold bg-[#2B2118]/10 text-[#2B2118] shrink-0 font-urdu">
             سوال
           </span>
-          <h4 className="font-urdu text-lg sm:text-xl font-bold text-[#21170F] leading-relaxed">
-            {title}
-          </h4>
+          {question.slug && isAnswered ? (
+            <Link
+              to={`/qa/${question.slug}`}
+              className="font-urdu text-lg sm:text-xl font-bold text-[#21170F] hover:text-[#A8793E] hover:underline transition-colors leading-relaxed"
+            >
+              {title}
+            </Link>
+          ) : (
+            <h4 className="font-urdu text-lg sm:text-xl font-bold text-[#21170F] leading-relaxed">
+              {title}
+            </h4>
+          )}
         </div>
+
+        {/* Detailed Question Preview if not answered */}
+        {question.detailedQuestion && !cleanAnswer && (
+          <p className="font-urdu text-sm sm:text-base text-[#5F554B] leading-relaxed line-clamp-3 bg-[#F7EFE4]/60 p-3 rounded-xl border border-[#D8C6AC]/40">
+            {question.detailedQuestion}
+          </p>
+        )}
 
         {/* Answer Snippet */}
         {cleanAnswer && (
@@ -419,26 +580,19 @@ function UserQuestionCard({ question }) {
 
         {/* View Detail Link if answered */}
         {question.slug && isAnswered && (
-          <div className="pt-2 flex justify-end">
-            <span className="inline-flex items-center gap-1 font-urdu text-sm text-[#A8793E] hover:text-[#21170F] font-bold">
+          <div className="pt-1 flex justify-end">
+            <Link
+              to={`/qa/${question.slug}`}
+              className="inline-flex items-center gap-1 font-urdu text-sm text-[#A8793E] hover:text-[#21170F] font-bold"
+            >
               <span>مکمل جواب دیکھیں</span>
               <ExternalLink className="w-3.5 h-3.5" />
-            </span>
+            </Link>
           </div>
         )}
       </div>
     </div>
   );
-
-  if (question.slug && isAnswered) {
-    return (
-      <Link to={`/qa/${question.slug}`} className="block">
-        {card}
-      </Link>
-    );
-  }
-
-  return card;
 }
 
 /* ── Profile Overview Information Tile ────────────────────────────────── */
@@ -488,10 +642,22 @@ export default function MyDetails() {
 
   // 3-dot menu state
   const [openMenuId, setOpenMenuId] = useState(null);
+  const [openQuestionMenuId, setOpenQuestionMenuId] = useState(null);
 
   // Delete comment confirmation modal state
   const [deleteConfirmComment, setDeleteConfirmComment] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  // Edit Question Modal state
+  const [editQuestionModal, setEditQuestionModal] = useState(null);
+  const [editQuestionTitle, setEditQuestionTitle] = useState("");
+  const [editQuestionDetail, setEditQuestionDetail] = useState("");
+  const [editQuestionLoading, setEditQuestionLoading] = useState(false);
+  const [editQuestionError, setEditQuestionError] = useState("");
+
+  // Delete Question Modal state
+  const [deleteConfirmQuestion, setDeleteConfirmQuestion] = useState(null);
+  const [isDeletingQuestion, setIsDeletingQuestion] = useState(false);
 
   // Edit Profile Modal
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -603,6 +769,90 @@ export default function MyDetails() {
       );
     } finally {
       setIsDeleting(false);
+    }
+  };
+
+  // Question Edit Handlers
+  const handleOpenEditQuestion = (q) => {
+    setEditQuestionModal(q);
+    setEditQuestionTitle(q.questionTitle || q.question || "");
+    setEditQuestionDetail(q.detailedQuestion || "");
+    setEditQuestionError("");
+  };
+
+  const handleUpdateQuestion = async (e) => {
+    e.preventDefault();
+    setEditQuestionError("");
+
+    if (!editQuestionTitle.trim()) {
+      setEditQuestionError("سوال کا عنوان درکار ہے / Question title is required");
+      return;
+    }
+    if (!editQuestionDetail.trim()) {
+      setEditQuestionError(
+        "تفصیلی سوال درکار ہے / Detailed question is required"
+      );
+      return;
+    }
+
+    try {
+      setEditQuestionLoading(true);
+      const res = await updateMyQuestion(editQuestionModal._id, {
+        questionTitle: editQuestionTitle.trim(),
+        detailedQuestion: editQuestionDetail.trim(),
+      });
+
+      if (res?.success) {
+        setQuestions((prev) =>
+          prev.map((q) =>
+            q._id === editQuestionModal._id
+              ? {
+                  ...q,
+                  ...(res.question || {}),
+                  questionTitle: editQuestionTitle.trim(),
+                  detailedQuestion: editQuestionDetail.trim(),
+                  isEdited: true,
+                }
+              : q
+          )
+        );
+        toast.success(res.message || "سوال کامیابی سے تبدیل ہو گیا!");
+        setEditQuestionModal(null);
+      }
+    } catch (err) {
+      setEditQuestionError(
+        err.response?.data?.message ||
+          err.message ||
+          "سوال اپ ڈیٹ کرنے میں غلطی ہوئی۔"
+      );
+    } finally {
+      setEditQuestionLoading(false);
+    }
+  };
+
+  // Question Delete Handlers
+  const handleOpenDeleteQuestion = (q) => {
+    setDeleteConfirmQuestion(q);
+  };
+
+  const handleDeleteQuestion = async () => {
+    if (!deleteConfirmQuestion) return;
+    try {
+      setIsDeletingQuestion(true);
+      const res = await deleteMyQuestion(deleteConfirmQuestion._id);
+      setQuestions((prev) =>
+        prev.filter((q) => q._id !== deleteConfirmQuestion._id)
+      );
+      toast.success(res?.message || "سوال کامیابی سے حذف کر دیا گیا");
+      setDeleteConfirmQuestion(null);
+    } catch (err) {
+      toast.error(
+        err.response?.data?.message ||
+          err.message ||
+          "سوال حذف کرنے میں ناکامی"
+      );
+    } finally {
+      setIsDeletingQuestion(false);
     }
   };
 
@@ -749,82 +999,84 @@ export default function MyDetails() {
         </div>
 
         {/* ── Mobile Navigation Tabs (< 768px) ─────────────────────────── */}
-        <div className="block md:hidden bg-[#21170F] rounded-[18px] p-3 border border-[#B58A4D]/30 shadow-md">
+        <div className="block md:hidden bg-[#21170F] rounded-[20px] p-4 border border-[#B58A4D]/35 shadow-lg">
           {/* User mini badge */}
           <div className="flex items-center gap-3 pb-3 border-b border-[#A8793E]/20">
-            <UserAvatar user={user} className="w-12 h-12" />
-            <div className="min-w-0">
-              <h2 className="text-white text-base font-bold truncate">
+            <UserAvatar user={user} size="sm" />
+            <div className="min-w-0 flex-1">
+              <h2 className="text-white text-base sm:text-lg font-bold truncate font-serif">
                 {user?.name || "User"}
               </h2>
-              <div className="flex items-center gap-1 text-[11px] text-[#C49A5A] font-urdu">
-                <ShieldCheck className="w-3 h-3 text-[#C49A5A]" />
-                <span>{isAdmin ? "ایڈمنسٹریٹر" : "صارف"}</span>
-              </div>
             </div>
           </div>
 
-          {/* Horizontal scroll tabs */}
-          <div className="flex items-center gap-2 pt-2.5 overflow-x-auto no-scrollbar" dir="rtl">
+          {/* All 5 Navigation Menus - Responsive Grid (All items 100% visible) */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-3" dir="rtl">
             <button
               type="button"
-              onClick={() => setActiveTab("comments")}
-              className={`px-3.5 py-1.5 rounded-full font-urdu text-xs whitespace-nowrap flex items-center gap-1.5 transition-all ${
-                activeTab === "comments"
-                  ? "bg-[#F7F1E8] text-[#2B2118] font-bold shadow-xs"
-                  : "bg-white/10 text-white/80 hover:bg-white/20"
+              onClick={() => {
+                setActiveTab("comments");
+                setActiveFilter("all");
+              }}
+              className={`px-3 py-2.5 rounded-xl font-urdu text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                activeTab === "comments" && activeFilter !== "question"
+                  ? "bg-[#F7F1E8] text-[#2B2118] font-bold shadow-sm border border-[#A8793E]/40"
+                  : "bg-white/10 text-white/90 hover:bg-white/20 border border-white/10"
               }`}
             >
-              <MessageSquare className="w-3.5 h-3.5" />
+              <MessageSquare className={`w-4 h-4 ${activeTab === "comments" && activeFilter !== "question" ? "text-[#A8793E]" : "text-[#C49A5A]"}`} />
               <span>میرے تبصرے</span>
             </button>
 
             <button
               type="button"
               onClick={() => setActiveTab("overview")}
-              className={`px-3.5 py-1.5 rounded-full font-urdu text-xs whitespace-nowrap flex items-center gap-1.5 transition-all ${
+              className={`px-3 py-2.5 rounded-xl font-urdu text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer ${
                 activeTab === "overview"
-                  ? "bg-[#F7F1E8] text-[#2B2118] font-bold shadow-xs"
-                  : "bg-white/10 text-white/80 hover:bg-white/20"
+                  ? "bg-[#F7F1E8] text-[#2B2118] font-bold shadow-sm border border-[#A8793E]/40"
+                  : "bg-white/10 text-white/90 hover:bg-white/20 border border-white/10"
               }`}
             >
-              <User className="w-3.5 h-3.5" />
+              <User className={`w-4 h-4 ${activeTab === "overview" ? "text-[#A8793E]" : "text-[#C49A5A]"}`} />
               <span>پروفائل کا جائزہ</span>
             </button>
 
             <button
               type="button"
-              onClick={() => setActiveTab("questions")}
-              className={`px-3.5 py-1.5 rounded-full font-urdu text-xs whitespace-nowrap flex items-center gap-1.5 transition-all ${
-                activeTab === "questions"
-                  ? "bg-[#F7F1E8] text-[#2B2118] font-bold shadow-xs"
-                  : "bg-white/10 text-white/80 hover:bg-white/20"
+              onClick={() => {
+                setActiveTab("questions");
+                setActiveFilter("question");
+              }}
+              className={`px-3 py-2.5 rounded-xl font-urdu text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                activeTab === "questions" || (activeTab === "comments" && activeFilter === "question")
+                  ? "bg-[#F7F1E8] text-[#2B2118] font-bold shadow-sm border border-[#A8793E]/40"
+                  : "bg-white/10 text-white/90 hover:bg-white/20 border border-white/10"
               }`}
             >
-              <HelpCircle className="w-3.5 h-3.5" />
+              <HelpCircle className={`w-4 h-4 ${activeTab === "questions" || (activeTab === "comments" && activeFilter === "question") ? "text-[#A8793E]" : "text-[#C49A5A]"}`} />
               <span>میرے سوالات</span>
             </button>
 
             <button
               type="button"
               onClick={openEditModal}
-              className="px-3.5 py-1.5 rounded-full font-urdu text-xs whitespace-nowrap flex items-center gap-1.5 bg-white/10 text-white/80 hover:bg-white/20 transition-all"
+              className="px-3 py-2.5 rounded-xl font-urdu text-xs sm:text-sm flex items-center justify-center gap-2 bg-white/10 text-white/90 hover:bg-white/20 border border-white/10 transition-all cursor-pointer"
             >
-              <Edit3 className="w-3.5 h-3.5" />
+              <Edit3 className="w-4 h-4 text-[#C49A5A]" />
               <span>پروفائل میں ترمیم</span>
             </button>
 
             <button
               type="button"
               onClick={() => setActiveTab("settings")}
-              className={`px-3.5 py-1.5 rounded-full font-urdu text-xs whitespace-nowrap flex items-center gap-1.5 transition-all ${
+              className={`col-span-2 sm:col-span-1 px-3 py-2.5 rounded-xl font-urdu text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer ${
                 activeTab === "settings"
-                  ? "bg-[#F7F1E8] text-[#2B2118] font-bold shadow-xs"
-                  : "bg-white/10 text-white/80 hover:bg-white/20"
+                  ? "bg-[#F7F1E8] text-[#2B2118] font-bold shadow-sm border border-[#A8793E]/40"
+                  : "bg-white/10 text-white/90 hover:bg-white/20 border border-white/10"
               }`}
             >
-              <Settings className="w-3.5 h-3.5" />
-              <span>ترتیبات</span>
+              <Settings className={`w-4 h-4 ${activeTab === "settings" ? "text-[#A8793E]" : "text-[#C49A5A]"}`} />
+              <span>اکاؤنٹ کی ترتیبات</span>
             </button>
           </div>
         </div>
@@ -837,14 +1089,12 @@ export default function MyDetails() {
           <aside className="hidden md:flex w-72 lg:w-80 shrink-0 bg-[#21170F] text-[#F7F1E8] rounded-[22px] border border-[#B58A4D]/35 p-6 shadow-xl flex-col min-h-[640px] relative overflow-hidden select-none">
             {/* Top User Info Section */}
             <div className="flex flex-col items-center text-center pb-6 border-b border-[#A8793E]/25">
-              <UserAvatar user={user} className="w-24 h-24 mb-3" />
+              <div className="mb-3">
+                <UserAvatar user={user} size="lg" />
+              </div>
               <h2 className="text-white text-xl lg:text-2xl font-bold tracking-wide uppercase font-serif">
                 {user?.name || "MD SHADAB"}
               </h2>
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold text-[#C49A5A] bg-[#2B2118] border border-[#A8793E]/30 mt-2 font-urdu">
-                <ShieldCheck className="w-3.5 h-3.5 text-[#C49A5A]" />
-                <span>{isAdmin ? "ایڈمنسٹریٹر" : "رجسٹرڈ صارف"}</span>
-              </div>
             </div>
 
             {/* Navigation Menu List */}
@@ -954,80 +1204,80 @@ export default function MyDetails() {
             {activeTab === "comments" && (
               <>
                 {/* Hero Banner Section */}
-                <div className="relative rounded-[22px] bg-[#FBF7F0] border border-[#D8C6AC] shadow-xs p-6 sm:p-7 overflow-hidden">
-                  <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="relative rounded-[22px] bg-[#FBF7F0] border border-[#D8C6AC] shadow-xs p-5 sm:p-7 overflow-hidden">
+                  <div className="flex flex-col md:flex-row items-center justify-between gap-5 sm:gap-6">
                     {/* Left: Comment icon + Urdu title + description */}
-                    <div className="flex items-start gap-4 sm:gap-5 flex-1 w-full">
-                      <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-[#2B2118] border border-[#A8793E]/40 flex items-center justify-center shrink-0 shadow-md">
-                        <MessageSquare className="w-7 h-7 sm:w-8 sm:h-8 text-[#F7F1E8]" />
+                    <div className="flex items-start gap-3.5 sm:gap-5 flex-1 w-full" dir="rtl">
+                      <div className="w-13 h-13 sm:w-16 sm:h-16 rounded-2xl bg-[#2B2118] border border-[#A8793E]/40 flex items-center justify-center shrink-0 shadow-md">
+                        <MessageSquare className="w-6 h-6 sm:w-8 sm:h-8 text-[#F7F1E8]" />
                       </div>
 
-                      <div className="flex-1 text-right" dir="rtl">
-                        <h1 className="font-urdu text-3xl sm:text-4xl lg:text-[40px] font-bold text-[#21170F] tracking-wide leading-tight">
+                      <div className="flex-1 text-right">
+                        <h1 className="font-urdu text-2xl sm:text-4xl lg:text-[40px] font-bold text-[#21170F] tracking-wide leading-tight">
                           میرے تبصرے
                         </h1>
-                        <p className="font-urdu text-sm sm:text-base text-[#5F554B] leading-relaxed mt-2 max-w-xl">
+                        <p className="font-urdu text-xs sm:text-base text-[#5F554B] leading-relaxed mt-1.5 sm:mt-2 max-w-xl">
                           یہاں آپ اپنے تمام تبصرے دیکھ سکتے ہیں جو آپ نے مضامین، فتاویٰ، کتب اور دیگر مواد پر کیے ہیں۔
                         </p>
                       </div>
                     </div>
 
-                    {/* Right: Islamic Scholarly Vignette Card */}
-                    <div className="hidden lg:flex items-center justify-center p-2 min-w-[260px] max-w-[300px]">
-                      <div className="relative w-full py-4 px-5 rounded-2xl bg-gradient-to-b from-[#FFFDF9] to-[#F5ECE0] border border-[#D8C6AC] shadow-inner text-center overflow-hidden">
-                        <div className="relative z-10 flex flex-col items-center">
-                          <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-[#C49A5A]/40 mb-2 shadow-xs bg-[#EFE4D5]">
-                            <img
-                              src="/assets/images/scholarly_quill_books.jpg"
-                              alt="Scholarship Emblem"
-                              onError={(e) => {
-                                e.target.style.display = "none";
-                              }}
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
+                    {/* Right: Islamic Scholarly Vignette Card - VISIBLE ON BOTH MOBILE AND DESKTOP */}
+                    <div className="w-full md:w-auto flex items-center justify-center shrink-0">
+                      <div className="w-full sm:w-auto min-w-[240px] max-w-[300px] py-3 px-4 sm:py-4 sm:px-5 rounded-2xl bg-gradient-to-b from-[#FFFDF9] to-[#F5ECE0] border border-[#D8C6AC] shadow-inner text-center overflow-hidden flex sm:flex-col items-center justify-center gap-3 sm:gap-1.5">
+                        <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full overflow-hidden border-2 border-[#C49A5A]/40 shadow-xs bg-[#EFE4D5] shrink-0">
+                          <img
+                            src="/assets/images/scholarly_quill_books.jpg"
+                            alt="Scholarship Emblem"
+                            onError={(e) => {
+                              e.target.style.display = "none";
+                            }}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div className="flex flex-col items-center">
                           <p
-                            className="font-urdu text-base text-[#21170F] font-bold leading-snug"
+                            className="font-urdu text-sm sm:text-base text-[#21170F] font-bold leading-snug"
                             dir="rtl"
                           >
                             اچھے کلمات
                           </p>
                           <p
-                            className="font-urdu text-sm text-[#5F554B] leading-snug"
+                            className="font-urdu text-xs sm:text-sm text-[#5F554B] leading-snug"
                             dir="rtl"
                           >
                             صدقہ جاریہ ہیں۔
                           </p>
-                          <div className="mt-1 flex items-center justify-center gap-1.5 text-[#A8793E]">
-                            <div className="h-[1px] w-5 bg-[#A8793E]/40" />
-                            <span className="text-[10px]">❖</span>
-                            <div className="h-[1px] w-5 bg-[#A8793E]/40" />
-                          </div>
+                        </div>
+                        <div className="hidden sm:flex mt-1 items-center justify-center gap-1.5 text-[#A8793E]">
+                          <div className="h-[1px] w-5 bg-[#A8793E]/40" />
+                          <span className="text-[10px]">❖</span>
+                          <div className="h-[1px] w-5 bg-[#A8793E]/40" />
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                {/* Filter Tabs Row */}
+                {/* Filter Tabs Row - FLEX-WRAP (ALL TABS INCLUDING سوالات 100% VISIBLE) */}
                 <div
-                  className="flex items-center gap-2.5 overflow-x-auto no-scrollbar py-1"
+                  className="flex flex-wrap items-center gap-2 sm:gap-2.5 py-1"
                   dir="rtl"
                 >
                   {/* Filter: All (تمام) */}
                   <button
                     type="button"
                     onClick={() => setActiveFilter("all")}
-                    className={`inline-flex items-center gap-2 px-4 py-2 rounded-full font-urdu text-sm transition-all duration-150 cursor-pointer shrink-0 ${
+                    className={`inline-flex items-center gap-1.5 sm:gap-2 px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full font-urdu text-xs sm:text-sm transition-all duration-150 cursor-pointer ${
                       activeFilter === "all"
                         ? "bg-[#2B2118] text-[#F7F1E8] font-bold shadow-sm border border-[#A8793E]/40"
                         : "bg-[#FBF7F0] text-[#241C16] border border-[#D8C6AC] hover:bg-[#EFE4D5]"
                     }`}
                   >
-                    <MessageSquare className="w-4 h-4 text-[#A8793E]" />
+                    <MessageSquare className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#A8793E]" />
                     <span>تمام</span>
                     <span
-                      className={`text-xs px-2 py-0.5 rounded-full font-sans font-bold ${
+                      className={`text-[11px] sm:text-xs px-2 py-0.5 rounded-full font-sans font-bold ${
                         activeFilter === "all"
                           ? "bg-white/20 text-white"
                           : "bg-[#EFE4D5] text-[#5F554B]"
@@ -1041,16 +1291,16 @@ export default function MyDetails() {
                   <button
                     type="button"
                     onClick={() => setActiveFilter("article")}
-                    className={`inline-flex items-center gap-2 px-4 py-2 rounded-full font-urdu text-sm transition-all duration-150 cursor-pointer shrink-0 ${
+                    className={`inline-flex items-center gap-1.5 sm:gap-2 px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full font-urdu text-xs sm:text-sm transition-all duration-150 cursor-pointer ${
                       activeFilter === "article"
                         ? "bg-[#2B2118] text-[#F7F1E8] font-bold shadow-sm border border-[#A8793E]/40"
                         : "bg-[#FBF7F0] text-[#241C16] border border-[#D8C6AC] hover:bg-[#EFE4D5]"
                     }`}
                   >
-                    <FileText className="w-4 h-4 text-[#3A2B20]" />
+                    <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#3A2B20]" />
                     <span>مضامین</span>
                     <span
-                      className={`text-xs px-2 py-0.5 rounded-full font-sans font-bold ${
+                      className={`text-[11px] sm:text-xs px-2 py-0.5 rounded-full font-sans font-bold ${
                         activeFilter === "article"
                           ? "bg-white/20 text-white"
                           : "bg-[#EFE4D5] text-[#5F554B]"
@@ -1064,16 +1314,16 @@ export default function MyDetails() {
                   <button
                     type="button"
                     onClick={() => setActiveFilter("fatwa")}
-                    className={`inline-flex items-center gap-2 px-4 py-2 rounded-full font-urdu text-sm transition-all duration-150 cursor-pointer shrink-0 ${
+                    className={`inline-flex items-center gap-1.5 sm:gap-2 px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full font-urdu text-xs sm:text-sm transition-all duration-150 cursor-pointer ${
                       activeFilter === "fatwa"
                         ? "bg-[#2B2118] text-[#F7F1E8] font-bold shadow-sm border border-[#A8793E]/40"
                         : "bg-[#FBF7F0] text-[#241C16] border border-[#D8C6AC] hover:bg-[#EFE4D5]"
                     }`}
                   >
-                    <Scale className="w-4 h-4 text-[#A8793E]" />
+                    <Scale className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#A8793E]" />
                     <span>فتاویٰ</span>
                     <span
-                      className={`text-xs px-2 py-0.5 rounded-full font-sans font-bold ${
+                      className={`text-[11px] sm:text-xs px-2 py-0.5 rounded-full font-sans font-bold ${
                         activeFilter === "fatwa"
                           ? "bg-white/20 text-white"
                           : "bg-[#EFE4D5] text-[#5F554B]"
@@ -1087,16 +1337,16 @@ export default function MyDetails() {
                   <button
                     type="button"
                     onClick={() => setActiveFilter("book")}
-                    className={`inline-flex items-center gap-2 px-4 py-2 rounded-full font-urdu text-sm transition-all duration-150 cursor-pointer shrink-0 ${
+                    className={`inline-flex items-center gap-1.5 sm:gap-2 px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full font-urdu text-xs sm:text-sm transition-all duration-150 cursor-pointer ${
                       activeFilter === "book"
                         ? "bg-[#2B2118] text-[#F7F1E8] font-bold shadow-sm border border-[#A8793E]/40"
                         : "bg-[#FBF7F0] text-[#241C16] border border-[#D8C6AC] hover:bg-[#EFE4D5]"
                     }`}
                   >
-                    <BookOpen className="w-4 h-4 text-[#1E7F55]" />
+                    <BookOpen className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#1E7F55]" />
                     <span>کتابیں</span>
                     <span
-                      className={`text-xs px-2 py-0.5 rounded-full font-sans font-bold ${
+                      className={`text-[11px] sm:text-xs px-2 py-0.5 rounded-full font-sans font-bold ${
                         activeFilter === "book"
                           ? "bg-white/20 text-white"
                           : "bg-[#EFE4D5] text-[#5F554B]"
@@ -1110,16 +1360,16 @@ export default function MyDetails() {
                   <button
                     type="button"
                     onClick={() => setActiveFilter("question")}
-                    className={`inline-flex items-center gap-2 px-4 py-2 rounded-full font-urdu text-sm transition-all duration-150 cursor-pointer shrink-0 ${
+                    className={`inline-flex items-center gap-1.5 sm:gap-2 px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full font-urdu text-xs sm:text-sm transition-all duration-150 cursor-pointer ${
                       activeFilter === "question"
                         ? "bg-[#2B2118] text-[#F7F1E8] font-bold shadow-sm border border-[#A8793E]/40"
                         : "bg-[#FBF7F0] text-[#241C16] border border-[#D8C6AC] hover:bg-[#EFE4D5]"
                     }`}
                   >
-                    <HelpCircle className="w-4 h-4 text-[#2C4A73]" />
+                    <HelpCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#2C4A73]" />
                     <span>سوالات</span>
                     <span
-                      className={`text-xs px-2 py-0.5 rounded-full font-sans font-bold ${
+                      className={`text-[11px] sm:text-xs px-2 py-0.5 rounded-full font-sans font-bold ${
                         activeFilter === "question"
                           ? "bg-white/20 text-white"
                           : "bg-[#EFE4D5] text-[#5F554B]"
@@ -1162,7 +1412,14 @@ export default function MyDetails() {
                   ) : (
                     <div className="space-y-4">
                       {currentQuestions.map((q) => (
-                        <UserQuestionCard key={q._id} question={q} />
+                        <UserQuestionCard
+                          key={q._id}
+                          question={q}
+                          onEdit={handleOpenEditQuestion}
+                          onDelete={handleOpenDeleteQuestion}
+                          openMenuId={openQuestionMenuId}
+                          setOpenMenuId={setOpenQuestionMenuId}
+                        />
                       ))}
                     </div>
                   )
@@ -1387,7 +1644,14 @@ export default function MyDetails() {
                 ) : (
                   <div className="space-y-4">
                     {questions.map((q) => (
-                      <UserQuestionCard key={q._id} question={q} />
+                      <UserQuestionCard
+                        key={q._id}
+                        question={q}
+                        onEdit={handleOpenEditQuestion}
+                        onDelete={handleOpenDeleteQuestion}
+                        openMenuId={openQuestionMenuId}
+                        setOpenMenuId={setOpenQuestionMenuId}
+                      />
                     ))}
                   </div>
                 )}
@@ -1464,7 +1728,7 @@ export default function MyDetails() {
         </div>
       </div>
 
-      {/* ─── DELETE CONFIRMATION MODAL ─── */}
+      {/* ─── DELETE COMMENT CONFIRMATION MODAL ─── */}
       <Modal
         isOpen={Boolean(deleteConfirmComment)}
         onClose={() => setDeleteConfirmComment(null)}
@@ -1472,11 +1736,11 @@ export default function MyDetails() {
         maxWidth="max-w-md"
         dir="rtl"
       >
-        <div className="p-4 space-y-4 font-urdu text-right" dir="rtl">
+        <div className="p-4 sm:p-5 space-y-4 font-urdu text-right" dir="rtl">
           <p className="text-base text-[#21170F] leading-relaxed">
             کیا آپ واقعی یہ تبصرہ حذف کرنا چاہتے ہیں؟ یہ عمل واپس نہیں کیا جا سکتا۔
           </p>
-          <div className="p-3 bg-[#F7F1E8] rounded-xl border border-[#D8C6AC] text-sm text-[#5F554B] italic">
+          <div className="p-3 bg-[#F7F1E8] rounded-xl border border-[#D8C6AC] text-sm text-[#5F554B] italic break-words max-h-36 overflow-y-auto">
             "{deleteConfirmComment?.text}"
           </div>
           <div className="flex items-center justify-end gap-3 pt-3 border-t border-[#D8C6AC]">
@@ -1494,6 +1758,124 @@ export default function MyDetails() {
               className="px-5 py-2 rounded-xl bg-red-700 text-white text-sm font-bold hover:bg-red-800 transition-colors cursor-pointer flex items-center gap-2 disabled:opacity-50"
             >
               {isDeleting ? (
+                <>
+                  <Spinner size="sm" />
+                  <span>حذف ہو رہا ہے...</span>
+                </>
+              ) : (
+                <span>ہاں، حذف کریں</span>
+              )}
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* ─── EDIT QUESTION MODAL ─── */}
+      <Modal
+        isOpen={Boolean(editQuestionModal)}
+        onClose={() => setEditQuestionModal(null)}
+        title="سوال میں ترمیم کریں"
+        maxWidth="max-w-lg"
+        dir="rtl"
+      >
+        <form
+          onSubmit={handleUpdateQuestion}
+          className="p-4 sm:p-5 space-y-4 font-urdu text-right"
+          dir="rtl"
+        >
+          {editQuestionError && (
+            <div className="bg-red-50 border border-red-200 text-red-700 text-xs p-3 rounded-xl flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0 text-red-500" />
+              <span>{editQuestionError}</span>
+            </div>
+          )}
+
+          <div className="space-y-1.5">
+            <label className="block text-sm font-bold text-[#21170F]">
+              عنوانِ سوال / Question Title <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              value={editQuestionTitle}
+              onChange={(e) => setEditQuestionTitle(e.target.value)}
+              required
+              placeholder="مثال: کیا شیئرز کی خرید و فروخت جائز ہے؟"
+              className="w-full px-3.5 py-2.5 text-base border border-[#D8C6AC] bg-[#FBF7F0] rounded-xl outline-none focus:border-[#A8793E] focus:ring-1 focus:ring-[#A8793E] transition-all font-urdu text-right"
+              dir="rtl"
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="block text-sm font-bold text-[#21170F]">
+              تفصیلی سوال / Detailed Question <span className="text-red-500">*</span>
+            </label>
+            <textarea
+              rows={5}
+              value={editQuestionDetail}
+              onChange={(e) => setEditQuestionDetail(e.target.value)}
+              required
+              placeholder="اپنا تفصیلی سوال یہاں لکھیں..."
+              className="w-full px-3.5 py-2.5 text-base border border-[#D8C6AC] bg-[#FBF7F0] rounded-xl outline-none focus:border-[#A8793E] focus:ring-1 focus:ring-[#A8793E] transition-all font-urdu text-right resize-y min-h-[120px]"
+              dir="rtl"
+            />
+          </div>
+
+          <div className="flex items-center justify-end gap-3 pt-3 border-t border-[#D8C6AC]">
+            <button
+              type="button"
+              onClick={() => setEditQuestionModal(null)}
+              className="px-4 py-2 border border-[#D8C6AC] rounded-xl text-sm font-semibold text-[#5F554B] hover:bg-[#EFE4D5] transition-colors cursor-pointer"
+            >
+              منسوخ کریں
+            </button>
+            <button
+              type="submit"
+              disabled={editQuestionLoading}
+              className="px-6 py-2 rounded-xl text-sm font-bold text-[#F7F1E8] bg-[#2B2118] hover:bg-[#3A2B20] transition-all shadow-xs disabled:opacity-50 cursor-pointer flex items-center gap-2 border border-[#A8793E]/40"
+            >
+              {editQuestionLoading ? (
+                <>
+                  <Spinner size="sm" />
+                  <span>محفوظ ہو رہا ہے...</span>
+                </>
+              ) : (
+                <span>تبدیلیاں محفوظ کریں</span>
+              )}
+            </button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* ─── DELETE QUESTION CONFIRMATION MODAL ─── */}
+      <Modal
+        isOpen={Boolean(deleteConfirmQuestion)}
+        onClose={() => setDeleteConfirmQuestion(null)}
+        title="سوال حذف کریں"
+        maxWidth="max-w-md"
+        dir="rtl"
+      >
+        <div className="p-4 sm:p-5 space-y-4 font-urdu text-right" dir="rtl">
+          <p className="text-base text-[#21170F] leading-relaxed">
+            کیا آپ واقعی یہ سوال حذف کرنا چاہتے ہیں؟ یہ عمل واپس نہیں کیا جا سکتا۔
+          </p>
+          <div className="p-3 bg-[#F7F1E8] rounded-xl border border-[#D8C6AC] text-sm text-[#5F554B] font-bold break-words max-h-36 overflow-y-auto">
+            "{deleteConfirmQuestion?.questionTitle || deleteConfirmQuestion?.question || "بلا عنوان سوال"}"
+          </div>
+          <div className="flex items-center justify-end gap-3 pt-3 border-t border-[#D8C6AC]">
+            <button
+              type="button"
+              onClick={() => setDeleteConfirmQuestion(null)}
+              className="px-4 py-2 rounded-xl border border-[#D8C6AC] text-sm text-[#5F554B] hover:bg-[#EFE4D5] transition-colors cursor-pointer"
+            >
+              منسوخ کریں
+            </button>
+            <button
+              type="button"
+              disabled={isDeletingQuestion}
+              onClick={handleDeleteQuestion}
+              className="px-5 py-2 rounded-xl bg-red-700 text-white text-sm font-bold hover:bg-red-800 transition-colors cursor-pointer flex items-center gap-2 disabled:opacity-50"
+            >
+              {isDeletingQuestion ? (
                 <>
                   <Spinner size="sm" />
                   <span>حذف ہو رہا ہے...</span>
@@ -1525,23 +1907,30 @@ export default function MyDetails() {
           {/* Photo Upload */}
           <div className="flex flex-col items-center justify-center gap-3 py-2">
             <div className="relative">
-              {previewImage ? (
-                <img
-                  src={previewImage}
-                  alt="Preview"
-                  className="w-20 h-20 rounded-2xl object-cover border-2 border-[#A8793E] shadow-sm"
-                />
-              ) : user?.profileImage?.url ? (
-                <img
-                  src={user.profileImage.url}
-                  alt={user.name}
-                  className="w-20 h-20 rounded-2xl object-cover border-2 border-[#A8793E] shadow-sm"
-                />
-              ) : (
-                <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-[#4A3B7A] to-[#2B1B54] border-2 border-[#A8793E] shadow-sm flex items-center justify-center text-white text-2xl font-bold">
-                  {(user?.name || "U")[0]?.toUpperCase()}
-                </div>
-              )}
+              <div
+                className="w-20 h-20 min-w-[80px] min-h-[80px] max-w-[80px] max-h-[80px] aspect-square rounded-2xl overflow-hidden border-2 border-[#A8793E] shadow-sm bg-[#2B2118] flex items-center justify-center shrink-0"
+                style={{ width: "80px", height: "80px", aspectRatio: "1 / 1" }}
+              >
+                {previewImage ? (
+                  <img
+                    src={previewImage}
+                    alt="Preview"
+                    className="w-full h-full object-cover object-center block"
+                    style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center" }}
+                  />
+                ) : user?.profileImage?.url || (typeof user?.profileImage === "string" && user.profileImage) ? (
+                  <img
+                    src={typeof user.profileImage === "string" ? user.profileImage : user.profileImage.url}
+                    alt={user.name}
+                    className="w-full h-full object-cover object-center block"
+                    style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center" }}
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-br from-[#4A3B7A] to-[#2B1B54] flex items-center justify-center text-white text-2xl font-bold font-serif">
+                    {(user?.name || "U")[0]?.toUpperCase()}
+                  </div>
+                )}
+              </div>
               <label
                 htmlFor="profile-image-upload"
                 className="absolute bottom-0 right-0 p-1.5 rounded-full bg-[#2B2118] text-[#F7F1E8] hover:bg-[#3A2B20] cursor-pointer shadow-md transition-colors border border-[#A8793E]"
