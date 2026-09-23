@@ -52,10 +52,11 @@ export function MihrabArchBackground({ className = "" }) {
         </linearGradient>
 
         <linearGradient id="pillarGrad" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stopColor="#B88944" />
-          <stop offset="35%" stopColor="#E5C78A" />
-          <stop offset="70%" stopColor="#F5DC9F" />
-          <stop offset="100%" stopColor="#B88944" />
+          <stop offset="0%" stopColor="#6E4215" />
+          <stop offset="25%" stopColor="#B58133" />
+          <stop offset="50%" stopColor="#ECC26E" />
+          <stop offset="75%" stopColor="#B58133" />
+          <stop offset="100%" stopColor="#6E4215" />
         </linearGradient>
       </defs>
 
@@ -94,15 +95,37 @@ export function MihrabArchBackground({ className = "" }) {
         fillOpacity="0.28"
       />
 
-      {/* Left Fluted Pillar (عمود المنبر الأيسر) */}
-      <rect x="14" y="115" width="9" height="195" rx="2" fill="url(#pillarGrad)" stroke="#A8793E" strokeWidth="0.7" strokeOpacity="0.4" />
-      <path d="M 11 115 L 26 115 L 24 122 L 13 122 Z" fill="#A8793E" fillOpacity="0.7" />
-      <path d="M 12 305 L 25 305 L 27 312 L 10 312 Z" fill="#A8793E" fillOpacity="0.7" />
+      {/* Left Fluted Pillar (عمود المنبر الأيسر) - Rich Bronze-Gold with 3D Fluting */}
+      <g filter="drop-shadow(0 1px 3px rgba(43,33,24,0.18))">
+        {/* Pillar Shaft */}
+        <rect x="13" y="115" width="11" height="195" rx="2" fill="url(#pillarGrad)" stroke="#5A3510" strokeWidth="0.8" />
+        {/* Inner Fluted Groove Lines for 3D depth */}
+        <line x1="16.5" y1="124" x2="16.5" y2="303" stroke="#5A3510" strokeWidth="0.6" strokeOpacity="0.65" />
+        <line x1="18.5" y1="124" x2="18.5" y2="303" stroke="#FFF5DE" strokeWidth="0.7" strokeOpacity="0.85" />
+        <line x1="20.5" y1="124" x2="20.5" y2="303" stroke="#5A3510" strokeWidth="0.6" strokeOpacity="0.65" />
+        {/* Capital (Top) */}
+        <path d="M 10 114 L 27 114 L 25 124 L 12 124 Z" fill="#8C5C24" stroke="#5A3510" strokeWidth="0.8" />
+        <rect x="9" y="111.5" width="19" height="3" rx="1" fill="#C89642" stroke="#5A3510" strokeWidth="0.6" />
+        {/* Base (Bottom) */}
+        <path d="M 11 303 L 26 303 L 28 313 L 9 313 Z" fill="#8C5C24" stroke="#5A3510" strokeWidth="0.8" />
+        <rect x="8" y="312.5" width="21" height="3.5" rx="1" fill="#C89642" stroke="#5A3510" strokeWidth="0.6" />
+      </g>
 
-      {/* Right Fluted Pillar (عمود المنبر الأيمن) */}
-      <rect x="237" y="115" width="9" height="195" rx="2" fill="url(#pillarGrad)" stroke="#A8793E" strokeWidth="0.7" strokeOpacity="0.4" />
-      <path d="M 234 115 L 249 115 L 247 122 L 236 122 Z" fill="#A8793E" fillOpacity="0.7" />
-      <path d="M 235 305 L 248 305 L 250 312 L 233 312 Z" fill="#A8793E" fillOpacity="0.7" />
+      {/* Right Fluted Pillar (عمود المنبر الأيمن) - Rich Bronze-Gold with 3D Fluting */}
+      <g filter="drop-shadow(0 1px 3px rgba(43,33,24,0.18))">
+        {/* Pillar Shaft */}
+        <rect x="236" y="115" width="11" height="195" rx="2" fill="url(#pillarGrad)" stroke="#5A3510" strokeWidth="0.8" />
+        {/* Inner Fluted Groove Lines for 3D depth */}
+        <line x1="239.5" y1="124" x2="239.5" y2="303" stroke="#5A3510" strokeWidth="0.6" strokeOpacity="0.65" />
+        <line x1="241.5" y1="124" x2="241.5" y2="303" stroke="#FFF5DE" strokeWidth="0.7" strokeOpacity="0.85" />
+        <line x1="243.5" y1="124" x2="243.5" y2="303" stroke="#5A3510" strokeWidth="0.6" strokeOpacity="0.65" />
+        {/* Capital (Top) */}
+        <path d="M 233 114 L 250 114 L 248 124 L 235 124 Z" fill="#8C5C24" stroke="#5A3510" strokeWidth="0.8" />
+        <rect x="232" y="111.5" width="19" height="3" rx="1" fill="#C89642" stroke="#5A3510" strokeWidth="0.6" />
+        {/* Base (Bottom) */}
+        <path d="M 234 303 L 249 303 L 251 313 L 232 313 Z" fill="#8C5C24" stroke="#5A3510" strokeWidth="0.8" />
+        <rect x="231" y="312.5" width="21" height="3.5" rx="1" fill="#C89642" stroke="#5A3510" strokeWidth="0.6" />
+      </g>
 
       {/* Primary Pointed Islamic Mihrab Arch Profile (First Line) */}
       <path
@@ -434,10 +457,10 @@ export default function PublicationCard({ publication }) {
   return (
     <>
       <article
-        className="group relative rounded-[26px] sm:rounded-[30px] md:rounded-[32px] p-3.5 xs:p-4 sm:p-5 md:p-6 transition-all duration-300 overflow-hidden border shadow-[0_6px_25px_rgba(43,33,24,0.06),0_2px_8px_rgba(43,33,24,0.03)] hover:shadow-[0_12px_36px_rgba(43,33,24,0.1)] hover:-translate-y-0.5"
+        className="group relative rounded-[22px] sm:rounded-[26px] p-3 sm:p-4 md:p-4.5 transition-all duration-300 overflow-hidden border shadow-[0_5px_22px_rgba(43,33,24,0.06),0_2px_6px_rgba(43,33,24,0.03)] hover:shadow-[0_12px_32px_rgba(43,33,24,0.1)] hover:border-[rgba(168,121,62,0.4)] hover:-translate-y-0.5"
         style={{
           background: "linear-gradient(175deg, #FAF6EE 0%, #F6EFE5 50%, #F2E9DC 100%)",
-          borderColor: "rgba(168, 121, 62, 0.22)",
+          borderColor: "rgba(168, 121, 62, 0.24)",
         }}
       >
         {/* ══════════════════════════════════════════════════════════════
@@ -453,7 +476,7 @@ export default function PublicationCard({ publication }) {
             }}
           >
             <BookOpen className="w-3.5 h-3.5 text-[#C8A46A] shrink-0" />
-            <span className="font-['Payami_Nastaleeq',serif] text-xs sm:text-[13px] font-bold pt-0.5 leading-none">
+            <span className="font-['Payami_Nastaleeq',serif] text-xs sm:text-[12.5px] font-bold pt-0.5 leading-none">
               {categoryLabel}
             </span>
           </div>
@@ -462,7 +485,7 @@ export default function PublicationCard({ publication }) {
           <button
             type="button"
             onClick={handleToggleBookmark}
-            className="w-8 h-8 sm:w-8.5 sm:h-8.5 rounded-full flex items-center justify-center border transition-all duration-200 cursor-pointer shadow-2xs hover:scale-105"
+            className="w-7.5 h-7.5 sm:w-8 sm:h-8 rounded-full flex items-center justify-center border transition-all duration-200 cursor-pointer shadow-2xs hover:scale-105"
             style={{
               borderColor: "rgba(168, 121, 62, 0.3)",
               backgroundColor: isBookmarked ? "#FAF4EB" : "rgba(255, 255, 255, 0.9)",
@@ -488,41 +511,44 @@ export default function PublicationCard({ publication }) {
         <div className="flex flex-col md:grid md:grid-cols-12 md:items-center gap-4 sm:gap-5 md:gap-6 [direction:ltr]">
 
           {/* ──────────────────────────────────────────────────────────
-              COLUMN 1: BOOK IMAGE STAGE
-              - Desktop (>= 768px): md:col-span-5, strictly on the LEFT, compact & smaller
-              - Mobile (< 768px): Centered on TOP, larger hero presentation
+              COLUMN 1: BOOK IMAGE STAGE (Exact Match to BookDetail scale & width)
+              - Desktop (>= 768px): md:col-span-5, strictly on the LEFT
+              - Mobile (< 768px): Centered on TOP with full original width & presence
           ────────────────────────────────────────────────────────── */}
           <div className="w-full md:col-span-5 min-w-0 flex items-center justify-center relative select-none">
             <Link
               to={detailUrl}
-              className="relative w-full flex flex-col items-center justify-end cursor-pointer group/stage pt-2 pb-1"
+              className="relative w-full max-w-[240px] sm:max-w-[260px] md:max-w-none mx-auto rounded-2xl sm:rounded-3xl p-2.5 sm:p-4 flex flex-col items-center justify-end cursor-pointer group/stage overflow-hidden transition-all duration-300 hover:shadow-lg"
+              style={{
+                background:
+                  "radial-gradient(ellipse at 50% 25%, #FFFDF9 0%, #FAF3E6 50%, #EFE1CC 100%)",
+                border: "1.5px solid #C8A46A",
+                boxShadow:
+                  "0 0 0 3px #FAF4EA, 0 0 0 4.5px rgba(200, 164, 106, 0.55), 0 10px 30px rgba(43, 33, 24, 0.09)",
+              }}
               title={title}
             >
-              {/* Background Grand Islamic Mimbar Arch - Wider on mobile, clean & neat on desktop */}
-              <MihrabArchBackground className="absolute -inset-x-3 sm:-inset-x-4 md:inset-x-0 -top-3.5 sm:-top-5 md:top-0 md:bottom-2 w-[calc(100%+24px)] sm:w-[calc(100%+32px)] md:w-full h-[calc(100%+18px)] sm:h-[calc(100%+24px)] md:h-[98%] opacity-100" />
+              {/* Background Grand Islamic Mimbar Arch - Crisp & Majestic */}
+              <MihrabArchBackground className="absolute inset-0 w-full h-full opacity-100 pointer-events-none" />
 
               {/* Foliage Silhouette on Far Left */}
-              <OliveBranchSilhouette className="absolute -left-2 sm:-left-3 top-2 w-12 sm:w-16 md:w-18 h-32 sm:h-44 md:h-48 z-0 opacity-75" />
+              <OliveBranchSilhouette className="absolute -left-1 top-2 w-8 sm:w-12 h-24 sm:h-36 z-0 opacity-65 pointer-events-none" />
 
-              {/* Ambient Warm Radial Glow: Soft and understated */}
+              {/* Ambient Warm Golden Glow */}
               <div
-                className="absolute inset-0 rounded-full pointer-events-none filter blur-xl opacity-25 -z-10"
+                className="absolute inset-0 rounded-full pointer-events-none filter blur-xl opacity-35 -z-10"
                 style={{
                   background:
-                    "radial-gradient(circle at 50% 40%, rgba(245, 226, 175, 0.4) 0%, rgba(250, 235, 200, 0.2) 45%, rgba(247, 241, 232, 0) 80%)",
+                    "radial-gradient(circle at 50% 40%, rgba(245, 226, 175, 0.6) 0%, rgba(250, 235, 200, 0.3) 45%, transparent 75%)",
                 }}
               />
 
-              {/*
-                3D Book Artwork:
-                - Mobile (< 768px): w-[74%] to w-[78%]
-                - Desktop (>= 768px): md:w-[72%] lg:w-[74%]
-              */}
-              <div className="relative z-10 w-[74%] xs:w-[76%] sm:w-[78%] md:w-[72%] lg:w-[74%] max-w-[265px] sm:max-w-[305px] md:max-w-[215px] lg:max-w-[235px] h-[265px] xs:h-[295px] sm:h-[325px] md:h-[215px] lg:h-[230px] flex items-end justify-center transition-transform duration-500 ease-out group-hover/stage:-translate-y-1">
+              {/* 3D Book Artwork resting firmly on desk - Full Width & Height */}
+              <div className="relative z-10 w-[84%] max-w-[195px] sm:max-w-[225px] h-[195px] sm:h-[245px] flex items-end justify-center transition-transform duration-300 ease-out group-hover/stage:-translate-y-1">
                 <img
                   src={coverImageSrc}
                   alt={title}
-                  className="w-full h-full object-contain object-bottom filter drop-shadow-[0_2px_4px_rgba(43,33,24,0.18)] origin-bottom-left rotate-[1.1deg]"
+                  className="w-auto max-w-full max-h-full object-contain object-bottom filter drop-shadow-[0_12px_20px_rgba(43,33,24,0.24)] drop-shadow-[0_2px_4px_rgba(43,33,24,0.12)] rounded-xs"
                   decoding="async"
                   onError={() => {
                     const fallbackCover = "/assets/images/books/islamic-book-cover.jpg";
@@ -535,8 +561,8 @@ export default function PublicationCard({ publication }) {
                 />
               </div>
 
-              {/* Pedestal Stage (Base / Desk): Connected firmly to book base with light subtle shadow */}
-              <div className="relative z-0 -mt-7 xs:-mt-7.5 sm:-mt-8 md:-mt-6 lg:-mt-6.5 w-[90%] xs:w-[92%] sm:w-[94%] md:w-[86%] lg:w-[88%] max-w-[280px] sm:max-w-[320px] md:max-w-[230px] lg:max-w-[245px] mx-auto">
+              {/* Pedestal Stage (Base / Desk) */}
+              <div className="relative z-0 -mt-4 sm:-mt-5 w-[94%] max-w-[230px] mx-auto pointer-events-none">
                 <PedestalStage className="w-full" />
               </div>
             </Link>
@@ -553,7 +579,7 @@ export default function PublicationCard({ publication }) {
               {/* Book Title */}
               <Link to={detailUrl} className="block group/title">
                 <h3
-                  className="text-base xs:text-lg sm:text-xl md:text-[20px] lg:text-[22px] font-bold font-['Payami_Nastaleeq',serif] leading-[1.7] sm:leading-[1.75] text-right transition-colors group-hover/title:text-[#A8793E]"
+                  className="text-base xs:text-lg sm:text-xl md:text-[20px] lg:text-[22px] font-bold font-['Payami_Nastaleeq',serif] leading-[1.65] sm:leading-[1.7] text-right transition-colors group-hover/title:text-[#A8793E]"
                   style={{ color: COLORS.primary || "#2B2118" }}
                 >
                   {title}
@@ -601,7 +627,7 @@ export default function PublicationCard({ publication }) {
                 </div>
               )}
 
-              {/* Book Description / Introduction (کتاب کا تعارف) */}
+              {/* Book Description / Introduction (کتاب کا تعارف) with مزید پڑھیں System */}
               {summary && (
                 <div className="mt-1.5 mb-2 sm:mb-2.5">
                   <div className="flex items-center gap-1.5 mb-1 select-none">
@@ -618,7 +644,7 @@ export default function PublicationCard({ publication }) {
                   </div>
 
                   <p
-                    className="text-[11px] sm:text-xs md:text-[12.5px] font-['Payami_Nastaleeq',serif] leading-[1.85] sm:leading-[1.9] line-clamp-2 md:line-clamp-3 text-right"
+                    className="text-[11px] sm:text-xs md:text-[12.5px] font-['Payami_Nastaleeq',serif] leading-[1.8] sm:leading-[1.85] line-clamp-2 md:line-clamp-3 text-right"
                     style={{ color: "#3D3025" }}
                   >
                     {summary}

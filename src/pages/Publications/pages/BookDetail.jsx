@@ -3,17 +3,18 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import {
   BookOpen,
   Download,
-  ExternalLink,
   User,
   ArrowRight,
   ArrowLeft,
   Globe,
-  Sparkles,
   ChevronUp,
   ChevronDown,
   MessageSquare,
-  Maximize2,
-  Minimize2,
+  Tag,
+  Calendar,
+  Share2,
+  FileText,
+  Home,
 } from "lucide-react";
 import { getPublicationBySlug, getPublications } from "@/services";
 import { useCachedContent } from "@/hooks/useContentCache";
@@ -32,7 +33,7 @@ import {
   OliveBranchSilhouette,
   PedestalStage,
 } from "@/components/PublicationCard/PublicationCard";
-
+import { CardGeometricTexture } from "@/pages/Fatwas/components/FatwaDetailDecorativeAssets";
 import toast from "react-hot-toast";
 
 export default function BookDetail() {
@@ -73,7 +74,6 @@ export default function BookDetail() {
   const relatedBooks = detailData?.relatedBooks || [];
 
   const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
-  const [showEmbeddedPdf, setShowEmbeddedPdf] = useState(false);
   const [copied, setCopied] = useState(false);
   const [isSummaryExpanded, setIsSummaryExpanded] = useState(false);
   const [isCommentsOpen, setIsCommentsOpen] = useState(false);
@@ -108,37 +108,35 @@ export default function BookDetail() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [rawParam]);
 
-  const shareUrl = window.location.href;
-
-  const handleShareClick = (platform) => {
-    let url = "";
-    switch (platform) {
-      case "facebook":
-        url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
-        break;
-      case "twitter":
-        url = `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(book?.title || "")}`;
-        break;
-      case "whatsapp":
-        url = `https://api.whatsapp.com/send?text=${encodeURIComponent((book?.title || "") + " - " + shareUrl)}`;
-        break;
-      default:
-        break;
-    }
-    if (url) {
-      window.open(url, "_blank", "width=600,height=400");
-    }
-  };
+  const shareUrl = typeof window !== "undefined" ? window.location.href : "";
 
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(shareUrl);
-    setCopied(true);
-    toast.success(isRTL ? "لنک کاپی ہو گیا ہے!" : "Link copied to clipboard!");
-    setTimeout(() => setCopied(false), 2000);
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      navigator.clipboard.writeText(shareUrl);
+      setCopied(true);
+      toast.success(isRTL ? "لنک کاپی ہو گیا ہے!" : "Link copied to clipboard!");
+      setTimeout(() => setCopied(false), 2000);
+    }
   };
 
-  const handlePrint = () => {
-    window.print();
+  const handleNativeShare = async () => {
+    const fullShareText = `${book?.title || ""}\n${book?.author ? `مصنف: ${book.author}\n` : ""
+      }${shareUrl}`;
+    if (typeof navigator !== "undefined" && navigator.share) {
+      try {
+        await navigator.share({
+          title: book?.title || "کتاب",
+          text: fullShareText,
+          url: shareUrl,
+        });
+      } catch (err) {
+        if (err.name !== "AbortError") {
+          copyToClipboard();
+        }
+      }
+    } else {
+      copyToClipboard();
+    }
   };
 
   if (loading) {
@@ -147,10 +145,7 @@ export default function BookDetail() {
         className="min-h-screen flex items-center justify-center"
         style={{ backgroundColor: COLORS.background }}
       >
-        <Spinner
-          size="lg"
-          text="کتاب کی تفصیلات لوڈ ہو رہی ہیں..."
-        />
+        <Spinner size="lg" text="کتاب کی تفصیلات لوڈ ہو رہی ہیں..." />
       </div>
     );
   }
@@ -206,7 +201,6 @@ export default function BookDetail() {
     pdf,
     pageCount,
     tags = [],
-    references = [],
     viewCount = 0,
   } = book;
 
@@ -238,704 +232,684 @@ export default function BookDetail() {
 
   const formattedDate = publishDate
     ? new Date(publishDate).toLocaleDateString(isRTL ? "ur-PK" : "en-US", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      })
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    })
     : "";
 
   return (
     <div
       dir={isRTL ? "rtl" : "ltr"}
-      className="min-h-screen py-2 md:py-10"
+      className="min-h-screen py-2 sm:py-4 md:py-5"
       style={{ backgroundColor: COLORS.background }}
     >
-      <div className="w-full max-w-[1440px] mx-auto px-1 sm:px-6 lg:px-8">
-        {/* Breadcrumbs & Navigation Bar */}
+      <div className="w-full max-w-4xl lg:max-w-5xl mx-auto px-3 sm:px-6 space-y-2.5 sm:space-y-3.5">
+        {/* ══════════════════════════════════════════════════════════════
+            1. BREADCRUMBS & LANGUAGE PILL (Exact Match to Target Design)
+               In RTL: 1st child is on the RIGHT (Language Pill),
+                       2nd child is on the LEFT (Breadcrumbs with Home Icon)
+        ══════════════════════════════════════════════════════════════ */}
         <div
-          className="flex items-center justify-between gap-2 mb-2 sm:mb-6 flex-wrap pb-2 sm:pb-4 border-b"
-          style={{ borderColor: `${COLORS.border}80` }}
+          className="flex items-center justify-between gap-2 pb-2 border-b text-xs sm:text-sm font-medium"
+          style={{ borderColor: `${COLORS.border}70` }}
         >
-          <nav className="flex items-center gap-2 text-xs md:text-sm flex-wrap font-medium">
-            <Link
-              to="/"
-              className="hover:underline transition-colors"
-              style={{ color: COLORS.textSecondary }}
+          {/* Right in RTL: Language Indicator Pill */}
+          <div
+            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold shadow-2xs border select-none shrink-0"
+            style={{
+              backgroundColor: "rgba(255, 255, 255, 0.9)",
+              borderColor: `${COLORS.border}90`,
+              color: COLORS.primary,
+            }}
+          >
+            <Globe className="w-3.5 h-3.5 text-amber-700" />
+            <span className="font-serif">{language === "ur" ? "اردو" : "English"}</span>
+            <ChevronDown className="w-3 h-3 text-slate-400" />
+          </div>
+
+          {/* Left in RTL: Breadcrumb Path starting with Home */}
+          <nav className="flex items-center gap-1 sm:gap-2 flex-wrap text-slate-600 min-w-0">
+            <span
+              className="font-bold truncate max-w-[100px] sm:max-w-xs font-serif"
+              style={{ color: COLORS.primary }}
+              title={title}
             >
-              {isRTL ? "صفحہ اول" : "Home"}
-            </Link>
-            <span style={{ color: COLORS.border }}>/</span>
-            <Link
-              to="/publications"
-              className="hover:underline transition-colors"
-              style={{ color: COLORS.textSecondary }}
-            >
-              {isRTL ? "کتب و مطبوعات" : "Publications"}
-            </Link>
-            <span style={{ color: COLORS.border }}>/</span>
+              {title}
+            </span>
+            <span className="text-amber-800/40 text-xs">‹</span>
+
             <Link
               to={`/publications?category=${encodeURIComponent(category || "")}`}
-              className="hover:underline transition-colors font-semibold"
+              className="hover:text-amber-800 transition-colors font-serif font-semibold truncate max-w-[90px] sm:max-w-none"
               style={{ color: COLORS.accent }}
             >
               {categoryLabel}
             </Link>
-            <span style={{ color: COLORS.border }}>/</span>
-            <span
-              className="font-bold truncate max-w-xs sm:max-w-md"
-              style={{ color: COLORS.primary }}
-            >
-              {title}
-            </span>
-          </nav>
+            <span className="text-amber-800/40 text-xs">‹</span>
 
-          <Link
-            to="/publications"
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold border transition-colors hover:bg-white shadow-xs"
-            style={{
-              borderColor: COLORS.border,
-              backgroundColor: "rgba(255,255,255,0.7)",
-              color: COLORS.primary,
-            }}
-          >
-            {isRTL ? (
-              <>
-                <ArrowRight className="w-3.5 h-3.5" />
-                <span>تمام کتب</span>
-              </>
-            ) : (
-              <>
-                <ArrowLeft className="w-3.5 h-3.5" />
-                <span>All Books</span>
-              </>
-            )}
-          </Link>
+            <Link
+              to="/publications"
+              className="hover:text-amber-800 transition-colors font-serif truncate"
+              style={{ color: COLORS.textSecondary }}
+            >
+              {isRTL ? "کتب و رسائل" : "Publications"}
+            </Link>
+            <span className="text-amber-800/40 text-xs">‹</span>
+
+            <Link
+              to="/"
+              className="inline-flex items-center gap-1 hover:text-amber-800 transition-colors shrink-0"
+              style={{ color: COLORS.textSecondary }}
+            >
+              <Home className="w-4 h-4 text-amber-800" />
+              <span className="font-serif hidden xs:inline">{isRTL ? "ہوم" : "Home"}</span>
+            </Link>
+          </nav>
         </div>
 
         {/* ══════════════════════════════════════════════════════════════
-            FULL PAGE 2-COLUMN LAYOUT
+            2. BOOK HERO SECTION: Side-by-Side (Matching Target Screenshot)
+               In RTL:
+               1st child (RIGHT): Title, Category, Author, Divider, 3 Stat Pills
+               2nd child (LEFT): 3D Book on Grand Islamic Mimbar Arch Stage
         ══════════════════════════════════════════════════════════════ */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-2 sm:gap-8 items-start mb-4 sm:mb-12">
-          {/* ══════════════════════════════════════════════════════════════
-              RIGHT COLUMN (in RTL): Sticky Book Presentation & Metadata Card
-          ══════════════════════════════════════════════════════════════ */}
-          <div className="lg:col-span-4 lg:sticky lg:top-24 space-y-6">
-            <div
-              className="rounded-2xl border shadow-md p-3 sm:p-7 transition-all flex flex-col items-center"
-              style={{
-                background: "linear-gradient(175deg, #FAF6EE 0%, #F6EFE5 50%, #F2E9DC 100%)",
-                borderColor: "rgba(168, 121, 62, 0.25)",
-              }}
-            >
-              {/* Grand 3D Islamic Mimbar Arch Stage (Exact Same as Home / All Books) */}
-              <div className="relative w-full flex flex-col items-center justify-end select-none pt-4 pb-2">
-                {/* Background Grand Islamic Mimbar Arch */}
-                <MihrabArchBackground className="absolute -inset-x-3 sm:-inset-x-4 -top-3.5 sm:-top-5 w-[calc(100%+24px)] sm:w-[calc(100%+32px)] h-[calc(100%+20px)] sm:h-[calc(100%+26px)] opacity-100" />
-
-                {/* Foliage Silhouette on Far Left */}
-                <OliveBranchSilhouette className="absolute -left-2 sm:-left-3 top-2 w-12 sm:w-16 h-36 sm:h-44 z-0 opacity-75" />
-
-                {/* Ambient Warm Radial Glow */}
-                <div
-                  className="absolute inset-0 rounded-full pointer-events-none filter blur-xl opacity-25 -z-10"
-                  style={{
-                    background:
-                      "radial-gradient(circle at 50% 40%, rgba(245, 226, 175, 0.4) 0%, rgba(250, 235, 200, 0.2) 45%, rgba(247, 241, 232, 0) 80%)",
-                  }}
-                />
-
-                {/* 3D Book Artwork resting on desk */}
-                <div className="relative z-10 w-[76%] sm:w-[80%] max-w-[245px] sm:max-w-[280px] h-[280px] sm:h-[320px] flex items-end justify-center transition-transform duration-500 ease-out hover:-translate-y-1">
-                  <img
-                    src={coverImageSrc}
-                    alt={title}
-                    className="w-full h-full object-contain object-bottom filter drop-shadow-[0_2px_4px_rgba(43,33,24,0.18)] origin-bottom-left rotate-[1.1deg]"
-                    decoding="async"
-                    onError={handleImageError}
-                  />
-                </div>
-
-                {/* Pedestal Stage (Base / Desk) */}
-                <div className="relative z-0 -mt-7 sm:-mt-8 w-[92%] sm:w-[94%] max-w-[285px] sm:max-w-[315px] mx-auto">
-                  <PedestalStage className="w-full" />
-                </div>
-              </div>
-
-              <div
-                className="w-full mt-6 space-y-2.5 pt-5 border-t text-xs hidden lg:block"
-                style={{ borderColor: `${COLORS.border}70` }}
+        <div className="grid grid-cols-12 gap-2.5 sm:gap-6 md:gap-8 items-center pt-1">
+          {/* Right Column in RTL: Category Badge, Title, Author & 3 Stat Boxes */}
+          <div className="col-span-7 sm:col-span-7 space-y-2 sm:space-y-2.5 min-w-0 flex flex-col justify-center">
+            {/* Category Pill - Subtle Border Style */}
+            <div className="flex items-center">
+              <span
+                className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10.5px] sm:text-xs font-bold shadow-2xs font-serif border"
+                style={{
+                  backgroundColor: "rgba(255, 255, 255, 0.65)",
+                  borderColor: "rgba(200, 164, 106, 0.6)",
+                  color: "#5C3E20",
+                }}
               >
-                <div
-                  className="flex items-center justify-between py-1.5 border-b border-dashed"
-                  style={{ borderColor: `${COLORS.border}50` }}
-                >
-                  <span style={{ color: COLORS.textSecondary }}>
-                    {isRTL ? "مصنف" : "Author"}
-                  </span>
-                  <span
-                    className="font-bold text-right"
-                    style={{ color: COLORS.primary }}
-                  >
-                    {author}
-                  </span>
-                </div>
-
-                <div
-                  className="flex items-center justify-between py-1.5 border-b border-dashed"
-                  style={{ borderColor: `${COLORS.border}50` }}
-                >
-                  <span style={{ color: COLORS.textSecondary }}>
-                    {isRTL ? "شعبہ / زمرہ" : "Category"}
-                  </span>
-                  <span className="font-bold" style={{ color: COLORS.primary }}>
-                    {categoryLabel}
-                  </span>
-                </div>
-
-                {formattedDate && (
-                  <div
-                    className="flex items-center justify-between py-1.5 border-b border-dashed"
-                    style={{ borderColor: `${COLORS.border}50` }}
-                  >
-                    <span style={{ color: COLORS.textSecondary }}>
-                      {isRTL ? "اشاعت" : "Published"}
-                    </span>
-                    <span
-                      className="font-bold"
-                      style={{ color: COLORS.primary }}
-                    >
-                      {formattedDate}
-                    </span>
-                  </div>
-                )}
-
-                {viewCount > 0 && (
-                  <div className="flex items-center justify-between py-1.5">
-                    <span style={{ color: COLORS.textSecondary }}>
-                      {isRTL ? "مناظر" : "Views"}
-                    </span>
-                    <span
-                      className="font-bold"
-                      style={{ color: COLORS.primary }}
-                    >
-                      {viewCount}
-                    </span>
-                  </div>
-                )}
-              </div>
+                <BookOpen className="w-3 h-3 text-[#8C6239] shrink-0" />
+                <span className="break-words">{categoryLabel}</span>
+              </span>
             </div>
-          </div>
 
-          {/* ══════════════════════════════════════════════════════════════
-              LEFT / MAIN COLUMN (in RTL): Full Content, Overview, Embedded PDF, Comments
-          ══════════════════════════════════════════════════════════════ */}
-          <div className="lg:col-span-8 space-y-2 sm:space-y-8">
-            {/* Main Header & Overview Card */}
+            {/* Book Title */}
+            <h1
+              className="text-lg xs:text-xl sm:text-2xl md:text-3xl font-bold font-serif leading-snug sm:leading-tight break-words"
+              style={{ color: "#24180E" }}
+            >
+              {title}
+            </h1>
+
+            {/* Author Row - Clean Border Style without Bulky Box Gradient */}
+            {author && (
+              <div
+                className="flex items-center gap-2 py-1 px-2.5 rounded-lg border text-xs sm:text-sm font-serif"
+                style={{
+                  borderColor: "rgba(200, 164, 106, 0.5)",
+                  backgroundColor: "rgba(255, 255, 255, 0.5)",
+                }}
+              >
+                <User className="w-3.5 h-3.5 text-[#8C6239] shrink-0" />
+                <span className="text-[#8C6239] font-medium text-[11px] sm:text-xs shrink-0">
+                  {isRTL ? "مصنف:" : "Author:"}
+                </span>
+                <span className="font-bold text-[#2B1E16] break-words min-w-0">
+                  {author}
+                </span>
+              </div>
+            )}
+
+            {/* Unified Metadata Strip - Clean Border Style with Segmented Dividers */}
             <div
-              className="rounded-2xl border shadow-sm p-2 sm:p-8 md:p-10 space-y-3 sm:space-y-6"
+              className="grid grid-cols-3 rounded-xl border divide-x divide-x-reverse text-center py-2 px-1 shadow-2xs"
               style={{
-                backgroundColor: COLORS.white,
-                borderColor: COLORS.border,
+                borderColor: "rgba(200, 164, 106, 0.55)",
+                backgroundColor: "rgba(255, 255, 255, 0.55)",
               }}
             >
-              {/* Badges */}
-              <div className="flex flex-wrap items-center gap-2.5">
+              {/* Stat 1: Topic / موضوع */}
+              <div className="flex flex-col items-center justify-center px-1 min-w-0">
+                <div className="flex items-center gap-1 text-[#8C6239] mb-0.5">
+                  <Tag className="w-3 h-3 shrink-0" />
+                  <span className="text-[10px] sm:text-[11px] font-medium font-serif">
+                    {isRTL ? "موضوع" : "Subject"}
+                  </span>
+                </div>
                 <span
-                  className="px-3.5 py-1 rounded-full text-xs font-bold shadow-xs"
-                  style={{
-                    backgroundColor: COLORS.secondary,
-                    color: COLORS.primary,
-                  }}
+                  className="text-[11px] sm:text-xs font-bold font-serif text-[#2B1E16] break-words line-clamp-1 max-w-full"
+                  title={categoryLabel}
                 >
                   {categoryLabel}
                 </span>
-                <span
-                  className="px-3 py-1 rounded-full text-xs font-semibold border"
-                  style={{
-                    borderColor: COLORS.border,
-                    color: COLORS.textSecondary,
-                    backgroundColor: `${COLORS.background}80`,
-                  }}
-                >
-                  <Globe className="w-3 h-3 inline-block me-1 -mt-0.5" />
-                  {languageLabel}
+              </div>
+
+              {/* Stat 2: Pages / صفحات */}
+              <div
+                className="flex flex-col items-center justify-center px-1 min-w-0 border-r border-l sm:border-x"
+                style={{ borderColor: "rgba(200, 164, 106, 0.35)" }}
+              >
+                <div className="flex items-center gap-1 text-[#8C6239] mb-0.5">
+                  <BookOpen className="w-3 h-3 shrink-0" />
+                  <span className="text-[10px] sm:text-[11px] font-medium font-serif">
+                    {isRTL ? "صفحات" : "Pages"}
+                  </span>
+                </div>
+                <span className="text-[11px] sm:text-xs font-bold font-serif text-[#2B1E16]">
+                  {pageCount || "—"}
                 </span>
               </div>
 
-              {/* Title */}
-              <h1
-                className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold leading-[1.85] break-words"
-                style={{ color: COLORS.primary }}
-              >
-                {title}
-              </h1>
-
-              {/* Author Row */}
-              {author && (
-                <div
-                  className="flex items-center gap-2 p-2 sm:p-4 rounded-xl sm:rounded-2xl border"
-                  style={{
-                    backgroundColor: `${COLORS.background}60`,
-                    borderColor: `${COLORS.border}80`,
-                  }}
-                >
-                  <div
-                    className="w-8 h-8 sm:w-11 sm:h-11 rounded-full flex items-center justify-center shrink-0 shadow-xs"
-                    style={{
-                      backgroundColor: COLORS.primary,
-                      color: COLORS.accent,
-                    }}
-                  >
-                    <User className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <span
-                      className="text-[11px] block font-medium"
-                      style={{ color: COLORS.textSecondary }}
-                    >
-                      {isRTL ? "مصنف / تالیف" : "Author / Compiler"}
-                    </span>
-                    <span
-                      className="text-sm sm:text-base font-bold"
-                      style={{ color: COLORS.textPrimary }}
-                    >
-                      {author}
-                    </span>
-                  </div>
-                </div>
-              )}
-
-              {/* Full Description / Overview */}
-              <div className="space-y-3 pt-2">
-                <h3
-                  className="text-sm sm:text-lg font-bold flex items-center gap-2"
-                  style={{ color: COLORS.primary }}
-                >
-                  <Sparkles className="w-4 h-4 text-accent" />
-                  <span>
-                    {isRTL
-                      ? "کتاب کا تعارف و خلاصہ"
-                      : "Book Overview & Synopsis"}
-                  </span>
-                </h3>
-                <div
-                  className="p-4 sm:p-6 rounded-2xl border text-sm sm:text-base leading-[1.8] whitespace-pre-line font-normal break-words"
-                  style={{
-                    backgroundColor: `${COLORS.background}50`,
-                    borderColor: `${COLORS.border}70`,
-                    color: COLORS.textPrimary,
-                  }}
-                >
-                  {summary ? (
-                    summary.length > 400 ? (
-                      <>
-                        {/* Desktop View: Full Summary */}
-                        <div className="hidden lg:block">{summary}</div>
-
-                        {/* Mobile View: Truncated or Expanded */}
-                        <div className="block lg:hidden">
-                          {isSummaryExpanded
-                            ? summary
-                            : `${summary.slice(0, 400)}...`}
-
-                          <div className="pt-2">
-                            <button
-                              type="button"
-                              onClick={() =>
-                                setIsSummaryExpanded(!isSummaryExpanded)
-                              }
-                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all shadow-xs border"
-                              style={{
-                                backgroundColor: COLORS.white,
-                                borderColor: COLORS.accent,
-                                color: COLORS.primary,
-                              }}
-                            >
-                              {isSummaryExpanded ? (
-                                <>
-                                  <ChevronUp
-                                    className="w-3.5 h-3.5"
-                                    style={{ color: COLORS.accent }}
-                                  />
-                                  <span>
-                                    {isRTL ? "مختصر کریں" : "Show Less"}
-                                  </span>
-                                </>
-                              ) : (
-                                <>
-                                  <ChevronDown
-                                    className="w-3.5 h-3.5"
-                                    style={{ color: COLORS.accent }}
-                                  />
-                                  <span>
-                                    {isRTL ? "مزید پڑھیں" : "Read More"}
-                                  </span>
-                                </>
-                              )}
-                            </button>
-                          </div>
-                        </div>
-                      </>
-                    ) : (
-                      summary
-                    )
-                  ) : isRTL ? (
-                    "اس کتاب کا کوئی تفصیلی تعارف دستیاب نہیں ہے۔"
-                  ) : (
-                    "No summary available for this book."
-                  )}
-                </div>
-              </div>
-
-              {/* ── Instagram-Style Comments Toggle ── */}
-              <div
-                className="pt-4 mt-2 border-t"
-                style={{ borderColor: `${COLORS.border}70` }}
-              >
-                <button
-                  type="button"
-                  onClick={() => setIsCommentsOpen((v) => !v)}
-                  className="w-full flex items-center justify-between gap-3 px-4 py-3 rounded-2xl border transition-all hover:shadow-sm group cursor-pointer"
-                  style={{
-                    backgroundColor: isCommentsOpen
-                      ? `${COLORS.primary}08`
-                      : `${COLORS.background}60`,
-                    borderColor: isCommentsOpen
-                      ? `${COLORS.primary}40`
-                      : COLORS.border,
-                  }}
-                >
-                  <div className="flex items-center gap-3">
-                    <div
-                      className="w-9 h-9 rounded-xl flex items-center justify-center shadow-xs transition-all"
-                      style={{
-                        backgroundColor: isCommentsOpen
-                          ? COLORS.primary
-                          : `${COLORS.primary}15`,
-                        color: isCommentsOpen ? COLORS.accent : COLORS.primary,
-                      }}
-                    >
-                      <MessageSquare className="w-4 h-4" />
-                    </div>
-                    <div className="text-right">
-                      <span
-                        className="text-xs sm:text-sm font-bold block font-serif leading-snug"
-                        style={{ color: COLORS.primary }}
-                      >
-                        {isRTL ? "تبصرے و آراء" : "Comments"}
-                      </span>
-                      <span
-                        className="text-[10px] sm:text-[11px]"
-                        style={{ color: COLORS.textSecondary }}
-                      >
-                        {isRTL
-                          ? isCommentsOpen
-                            ? "تبصرے بند کریں"
-                            : "تبصرے دیکھیں اور لکھیں"
-                          : isCommentsOpen
-                            ? "Hide comments"
-                            : "View & post comments"}
-                      </span>
-                    </div>
-                  </div>
-                  <ChevronDown
-                    className={`w-4 h-4 transition-transform duration-300 shrink-0 ${
-                      isCommentsOpen ? "rotate-180" : ""
-                    }`}
-                    style={{ color: COLORS.textSecondary }}
-                  />
-                </button>
-
-                {/* Expandable Comments Panel */}
-                {isCommentsOpen && (
-                  <div
-                    className="mt-4 rounded-2xl border p-2 sm:p-4"
-                    style={{
-                      backgroundColor: COLORS.white,
-                      borderColor: COLORS.border,
-                    }}
-                  >
-                    <CommentsSection
-                      contentType="book"
-                      contentId={_id}
-                      language={language}
-                    />
-                  </div>
-                )}
-              </div>
-
-              {/* References & Sources if available */}
-              {references && references?.length > 0 && (
-                <div className="space-y-2 pt-2">
-                  <h4
-                    className="text-sm font-bold font-serif"
-                    style={{ color: COLORS.primary }}
-                  >
-                    {isRTL ? "مراجع و مصادر" : "References & Sources"}
-                  </h4>
-                  <ul className="list-disc list-inside space-y-1 text-xs sm:text-sm text-slate-700">
-                    {references?.map((ref, idx) => (
-                      <li key={idx}>{ref}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              {/* Mobile-Only Metadata Table (After References & Sources) */}
-              <div
-                className="w-full mt-4 space-y-2.5 pt-4 border-t text-xs block lg:hidden"
-                style={{ borderColor: `${COLORS.border}70` }}
-              >
-                <div
-                  className="flex items-center justify-between py-1.5 border-b border-dashed"
-                  style={{ borderColor: `${COLORS.border}50` }}
-                >
-                  <span style={{ color: COLORS.textSecondary }}>
-                    {isRTL ? "مصنف" : "Author"}
-                  </span>
-                  <span
-                    className="font-bold text-right"
-                    style={{ color: COLORS.primary }}
-                  >
-                    {author}
+              {/* Stat 3: Published / اشاعت */}
+              <div className="flex flex-col items-center justify-center px-1 min-w-0">
+                <div className="flex items-center gap-1 text-[#8C6239] mb-0.5">
+                  <Calendar className="w-3 h-3 shrink-0" />
+                  <span className="text-[10px] sm:text-[11px] font-medium font-serif">
+                    {isRTL ? "اشاعت" : "Published"}
                   </span>
                 </div>
-
-                <div
-                  className="flex items-center justify-between py-1.5 border-b border-dashed"
-                  style={{ borderColor: `${COLORS.border}50` }}
+                <span
+                  className="text-[10.5px] sm:text-xs font-bold font-serif text-[#2B1E16] break-words line-clamp-1 max-w-full"
+                  title={formattedDate}
                 >
-                  <span style={{ color: COLORS.textSecondary }}>
-                    {isRTL ? "شعبہ / زمرہ" : "Category"}
-                  </span>
-                  <span className="font-bold" style={{ color: COLORS.primary }}>
-                    {categoryLabel}
-                  </span>
-                </div>
-
-                {formattedDate && (
-                  <div
-                    className="flex items-center justify-between py-1.5 border-b border-dashed"
-                    style={{ borderColor: `${COLORS.border}50` }}
-                  >
-                    <span style={{ color: COLORS.textSecondary }}>
-                      {isRTL ? "اشاعت" : "Published"}
-                    </span>
-                    <span
-                      className="font-bold"
-                      style={{ color: COLORS.primary }}
-                    >
-                      {formattedDate}
-                    </span>
-                  </div>
-                )}
-
-                {viewCount > 0 && (
-                  <div className="flex items-center justify-between py-1.5">
-                    <span style={{ color: COLORS.textSecondary }}>
-                      {isRTL ? "مناظر" : "Views"}
-                    </span>
-                    <span
-                      className="font-bold"
-                      style={{ color: COLORS.primary }}
-                    >
-                      {viewCount}
-                    </span>
-                  </div>
-                )}
-              </div>
-
-              {/* Action Buttons: Read & Download & Quick Actions */}
-              <div
-                className="pt-6 mt-6 border-t space-y-4"
-                style={{ borderColor: `${COLORS.border}70` }}
-              >
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  {pdfUrl ? (
-                    <>
-                      <button
-                        type="button"
-                        onClick={() => setIsPdfModalOpen(true)}
-                        className="inline-flex items-center justify-center gap-2 px-5 py-3 text-sm font-bold text-white rounded-xl shadow-md cursor-pointer hover:opacity-95 hover:shadow-lg transition-all"
-                        style={{ backgroundColor: COLORS.primary }}
-                      >
-                        <ExternalLink
-                          className="w-4 h-4"
-                          style={{ color: COLORS.accent }}
-                        />
-                        <span>
-                          {isRTL
-                            ? "آن لائن مطالعہ کریں"
-                            : "Read Online (Modal)"}
-                        </span>
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => setShowEmbeddedPdf(!showEmbeddedPdf)}
-                        className="inline-flex items-center justify-center gap-2 px-5 py-3 text-sm font-bold rounded-xl border transition-all cursor-pointer hover:bg-slate-50 text-center"
-                        style={{
-                          borderColor: COLORS.accent,
-                          color: COLORS.primary,
-                          backgroundColor: showEmbeddedPdf
-                            ? `${COLORS.secondary}40`
-                            : "transparent",
-                        }}
-                      >
-                        {showEmbeddedPdf ? (
-                          <>
-                            <Minimize2 className="w-4 h-4 text-accent" />
-                            <span>
-                              {isRTL
-                                ? "صفحہ پر قاری بند کریں"
-                                : "Hide In-Page Reader"}
-                            </span>
-                          </>
-                        ) : (
-                          <>
-                            <Maximize2 className="w-4 h-4 text-accent" />
-                            <span>
-                              {isRTL
-                                ? "صفحہ پر پڑھیں (Full Reader)"
-                                : "Read on This Page"}
-                            </span>
-                          </>
-                        )}
-                      </button>
-
-                      <a
-                        href={pdfUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        download
-                        className="inline-flex items-center justify-center gap-2 px-5 py-3 text-sm font-semibold rounded-xl border transition-all cursor-pointer hover:bg-slate-50 text-center"
-                        style={{
-                          borderColor: COLORS.border,
-                          color: COLORS.primary,
-                          backgroundColor: "transparent",
-                        }}
-                      >
-                        <Download
-                          className="w-4 h-4"
-                          style={{ color: COLORS.accent }}
-                        />
-                        <span>
-                          {isRTL ? "پی ڈی ایف ڈاؤن لوڈ کریں" : "Download PDF"}
-                        </span>
-                      </a>
-                    </>
-                  ) : (
-                    <div
-                      className="col-span-full py-3 px-4 rounded-xl border text-center text-xs font-medium"
-                      style={{
-                        borderColor: COLORS.border,
-                        color: COLORS.textSecondary,
-                        backgroundColor: `${COLORS.background}80`,
-                      }}
-                    >
-                      {isRTL
-                        ? "پی ڈی ایف جلد دستیاب ہوگی"
-                        : "PDF will be available soon"}
-                    </div>
-                  )}
-                </div>
+                  {formattedDate || "—"}
+                </span>
               </div>
             </div>
+          </div>
 
-            {showEmbeddedPdf && pdfUrl && (
-              <div
-                className="rounded-3xl border shadow-lg overflow-hidden p-6 sm:p-8 transition-all space-y-4"
+          {/* Left Column in RTL: 3D Book on Grand Islamic Mimbar Arch Stage */}
+          <div className="col-span-5 sm:col-span-5 flex justify-center">
+            <div
+              className="relative w-full rounded-2xl sm:rounded-3xl p-2.5 sm:p-4 flex flex-col items-center justify-end select-none overflow-hidden"
+              style={{
+                background:
+                  "radial-gradient(ellipse at 50% 25%, #FFFDF9 0%, #FAF3E6 50%, #EFE1CC 100%)",
+                border: "1.5px solid #C8A46A",
+                boxShadow:
+                  "0 0 0 3px #FAF4EA, 0 0 0 4.5px rgba(200, 164, 106, 0.55), 0 10px 30px rgba(43, 33, 24, 0.09)",
+              }}
+            >
+              {/* Floating Circular Share Button */}
+              <button
+                type="button"
+                onClick={handleNativeShare}
+                className="absolute top-2.5 right-2.5 z-20 w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center shadow-md transition-transform hover:scale-105 active:scale-95 cursor-pointer border"
                 style={{
-                  backgroundColor: COLORS.white,
-                  borderColor: COLORS.border,
+                  backgroundColor: "#3A2618",
+                  borderColor: "rgba(200, 164, 106, 0.6)",
+                  color: "#DFC07C",
                 }}
+                title={isRTL ? "کتاب شیئر کریں" : "Share Book"}
               >
-                <div
-                  className="flex items-center justify-between pb-3 border-b"
-                  style={{ borderColor: COLORS.border }}
-                >
-                  <h3
-                    className="text-lg font-bold font-serif"
-                    style={{ color: COLORS.primary }}
-                  >
-                    {isRTL
-                      ? "آن لائن مطالعہ (In-Page Reader)"
-                      : "Online Reading"}
-                  </h3>
-                  <button
-                    type="button"
-                    onClick={() => setIsPdfModalOpen(true)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg border hover:bg-slate-50 transition-colors"
-                    style={{
-                      borderColor: COLORS.border,
-                      color: COLORS.primary,
-                    }}
-                  >
-                    <Maximize2 className="w-3.5 h-3.5 text-accent" />
-                    <span>{isRTL ? "مکمل اسکرین" : "Fullscreen"}</span>
-                  </button>
-                </div>
-                <div
-                  className="w-full h-[750px] rounded-2xl overflow-hidden border"
-                  style={{ borderColor: COLORS.border }}
-                >
-                  <PdfViewer url={pdfUrl} title={title} isModal={false} />
-                </div>
+                <Share2 className="w-3.5 h-3.5" />
+              </button>
+
+              {/* Background Grand Islamic Mimbar Arch - Crisp & Majestic */}
+              <MihrabArchBackground className="absolute inset-0 w-full h-full opacity-100 pointer-events-none" />
+
+              {/* Foliage Silhouette on Far Left */}
+              <OliveBranchSilhouette className="absolute -left-1 top-2 w-8 sm:w-12 h-24 sm:h-36 z-0 opacity-65 pointer-events-none" />
+
+              {/* Ambient Warm Golden Glow */}
+              <div
+                className="absolute inset-0 rounded-full pointer-events-none filter blur-xl opacity-35 -z-10"
+                style={{
+                  background:
+                    "radial-gradient(circle at 50% 40%, rgba(245, 226, 175, 0.6) 0%, rgba(250, 235, 200, 0.3) 45%, transparent 75%)",
+                }}
+              />
+
+              {/* 3D Book Artwork resting firmly on desk */}
+              <div className="relative z-10 w-[84%] max-w-[195px] sm:max-w-[225px] h-[195px] sm:h-[255px] flex items-end justify-center transition-transform duration-300 ease-out hover:-translate-y-1">
+                <img
+                  src={coverImageSrc}
+                  alt={title}
+                  className="w-auto max-w-full max-h-full object-contain object-bottom filter drop-shadow-[0_12px_20px_rgba(43,33,24,0.24)] drop-shadow-[0_2px_4px_rgba(43,33,24,0.12)] rounded-xs"
+                  decoding="async"
+                  onError={handleImageError}
+                />
               </div>
-            )}
+
+              {/* Pedestal Stage (Base / Desk) */}
+              <div className="relative z-0 -mt-4 sm:-mt-5 w-[94%] max-w-[230px] mx-auto pointer-events-none">
+                <PedestalStage className="w-full" />
+              </div>
+            </div>
           </div>
         </div>
 
+        {/* ══════════════════════════════════════════════════════════════
+            3. SUMMARY / INTRODUCTION CARD ("کتاب کا تعارف و خلاصہ")
+               - Rich Warm Yellowish Parchment Texture
+               - Exact Islamic Geometric Texture matching Fatwa Detail Summary
+               - Corner Illustration Removed Per Request
+               - Full-width comfortable text layout
+               - Truncated Text with "مزید پڑھیں ∨" Toggle
+        ══════════════════════════════════════════════════════════════ */}
+        <div
+          className="relative rounded-2xl sm:rounded-3xl border p-3.5 sm:p-5 md:p-6 overflow-hidden shadow-xs space-y-2.5"
+          style={{
+            background:
+              "radial-gradient(circle at 95% 0%, #DFCEB7 0%, #E9DEC9 28%, #F7F1E8 60%)",
+            borderColor: "#C8A46A",
+            boxShadow: "0 6px 25px rgba(43, 33, 24, 0.05)",
+          }}
+        >
+          {/* Subtle Islamic geometric texture across outer card (Exact Fatwa Detail Match) */}
+          <CardGeometricTexture
+            className="opacity-[0.06]"
+            strokeColor="#C8A46A"
+            secondaryColor="#A8793E"
+            patternId="book-arabesque-base"
+          />
+
+          {/* Top-right subtle warm shading and lace texture (Exact Fatwa Detail Match) */}
+          <div className="absolute top-0 right-0 w-48 sm:w-60 md:w-80 h-36 sm:h-44 md:h-52 pointer-events-none overflow-hidden rounded-tr-2xl sm:rounded-tr-3xl">
+            <CardGeometricTexture
+              className="opacity-[0.20]"
+              strokeColor="#A8793E"
+              secondaryColor="#C8A46A"
+              patternId="book-arabesque-lace"
+            />
+          </div>
+
+          {/* Header with Clear Hierarchy */}
+          <div className="relative z-10 flex items-center justify-start gap-2.5">
+            <div
+              className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl flex items-center justify-center shadow-xs shrink-0"
+              style={{
+                backgroundColor: "#4A3728",
+                color: "#DFC07C",
+              }}
+            >
+              <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            </div>
+            <h3
+              className="text-sm sm:text-base md:text-lg font-bold font-serif"
+              style={{ color: "#2B1E16" }}
+            >
+              {isRTL ? "کتاب کا تعارف و خلاصہ" : "Book Overview & Synopsis"}
+            </h3>
+          </div>
+
+          {/* Summary Body - Optimized Typography & Full Width Flow */}
+          <div
+            className="relative z-10 text-xs sm:text-[14px] md:text-[15px] leading-[1.85] sm:leading-[2.05] font-normal break-words font-serif"
+            style={{ color: "#2A1D13" }}
+          >
+            {summary ? (
+              summary.length > 260 ? (
+                <>
+                  <div>
+                    {isSummaryExpanded ? summary : `${summary.slice(0, 260)}...`}
+                  </div>
+
+                  <div className="pt-2">
+                    <button
+                      type="button"
+                      onClick={() => setIsSummaryExpanded(!isSummaryExpanded)}
+                      className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all shadow-2xs border cursor-pointer hover:bg-white active:scale-95 font-serif"
+                      style={{
+                        backgroundColor: "rgba(255, 252, 240, 0.95)",
+                        borderColor: "#C9A96E",
+                        color: "#4A3728",
+                      }}
+                    >
+                      {isSummaryExpanded ? (
+                        <>
+                          <ChevronUp className="w-3.5 h-3.5 text-[#8C6239]" />
+                          <span>{isRTL ? "مختصر کریں" : "Show Less"}</span>
+                        </>
+                      ) : (
+                        <>
+                          <ChevronDown className="w-3.5 h-3.5 text-[#8C6239]" />
+                          <span>{isRTL ? "مزید پڑھیں" : "Read More"}</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </>
+              ) : (
+                summary
+              )
+            ) : isRTL ? (
+              "اس کتاب کا کوئی تفصیلی تعارف دستیاب نہیں ہے۔"
+            ) : (
+              "No summary available for this book."
+            )}
+          </div>
+
+          {/* Delicate Ornamental Divider at bottom */}
+          <div className="relative z-10 flex items-center justify-center pt-2 text-[#9E732E] opacity-70">
+            <span className="h-px bg-[#DEC596] flex-1"></span>
+            <span className="px-2 text-xs">✦</span>
+            <span className="h-px bg-[#DEC596] flex-1"></span>
+          </div>
+        </div>
+
+        {/* ══════════════════════════════════════════════════════════════
+            4. ACTION BUTTONS: Online Reading (1st) & PDF Download (2nd)
+               - Online Reading: Light cream / outlined button
+               - PDF Download: DARK BROWN (#3A2618) full-width button
+        ══════════════════════════════════════════════════════════════ */}
+        <div className="space-y-2 sm:space-y-2.5">
+          {/* 1st Button: Online Reading (Light Cream / Outlined Premium Button) */}
+          <button
+            type="button"
+            onClick={() => {
+              if (pdfUrl) {
+                setIsPdfModalOpen(true);
+              } else {
+                toast.error(
+                  isRTL ? "پی ڈی ایف جلد دستیاب ہوگی" : "PDF will be available soon"
+                );
+              }
+            }}
+            className="w-full flex items-center justify-center gap-2.5 py-3 sm:py-3.5 px-6 rounded-2xl border-2 transition-all duration-200 cursor-pointer shadow-xs hover:shadow-md hover:bg-[#F3EADB] active:scale-[0.99] font-serif text-sm sm:text-base font-bold"
+            style={{
+              backgroundColor: "#FAF6EE",
+              borderColor: "#C9A96E",
+              color: "#4A3728",
+            }}
+          >
+            <BookOpen className="w-5 h-5 text-[#8C6239]" />
+            <span>{isRTL ? "آن لائن مطالعہ کریں" : "Read Online"}</span>
+            {isRTL ? (
+              <ArrowLeft className="w-4 h-4 text-[#8C6239]/70 ms-1" />
+            ) : (
+              <ArrowRight className="w-4 h-4 text-[#8C6239]/70 ms-1" />
+            )}
+          </button>
+
+          {/* 2nd Button: PDF Download (DARK BROWN Full-Width Primary Button) */}
+          {pdfUrl ? (
+            <a
+              href={pdfUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              download
+              className="w-full flex items-center justify-center gap-2.5 py-3.5 sm:py-4 px-6 rounded-2xl transition-all duration-200 cursor-pointer shadow-md hover:shadow-lg active:scale-[0.99] font-serif text-sm sm:text-base font-bold text-white hover:opacity-95"
+              style={{
+                backgroundColor: "#3A2618",
+              }}
+            >
+              <Download className="w-5 h-5 text-[#DFC07C]" />
+              <span>{isRTL ? "PDF ڈاؤن لوڈ کریں" : "Download PDF"}</span>
+            </a>
+          ) : (
+            <button
+              type="button"
+              disabled
+              className="w-full flex items-center justify-center gap-2.5 py-3.5 sm:py-4 px-6 rounded-2xl font-serif text-sm sm:text-base font-bold text-white/70 cursor-not-allowed opacity-70"
+              style={{
+                backgroundColor: "#4A3728",
+              }}
+            >
+              <Download className="w-5 h-5 opacity-60" />
+              <span>
+                {isRTL ? "پی ڈی ایف جلد دستیاب ہوگی" : "PDF Available Soon"}
+              </span>
+            </button>
+          )}
+        </div>
+
+        {/* ══════════════════════════════════════════════════════════════
+            5. COMMENTS / REVIEWS ACCORDION (Directly Below PDF Download)
+        ══════════════════════════════════════════════════════════════ */}
+        <div
+          className="rounded-2xl border transition-all duration-300 shadow-xs overflow-hidden"
+          style={{
+            backgroundColor: "#FAF6EE",
+            borderColor: isCommentsOpen
+              ? "rgba(168, 121, 62, 0.45)"
+              : "rgba(223, 192, 124, 0.4)",
+          }}
+        >
+          <button
+            type="button"
+            onClick={() => setIsCommentsOpen((v) => !v)}
+            className="w-full flex items-center justify-between gap-3 p-3 sm:p-3.5 cursor-pointer hover:bg-[#F5EFE0] transition-colors"
+          >
+            <div className="flex items-center gap-2.5 sm:gap-3">
+              <div
+                className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center shadow-xs shrink-0"
+                style={{
+                  backgroundColor: "#ECE1D0",
+                  color: "#4A3728",
+                }}
+              >
+                <MessageSquare className="w-4 h-4 text-[#8C6239]" />
+              </div>
+              <div className="text-right">
+                <span
+                  className="text-xs sm:text-sm font-bold block font-serif leading-snug"
+                  style={{ color: "#2B1E16" }}
+                >
+                  {isRTL ? "تبصرے و آراء" : "Comments & Reviews"}
+                </span>
+                <span
+                  className="text-[10px] sm:text-[11px] block font-serif"
+                  style={{ color: COLORS.textSecondary }}
+                >
+                  {isRTL
+                    ? isCommentsOpen
+                      ? "تبصرے بند کریں"
+                      : "اپنے خیالات کا اظہار کریں"
+                    : isCommentsOpen
+                      ? "Close comments"
+                      : "Share your thoughts"}
+                </span>
+              </div>
+            </div>
+            <ChevronDown
+              className={`w-4 h-4 text-slate-500 transition-transform duration-300 shrink-0 ${
+                isCommentsOpen ? "rotate-180" : ""
+              }`}
+            />
+          </button>
+
+          {isCommentsOpen && (
+            <div
+              className="p-3 sm:p-4 border-t"
+              style={{
+                backgroundColor: COLORS.white,
+                borderColor: `${COLORS.border}70`,
+              }}
+            >
+              <CommentsSection
+                contentType="book"
+                contentId={_id}
+                language={language}
+              />
+            </div>
+          )}
+        </div>
+
+        {/* ══════════════════════════════════════════════════════════════
+            6. BOOK DETAILS SECTION ("کتاب کی تفصیلات") 2x2 Grid
+        ══════════════════════════════════════════════════════════════ */}
+        <div
+          className="rounded-2xl border p-3 sm:p-3.5 space-y-2 sm:space-y-2.5 shadow-2xs"
+          style={{
+            backgroundColor: "#FAF6EE",
+            borderColor: "rgba(217, 164, 88, 0.35)",
+          }}
+        >
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-[#4A3728] text-[#DFC07C] flex items-center justify-center shadow-xs">
+              <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            </div>
+            <h3
+              className="text-xs sm:text-sm font-bold font-serif"
+              style={{ color: COLORS.primary }}
+            >
+              {isRTL ? "کتاب کی تفصیلات" : "Book Details"}
+            </h3>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2 sm:gap-2.5">
+            {/* Card 1: Category / موضوع */}
+            <div
+              className="relative rounded-xl sm:rounded-2xl border p-2.5 sm:p-3 flex items-center justify-between gap-2 shadow-2xs"
+              style={{
+                backgroundColor: "#FDFBF7",
+                borderColor: "#EBDDC9",
+              }}
+            >
+              <div className="flex-1 min-w-0">
+                <span className="text-[8.5px] sm:text-[10px] block text-amber-950/65 font-medium font-serif leading-tight">
+                  {isRTL ? "موضوع" : "Subject"}
+                </span>
+                <span
+                  className="text-[11px] sm:text-xs font-bold block font-serif mt-0.5 leading-snug break-words"
+                  style={{ color: "#2B1E16" }}
+                  title={categoryLabel}
+                >
+                  {categoryLabel}
+                </span>
+              </div>
+              <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center shrink-0 bg-[#F3EADB] text-[#8C6239]">
+                <Tag className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+              </div>
+            </div>
+
+            {/* Card 2: Author / مصنف - Accommodates Long Names Without Hiding */}
+            <div
+              className="relative rounded-xl sm:rounded-2xl border p-2.5 sm:p-3 flex items-start sm:items-center justify-between gap-2 shadow-2xs"
+              style={{
+                backgroundColor: "#FDFBF7",
+                borderColor: "#EBDDC9",
+              }}
+            >
+              <div className="flex-1 min-w-0">
+                <span className="text-[8.5px] sm:text-[10px] block text-amber-950/65 font-medium font-serif leading-tight">
+                  {isRTL ? "مصنف" : "Author"}
+                </span>
+                <span
+                  className="text-[11px] sm:text-xs font-bold block font-serif mt-0.5 leading-snug break-words"
+                  style={{ color: "#2B1E16" }}
+                  title={author}
+                >
+                  {author}
+                </span>
+              </div>
+              <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center shrink-0 bg-[#F3EADB] text-[#8C6239] mt-0.5 sm:mt-0">
+                <User className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+              </div>
+            </div>
+
+            {/* Card 3: Pages / صفحات */}
+            <div
+              className="relative rounded-xl sm:rounded-2xl border p-2.5 sm:p-3 flex items-center justify-between gap-2 shadow-2xs"
+              style={{
+                backgroundColor: "#FDFBF7",
+                borderColor: "#EBDDC9",
+              }}
+            >
+              <div className="flex-1 min-w-0">
+                <span className="text-[8.5px] sm:text-[10px] block text-amber-950/65 font-medium font-serif leading-tight">
+                  {isRTL ? "صفحات" : "Pages"}
+                </span>
+                <span
+                  className="text-[11px] sm:text-xs font-bold block font-serif mt-0.5 leading-snug break-words"
+                  style={{ color: "#2B1E16" }}
+                >
+                  {pageCount
+                    ? isRTL
+                      ? `${pageCount} صفحات`
+                      : `${pageCount} Pages`
+                    : "—"}
+                </span>
+              </div>
+              <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center shrink-0 bg-[#F3EADB] text-[#8C6239]">
+                <BookOpen className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+              </div>
+            </div>
+
+            {/* Card 4: Publication Date / اشاعت */}
+            <div
+              className="relative rounded-xl sm:rounded-2xl border p-2.5 sm:p-3 flex items-center justify-between gap-2 shadow-2xs"
+              style={{
+                backgroundColor: "#FDFBF7",
+                borderColor: "#EBDDC9",
+              }}
+            >
+              <div className="flex-1 min-w-0">
+                <span className="text-[8.5px] sm:text-[10px] block text-amber-950/65 font-medium font-serif leading-tight">
+                  {isRTL ? "اشاعت" : "Published"}
+                </span>
+                <span
+                  className="text-[11px] sm:text-xs font-bold block font-serif mt-0.5 leading-snug break-words"
+                  style={{ color: "#2B1E16" }}
+                  title={formattedDate}
+                >
+                  {formattedDate || "—"}
+                </span>
+              </div>
+              <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center shrink-0 bg-[#F3EADB] text-[#8C6239]">
+                <Calendar className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ══════════════════════════════════════════════════════════════
+            7. RELATED BOOKS SECTION
+        ══════════════════════════════════════════════════════════════ */}
         {relatedBooks?.length > 0 && (
           <div
-            className="mt-14 pt-8 border-t"
-            style={{ borderColor: COLORS.border }}
+            className="mt-5 sm:mt-7 pt-4 sm:pt-5 border-t"
+            style={{ borderColor: `${COLORS.border}80` }}
           >
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center justify-between mb-3 sm:mb-4">
               <div>
                 <span
-                  className="text-xs font-bold uppercase tracking-widest block mb-0.5"
+                  className="text-[10px] sm:text-xs font-bold uppercase tracking-widest block mb-0.5"
                   style={{ color: COLORS.accent }}
                 >
                   {isRTL ? "متعلقہ کتب" : "EXPLORE MORE"}
                 </span>
                 <h2
-                  className="text-xl sm:text-2xl font-bold font-serif"
+                  className="text-lg sm:text-xl font-bold font-serif"
                   style={{ color: COLORS.primary }}
                 >
-                  {isRTL
-                    ? "مزید مفید علمی و اصلاحی کتب"
-                    : "Related Publications"}
+                  {isRTL ? "مزید مفید علمی و اصلاحی کتب" : "Related Publications"}
                 </h2>
               </div>
               <Link
                 to="/publications"
-                className="text-xs sm:text-sm font-bold hover:underline"
+                className="text-xs sm:text-sm font-bold hover:underline font-serif"
                 style={{ color: COLORS.accent }}
               >
                 {isRTL ? "سب دیکھیں ←" : "View All →"}
               </Link>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
               {relatedBooks.map((relBook) => {
-                const relCoverSrc = getCoverImageSrc(relBook.coverImage, relBook.category);
+                const relCoverSrc = getCoverImageSrc(
+                  relBook.coverImage,
+                  relBook.category
+                );
                 return (
                   <Link
                     key={relBook._id}
                     to={`/publications/slug/${relBook.slug || relBook._id}`}
-                    className="p-4 sm:p-5 rounded-2xl border shadow-xs hover:shadow-md transition-all duration-300 flex flex-col justify-between group overflow-visible"
+                    className="p-3.5 sm:p-4 rounded-2xl border shadow-2xs hover:shadow-md transition-all duration-300 flex flex-col justify-between group"
                     style={{
-                      backgroundColor: COLORS.white,
-                      borderColor: COLORS.border,
+                      backgroundColor: "#FAF6EE",
+                      borderColor: "rgba(223, 192, 124, 0.4)",
                     }}
                   >
-                    <div className="flex items-center gap-3.5 sm:gap-4 mb-3">
+                    <div className="flex items-center gap-3 mb-2.5">
                       <div
-                        className="w-14 h-18 sm:w-16 sm:h-20 rounded-xl overflow-hidden shrink-0 shadow-xs border flex items-center justify-center p-1"
+                        className="w-13 h-16 sm:w-15 sm:h-18 rounded-xl overflow-hidden shrink-0 flex items-center justify-center p-0.5"
                         style={{
-                          backgroundColor: COLORS.primary,
-                          borderColor: `${COLORS.accent}40`,
+                          background:
+                            "radial-gradient(ellipse at 50% 25%, #FFFDF9 0%, #FAF3E6 50%, #EFE1CC 100%)",
+                          border: "1px solid #C8A46A",
+                          boxShadow:
+                            "0 0 0 1.5px #FAF4EA, 0 0 0 2.5px rgba(200, 164, 106, 0.45), 0 4px 12px rgba(43, 33, 24, 0.08)",
                         }}
                       >
                         {relCoverSrc ? (
@@ -958,13 +932,13 @@ export default function BookDetail() {
                           <BookOpen className="w-6 h-6 text-white/80" />
                         )}
                       </div>
-                      <div className="flex-1 min-w-0 py-0.5 space-y-1">
+                      <div className="flex-1 min-w-0 py-0.5 space-y-0.5">
                         <div>
                           <span
-                            className="text-[10px] sm:text-[11px] font-bold px-2.5 py-1 rounded-full inline-block shadow-2xs leading-normal"
+                            className="text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full inline-block shadow-2xs leading-normal font-serif"
                             style={{
-                              backgroundColor: COLORS.secondary,
-                              color: COLORS.primary,
+                              backgroundColor: "#F3EADB",
+                              color: "#4A3728",
                             }}
                           >
                             {PUBLICATION_CATEGORY_TRANSLATIONS[
@@ -973,15 +947,14 @@ export default function BookDetail() {
                           </span>
                         </div>
                         <h4
-                          className="font-bold text-sm sm:text-base font-serif leading-[2.2] group-hover:text-accent transition-colors block"
+                          className="font-bold text-sm font-serif leading-[2.1] group-hover:text-accent transition-colors block truncate"
                           style={{ color: COLORS.primary }}
                         >
                           {relBook.title}
                         </h4>
                         {relBook.author && (
                           <span
-                            className="text-xs sm:text-[13px] block leading-[2] text-slate-600 font-medium"
-                            style={{ color: COLORS.textSecondary }}
+                            className="text-xs block leading-tight text-slate-500 font-medium font-serif truncate"
                           >
                             {relBook.author}
                           </span>
@@ -990,9 +963,9 @@ export default function BookDetail() {
                     </div>
 
                     <div
-                      className="pt-3 mt-2 border-t flex items-center justify-between text-xs sm:text-sm font-bold"
+                      className="pt-2 mt-1 border-t flex items-center justify-between text-xs font-bold font-serif"
                       style={{
-                        borderColor: `${COLORS.border}60`,
+                        borderColor: `${COLORS.border}50`,
                         color: COLORS.accent,
                       }}
                     >

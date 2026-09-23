@@ -539,7 +539,7 @@ export default function Header() {
   return (
     <div
       ref={headerContainerRef}
-      className="w-full sticky top-0 z-40 select-none py-1 sm:py-1.5 px-2 sm:px-4 md:px-6 sticky-header-wrapper bg-transparent"
+      className="w-full sticky top-0 z-40 select-none py-1 sm:py-1.5 px-2 sm:px-4 md:px-6 sticky-header-wrapper"
       dir="rtl"
     >
       <div className="max-w-[1360px] mx-auto">

@@ -444,6 +444,7 @@ export function CardGeometricTexture({
   className = "opacity-[0.08]",
   strokeColor = "#C8A46A",
   secondaryColor = "#A8793E",
+  patternId = "card-arabesque-tile",
 }) {
   return (
     <svg
@@ -454,7 +455,7 @@ export function CardGeometricTexture({
       aria-hidden="true"
     >
       <defs>
-        <pattern id="card-arabesque-tile" width="48" height="48" patternUnits="userSpaceOnUse">
+        <pattern id={patternId} width="48" height="48" patternUnits="userSpaceOnUse">
           <path
             d="M24 0 L32 16 L48 24 L32 32 L24 48 L16 32 L0 24 L16 16 Z"
             fill="none"
@@ -478,7 +479,7 @@ export function CardGeometricTexture({
           <circle cx="48" cy="48" r="4.5" fill="none" stroke={strokeColor} strokeWidth="0.6" />
         </pattern>
       </defs>
-      <rect width="100%" height="100%" fill="url(#card-arabesque-tile)" />
+      <rect width="100%" height="100%" fill={`url(#${patternId})`} />
     </svg>
   );
 }
