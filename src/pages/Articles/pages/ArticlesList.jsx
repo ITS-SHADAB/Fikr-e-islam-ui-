@@ -66,6 +66,9 @@ export default function ArticlesList() {
 
   const handleSearchSubmit = (e) => {
     e?.preventDefault();
+    if (document.activeElement && typeof document.activeElement.blur === 'function') {
+      document.activeElement.blur();
+    }
     setPage(1);
   };
 
@@ -136,6 +139,11 @@ export default function ArticlesList() {
                 onChange={(e) => {
                   setSearchTerm(e.target.value);
                   setPage(1);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.target.blur();
+                  }
                 }}
                 placeholder={isRTL ? 'مقالات تلاش کریں...' : 'Search articles...'}
                 className="w-full py-3 rounded-xl text-sm outline-none border-0 font-medium"

@@ -84,6 +84,9 @@ export default function SectionSidebar({
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
+    if (document.activeElement && typeof document.activeElement.blur === 'function') {
+      document.activeElement.blur();
+    }
     if (onSearchSubmit) onSearchSubmit(e);
   };
 
@@ -135,6 +138,11 @@ export default function SectionSidebar({
               placeholder={searchPlaceholder}
               value={searchTerm}
               onChange={(e) => onSearchChange && onSearchChange(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.target.blur();
+                }
+              }}
               className="w-full border rounded-xl py-2 text-xs outline-none transition-all shadow-2xs placeholder:text-slate-400 focus:bg-white focus:border-amber-600"
               style={{
                 borderColor: COLORS.border,
@@ -294,6 +302,11 @@ export default function SectionSidebar({
                 placeholder={searchPlaceholder}
                 value={searchTerm}
                 onChange={(e) => onSearchChange && onSearchChange(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.target.blur();
+                  }
+                }}
                 className="w-full border rounded-xl py-2.5 text-xs outline-none transition-all shadow-2xs focus:bg-white focus:border-amber-600"
                 style={{
                   borderColor: COLORS.border,

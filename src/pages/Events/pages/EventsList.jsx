@@ -698,7 +698,15 @@ export default function EventsList() {
               </div>
 
               {/* Search Bar */}
-              <div className="relative w-full sm:w-56">
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (document.activeElement && typeof document.activeElement.blur === 'function') {
+                    document.activeElement.blur();
+                  }
+                }}
+                className="relative w-full sm:w-56"
+              >
                 <Search
                   className="w-4 h-4 absolute top-1/2 -translate-y-1/2 pointer-events-none"
                   style={{
@@ -710,6 +718,11 @@ export default function EventsList() {
                   type="text"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.target.blur();
+                    }
+                  }}
                   placeholder={isRTL ? 'پروگرام تلاش کریں...' : 'Search events...'}
                   className="w-full py-2 rounded-xl border-2 text-xs outline-none focus:border-primary transition-colors"
                   style={{
@@ -731,7 +744,7 @@ export default function EventsList() {
                     <X className="w-3.5 h-3.5" />
                   </button>
                 )}
-              </div>
+              </form>
             </div>
 
             {/* Program Cards Feed */}

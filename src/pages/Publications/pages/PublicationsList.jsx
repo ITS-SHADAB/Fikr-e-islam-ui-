@@ -58,6 +58,9 @@ export default function PublicationsList() {
 
   const handleSearchSubmit = (e) => {
     e?.preventDefault();
+    if (document.activeElement && typeof document.activeElement.blur === 'function') {
+      document.activeElement.blur();
+    }
     setPage(1);
   };
 

@@ -66,6 +66,9 @@ export default function FatwasList() {
 
   const handleSearchSubmit = (e) => {
     e?.preventDefault();
+    if (document.activeElement && typeof document.activeElement.blur === 'function') {
+      document.activeElement.blur();
+    }
     setPage(1);
   };
 
@@ -160,6 +163,11 @@ export default function FatwasList() {
                 onChange={(e) => {
                   setSearchTerm(e.target.value);
                   setPage(1);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.target.blur();
+                  }
                 }}
                 placeholder={
                   isRTL
