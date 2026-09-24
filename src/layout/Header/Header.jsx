@@ -880,7 +880,7 @@ export default function Header() {
               3. LOWER DARK-BROWN NAVBAR (#2B2118 - Ultra-Compact)
               ──────────────────────────────────────────────────────────── */}
           <nav
-            className="relative z-20 w-full bg-[#2B2118] px-3 sm:px-5 py-0.5 sm:py-0.5 flex items-center justify-between min-h-[30px] sm:min-h-[34px] rounded-b-2xl sm:rounded-b-3xl"
+            className="relative z-20 w-full bg-[#2B2118] px-2.5 sm:px-4 lg:px-5 py-0.5 flex items-center justify-between min-h-[30px] sm:min-h-[34px] rounded-b-2xl sm:rounded-b-3xl flex-nowrap"
             aria-label="مرکزی نیویگیشن"
           >
             {/* ── MOBILE FULL-NAVBAR SEARCH OVERLAY (Edge-to-edge on small phones, 100% responsive, zero overflow) ── */}
@@ -892,7 +892,7 @@ export default function Header() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -4 }}
                   transition={{ duration: 0.15 }}
-                  className="lg:hidden absolute inset-0 z-40 bg-[#2B2118] px-2 sm:px-4 py-0.5 flex items-center gap-1.5 sm:gap-2 rounded-b-2xl sm:rounded-b-3xl shadow-lg"
+                  className="lg:hidden absolute inset-0 z-[60] bg-[#2B2118] px-2 sm:px-3 py-0.5 flex items-center gap-1.5 sm:gap-2 rounded-b-2xl sm:rounded-b-3xl shadow-lg"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <form
@@ -996,7 +996,7 @@ export default function Header() {
               )}
 
               {/* Desktop Inline Expandable Search Box */}
-              <div ref={desktopSearchContainerRef} className="relative hidden lg:flex items-center z-30">
+              <div ref={desktopSearchContainerRef} className="relative hidden lg:flex items-center z-40 shrink-0">
                 {isSearchOpen ? (
                   <>
                     <div
@@ -1021,7 +1021,7 @@ export default function Header() {
                           onChange={(e) => setSearchQuery(e.target.value)}
                           onKeyDown={handleSearchKeyDown}
                           placeholder={isUrdu ? "تلاش کریں..." : "Search..."}
-                          className="w-44 md:w-52 bg-transparent text-xs text-[#F7F1E8] placeholder-[#A8793E]/70 focus:outline-none text-right font-normal px-1"
+                          className="w-32 lg:w-36 xl:w-48 bg-transparent text-xs text-[#F7F1E8] placeholder-[#A8793E]/70 focus:outline-none text-right font-normal px-1.5 transition-all duration-200"
                           dir={isUrdu ? "rtl" : "ltr"}
                         />
                       </form>
@@ -1106,8 +1106,8 @@ export default function Header() {
             </div>
 
             {/* ── CENTER (DESKTOP): Navigation Menu Buttons ── */}
-            <div className="hidden lg:flex items-center justify-center flex-1 mx-1.5 xl:mx-3 py-1">
-              <div className="flex items-center flex-nowrap gap-1 xl:gap-2">
+            <div className="hidden lg:flex items-center justify-center flex-1 mx-1 xl:mx-2 py-0.5 overflow-hidden">
+              <div className="flex items-center flex-nowrap gap-0.5 xl:gap-1.5">
                 {navLinks.map((item) => {
                   const isActive =
                     location.pathname === item.href ||
@@ -1118,7 +1118,7 @@ export default function Header() {
                     <Link
                       key={item.href}
                       to={item.href}
-                      className={`group px-3 xl:px-3.5 py-1 xl:py-1.5 rounded-full text-[13.5px] xl:text-[14.5px] whitespace-nowrap transition-all duration-200 select-none flex items-center gap-1.5 border shrink-0 cursor-pointer shadow-xs ${isActive
+                      className={`group px-2 lg:px-2.5 xl:px-3 py-1 rounded-full text-[12.5px] lg:text-[13px] xl:text-[14px] whitespace-nowrap transition-all duration-200 select-none flex items-center gap-1 xl:gap-1.5 border shrink-0 cursor-pointer shadow-xs ${isActive
                         ? "border-[#DFC8A4] bg-[#3D2E22] text-[#DFC8A4] font-normal shadow-[0_0_10px_rgba(168,121,62,0.3)]"
                         : "border-[#A8793E]/50 bg-[#2B2118]/90 text-[#F7F1E8] hover:border-[#DFC8A4] hover:text-[#FFF7D6] hover:bg-[#3D2E22] hover:shadow-[0_2px_8px_rgba(168,121,62,0.2)] font-normal hover:scale-[1.02] active:scale-95"
                         }`}
@@ -1132,10 +1132,10 @@ export default function Header() {
 
             {/* ── LEFT SIDE (RTL END): Member & Login Buttons / Mobile Toggle ── */}
             <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-              {/* Member Button (ممبر بنیں) */}
+              {/* Member Button (ممبر بنیں - dynamically hidden on medium screens when search is open to save space) */}
               <Link
                 to="/ask"
-                className="hidden md:flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-full text-xs sm:text-[12px] font-semibold text-[#F7F1E8] border border-[#A8793E] bg-[#2B2118] hover:bg-[#3D2E22] hover:border-[#DFC8A4] transition-all shrink-0"
+                className={`hidden ${isSearchOpen ? 'xl:flex' : 'md:flex'} items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-full text-xs sm:text-[12px] font-semibold text-[#F7F1E8] border border-[#A8793E] bg-[#2B2118] hover:bg-[#3D2E22] hover:border-[#DFC8A4] transition-all shrink-0`}
               >
                 <HelpCircle className="w-3.5 h-3.5 text-[#A8793E]" />
                 <span>{isUrdu ? "ممبر بنیں" : "Member"}</span>
@@ -1145,7 +1145,7 @@ export default function Header() {
               {isAuthenticated || userRole === "admin" ? (
                 <>
                   {/* Notification Bell */}
-                  <div ref={notifBellRef} className="relative z-50">
+                  <div ref={notifBellRef} className="relative z-40">
                     <button
                       type="button"
                       onClick={() => {
@@ -1179,7 +1179,7 @@ export default function Header() {
                   </div>
 
                   {/* Profile Dropdown Trigger */}
-                  <div ref={profileDropdownRef} className="relative z-50">
+                  <div ref={profileDropdownRef} className="relative z-40">
                     <button
                       type="button"
                       onClick={() => {
@@ -1192,7 +1192,7 @@ export default function Header() {
                       <div className="w-5 h-5 rounded-full bg-[#A8793E] text-[#2B2118] font-bold text-[10px] flex items-center justify-center shrink-0">
                         {getInitials(loggedInUser)}
                       </div>
-                      <span className="inline-block max-w-[85px] sm:max-w-[125px] md:max-w-[145px] truncate">
+                      <span className={`inline-block ${isSearchOpen ? 'max-w-[55px] sm:max-w-[75px] xl:max-w-[125px]' : 'max-w-[85px] sm:max-w-[125px] md:max-w-[145px]'} truncate`}>
                         {getUserDisplayName(loggedInUser)}
                       </span>
                       <ChevronDown className="w-3 h-3 text-[#A8793E] shrink-0" />

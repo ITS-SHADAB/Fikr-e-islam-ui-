@@ -144,7 +144,7 @@ export default function HeaderSearchResults({
         className={`bg-[#2B2118] border border-[#A8793E] shadow-2xl rounded-2xl text-[#F7F1E8] z-50 overflow-hidden flex flex-col ${
           mode === "mobile"
             ? "absolute top-full left-1 right-1 sm:left-3 sm:right-3 mt-1.5 max-h-[calc(100dvh-120px)]"
-            : "absolute top-full mt-2 right-0 left-auto w-[420px] sm:w-[460px] max-w-[90vw] max-h-[480px]"
+            : "absolute top-full mt-2 right-0 left-auto w-[440px] sm:w-[500px] md:w-[540px] max-w-[94vw] max-h-[520px]"
         }`}
         dir={isUrdu ? "rtl" : "ltr"}
       >
@@ -259,19 +259,19 @@ export default function HeaderSearchResults({
                       onSelectResult(item);
                     }
                   }}
-                  className={`group p-2.5 sm:p-3 flex items-start gap-2.5 cursor-pointer transition-colors duration-150 select-none ${
+                  className={`group p-3 sm:p-3.5 flex items-start gap-3 cursor-pointer transition-colors duration-150 select-none ${
                     isSelected
                       ? "bg-[#3D2E22] text-[#F7F1E8]"
                       : "hover:bg-[#35271C] text-[#F7F1E8]/90"
                   }`}
                 >
                   {/* Thumbnail / Type Icon Box */}
-                  <div className="shrink-0 relative">
+                  <div className="shrink-0 relative pt-0.5">
                     {item.image ? (
                       <img
                         src={item.image}
                         alt=""
-                        className="w-10 h-10 sm:w-11 sm:h-11 rounded-lg object-cover border border-[#A8793E]/30 shrink-0 bg-[#3D2E22]"
+                        className="w-11 h-11 sm:w-12 sm:h-12 rounded-lg object-cover border border-[#A8793E]/30 shrink-0 bg-[#3D2E22]"
                         onError={(e) => {
                           // Hide broken image and fall back to icon
                           e.currentTarget.style.display = "none";
@@ -283,45 +283,57 @@ export default function HeaderSearchResults({
                     ) : null}
                     <div
                       style={{ display: item.image ? "none" : "flex" }}
-                      className="w-10 h-10 sm:w-11 sm:h-11 rounded-lg bg-[#3D2E22] border border-[#A8793E]/30 items-center justify-center shrink-0"
+                      className="w-11 h-11 sm:w-12 sm:h-12 rounded-lg bg-[#3D2E22] border border-[#A8793E]/30 items-center justify-center shrink-0"
                     >
                       <TypeIcon className={`w-5 h-5 ${typeCfg.iconColor}`} />
                     </div>
                   </div>
 
                   {/* Text Details */}
-                  <div className="flex-1 min-w-0 space-y-1">
+                  <div className="flex-1 min-w-0">
                     {/* Badges: Type & Category */}
-                    <div className="flex items-center gap-1.5 flex-wrap">
+                    <div className="flex items-center gap-1.5 flex-wrap mb-1.5">
                       <span
-                        className={`inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded border leading-none ${typeCfg.badgeCls}`}
+                        className={`inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded border leading-none shrink-0 ${typeCfg.badgeCls}`}
                       >
                         <TypeIcon className="w-2.5 h-2.5" />
                         <span>{isUrdu ? typeCfg.labelUrdu : typeCfg.labelEn}</span>
                       </span>
 
                       {item.category && (
-                        <span className="text-[10px] text-[#DFC8A4]/80 px-1.5 py-0.5 rounded bg-black/20 border border-[#A8793E]/20 font-medium truncate max-w-[130px]">
+                        <span className="text-[10px] text-[#DFC8A4]/80 px-1.5 py-0.5 rounded bg-black/25 border border-[#A8793E]/20 font-medium truncate max-w-[140px] shrink-0">
                           {item.category}
                         </span>
                       )}
                     </div>
 
-                    {/* Result Title */}
+                    {/* Result Title - Generous line-height & padding to prevent Nastaliq ascender/descender overlap & clipping */}
                     <h4
-                      className="text-xs sm:text-sm font-semibold text-[#F7F1E8] group-hover:text-[#DFC8A4] transition-colors leading-snug line-clamp-2"
+                      className="text-[13px] sm:text-[14px] font-bold text-[#F7F1E8] group-hover:text-[#DFC8A4] transition-colors line-clamp-2 break-words text-start mb-1"
                       style={{
                         fontFamily: isUrdu
-                          ? "'Noto Nastaliq Urdu', 'Noto Naskh Arabic', sans-serif"
+                          ? "'Payami Nastaleeq', 'Noto Nastaliq Urdu', 'Noto Naskh Arabic', serif"
                           : "inherit",
+                        lineHeight: isUrdu ? "2.0" : "1.45",
+                        paddingTop: isUrdu ? "3px" : "0px",
+                        paddingBottom: isUrdu ? "4px" : "0px",
                       }}
                     >
                       {item.title}
                     </h4>
 
-                    {/* Result Description (Truncated) */}
+                    {/* Result Description (Truncated with proper line-height) */}
                     {item.description && (
-                      <p className="text-[11px] text-[#DFC8A4]/70 line-clamp-2 leading-relaxed">
+                      <p
+                        className="text-[11px] sm:text-[12px] text-[#DFC8A4]/75 line-clamp-2 break-words text-start"
+                        style={{
+                          fontFamily: isUrdu
+                            ? "'Payami Nastaleeq', 'Noto Nastaliq Urdu', 'Noto Naskh Arabic', serif"
+                            : "inherit",
+                          lineHeight: isUrdu ? "1.8" : "1.5",
+                          paddingTop: isUrdu ? "2px" : "0px",
+                        }}
+                      >
                         {item.description}
                       </p>
                     )}
