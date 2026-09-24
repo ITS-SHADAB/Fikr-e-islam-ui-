@@ -7,7 +7,6 @@ import {
   Download,
   Calendar,
   User,
-  ArrowLeft,
   Building2,
   Info,
 } from "lucide-react";
@@ -454,6 +453,22 @@ export default function PublicationCard({ publication }) {
     }
   };
 
+  // Summary text inline processing (word boundary truncation with clean trailing punctuation)
+  const cleanSummary = (summary || "").replace(/\s+/g, " ").trim();
+  const MAX_SUMMARY_CHARS = 260;
+  const isTruncated = cleanSummary.length > MAX_SUMMARY_CHARS;
+
+  let displaySummary = cleanSummary;
+  if (isTruncated) {
+    const cut = cleanSummary.slice(0, MAX_SUMMARY_CHARS);
+    const lastSpace = cut.lastIndexOf(" ");
+    let text = (lastSpace > 180 ? cut.slice(0, lastSpace) : cut).trim();
+    text = text.replace(/[۔،,.\s]+$/, "");
+    displaySummary = text;
+  } else {
+    displaySummary = displaySummary.replace(/[۔،,.\s]+$/, "");
+  }
+
   return (
     <>
       <article
@@ -627,8 +642,8 @@ export default function PublicationCard({ publication }) {
                 </div>
               )}
 
-              {/* Book Description / Introduction (کتاب کا تعارف) with مزید پڑھیں System */}
-              {summary && (
+              {/* Book Description / Introduction (کتاب کا تعارف) with Inline مزید پڑھیں */}
+              {cleanSummary && (
                 <div className="mt-1.5 mb-2 sm:mb-2.5">
                   <div className="flex items-center gap-1.5 mb-1 select-none">
                     <span
@@ -644,24 +659,34 @@ export default function PublicationCard({ publication }) {
                   </div>
 
                   <p
-                    className="text-[11px] sm:text-xs md:text-[12.5px] font-['Payami_Nastaleeq',serif] leading-[1.8] sm:leading-[1.85] line-clamp-2 md:line-clamp-3 text-right"
+                    className="text-[11.5px] sm:text-xs md:text-[12.5px] font-['Payami_Nastaleeq',serif] leading-[1.85] sm:leading-[1.9] text-right"
                     style={{ color: "#3D3025" }}
                   >
-                    {summary}
+                    <span>{displaySummary}</span>
+                    {isTruncated ? (
+                      <>
+                        <span className="text-[#3D3025] mx-0.5 tracking-wider select-none font-bold">...</span>{" "}
+                        <Link
+                          to={detailUrl}
+                          className="inline font-bold font-['Payami_Nastaleeq',serif] text-[#8C6239] hover:text-[#4A3728] underline decoration-dotted underline-offset-4 hover:underline-offset-2 transition-colors cursor-pointer text-[11.5px] sm:text-xs md:text-[12.5px]"
+                          title="مزید تفصیلات پڑھیں"
+                        >
+                          مزید پڑھیں
+                        </Link>
+                      </>
+                    ) : (
+                      <>
+                        {" "}
+                        <Link
+                          to={detailUrl}
+                          className="inline font-bold font-['Payami_Nastaleeq',serif] text-[#8C6239] hover:text-[#4A3728] underline decoration-dotted underline-offset-4 hover:underline-offset-2 transition-colors cursor-pointer text-[11.5px] sm:text-xs md:text-[12.5px]"
+                          title="مزید تفصیلات پڑھیں"
+                        >
+                          مزید پڑھیں
+                        </Link>
+                      </>
+                    )}
                   </p>
-
-                  <Link
-                    to={detailUrl}
-                    className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10.5px] sm:text-xs font-bold font-['Payami_Nastaleeq',serif] border transition-colors mt-1 shadow-2xs hover:bg-[#E8DCCB]"
-                    style={{
-                      backgroundColor: "#EFE4D3",
-                      borderColor: "rgba(168, 121, 62, 0.25)",
-                      color: COLORS.primary || "#2B2118",
-                    }}
-                  >
-                    <span>مزید پڑھیں</span>
-                    <ArrowLeft className="w-3 h-3 text-[#A8793E]" />
-                  </Link>
                 </div>
               )}
             </div>

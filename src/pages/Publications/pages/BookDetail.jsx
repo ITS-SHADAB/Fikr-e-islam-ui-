@@ -7,8 +7,8 @@ import {
   ArrowRight,
   ArrowLeft,
   Globe,
-  ChevronUp,
   ChevronDown,
+  ChevronUp,
   MessageSquare,
   Tag,
   Calendar,
@@ -277,6 +277,20 @@ export default function BookDetail() {
     mobileLine1,
     mobileLine2,
   } = formatPublicationDate(rawDate);
+
+  // Summary text inline processing (260 chars cutoff matching previous visible volume)
+  const cleanSummary = (summary || "").replace(/\s+/g, " ").trim();
+  const BOOK_DETAIL_MAX_CHARS = 260;
+  const isSummaryLong = cleanSummary.length > BOOK_DETAIL_MAX_CHARS;
+
+  let truncatedBookSummary = cleanSummary;
+  if (isSummaryLong) {
+    const cut = cleanSummary.slice(0, BOOK_DETAIL_MAX_CHARS);
+    const lastSpace = cut.lastIndexOf(" ");
+    let text = (lastSpace > 180 ? cut.slice(0, lastSpace) : cut).trim();
+    text = text.replace(/[۔،,.\s]+$/, "");
+    truncatedBookSummary = text;
+  }
 
   return (
     <div
@@ -589,43 +603,43 @@ export default function BookDetail() {
 
           {/* Summary Body - Optimized Typography & Full Width Flow */}
           <div
-            className="relative z-10 text-xs sm:text-[14px] md:text-[15px] leading-[1.85] sm:leading-[2.05] font-normal break-words font-serif"
+            className={`relative z-10 text-xs sm:text-[14px] md:text-[15px] leading-[1.85] sm:leading-[2.05] font-normal break-words ${
+              isRTL ? "font-['Payami_Nastaleeq',serif] text-right" : "font-serif text-left"
+            }`}
             style={{ color: "#2A1D13" }}
           >
-            {summary ? (
-              summary.length > 260 ? (
-                <>
-                  <div>
-                    {isSummaryExpanded ? summary : `${summary.slice(0, 260)}...`}
-                  </div>
-
-                  <div className="pt-2">
+            {cleanSummary ? (
+              isSummaryLong ? (
+                isSummaryExpanded ? (
+                  <p className="inline">
+                    <span>{cleanSummary}</span>{" "}
                     <button
                       type="button"
-                      onClick={() => setIsSummaryExpanded(!isSummaryExpanded)}
-                      className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all shadow-2xs border cursor-pointer hover:bg-white active:scale-95 font-serif"
-                      style={{
-                        backgroundColor: "rgba(255, 252, 240, 0.95)",
-                        borderColor: "#C9A96E",
-                        color: "#4A3728",
-                      }}
+                      onClick={() => setIsSummaryExpanded(false)}
+                      className={`inline font-bold text-[#8C6239] hover:text-[#4A3728] underline decoration-dotted underline-offset-4 hover:underline-offset-2 transition-colors cursor-pointer text-xs sm:text-[14px] md:text-[15px] mr-1.5 ${
+                        isRTL ? "font-['Payami_Nastaleeq',serif]" : "font-serif"
+                      }`}
                     >
-                      {isSummaryExpanded ? (
-                        <>
-                          <ChevronUp className="w-3.5 h-3.5 text-[#8C6239]" />
-                          <span>{isRTL ? "مختصر کریں" : "Show Less"}</span>
-                        </>
-                      ) : (
-                        <>
-                          <ChevronDown className="w-3.5 h-3.5 text-[#8C6239]" />
-                          <span>{isRTL ? "مزید پڑھیں" : "Read More"}</span>
-                        </>
-                      )}
+                      {isRTL ? "مختصر کریں" : "Show Less"}
                     </button>
-                  </div>
-                </>
+                  </p>
+                ) : (
+                  <p className="inline">
+                    <span>{truncatedBookSummary}</span>
+                    <span className="text-[#2A1D13] mx-0.5 tracking-wider select-none font-bold">...</span>{" "}
+                    <button
+                      type="button"
+                      onClick={() => setIsSummaryExpanded(true)}
+                      className={`inline font-bold text-[#8C6239] hover:text-[#4A3728] underline decoration-dotted underline-offset-4 hover:underline-offset-2 transition-colors cursor-pointer text-xs sm:text-[14px] md:text-[15px] ${
+                        isRTL ? "font-['Payami_Nastaleeq',serif]" : "font-serif"
+                      }`}
+                    >
+                      {isRTL ? "مزید پڑھیں" : "Read More"}
+                    </button>
+                  </p>
+                )
               ) : (
-                summary
+                <span>{cleanSummary}</span>
               )
             ) : isRTL ? (
               "اس کتاب کا کوئی تفصیلی تعارف دستیاب نہیں ہے۔"
