@@ -5,8 +5,7 @@ import { getPublications, createPublication, updatePublication, deletePublicatio
 import { useSettings } from '@/hooks/useSettings';
 import { Input, PdfViewer, Table, ConfirmationBox } from '@/components';
 import { BACKEND_URL } from '@/constants/urls';
-
-
+import { useCategories } from '@/hooks/useCategories';
 import { CATEGORY_MAP, PUBLICATION_TRANSLATIONS, BOOK_LANGUAGE_TRANSLATIONS } from '@/utils/categories';
 
 const BOOK_LANGUAGES = [
@@ -60,7 +59,8 @@ export default function ManagePublications() {
   const [selectedCategory, setSelectedCategory] = useState('');
   const limit = 10;
 
-  const categories = CATEGORY_MAP.publications;
+  const { categories: dynamicCategories = [] } = useCategories('book');
+  const categories = dynamicCategories.length > 0 ? dynamicCategories : (CATEGORY_MAP.publications || []);
 
   const loadPublications = async (pageNum = page, category = selectedCategory, search = searchTerm) => {
     try {
@@ -628,7 +628,8 @@ export default function ManagePublications() {
                   <option value="">تمام زمرے</option>
                   {categories.map((cat) => (
                     <option key={cat.value} value={cat.value}>
-                      {cat.labelUr}
+                      {cat.labelUr || cat.labelEn || cat.name}
+                      {typeof cat.count === 'number' ? ` (${cat.count})` : ''}
                     </option>
                   ))}
                 </select>

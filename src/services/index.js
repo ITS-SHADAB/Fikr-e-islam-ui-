@@ -13,5 +13,5 @@ export * from "./notificationService";
 export * from "./adminNotification";
 export * from "./contentCounts";
 export * from "./search";
-
-
+export * from "./category";
+export { default as categoryService } from "./category";

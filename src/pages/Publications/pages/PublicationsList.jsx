@@ -2,10 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { BookOpen, Book } from 'lucide-react';
 import { usePublicationsList } from '@/hooks/useContentCache';
+import { useCategories } from '@/hooks/useCategories';
 import { useSettings } from '@/hooks/useSettings';
 import { PublicationCard, SectionSidebar, Spinner } from '@/components';
 import { COLORS } from '@/utils/themeColors';
-import { PUBLICATION_CATEGORIES } from '@/utils/categories';
 import { useContentSearch } from '@/hooks/useContentSearch';
 
 export default function PublicationsList() {
@@ -74,7 +74,7 @@ export default function PublicationsList() {
     window.scrollTo(0, 0);
   };
 
-  const categories = PUBLICATION_CATEGORIES;
+  const { categories = [], loading: categoriesLoading } = useCategories('book');
 
   return (
     <div
@@ -129,6 +129,7 @@ export default function PublicationsList() {
             allLabel={isRTL ? 'تمام کتب' : 'All Books'}
             categoriesLabel={isRTL ? 'موضوعات' : 'Categories'}
             categories={categories}
+            categoriesLoading={categoriesLoading}
             selectedCategory={selectedCategory}
             onCategoryChange={handleCategoryChange}
             isRTL={isRTL}

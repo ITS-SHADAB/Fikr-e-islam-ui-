@@ -229,3 +229,6 @@ export function useContentCounts(options = {}) {
   });
 }
 
+// Dynamic Categories Hook
+export { useCategories } from './useCategories';
+

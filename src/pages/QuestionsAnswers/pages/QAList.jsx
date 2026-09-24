@@ -17,6 +17,7 @@ import { useQuestionsList } from '@/hooks/useContentCache';
 import { SectionSidebar, Spinner } from '@/components';
 import { COLORS } from '@/utils/themeColors';
 import { QA_CATEGORIES, QA_TRANSLATIONS } from '@/utils/categories';
+import { useCategories } from '@/hooks/useCategories';
 import { useContentSearch } from '@/hooks/useContentSearch';
 import toast from 'react-hot-toast';
 
@@ -67,7 +68,7 @@ export default function QAList() {
   const total = isSearchActive ? displayedQuestions.length : (data?.totalQuestions || 0);
   const isLoading = isSearchActive ? isSearching : loading;
 
-  const categories = QA_CATEGORIES;
+  const { categories = [], loading: categoriesLoading } = useCategories('question');
 
   const handleSearchSubmit = (e) => {
     e?.preventDefault();
@@ -172,6 +173,7 @@ export default function QAList() {
             allLabel="تمام سوالات"
             categoriesLabel="ابواب و شعبہ جات"
             categories={categories}
+            categoriesLoading={categoriesLoading}
             selectedCategory={selectedCategory}
             onCategoryChange={handleCategoryChange}
             isRTL={true}

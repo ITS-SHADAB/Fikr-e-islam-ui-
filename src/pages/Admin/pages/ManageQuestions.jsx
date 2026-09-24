@@ -41,6 +41,7 @@ import {
 } from '@/services';
 import { Table, ConfirmationBox } from '@/components';
 import { COLORS } from '@/utils/themeColors';
+import { useCategories } from '@/hooks/useCategories';
 import {
   CATEGORY_MAP,
   FATWA_CATEGORY_TRANSLATIONS as categoryTranslations,
@@ -104,7 +105,8 @@ export default function ManageQuestions() {
   const [editableTitle, setEditableTitle] = useState('');
   const [editableDetailedQuestion, setEditableDetailedQuestion] = useState('');
 
-  const categories = CATEGORY_MAP.questions || CATEGORY_MAP.fatwas || [];
+  const { categories: dynamicCategories = [] } = useCategories('question');
+  const categories = dynamicCategories.length > 0 ? dynamicCategories : (CATEGORY_MAP.qa || CATEGORY_MAP.fatwas || []);
 
   const showSuccess = (msg) => {
     setSuccessMsg(msg);
@@ -457,7 +459,8 @@ export default function ManageQuestions() {
               <option value="">تمام زمرے</option>
               {categories.map((cat) => (
                 <option key={cat.value} value={cat.value}>
-                  {cat.labelUr || cat.labelEn}
+                  {cat.labelUr || cat.labelEn || cat.name}
+                  {typeof cat.count === 'number' ? ` (${cat.count})` : ''}
                 </option>
               ))}
             </select>

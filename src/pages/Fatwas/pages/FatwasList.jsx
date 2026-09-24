@@ -3,10 +3,10 @@ import { useSearchParams } from 'react-router-dom';
 import { Search, X, ShieldAlert, ChevronLeft, ChevronRight, Scale } from 'lucide-react';
 import { useFatwasList } from '@/hooks/useContentCache';
 import { useContentSearch } from '@/hooks/useContentSearch';
+import { useCategories } from '@/hooks/useCategories';
 import { useSettings } from '@/hooks/useSettings';
 import { FatwaCard } from '@/components';
 import { COLORS } from '@/utils/themeColors';
-import { FATWA_CATEGORIES } from '@/utils/categories';
 
 export default function FatwasList() {
   const { settings } = useSettings();
@@ -88,7 +88,7 @@ export default function FatwasList() {
     setPage(1);
   };
 
-  const categories = FATWA_CATEGORIES;
+  const { categories = [], loading: categoriesLoading } = useCategories('fatwa');
   const hasFilters = selectedCategory || isSearchActive;
 
   const getPageNumbers = (current, totalCount) => {
@@ -240,25 +240,47 @@ export default function FatwasList() {
               )}
             </button>
 
-            {categories?.map((cat) => {
-              const isSelected = selectedCategory === cat?.value;
-              return (
-                <button
-                  key={cat?.value}
-                  onClick={() => handleCategoryChange(cat?.value)}
-                  className="flex-shrink-0 text-xs font-bold px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full transition-all cursor-pointer"
-                  style={{
-                    backgroundColor: isSelected ? COLORS?.primary : 'transparent',
-                    color: isSelected ? '#fff' : COLORS?.textSecondary,
-                    border: `1px solid ${
-                      isSelected ? COLORS?.primary : COLORS?.border
-                    }`,
-                  }}
-                >
-                  {isRTL ? cat?.labelUr : cat?.labelEn || cat?.labelUr}
-                </button>
-              );
-            })}
+            {categoriesLoading && categories.length === 0 ? (
+              <div className="flex items-center gap-1.5" role="status" aria-label="Loading categories">
+                {[1, 2, 3, 4].map((i) => (
+                  <div
+                    key={i}
+                    className="h-8 w-20 rounded-full animate-pulse bg-slate-200/70 shrink-0"
+                  />
+                ))}
+              </div>
+            ) : (
+              categories.map((cat) => {
+                const isSelected = selectedCategory === cat?.value;
+                return (
+                  <button
+                    key={cat?.value}
+                    onClick={() => handleCategoryChange(cat?.value)}
+                    className="flex-shrink-0 text-xs font-bold px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full transition-all cursor-pointer flex items-center gap-1.5"
+                    style={{
+                      backgroundColor: isSelected ? COLORS?.primary : 'transparent',
+                      color: isSelected ? '#fff' : COLORS?.textSecondary,
+                      border: `1px solid ${
+                        isSelected ? COLORS?.primary : COLORS?.border
+                      }`,
+                    }}
+                  >
+                    <span>{isRTL ? cat?.labelUr : cat?.labelEn || cat?.labelUr}</span>
+                    {typeof cat?.count === 'number' && (
+                      <span
+                        className="text-[10px] font-semibold px-1.5 py-0.2 rounded-full font-mono"
+                        style={{
+                          backgroundColor: isSelected ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.06)',
+                          color: isSelected ? '#fff' : COLORS?.textSecondary,
+                        }}
+                      >
+                        {cat.count}
+                      </span>
+                    )}
+                  </button>
+                );
+              })
+            )}
           </div>
         </div>
       </div>

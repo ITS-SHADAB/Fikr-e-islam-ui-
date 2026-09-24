@@ -54,6 +54,7 @@ export default function SectionSidebar({
   searchPlaceholder = 'تلاش کریں...',
   searchLabel = 'تلاش',
   categories = [],
+  categoriesLoading = false,
   categoriesLabel = 'موضوعات',
   allLabel = 'تمام',
   selectedCategory = '',
@@ -100,19 +101,23 @@ export default function SectionSidebar({
 
   const getCategoryLabel = (cat) => {
     if (!cat) return '';
-    if (typeof cat === 'string') return cat;
-    if (isRTL) return cat.labelUr || cat.label || cat.value;
-    return cat.labelEn || cat.label || cat.value;
+    if (typeof cat === 'string') {
+      const found = categories.find((c) => getCategoryValue(c) === cat);
+      if (found) return getCategoryLabel(found);
+      return cat;
+    }
+    if (isRTL) return cat.labelUr || cat.label || cat.name || cat.value;
+    return cat.labelEn || cat.label || cat.name || cat.value;
   };
 
   const getCategoryValue = (cat) => {
     if (!cat) return '';
     if (typeof cat === 'string') return cat;
-    return cat.value;
+    return cat.value ?? cat.name;
   };
 
   const selectedCategoryLabel = selectedCategory
-    ? getCategoryLabel(categories.find((c) => getCategoryValue(c) === selectedCategory) || selectedCategory)
+    ? getCategoryLabel(selectedCategory)
     : allLabel;
 
   return (
@@ -247,34 +252,49 @@ export default function SectionSidebar({
             </button>
 
             {/* List Each Option One-by-One */}
-            {categories.map((cat, idx) => {
-              const val = getCategoryValue(cat);
-              const lbl = getCategoryLabel(cat);
-              const isSelected = selectedCategory === val;
-              return (
-                <button
-                  key={val || idx}
-                  type="button"
-                  onClick={() => {
-                    if (onCategoryChange) onCategoryChange(val);
-                    setIsDropdownOpen(false);
-                  }}
-                  className="w-full p-2.5 rounded-xl text-xs font-medium text-start flex items-center justify-between border transition-all hover:bg-slate-50 cursor-pointer"
-                  style={{
-                    backgroundColor: isSelected ? `${COLORS.secondary}60` : COLORS.white,
-                    borderColor: isSelected ? COLORS.primary : `${COLORS.border}70`,
-                    color: isSelected ? COLORS.primary : COLORS.textPrimary,
-                    fontWeight: isSelected ? 700 : 500,
-                  }}
-                >
-                  <div className="flex items-center gap-2 truncate">
-                    <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: isSelected ? COLORS.accent : COLORS.border }} />
-                    <span className="truncate">{lbl}</span>
-                  </div>
-                  {isSelected && <Check className="w-4 h-4 shrink-0" style={{ color: COLORS.primary }} />}
-                </button>
-              );
-            })}
+            {categoriesLoading && (!categories || categories.length === 0) ? (
+              <div className="space-y-1.5 p-1" role="status" aria-label="Loading categories">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="h-8 bg-slate-100 animate-pulse rounded-xl" />
+                ))}
+              </div>
+            ) : (
+              categories.map((cat, idx) => {
+                const val = getCategoryValue(cat);
+                const lbl = getCategoryLabel(cat);
+                const isSelected = selectedCategory === val;
+                return (
+                  <button
+                    key={val || idx}
+                    type="button"
+                    onClick={() => {
+                      if (onCategoryChange) onCategoryChange(val);
+                      setIsDropdownOpen(false);
+                    }}
+                    className="w-full p-2.5 rounded-xl text-xs font-medium text-start flex items-center justify-between border transition-all hover:bg-slate-50 cursor-pointer"
+                    style={{
+                      backgroundColor: isSelected ? `${COLORS.secondary}60` : COLORS.white,
+                      borderColor: isSelected ? COLORS.primary : `${COLORS.border}70`,
+                      color: isSelected ? COLORS.primary : COLORS.textPrimary,
+                      fontWeight: isSelected ? 700 : 500,
+                    }}
+                  >
+                    <div className="flex items-center gap-2 truncate">
+                      <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: isSelected ? COLORS.accent : COLORS.border }} />
+                      <span className="truncate">{lbl}</span>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      {typeof cat.count === 'number' && (
+                        <span className="text-[10px] px-1.5 py-0.5 rounded-full font-mono bg-black/5 text-[#2A211A]">
+                          {cat.count}
+                        </span>
+                      )}
+                      {isSelected && <Check className="w-4 h-4 shrink-0" style={{ color: COLORS.primary }} />}
+                    </div>
+                  </button>
+                );
+              })
+            )}
           </div>
         )}
       </div>
@@ -348,7 +368,7 @@ export default function SectionSidebar({
         </div>
 
         {/* Categories Navigation Card */}
-        {categories && categories.length > 0 && (
+        {((categories && categories.length > 0) || categoriesLoading) && (
           <div
             className="rounded-3xl border shadow-sm overflow-hidden"
             style={{
@@ -368,19 +388,28 @@ export default function SectionSidebar({
 
             {/* Category Links List */}
             <div className="max-h-[380px] overflow-y-auto custom-drawer-scrollbar">
-              {categories.map((cat, idx) => {
-                const val = getCategoryValue(cat);
-                const lbl = getCategoryLabel(cat);
-                const isSelected = selectedCategory === val;
-                return (
-                  <SidebarLink
-                    key={val || idx}
-                    label={lbl}
-                    active={isSelected}
-                    onClick={() => onCategoryChange && onCategoryChange(val)}
-                  />
-                );
-              })}
+              {categoriesLoading && (!categories || categories.length === 0) ? (
+                <div className="space-y-2 p-3" role="status" aria-label="Loading categories">
+                  {[1, 2, 3, 4].map((i) => (
+                    <div key={i} className="h-8 bg-slate-100 animate-pulse rounded-xl" />
+                  ))}
+                </div>
+              ) : (
+                categories.map((cat, idx) => {
+                  const val = getCategoryValue(cat);
+                  const lbl = getCategoryLabel(cat);
+                  const isSelected = selectedCategory === val;
+                  return (
+                    <SidebarLink
+                      key={val || idx}
+                      label={lbl}
+                      count={cat.count}
+                      active={isSelected}
+                      onClick={() => onCategoryChange && onCategoryChange(val)}
+                    />
+                  );
+                })
+              )}
             </div>
           </div>
         )}

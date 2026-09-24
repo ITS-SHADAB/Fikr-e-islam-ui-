@@ -9,6 +9,7 @@ export const STALE_TIMES = {
   lectures: 5 * 60 * 1000,      // 5 minutes
   questions: 3 * 60 * 1000,     // 3 minutes
   events: 0,                    // 0 (always fresh, dynamic admin-managed resource)
+  categories: 10 * 60 * 1000,   // 10 minutes (dynamic categories cached across components)
 };
 
 /**
