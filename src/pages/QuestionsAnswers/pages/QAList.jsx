@@ -17,6 +17,7 @@ import { useQuestionsList } from '@/hooks/useContentCache';
 import { SectionSidebar, Spinner } from '@/components';
 import { COLORS } from '@/utils/themeColors';
 import { QA_CATEGORIES, QA_TRANSLATIONS } from '@/utils/categories';
+import { useContentSearch } from '@/hooks/useContentSearch';
 import toast from 'react-hot-toast';
 
 export default function QAList() {
@@ -28,9 +29,19 @@ export default function QAList() {
   const queryCategory = searchParams.get('category');
 
   const [page, setPage] = useState(1);
-  const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState(queryCategory || '');
   const [copiedId, setCopiedId] = useState(null);
+
+  // Global Atlas Search for Questions (contentType = 'question')
+  const {
+    searchTerm,
+    setSearchTerm,
+    searchResults,
+    isSearching,
+    searchError,
+    clearSearch,
+    isSearchActive,
+  } = useContentSearch({ contentType: 'question', limit: 12 });
 
   useEffect(() => {
     if (queryCategory !== null) {
@@ -45,14 +56,16 @@ export default function QAList() {
     loading,
   } = useQuestionsList({
     category: selectedCategory || undefined,
-    search: searchTerm || undefined,
     page,
     limit: 8,
   });
 
-  const questions = data?.questions || [];
+  const displayedQuestions = isSearchActive
+    ? (selectedCategory ? searchResults.filter((q) => q.category === selectedCategory) : searchResults)
+    : (data?.questions || []);
   const pages = data?.totalPages || 1;
-  const total = data?.totalQuestions || 0;
+  const total = isSearchActive ? displayedQuestions.length : (data?.totalQuestions || 0);
+  const isLoading = isSearchActive ? isSearching : loading;
 
   const categories = QA_CATEGORIES;
 
@@ -148,7 +161,7 @@ export default function QAList() {
             onSearchChange={setSearchTerm}
             onSearchSubmit={handleSearchSubmit}
             onClearSearch={() => {
-              setSearchTerm('');
+              clearSearch();
               setPage(1);
             }}
             searchPlaceholder="سوال و جواب تلاش کریں..."
@@ -165,14 +178,33 @@ export default function QAList() {
 
           {/* Main Content */}
           <div className="flex-1 min-w-0 w-full">
-            {loading ? (
+            {isLoading ? (
               <div className="flex items-center justify-center py-20">
-                <Spinner size="lg" text="سوالات لوڈ ہو رہے ہیں..." />
+                <Spinner
+                  size="lg"
+                  text={isSearchActive ? 'تلاش جاری ہے...' : 'سوالات لوڈ ہو رہے ہیں...'}
+                />
               </div>
-            ) : questions && questions.length > 0 ? (
+            ) : searchError ? (
+              <div
+                className="text-center py-16 rounded-2xl border bg-white"
+                style={{ borderColor: COLORS.border }}
+              >
+                <p className="text-sm font-semibold text-rose-600 mb-2">
+                  اس وقت تلاش ممکن نہیں ہے۔
+                </p>
+                <button
+                  type="button"
+                  onClick={clearSearch}
+                  className="px-4 py-1.5 text-xs rounded border border-gray-300 hover:bg-gray-50 transition-colors"
+                >
+                  تلاش صاف کریں
+                </button>
+              </div>
+            ) : displayedQuestions && displayedQuestions.length > 0 ? (
               <>
                 <div className="space-y-4 mb-10">
-                  {questions.map((q) => {
+                  {displayedQuestions.map((q) => {
                     const categoryLabel = q.category
                       ? QA_TRANSLATIONS[q.category] || q.category
                       : 'سوال و جواب';
@@ -186,7 +218,7 @@ export default function QAList() {
 
                     return (
                       <article
-                        key={q._id}
+                        key={q._id || q.id}
                         onClick={() => navigate(`/qa/${q.slug}`)}
                         className="relative rounded-2xl border bg-white cursor-pointer overflow-hidden transition-all duration-200 hover:shadow-md"
                         style={{
@@ -306,8 +338,8 @@ export default function QAList() {
                   })}
                 </div>
 
-                {/* Pagination */}
-                {pages > 1 && (
+                {/* Pagination (only when not actively searching) */}
+                {!isSearchActive && pages > 1 && (
                   <div className="flex justify-center items-center gap-1.5 pt-4">
                     <button
                       onClick={() => handlePageChange(Math.max(1, page - 1))}
@@ -357,10 +389,12 @@ export default function QAList() {
               >
                 <MessageSquare className="w-12 h-12 mx-auto mb-3" style={{ color: COLORS.accent }} />
                 <h3 className="text-lg font-bold font-['Noto_Nastaliq_Urdu'] mb-1" style={{ color: COLORS.textPrimary }}>
-                  کوئی جواب شدہ سوال نہیں ملا
+                  {isSearchActive ? 'کوئی نتیجہ نہیں ملا' : 'کوئی جواب شدہ سوال نہیں ملا'}
                 </h3>
                 <p className="text-xs text-slate-500 max-w-sm mx-auto mb-5">
-                  براہ کرم تلاش کے الفاظ یا زمرے کے فلٹرز تبدیل کریں۔
+                  {isSearchActive
+                    ? 'براہ کرم تلاش کے الفاظ یا فلٹر تبدیل کریں۔'
+                    : 'براہ کرم تلاش کے الفاظ یا زمرے کے فلٹرز تبدیل کریں۔'}
                 </p>
                 {!isAdmin && (
                   <Link

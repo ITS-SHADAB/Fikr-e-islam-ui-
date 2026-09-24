@@ -74,10 +74,14 @@ export default function AppRoutes() {
           <Route path="qa" element={<QAList />} />
           <Route path="qa/slug/:slug" element={<QADetail />} />
           <Route path="qa/:slug" element={<QADetail />} />
+          <Route path="questions/slug/:slug" element={<QADetail />} />
+          <Route path="questions/:slug" element={<QADetail />} />
           <Route path="publications" element={<PublicationsList />} />
           <Route path="publications/slug/:slug" element={<BookDetail />} />
           <Route path="publications/:slug" element={<BookDetail />} />
           <Route path="books" element={<PublicationsList />} />
+          <Route path="books/slug/:slug" element={<BookDetail />} />
+          <Route path="books/:slug" element={<BookDetail />} />
           <Route path="lectures" element={<LecturesList />} />
           <Route path="events" element={<EventsList />} />
           <Route path="contact" element={<ContactPage />} />

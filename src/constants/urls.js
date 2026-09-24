@@ -50,3 +50,6 @@ export const LECTURES = "/lectures";
 // Content Counts
 export const CONTENT_COUNTS = "/content-counts";
 
+// Global Search
+export const SEARCH = "/search";
+

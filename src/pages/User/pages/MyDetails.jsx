@@ -273,11 +273,10 @@ function CommentCard({ comment, onDelete, openMenuId, setOpenMenuId }) {
           <div className="flex-1 min-w-0">
             {/* Comment Text */}
             <div
-              className={`text-[#241C16] text-[15px] sm:text-base leading-relaxed ${
-                isUrdu
-                  ? "font-urdu text-right leading-[2.3] text-lg"
-                  : "font-serif text-left font-normal"
-              }`}
+              className={`text-[#241C16] text-[15px] sm:text-base leading-relaxed ${isUrdu
+                ? "font-urdu text-right leading-[2.3] text-lg"
+                : "font-serif text-left font-normal"
+                }`}
               dir={isUrdu ? "rtl" : "ltr"}
             >
               {comment.text}
@@ -677,8 +676,8 @@ export default function MyDetails() {
         const list = Array.isArray(d?.comments)
           ? d.comments
           : Array.isArray(d)
-          ? d
-          : [];
+            ? d
+            : [];
         setComments(list);
       })
       .catch((err) => {
@@ -695,8 +694,8 @@ export default function MyDetails() {
         const list = Array.isArray(d?.questions)
           ? d.questions
           : Array.isArray(d)
-          ? d
-          : [];
+            ? d
+            : [];
         setQuestions(list);
       })
       .catch(() => setQuestions([]))
@@ -807,12 +806,12 @@ export default function MyDetails() {
           prev.map((q) =>
             q._id === editQuestionModal._id
               ? {
-                  ...q,
-                  ...(res.question || {}),
-                  questionTitle: editQuestionTitle.trim(),
-                  detailedQuestion: editQuestionDetail.trim(),
-                  isEdited: true,
-                }
+                ...q,
+                ...(res.question || {}),
+                questionTitle: editQuestionTitle.trim(),
+                detailedQuestion: editQuestionDetail.trim(),
+                isEdited: true,
+              }
               : q
           )
         );
@@ -822,8 +821,8 @@ export default function MyDetails() {
     } catch (err) {
       setEditQuestionError(
         err.response?.data?.message ||
-          err.message ||
-          "سوال اپ ڈیٹ کرنے میں غلطی ہوئی۔"
+        err.message ||
+        "سوال اپ ڈیٹ کرنے میں غلطی ہوئی۔"
       );
     } finally {
       setEditQuestionLoading(false);
@@ -848,8 +847,8 @@ export default function MyDetails() {
     } catch (err) {
       toast.error(
         err.response?.data?.message ||
-          err.message ||
-          "سوال حذف کرنے میں ناکامی"
+        err.message ||
+        "سوال حذف کرنے میں ناکامی"
       );
     } finally {
       setIsDeletingQuestion(false);
@@ -911,8 +910,8 @@ export default function MyDetails() {
     } catch (err) {
       setEditError(
         err.response?.data?.message ||
-          err.message ||
-          "پروفائل اپ ڈیٹ کرنے میں غلطی ہوئی۔"
+        err.message ||
+        "پروفائل اپ ڈیٹ کرنے میں غلطی ہوئی۔"
       );
     } finally {
       setEditLoading(false);
@@ -980,10 +979,10 @@ export default function MyDetails() {
               {activeTab === "comments"
                 ? "میرے تبصرے"
                 : activeTab === "questions"
-                ? "میرے سوالات"
-                : activeTab === "settings"
-                ? "اکاؤنٹ کی ترتیبات"
-                : "پروفائل کا جائزہ"}
+                  ? "میرے سوالات"
+                  : activeTab === "settings"
+                    ? "اکاؤنٹ کی ترتیبات"
+                    : "پروفائل کا جائزہ"}
             </span>
           </div>
 
@@ -1018,11 +1017,10 @@ export default function MyDetails() {
                 setActiveTab("comments");
                 setActiveFilter("all");
               }}
-              className={`px-3 py-2.5 rounded-xl font-urdu text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer ${
-                activeTab === "comments" && activeFilter !== "question"
-                  ? "bg-[#F7F1E8] text-[#2B2118] font-bold shadow-sm border border-[#A8793E]/40"
-                  : "bg-black/35 text-[#E5C48A] hover:bg-black/50 hover:text-white border border-[#C49A5A]/35"
-              }`}
+              className={`px-3 py-2.5 rounded-xl font-urdu text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer ${activeTab === "comments" && activeFilter !== "question"
+                ? "bg-[#F7F1E8] text-[#2B2118] font-bold shadow-sm border border-[#A8793E]/40"
+                : "bg-black/35 text-[#E5C48A] hover:bg-black/50 hover:text-white border border-[#C49A5A]/35"
+                }`}
             >
               <MessageSquare className={`w-4 h-4 shrink-0 ${activeTab === "comments" && activeFilter !== "question" ? "text-[#A8793E]" : "text-[#C49A5A]"}`} />
               <span className={activeTab === "comments" && activeFilter !== "question" ? "text-[#2B2118]" : "text-[#E5C48A]"}>
@@ -1033,11 +1031,10 @@ export default function MyDetails() {
             <button
               type="button"
               onClick={() => setActiveTab("overview")}
-              className={`px-3 py-2.5 rounded-xl font-urdu text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer ${
-                activeTab === "overview"
-                  ? "bg-[#F7F1E8] text-[#2B2118] font-bold shadow-sm border border-[#A8793E]/40"
-                  : "bg-black/35 text-[#E5C48A] hover:bg-black/50 hover:text-white border border-[#C49A5A]/35"
-              }`}
+              className={`px-3 py-2.5 rounded-xl font-urdu text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer ${activeTab === "overview"
+                ? "bg-[#F7F1E8] text-[#2B2118] font-bold shadow-sm border border-[#A8793E]/40"
+                : "bg-black/35 text-[#E5C48A] hover:bg-black/50 hover:text-white border border-[#C49A5A]/35"
+                }`}
             >
               <User className={`w-4 h-4 shrink-0 ${activeTab === "overview" ? "text-[#A8793E]" : "text-[#C49A5A]"}`} />
               <span className={activeTab === "overview" ? "text-[#2B2118]" : "text-[#E5C48A]"}>
@@ -1051,11 +1048,10 @@ export default function MyDetails() {
                 setActiveTab("questions");
                 setActiveFilter("question");
               }}
-              className={`px-3 py-2.5 rounded-xl font-urdu text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer ${
-                activeTab === "questions" || (activeTab === "comments" && activeFilter === "question")
-                  ? "bg-[#F7F1E8] text-[#2B2118] font-bold shadow-sm border border-[#A8793E]/40"
-                  : "bg-black/35 text-[#E5C48A] hover:bg-black/50 hover:text-white border border-[#C49A5A]/35"
-              }`}
+              className={`px-3 py-2.5 rounded-xl font-urdu text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer ${activeTab === "questions" || (activeTab === "comments" && activeFilter === "question")
+                ? "bg-[#F7F1E8] text-[#2B2118] font-bold shadow-sm border border-[#A8793E]/40"
+                : "bg-black/35 text-[#E5C48A] hover:bg-black/50 hover:text-white border border-[#C49A5A]/35"
+                }`}
             >
               <HelpCircle className={`w-4 h-4 shrink-0 ${activeTab === "questions" || (activeTab === "comments" && activeFilter === "question") ? "text-[#A8793E]" : "text-[#C49A5A]"}`} />
               <span className={activeTab === "questions" || (activeTab === "comments" && activeFilter === "question") ? "text-[#2B2118]" : "text-[#E5C48A]"}>
@@ -1075,11 +1071,10 @@ export default function MyDetails() {
             <button
               type="button"
               onClick={() => setActiveTab("settings")}
-              className={`col-span-2 sm:col-span-1 px-3 py-2.5 rounded-xl font-urdu text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer ${
-                activeTab === "settings"
-                  ? "bg-[#F7F1E8] text-[#2B2118] font-bold shadow-sm border border-[#A8793E]/40"
-                  : "bg-black/35 text-[#E5C48A] hover:bg-black/50 hover:text-white border border-[#C49A5A]/35"
-              }`}
+              className={`col-span-2 sm:col-span-1 px-3 py-2.5 rounded-xl font-urdu text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer ${activeTab === "settings"
+                ? "bg-[#F7F1E8] text-[#2B2118] font-bold shadow-sm border border-[#A8793E]/40"
+                : "bg-black/35 text-[#E5C48A] hover:bg-black/50 hover:text-white border border-[#C49A5A]/35"
+                }`}
             >
               <Settings className={`w-4 h-4 shrink-0 ${activeTab === "settings" ? "text-[#A8793E]" : "text-[#C49A5A]"}`} />
               <span className={activeTab === "settings" ? "text-[#2B2118]" : "text-[#E5C48A]"}>
@@ -1110,16 +1105,14 @@ export default function MyDetails() {
               <button
                 type="button"
                 onClick={() => setActiveTab("overview")}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-urdu text-base transition-all duration-150 cursor-pointer ${
-                  activeTab === "overview"
-                    ? "bg-[#F7F1E8] text-[#2B2118] font-bold shadow-md"
-                    : "text-[#E5C48A] hover:bg-white/10 hover:text-white"
-                }`}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-urdu text-base transition-all duration-150 cursor-pointer ${activeTab === "overview"
+                  ? "bg-[#F7F1E8] text-[#2B2118] font-bold shadow-md"
+                  : "text-[#E5C48A] hover:bg-white/10 hover:text-white"
+                  }`}
               >
                 <User
-                  className={`w-5 h-5 ${
-                    activeTab === "overview" ? "text-[#A8793E]" : "text-[#C49A5A]"
-                  }`}
+                  className={`w-5 h-5 ${activeTab === "overview" ? "text-[#A8793E]" : "text-[#C49A5A]"
+                    }`}
                 />
                 <span>پروفائل کا جائزہ</span>
               </button>
@@ -1127,16 +1120,14 @@ export default function MyDetails() {
               <button
                 type="button"
                 onClick={() => setActiveTab("comments")}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-urdu text-base transition-all duration-150 cursor-pointer ${
-                  activeTab === "comments"
-                    ? "bg-[#F7F1E8] text-[#2B2118] font-bold shadow-md"
-                    : "text-[#E5C48A] hover:bg-white/10 hover:text-white"
-                }`}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-urdu text-base transition-all duration-150 cursor-pointer ${activeTab === "comments"
+                  ? "bg-[#F7F1E8] text-[#2B2118] font-bold shadow-md"
+                  : "text-[#E5C48A] hover:bg-white/10 hover:text-white"
+                  }`}
               >
                 <MessageSquare
-                  className={`w-5 h-5 ${
-                    activeTab === "comments" ? "text-[#A8793E]" : "text-[#C49A5A]"
-                  }`}
+                  className={`w-5 h-5 ${activeTab === "comments" ? "text-[#A8793E]" : "text-[#C49A5A]"
+                    }`}
                 />
                 <span>میرے تبصرے</span>
               </button>
@@ -1144,16 +1135,14 @@ export default function MyDetails() {
               <button
                 type="button"
                 onClick={() => setActiveTab("questions")}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-urdu text-base transition-all duration-150 cursor-pointer ${
-                  activeTab === "questions"
-                    ? "bg-[#F7F1E8] text-[#2B2118] font-bold shadow-md"
-                    : "text-[#E5C48A] hover:bg-white/10 hover:text-white"
-                }`}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-urdu text-base transition-all duration-150 cursor-pointer ${activeTab === "questions"
+                  ? "bg-[#F7F1E8] text-[#2B2118] font-bold shadow-md"
+                  : "text-[#E5C48A] hover:bg-white/10 hover:text-white"
+                  }`}
               >
                 <HelpCircle
-                  className={`w-5 h-5 ${
-                    activeTab === "questions" ? "text-[#A8793E]" : "text-[#C49A5A]"
-                  }`}
+                  className={`w-5 h-5 ${activeTab === "questions" ? "text-[#A8793E]" : "text-[#C49A5A]"
+                    }`}
                 />
                 <span>میرے سوالات</span>
               </button>
@@ -1170,16 +1159,14 @@ export default function MyDetails() {
               <button
                 type="button"
                 onClick={() => setActiveTab("settings")}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-urdu text-base transition-all duration-150 cursor-pointer ${
-                  activeTab === "settings"
-                    ? "bg-[#F7F1E8] text-[#2B2118] font-bold shadow-md"
-                    : "text-[#E5C48A] hover:bg-white/10 hover:text-white"
-                }`}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-urdu text-base transition-all duration-150 cursor-pointer ${activeTab === "settings"
+                  ? "bg-[#F7F1E8] text-[#2B2118] font-bold shadow-md"
+                  : "text-[#E5C48A] hover:bg-white/10 hover:text-white"
+                  }`}
               >
                 <Settings
-                  className={`w-5 h-5 ${
-                    activeTab === "settings" ? "text-[#A8793E]" : "text-[#C49A5A]"
-                  }`}
+                  className={`w-5 h-5 ${activeTab === "settings" ? "text-[#A8793E]" : "text-[#C49A5A]"
+                    }`}
                 />
                 <span>اکاؤنٹ کی ترتیبات</span>
               </button>
@@ -1276,20 +1263,18 @@ export default function MyDetails() {
                   <button
                     type="button"
                     onClick={() => setActiveFilter("all")}
-                    className={`inline-flex items-center gap-1.5 sm:gap-2 px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full font-urdu text-xs sm:text-sm transition-all duration-150 cursor-pointer ${
-                      activeFilter === "all"
-                        ? "bg-[#2B2118] text-[#F7F1E8] font-bold shadow-sm border border-[#A8793E]/40"
-                        : "bg-[#FBF7F0] text-[#241C16] border border-[#D8C6AC] hover:bg-[#EFE4D5]"
-                    }`}
+                    className={`inline-flex items-center gap-1.5 sm:gap-2 px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full font-urdu text-xs sm:text-sm transition-all duration-150 cursor-pointer ${activeFilter === "all"
+                      ? "bg-[#2B2118] text-[#F7F1E8] font-bold shadow-sm border border-[#A8793E]/40"
+                      : "bg-[#FBF7F0] text-[#241C16] border border-[#D8C6AC] hover:bg-[#EFE4D5]"
+                      }`}
                   >
                     <MessageSquare className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#A8793E]" />
                     <span>تمام</span>
                     <span
-                      className={`text-[11px] sm:text-xs px-2 py-0.5 rounded-full font-sans font-bold ${
-                        activeFilter === "all"
-                          ? "bg-white/20 text-white"
-                          : "bg-[#EFE4D5] text-[#5F554B]"
-                      }`}
+                      className={`text-[11px] sm:text-xs px-2 py-0.5 rounded-full font-sans font-bold ${activeFilter === "all"
+                        ? "bg-white/20 text-white"
+                        : "bg-[#EFE4D5] text-[#5F554B]"
+                        }`}
                     >
                       {filterCounts.all}
                     </span>
@@ -1299,20 +1284,18 @@ export default function MyDetails() {
                   <button
                     type="button"
                     onClick={() => setActiveFilter("article")}
-                    className={`inline-flex items-center gap-1.5 sm:gap-2 px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full font-urdu text-xs sm:text-sm transition-all duration-150 cursor-pointer ${
-                      activeFilter === "article"
-                        ? "bg-[#2B2118] text-[#F7F1E8] font-bold shadow-sm border border-[#A8793E]/40"
-                        : "bg-[#FBF7F0] text-[#241C16] border border-[#D8C6AC] hover:bg-[#EFE4D5]"
-                    }`}
+                    className={`inline-flex items-center gap-1.5 sm:gap-2 px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full font-urdu text-xs sm:text-sm transition-all duration-150 cursor-pointer ${activeFilter === "article"
+                      ? "bg-[#2B2118] text-[#F7F1E8] font-bold shadow-sm border border-[#A8793E]/40"
+                      : "bg-[#FBF7F0] text-[#241C16] border border-[#D8C6AC] hover:bg-[#EFE4D5]"
+                      }`}
                   >
                     <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#3A2B20]" />
                     <span>مضامین</span>
                     <span
-                      className={`text-[11px] sm:text-xs px-2 py-0.5 rounded-full font-sans font-bold ${
-                        activeFilter === "article"
-                          ? "bg-white/20 text-white"
-                          : "bg-[#EFE4D5] text-[#5F554B]"
-                      }`}
+                      className={`text-[11px] sm:text-xs px-2 py-0.5 rounded-full font-sans font-bold ${activeFilter === "article"
+                        ? "bg-white/20 text-white"
+                        : "bg-[#EFE4D5] text-[#5F554B]"
+                        }`}
                     >
                       {filterCounts.article}
                     </span>
@@ -1322,20 +1305,18 @@ export default function MyDetails() {
                   <button
                     type="button"
                     onClick={() => setActiveFilter("fatwa")}
-                    className={`inline-flex items-center gap-1.5 sm:gap-2 px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full font-urdu text-xs sm:text-sm transition-all duration-150 cursor-pointer ${
-                      activeFilter === "fatwa"
-                        ? "bg-[#2B2118] text-[#F7F1E8] font-bold shadow-sm border border-[#A8793E]/40"
-                        : "bg-[#FBF7F0] text-[#241C16] border border-[#D8C6AC] hover:bg-[#EFE4D5]"
-                    }`}
+                    className={`inline-flex items-center gap-1.5 sm:gap-2 px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full font-urdu text-xs sm:text-sm transition-all duration-150 cursor-pointer ${activeFilter === "fatwa"
+                      ? "bg-[#2B2118] text-[#F7F1E8] font-bold shadow-sm border border-[#A8793E]/40"
+                      : "bg-[#FBF7F0] text-[#241C16] border border-[#D8C6AC] hover:bg-[#EFE4D5]"
+                      }`}
                   >
                     <Scale className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#A8793E]" />
                     <span>فتاویٰ</span>
                     <span
-                      className={`text-[11px] sm:text-xs px-2 py-0.5 rounded-full font-sans font-bold ${
-                        activeFilter === "fatwa"
-                          ? "bg-white/20 text-white"
-                          : "bg-[#EFE4D5] text-[#5F554B]"
-                      }`}
+                      className={`text-[11px] sm:text-xs px-2 py-0.5 rounded-full font-sans font-bold ${activeFilter === "fatwa"
+                        ? "bg-white/20 text-white"
+                        : "bg-[#EFE4D5] text-[#5F554B]"
+                        }`}
                     >
                       {filterCounts.fatwa}
                     </span>
@@ -1345,20 +1326,18 @@ export default function MyDetails() {
                   <button
                     type="button"
                     onClick={() => setActiveFilter("book")}
-                    className={`inline-flex items-center gap-1.5 sm:gap-2 px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full font-urdu text-xs sm:text-sm transition-all duration-150 cursor-pointer ${
-                      activeFilter === "book"
-                        ? "bg-[#2B2118] text-[#F7F1E8] font-bold shadow-sm border border-[#A8793E]/40"
-                        : "bg-[#FBF7F0] text-[#241C16] border border-[#D8C6AC] hover:bg-[#EFE4D5]"
-                    }`}
+                    className={`inline-flex items-center gap-1.5 sm:gap-2 px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full font-urdu text-xs sm:text-sm transition-all duration-150 cursor-pointer ${activeFilter === "book"
+                      ? "bg-[#2B2118] text-[#F7F1E8] font-bold shadow-sm border border-[#A8793E]/40"
+                      : "bg-[#FBF7F0] text-[#241C16] border border-[#D8C6AC] hover:bg-[#EFE4D5]"
+                      }`}
                   >
                     <BookOpen className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#1E7F55]" />
                     <span>کتابیں</span>
                     <span
-                      className={`text-[11px] sm:text-xs px-2 py-0.5 rounded-full font-sans font-bold ${
-                        activeFilter === "book"
-                          ? "bg-white/20 text-white"
-                          : "bg-[#EFE4D5] text-[#5F554B]"
-                      }`}
+                      className={`text-[11px] sm:text-xs px-2 py-0.5 rounded-full font-sans font-bold ${activeFilter === "book"
+                        ? "bg-white/20 text-white"
+                        : "bg-[#EFE4D5] text-[#5F554B]"
+                        }`}
                     >
                       {filterCounts.book}
                     </span>
@@ -1368,20 +1347,18 @@ export default function MyDetails() {
                   <button
                     type="button"
                     onClick={() => setActiveFilter("question")}
-                    className={`inline-flex items-center gap-1.5 sm:gap-2 px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full font-urdu text-xs sm:text-sm transition-all duration-150 cursor-pointer ${
-                      activeFilter === "question"
-                        ? "bg-[#2B2118] text-[#F7F1E8] font-bold shadow-sm border border-[#A8793E]/40"
-                        : "bg-[#FBF7F0] text-[#241C16] border border-[#D8C6AC] hover:bg-[#EFE4D5]"
-                    }`}
+                    className={`inline-flex items-center gap-1.5 sm:gap-2 px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full font-urdu text-xs sm:text-sm transition-all duration-150 cursor-pointer ${activeFilter === "question"
+                      ? "bg-[#2B2118] text-[#F7F1E8] font-bold shadow-sm border border-[#A8793E]/40"
+                      : "bg-[#FBF7F0] text-[#241C16] border border-[#D8C6AC] hover:bg-[#EFE4D5]"
+                      }`}
                   >
                     <HelpCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#2C4A73]" />
                     <span>سوالات</span>
                     <span
-                      className={`text-[11px] sm:text-xs px-2 py-0.5 rounded-full font-sans font-bold ${
-                        activeFilter === "question"
-                          ? "bg-white/20 text-white"
-                          : "bg-[#EFE4D5] text-[#5F554B]"
-                      }`}
+                      className={`text-[11px] sm:text-xs px-2 py-0.5 rounded-full font-sans font-bold ${activeFilter === "question"
+                        ? "bg-white/20 text-white"
+                        : "bg-[#EFE4D5] text-[#5F554B]"
+                        }`}
                     >
                       {filterCounts.question}
                     </span>
@@ -1491,11 +1468,10 @@ export default function MyDetails() {
                             key={pageNum}
                             type="button"
                             onClick={() => setCurrentPage(pageNum)}
-                            className={`w-9 h-9 rounded-full text-sm font-bold flex items-center justify-center transition-all cursor-pointer ${
-                              currentPage === pageNum
-                                ? "bg-[#21170F] text-white shadow-sm"
-                                : "bg-[#FBF7F0] border border-[#D8C6AC] text-[#3A2B20] hover:bg-[#EFE4D5]"
-                            }`}
+                            className={`w-9 h-9 rounded-full text-sm font-bold flex items-center justify-center transition-all cursor-pointer ${currentPage === pageNum
+                              ? "bg-[#21170F] text-white shadow-sm"
+                              : "bg-[#FBF7F0] border border-[#D8C6AC] text-[#3A2B20] hover:bg-[#EFE4D5]"
+                              }`}
                           >
                             {pageNum}
                           </button>

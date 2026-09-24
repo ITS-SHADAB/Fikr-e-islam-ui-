@@ -100,6 +100,10 @@ export default function ManageQuestions() {
   const [success, setSuccess] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
 
+  // Editable question fields (admin can correct before replying)
+  const [editableTitle, setEditableTitle] = useState('');
+  const [editableDetailedQuestion, setEditableDetailedQuestion] = useState('');
+
   const categories = CATEGORY_MAP.questions || CATEGORY_MAP.fatwas || [];
 
   const showSuccess = (msg) => {
@@ -172,12 +176,16 @@ export default function ManageQuestions() {
     setSelectedCategory(q.category || (categories[0]?.value || 'عام مسائل'));
     setIsPublic(q.isPublic !== undefined ? q.isPublic : true);
     setActionError(null);
+    setEditableTitle(q.questionTitle || '');
+    setEditableDetailedQuestion(q.detailedQuestion || q.question || '');
   };
 
   const closeAnswerModal = () => {
     setActiveQuestion(null);
     setAnswerContent('');
     setActionError(null);
+    setEditableTitle('');
+    setEditableDetailedQuestion('');
   };
 
   // ── Answer Submit ──
@@ -197,6 +205,8 @@ export default function ManageQuestions() {
         answerContent,
         category: selectedCategory || activeQuestion.category || 'عام مسائل',
         isPublic,
+        questionTitle: editableTitle.trim() || undefined,
+        detailedQuestion: editableDetailedQuestion.trim() || undefined,
       });
       showSuccess(
         isPublic
@@ -759,30 +769,48 @@ export default function ManageQuestions() {
                 </div>
               </div>
 
-              {/* Question Text */}
-              <div className="space-y-1">
-                <div className="flex items-baseline gap-1.5 flex-wrap">
+              {/* Question Text — Editable by Admin */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-1.5">
                   <span
-                    className="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded text-[10px] font-bold shrink-0"
+                    className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold shrink-0"
                     style={{ backgroundColor: `${COLORS.primary}12`, color: COLORS.primary }}
                   >
                     <HelpCircle className="w-2.5 h-2.5" />
-                    سوال
+                    سوال (ترمیم کریں)
                   </span>
-                  <h4 className="font-bold font-['Noto_Nastaliq_Urdu'] text-xs sm:text-sm text-slate-900 flex-1 leading-relaxed">
-                    {activeQuestion.questionTitle}
-                  </h4>
+                  <span className="text-[10px] text-slate-400 flex items-center gap-0.5">
+                    <Edit3 className="w-2.5 h-2.5" />
+                    ضرورت ہو تو سوال درست کریں
+                  </span>
                 </div>
-                <blockquote
-                  className="bg-[#FAF8F5] border rounded-lg p-3 text-[11px] sm:text-xs text-slate-800 leading-relaxed"
-                  style={{
-                    borderColor: '#E8E1D9',
-                    borderRightWidth: '3px',
-                    borderRightColor: COLORS.accent,
-                  }}
-                >
-                  {activeQuestion.detailedQuestion || activeQuestion.question}
-                </blockquote>
+
+                {/* Editable Question Title */}
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-600 mb-0.5">عنوانِ سوال *</label>
+                  <input
+                    type="text"
+                    value={editableTitle}
+                    onChange={(e) => setEditableTitle(e.target.value)}
+                    required
+                    placeholder="سوال کا عنوان..."
+                    className="w-full border border-[#D8CDBF] rounded-lg px-2.5 py-1.5 text-xs outline-none focus:border-[#4A3728] text-right bg-white transition-colors font-['Noto_Nastaliq_Urdu']"
+                    dir="rtl"
+                  />
+                </div>
+
+                {/* Editable Detailed Question */}
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-600 mb-0.5">تفصیلی سوال *</label>
+                  <textarea
+                    rows={3}
+                    value={editableDetailedQuestion}
+                    onChange={(e) => setEditableDetailedQuestion(e.target.value)}
+                    placeholder="تفصیلی سوال..."
+                    className="w-full border border-[#D8CDBF] rounded-lg px-2.5 py-1.5 text-xs outline-none focus:border-[#4A3728] text-right bg-white transition-colors resize-y leading-relaxed font-['Noto_Nastaliq_Urdu']"
+                    dir="rtl"
+                  />
+                </div>
               </div>
 
               {/* Answer Form */}

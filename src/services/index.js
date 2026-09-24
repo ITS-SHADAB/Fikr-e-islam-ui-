@@ -12,5 +12,6 @@ export * from "./comment";
 export * from "./notificationService";
 export * from "./adminNotification";
 export * from "./contentCounts";
+export * from "./search";
 
 

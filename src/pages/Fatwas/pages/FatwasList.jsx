@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Search, X, ShieldAlert, ChevronLeft, ChevronRight, Scale } from 'lucide-react';
 import { useFatwasList } from '@/hooks/useContentCache';
+import { useContentSearch } from '@/hooks/useContentSearch';
 import { useSettings } from '@/hooks/useSettings';
 import { FatwaCard } from '@/components';
 import { COLORS } from '@/utils/themeColors';
@@ -16,32 +17,55 @@ export default function FatwasList() {
   const queryCategory = searchParams.get('category');
 
   const [page, setPage] = useState(1);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [searchInput, setSearchInput] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
 
   useEffect(() => {
     setSelectedCategory(queryCategory !== null ? queryCategory : '');
   }, [queryCategory]);
 
+  // Centralized Global Search (contentType = fatwa)
+  const {
+    searchTerm,
+    setSearchTerm,
+    searchResults,
+    isSearching,
+    searchError,
+    clearSearch,
+    isSearchActive,
+  } = useContentSearch({
+    contentType: 'fatwa',
+    limit: 12,
+  });
+
+  // Standard listing for pagination and categories (no search parameter sent)
   const {
     data,
-    loading,
-    error,
+    loading: listLoading,
+    error: listError,
   } = useFatwasList({
     category: selectedCategory,
-    search: searchTerm,
     page,
     limit: 9,
   });
 
-  const fatwas = data?.fatwas || [];
-  const pages = data?.pages || 1;
-  const total = data?.total || 0;
+  const displayedFatwas = useMemo(() => {
+    if (isSearchActive) {
+      if (selectedCategory) {
+        return searchResults.filter((item) => item.category === selectedCategory);
+      }
+      return searchResults;
+    }
+    return data?.fatwas || [];
+  }, [isSearchActive, searchResults, selectedCategory, data?.fatwas]);
+
+  const fatwas = displayedFatwas;
+  const loading = isSearchActive ? isSearching : listLoading;
+  const error = isSearchActive ? searchError : listError;
+  const pages = isSearchActive ? 1 : (data?.pages || 1);
+  const total = isSearchActive ? displayedFatwas.length : (data?.total || 0);
 
   const handleSearchSubmit = (e) => {
     e?.preventDefault();
-    setSearchTerm(searchInput);
     setPage(1);
   };
 
@@ -57,13 +81,12 @@ export default function FatwasList() {
 
   const clearFilters = () => {
     setSelectedCategory('');
-    setSearchTerm('');
-    setSearchInput('');
+    clearSearch();
     setPage(1);
   };
 
   const categories = FATWA_CATEGORIES;
-  const hasFilters = selectedCategory || searchTerm;
+  const hasFilters = selectedCategory || isSearchActive;
 
   const getPageNumbers = (current, totalCount) => {
     if (totalCount <= 5) {
@@ -133,8 +156,11 @@ export default function FatwasList() {
               />
               <input
                 type="text"
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setPage(1);
+                }}
                 placeholder={
                   isRTL
                     ? 'مسئلہ، فتویٰ یا کلیدی لفظ تلاش کریں...'
@@ -144,10 +170,21 @@ export default function FatwasList() {
                 style={{
                   backgroundColor: 'rgba(255,255,255,0.95)',
                   color: COLORS?.textPrimary,
-                  paddingRight: isRTL ? '38px' : '12px',
-                  paddingLeft: isRTL ? '12px' : '38px',
+                  paddingRight: isRTL ? '38px' : '36px',
+                  paddingLeft: isRTL ? '36px' : '38px',
                 }}
               />
+              {searchTerm && (
+                <button
+                  type="button"
+                  onClick={clearSearch}
+                  className="absolute top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1 cursor-pointer"
+                  style={{ [isRTL ? 'left' : 'right']: '10px' }}
+                  title={isRTL ? 'صاف کریں' : 'Clear'}
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
             </div>
             <button
               type="submit"

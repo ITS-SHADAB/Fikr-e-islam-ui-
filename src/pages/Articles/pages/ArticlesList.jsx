@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Search, X, BookOpen, ChevronLeft, ChevronRight, Filter } from 'lucide-react';
 import { useArticlesList } from '@/hooks/useContentCache';
+import { useContentSearch } from '@/hooks/useContentSearch';
 import { useSettings } from '@/hooks/useSettings';
 import { ArticleCard } from '@/components';
 import { COLORS } from '@/utils/themeColors';
@@ -15,8 +16,6 @@ export default function ArticlesList() {
   const queryCategory = searchParams.get('category');
 
   const [page, setPage] = useState(1);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [searchInput, setSearchInput] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [showMobileFilters, setShowMobileFilters] = useState(false);
 
@@ -24,24 +23,49 @@ export default function ArticlesList() {
     setSelectedCategory(queryCategory !== null ? queryCategory : '');
   }, [queryCategory]);
 
+  // Centralized Global Search (contentType = article)
+  const {
+    searchTerm,
+    setSearchTerm,
+    searchResults,
+    isSearching,
+    searchError,
+    clearSearch,
+    isSearchActive,
+  } = useContentSearch({
+    contentType: 'article',
+    limit: 12,
+  });
+
+  // Standard listing for pagination and categories (no search parameter sent)
   const {
     data,
-    loading,
-    error,
+    loading: listLoading,
+    error: listError,
   } = useArticlesList({
     category: selectedCategory,
-    search: searchTerm,
     page,
     limit: 9,
   });
 
-  const articles = data?.articles || [];
-  const pages = data?.pages || 1;
-  const total = data?.total || 0;
+  const displayedArticles = useMemo(() => {
+    if (isSearchActive) {
+      if (selectedCategory) {
+        return searchResults.filter((item) => item.category === selectedCategory);
+      }
+      return searchResults;
+    }
+    return data?.articles || [];
+  }, [isSearchActive, searchResults, selectedCategory, data?.articles]);
+
+  const articles = displayedArticles;
+  const loading = isSearchActive ? isSearching : listLoading;
+  const error = isSearchActive ? searchError : listError;
+  const pages = isSearchActive ? 1 : (data?.pages || 1);
+  const total = isSearchActive ? displayedArticles.length : (data?.total || 0);
 
   const handleSearchSubmit = (e) => {
     e?.preventDefault();
-    setSearchTerm(searchInput);
     setPage(1);
   };
 
@@ -58,13 +82,12 @@ export default function ArticlesList() {
 
   const clearFilters = () => {
     setSelectedCategory('');
-    setSearchTerm('');
-    setSearchInput('');
+    clearSearch();
     setPage(1);
   };
 
   const categories = ARTICLE_CATEGORIES;
-  const hasFilters = selectedCategory || searchTerm;
+  const hasFilters = selectedCategory || isSearchActive;
 
   return (
     <div dir={isRTL ? 'rtl' : 'ltr'} className="min-h-screen" style={{ backgroundColor: COLORS?.background }}>
@@ -109,17 +132,31 @@ export default function ArticlesList() {
               />
               <input
                 type="text"
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setPage(1);
+                }}
                 placeholder={isRTL ? 'مقالات تلاش کریں...' : 'Search articles...'}
                 className="w-full py-3 rounded-xl text-sm outline-none border-0 font-medium"
                 style={{
                   backgroundColor: 'rgba(255,255,255,0.95)',
                   color: COLORS?.textPrimary,
-                  paddingRight: isRTL ? '40px' : '16px',
-                  paddingLeft: isRTL ? '16px' : '40px',
+                  paddingRight: isRTL ? '40px' : '36px',
+                  paddingLeft: isRTL ? '36px' : '40px',
                 }}
               />
+              {searchTerm && (
+                <button
+                  type="button"
+                  onClick={clearSearch}
+                  className="absolute top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1 cursor-pointer"
+                  style={{ [isRTL ? 'left' : 'right']: '10px' }}
+                  title={isRTL ? 'صاف کریں' : 'Clear'}
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
             </div>
             <button
               type="submit"

@@ -6,6 +6,7 @@ import { useSettings } from '@/hooks/useSettings';
 import { PublicationCard, SectionSidebar, Spinner } from '@/components';
 import { COLORS } from '@/utils/themeColors';
 import { PUBLICATION_CATEGORIES } from '@/utils/categories';
+import { useContentSearch } from '@/hooks/useContentSearch';
 
 export default function PublicationsList() {
   const { settings } = useSettings();
@@ -14,8 +15,18 @@ export default function PublicationsList() {
   const queryCategory = searchParams.get('category');
 
   const [page, setPage] = useState(1);
-  const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
+
+  // Global Atlas Search for Books (contentType = 'book')
+  const {
+    searchTerm,
+    setSearchTerm,
+    searchResults,
+    isSearching,
+    searchError,
+    clearSearch,
+    isSearchActive,
+  } = useContentSearch({ contentType: 'book', limit: 12 });
 
   const isRTL = language === 'ur';
 
@@ -33,14 +44,17 @@ export default function PublicationsList() {
     error,
   } = usePublicationsList({
     category: selectedCategory,
-    search: searchTerm,
     page,
     limit: 10,
   });
 
-  const publications = data?.books || [];
+  // When search is active, use Atlas Search results (with optional category filter)
+  const displayedPublications = isSearchActive
+    ? (selectedCategory ? searchResults.filter((p) => p.category === selectedCategory) : searchResults)
+    : (data?.books || []);
   const pages = data?.pages || 1;
-  const total = data?.total || 0;
+  const total = isSearchActive ? displayedPublications.length : (data?.total || 0);
+  const isLoading = isSearchActive ? isSearching : loading;
 
   const handleSearchSubmit = (e) => {
     e?.preventDefault();
@@ -104,7 +118,7 @@ export default function PublicationsList() {
             onSearchChange={setSearchTerm}
             onSearchSubmit={handleSearchSubmit}
             onClearSearch={() => {
-              setSearchTerm('');
+              clearSearch();
               setPage(1);
             }}
             searchPlaceholder={isRTL ? 'کتب و مطبوعات تلاش کریں...' : 'Search books...'}
@@ -121,20 +135,40 @@ export default function PublicationsList() {
 
           {/* ── MAIN: publication cards ── */}
           <div className="flex-1 min-w-0 w-full">
-            {loading ? (
+            {isLoading ? (
               <div className="flex items-center justify-center py-20">
-                <Spinner size="lg" text="مطبوعات لوڈ ہو رہی ہیں..." />
+                <Spinner
+                  size="lg"
+                  text={
+                    isSearchActive
+                      ? isRTL ? 'تلاش جاری ہے...' : 'Searching...'
+                      : isRTL ? 'مطبوعات لوڈ ہو رہی ہیں...' : 'Loading publications...'
+                  }
+                />
               </div>
-            ) : publications && publications.length > 0 ? (
+            ) : searchError ? (
+              <div className="text-center py-16 rounded-lg border" style={{ backgroundColor: COLORS.white, borderColor: COLORS.border }}>
+                <p className="text-sm font-semibold text-rose-600 mb-2">
+                  {isRTL ? 'اس وقت تلاش ممکن نہیں ہے۔' : 'Unable to search right now.'}
+                </p>
+                <button
+                  type="button"
+                  onClick={clearSearch}
+                  className="px-4 py-1.5 text-xs rounded border border-gray-300 hover:bg-gray-50 transition-colors"
+                >
+                  {isRTL ? 'تلاش صاف کریں' : 'Clear Search'}
+                </button>
+              </div>
+            ) : displayedPublications && displayedPublications.length > 0 ? (
               <>
                 <div className="flex flex-col gap-4 mb-10">
-                  {publications.map((pub) => (
-                    <PublicationCard key={pub._id} publication={pub} />
+                  {displayedPublications.map((pub) => (
+                    <PublicationCard key={pub._id || pub.id} publication={pub} />
                   ))}
                 </div>
 
-                {/* Pagination */}
-                {pages > 1 && (
+                {/* Pagination (only when not actively searching) */}
+                {!isSearchActive && pages > 1 && (
                   <div className="flex justify-center items-center gap-1.5 pt-4">
                     <button
                       onClick={() => handlePageChange(Math.max(1, page - 1))}
@@ -173,10 +207,14 @@ export default function PublicationsList() {
               <div className="text-center py-16 rounded-lg border" style={{ backgroundColor: COLORS.white, borderColor: COLORS.border }}>
                 <BookOpen className="w-12 h-12 mx-auto mb-4" style={{ color: COLORS.accent }} />
                 <h3 className="text-lg font-bold font-serif mb-1" style={{ color: COLORS.textPrimary }}>
-                  {isRTL ? 'کوئی مطبوعہ دستیاب نہیں ہے' : 'No publications available'}
+                  {isSearchActive
+                    ? isRTL ? 'کوئی نتیجہ نہیں ملا' : 'No results found.'
+                    : isRTL ? 'کوئی مطبوعہ دستیاب نہیں ہے' : 'No publications available'}
                 </h3>
                 <p className="text-xs" style={{ color: COLORS.textSecondary }}>
-                  {isRTL ? 'براہ کرم تلاش کے الفاظ یا فلٹر تبدیل کریں۔' : 'Try changing the search or filters.'}
+                  {isSearchActive
+                    ? isRTL ? 'براہ کرم تلاش کے الفاظ یا فلٹر تبدیل کریں۔' : 'Try different keywords or check spelling.'
+                    : isRTL ? 'براہ کرم تلاش کے الفاظ یا فلٹر تبدیل کریں۔' : 'Try changing the search or filters.'}
                 </p>
               </div>
             )}

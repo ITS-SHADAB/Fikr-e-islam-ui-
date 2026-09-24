@@ -21,6 +21,7 @@ import { useEventsList } from '@/hooks/useContentCache';
 import { useSettings } from '@/hooks/useSettings';
 import { EventCard } from '@/components';
 import { COLORS } from '@/utils/themeColors';
+import { useContentSearch } from '@/hooks/useContentSearch';
 
 const URDU_MONTHS = [
   'جنوری',
@@ -62,11 +63,21 @@ export default function EventsList() {
     return Array.from(map.values());
   }, [rawEvents]);
 
+  // Global Atlas Search for Events (contentType = 'event')
+  const {
+    searchTerm,
+    setSearchTerm,
+    searchResults,
+    isSearching,
+    searchError,
+    clearSearch,
+    isSearchActive,
+  } = useContentSearch({ contentType: 'event', limit: 10 });
+
   // Calendar State
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(null);
   const [activeTab, setActiveTab] = useState('all'); // 'all', 'upcoming', 'past', 'calendar'
-  const [searchTerm, setSearchTerm] = useState('');
 
   // Year and Month of Calendar View
   const currentYear = currentDate.getFullYear();
@@ -184,6 +195,10 @@ export default function EventsList() {
 
   // Filtered events based on tab and search
   const displayedEvents = useMemo(() => {
+    if (isSearchActive) {
+      return searchResults;
+    }
+
     let list = events;
 
     if (activeTab === 'upcoming') {
@@ -194,26 +209,19 @@ export default function EventsList() {
       list = selectedDateEvents;
     }
 
-    if (searchTerm?.trim()) {
-      const q = searchTerm.toLowerCase();
-      list = list.filter(
-        (ev) =>
-          ev?.title?.toLowerCase()?.includes(q) ||
-          ev?.description?.toLowerCase()?.includes(q) ||
-          ev?.location?.toLowerCase()?.includes(q)
-      );
-    }
-
     return list;
   }, [
+    isSearchActive,
+    searchResults,
     activeTab,
     events,
     upcomingEvents,
     pastEvents,
     selectedDate,
     selectedDateEvents,
-    searchTerm,
   ]);
+
+  const isLoading = isSearchActive ? isSearching : loading;
 
   const todayObj = new Date();
   const todayKey = `${todayObj.getFullYear()}-${String(
@@ -706,28 +714,58 @@ export default function EventsList() {
                   className="w-full py-2 rounded-xl border-2 text-xs outline-none focus:border-primary transition-colors"
                   style={{
                     borderColor: COLORS?.border,
-                    paddingRight: isRTL ? '36px' : '12px',
-                    paddingLeft: isRTL ? '12px' : '36px',
+                    paddingRight: isRTL ? '36px' : (searchTerm ? '32px' : '12px'),
+                    paddingLeft: isRTL ? (searchTerm ? '32px' : '12px') : '36px',
                     backgroundColor: COLORS?.background,
                     color: COLORS?.textPrimary,
                   }}
                 />
+                {searchTerm && (
+                  <button
+                    type="button"
+                    onClick={clearSearch}
+                    className="absolute top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 cursor-pointer"
+                    style={{ [isRTL ? 'left' : 'right']: '8px' }}
+                    title={isRTL ? 'صاف کریں' : 'Clear'}
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
               </div>
             </div>
 
             {/* Program Cards Feed */}
             <div className="space-y-4">
-              {loading ? (
+              {isLoading ? (
                 <div className="flex items-center justify-center py-14">
                   <div
                     className="animate-spin rounded-full h-9 w-9 border-t-2 border-b-2"
                     style={{ borderColor: COLORS?.primary }}
                   />
                 </div>
+              ) : searchError ? (
+                <div
+                  className="rounded-2xl p-10 text-center border-2 shadow-xs"
+                  style={{
+                    backgroundColor: COLORS?.white,
+                    borderColor: COLORS?.border,
+                  }}
+                >
+                  <p className="text-sm font-semibold text-rose-600 mb-2">
+                    {isRTL ? 'اس وقت تلاش ممکن نہیں ہے۔' : 'Unable to search right now.'}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={clearSearch}
+                    className="px-4 py-1.5 text-xs rounded border border-gray-300 hover:bg-gray-50 transition-colors cursor-pointer"
+                  >
+                    {isRTL ? 'تلاش صاف کریں' : 'Clear Search'}
+                  </button>
+                </div>
               ) : displayedEvents?.length > 0 ? (
                 <div className="space-y-4">
                   {displayedEvents.map((event) => (
-                    <EventCard key={event._id} event={event} />
+                    <EventCard key={event._id || event.id} event={event} />
                   ))}
                 </div>
               ) : (
@@ -746,7 +784,9 @@ export default function EventsList() {
                     className="text-base sm:text-lg font-bold font-serif mb-1"
                     style={{ color: COLORS?.primary }}
                   >
-                    {isRTL
+                    {isSearchActive
+                      ? isRTL ? 'کوئی نتیجہ نہیں ملا' : 'No results found.'
+                      : isRTL
                       ? 'اس انتخاب میں کوئی پروگرام نہیں ملا'
                       : 'No scheduled programs found'}
                   </h3>
@@ -754,21 +794,29 @@ export default function EventsList() {
                     className="text-xs max-w-sm mx-auto mb-4"
                     style={{ color: COLORS?.textSecondary }}
                   >
-                    {isRTL
+                    {isSearchActive
+                      ? isRTL ? 'براہ کرم تلاش کے الفاظ تبدیل کر کے دوبارہ کوشش کریں۔' : 'Try different keywords or check spelling.'
+                      : isRTL
                       ? 'دیگر تواریخ منتخب کریں یا تمام پروگراموں کی فہرست دیکھیں'
                       : 'Please check other dates or view all programs'}
                   </p>
                   <button
                     type="button"
                     onClick={() => {
-                      setActiveTab('all');
-                      setSelectedDate(null);
-                      setSearchTerm('');
+                      if (isSearchActive) {
+                        clearSearch();
+                      } else {
+                        setActiveTab('all');
+                        setSelectedDate(null);
+                        setSearchTerm('');
+                      }
                     }}
                     className="px-5 py-2.5 rounded-xl text-xs font-bold text-white shadow-sm cursor-pointer transition-transform hover:scale-105"
                     style={{ backgroundColor: COLORS?.primary }}
                   >
-                    {isRTL ? 'تمام پروگرامز دیکھیں' : 'View All Events'}
+                    {isSearchActive
+                      ? isRTL ? 'تلاش صاف کریں' : 'Clear Search'
+                      : isRTL ? 'تمام پروگرامز دیکھیں' : 'View All Events'}
                   </button>
                 </div>
               )}

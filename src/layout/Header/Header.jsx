@@ -20,7 +20,8 @@ import { useNotifications } from "@/hooks/useNotifications";
 import NotificationDropdown from "@/components/Notification/NotificationDropdown";
 import { logout } from "@/store/slices/authSlice";
 import { useSettings } from "@/hooks/useSettings";
-import { logoutUser } from "@/services";
+import { logoutUser, globalSearch } from "@/services";
+import HeaderSearchResults, { resolveResultUrl } from "./HeaderSearchResults";
 import { useAuthModal } from "@/context/AuthModalContext";
 import headerProfileImg from "@/assets/images/header-profile.jpg";
 
@@ -152,6 +153,11 @@ export default function Header() {
   const { unreadCount, refreshNotifications, hasLoadedNotifications } = useNotifications();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [isSearchLoading, setIsSearchLoading] = useState(false);
+  const [searchError, setSearchError] = useState(null);
+  const [selectedResultIndex, setSelectedResultIndex] = useState(-1);
+  const abortControllerRef = useRef(null);
   const searchInputRef = useRef(null);
   const mobileSearchInputRef = useRef(null);
   const mobileSearchContainerRef = useRef(null);
@@ -216,6 +222,15 @@ export default function Header() {
     setShowProfileDropdown(false);
     setShowNotifDropdown(false);
     setIsSearchOpen(false);
+    setSearchQuery("");
+    setSearchResults([]);
+    setIsSearchLoading(false);
+    setSearchError(null);
+    setSelectedResultIndex(-1);
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
   }, [location.pathname]);
 
   // Escape key & auto-focus for search
@@ -224,6 +239,9 @@ export default function Header() {
     const handleKeyDown = (e) => {
       if (e.key === "Escape") {
         setIsSearchOpen(false);
+        setSearchQuery("");
+        setSearchResults([]);
+        setSelectedResultIndex(-1);
       }
     };
     window.addEventListener("keydown", handleKeyDown);
@@ -241,6 +259,65 @@ export default function Header() {
       clearTimeout(timer);
     };
   }, [isSearchOpen]);
+
+  // Debounced search query effect (350ms debounce with cancellation of stale requests)
+  useEffect(() => {
+    const trimmed = searchQuery.trim();
+
+    // Cancel any previous in-flight request
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
+
+    if (!isSearchOpen || trimmed.length < 2) {
+      setSearchResults([]);
+      setIsSearchLoading(false);
+      setSearchError(null);
+      setSelectedResultIndex(-1);
+      return;
+    }
+
+    setIsSearchLoading(true);
+    setSearchError(null);
+
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
+    const timer = setTimeout(async () => {
+      try {
+        const response = await globalSearch(trimmed, {
+          limit: 10,
+          signal: controller.signal,
+        });
+
+        if (!controller.signal.aborted) {
+          const results = Array.isArray(response?.results) ? response.results : [];
+          setSearchResults(results);
+          setIsSearchLoading(false);
+          setSelectedResultIndex(-1);
+        }
+      } catch (err) {
+        if (
+          err.name === "CanceledError" ||
+          err.code === "ERR_CANCELED" ||
+          controller.signal.aborted
+        ) {
+          return;
+        }
+        console.error("Global Search API Error:", err);
+        setSearchError(
+          err?.response?.data?.message || err?.message || "Search failed"
+        );
+        setIsSearchLoading(false);
+      }
+    }, 350);
+
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
+  }, [searchQuery, isSearchOpen]);
 
   // Click outside search
   useEffect(() => {
@@ -318,12 +395,63 @@ export default function Header() {
     window.location.reload();
   };
 
+  const handleSelectResult = (result) => {
+    if (!result) return;
+    const targetUrl = resolveResultUrl(result);
+
+    setIsSearchOpen(false);
+    setSearchQuery("");
+    setSearchResults([]);
+    setSelectedResultIndex(-1);
+
+    if (targetUrl.startsWith("http://") || targetUrl.startsWith("https://")) {
+      window.open(targetUrl, "_blank", "noopener,noreferrer");
+    } else {
+      navigate(targetUrl);
+    }
+  };
+
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     if (!searchQuery.trim()) return;
-    navigate(`/articles?search=${encodeURIComponent(searchQuery.trim())}`);
-    setIsSearchOpen(false);
-    setSearchQuery("");
+
+    if (selectedResultIndex >= 0 && searchResults[selectedResultIndex]) {
+      handleSelectResult(searchResults[selectedResultIndex]);
+      return;
+    }
+
+    if (searchResults.length > 0) {
+      handleSelectResult(searchResults[0]);
+    }
+  };
+
+  const handleSearchKeyDown = (e) => {
+    if (!isSearchOpen) return;
+
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setSelectedResultIndex((prev) =>
+        searchResults.length > 0
+          ? prev < searchResults.length - 1
+            ? prev + 1
+            : 0
+          : -1
+      );
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setSelectedResultIndex((prev) =>
+        searchResults.length > 0
+          ? prev > 0
+            ? prev - 1
+            : searchResults.length - 1
+          : -1
+      );
+    } else if (e.key === "Escape") {
+      setIsSearchOpen(false);
+      setSearchQuery("");
+      setSearchResults([]);
+      setSelectedResultIndex(-1);
+    }
   };
 
   const getInitials = (user) => {
@@ -784,6 +912,7 @@ export default function Header() {
                       type="text"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
+                      onKeyDown={handleSearchKeyDown}
                       placeholder={isUrdu ? "یہاں تلاش کریں..." : "Search..."}
                       className="flex-1 min-w-0 bg-transparent text-xs text-[#F7F1E8] placeholder-[#A8793E]/70 focus:outline-none text-right font-normal px-1.5 py-0.5"
                       dir={isUrdu ? "rtl" : "ltr"}
@@ -791,7 +920,11 @@ export default function Header() {
                     {searchQuery && (
                       <button
                         type="button"
-                        onClick={() => setSearchQuery("")}
+                        onClick={() => {
+                          setSearchQuery("");
+                          setSearchResults([]);
+                          setSelectedResultIndex(-1);
+                        }}
                         className="text-[#A8793E] hover:text-[#F7F1E8] p-0.5 cursor-pointer shrink-0"
                         title={isUrdu ? "صاف کریں" : "Clear"}
                       >
@@ -806,6 +939,8 @@ export default function Header() {
                     onClick={() => {
                       setIsSearchOpen(false);
                       setSearchQuery("");
+                      setSearchResults([]);
+                      setSelectedResultIndex(-1);
                     }}
                     className="shrink-0 w-7 h-7 rounded-full border border-[#A8793E] bg-[#3D2E22] text-[#DFC8A4] hover:text-[#F7F1E8] hover:border-[#DFC8A4] flex items-center justify-center cursor-pointer active:scale-95 transition-all shadow-xs"
                     title={isUrdu ? "بند کریں" : "Close"}
@@ -813,6 +948,30 @@ export default function Header() {
                   >
                     <X className="w-3.5 h-3.5" />
                   </button>
+
+                  {/* Mobile Search Results Dropdown */}
+                  <HeaderSearchResults
+                    isOpen={
+                      isSearchOpen &&
+                      (searchQuery.trim().length > 0 ||
+                        isSearchLoading ||
+                        Boolean(searchError))
+                    }
+                    isLoading={isSearchLoading}
+                    error={searchError}
+                    results={searchResults}
+                    query={searchQuery}
+                    selectedIndex={selectedResultIndex}
+                    onSelectResult={handleSelectResult}
+                    onClose={() => {
+                      setIsSearchOpen(false);
+                      setSearchQuery("");
+                      setSearchResults([]);
+                      setSelectedResultIndex(-1);
+                    }}
+                    isUrdu={isUrdu}
+                    mode="mobile"
+                  />
                 </motion.div>
               )}
             </AnimatePresence>
@@ -839,49 +998,82 @@ export default function Header() {
               {/* Desktop Inline Expandable Search Box */}
               <div ref={desktopSearchContainerRef} className="relative hidden lg:flex items-center z-30">
                 {isSearchOpen ? (
-                  <div
-                    className="relative flex items-center bg-[#2B2118] border border-[#A8793E] rounded-full px-2 py-0.5 shadow-md animate-in fade-in zoom-in-95 duration-150"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <form
-                      onSubmit={handleSearchSubmit}
-                      className="flex items-center"
+                  <>
+                    <div
+                      className="relative flex items-center bg-[#2B2118] border border-[#A8793E] rounded-full px-2 py-0.5 shadow-md animate-in fade-in zoom-in-95 duration-150"
+                      onClick={(e) => e.stopPropagation()}
                     >
-                      <button
-                        type="submit"
-                        className="text-[#A8793E] hover:text-[#DFC8A4] transition-colors p-1 cursor-pointer flex items-center justify-center"
-                        title={isUrdu ? "تلاش کریں" : "Submit search"}
+                      <form
+                        onSubmit={handleSearchSubmit}
+                        className="flex items-center"
                       >
-                        <Search className="w-3.5 h-3.5" />
+                        <button
+                          type="submit"
+                          className="text-[#A8793E] hover:text-[#DFC8A4] transition-colors p-1 cursor-pointer flex items-center justify-center"
+                          title={isUrdu ? "تلاش کریں" : "Submit search"}
+                        >
+                          <Search className="w-3.5 h-3.5" />
+                        </button>
+                        <input
+                          ref={searchInputRef}
+                          type="text"
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          onKeyDown={handleSearchKeyDown}
+                          placeholder={isUrdu ? "تلاش کریں..." : "Search..."}
+                          className="w-44 md:w-52 bg-transparent text-xs text-[#F7F1E8] placeholder-[#A8793E]/70 focus:outline-none text-right font-normal px-1"
+                          dir={isUrdu ? "rtl" : "ltr"}
+                        />
+                      </form>
+                      <button
+                        type="button"
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setIsSearchOpen(false);
+                          setSearchQuery("");
+                          setSearchResults([]);
+                          setSelectedResultIndex(-1);
+                        }}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setIsSearchOpen(false);
+                          setSearchQuery("");
+                          setSearchResults([]);
+                          setSelectedResultIndex(-1);
+                        }}
+                        className="w-5 h-5 flex items-center justify-center rounded-full text-[#A8793E] hover:text-[#F7F1E8] hover:bg-white/10 transition-colors cursor-pointer mr-0.5"
+                        title={isUrdu ? "بند کریں" : "Close"}
+                      >
+                        <X className="w-3.5 h-3.5" />
                       </button>
-                      <input
-                        ref={searchInputRef}
-                        type="text"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder={isUrdu ? "تلاش کریں..." : "Search..."}
-                        className="w-44 md:w-52 bg-transparent text-xs text-[#F7F1E8] placeholder-[#A8793E]/70 focus:outline-none text-right font-normal px-1"
-                        dir={isUrdu ? "rtl" : "ltr"}
-                      />
-                    </form>
-                    <button
-                      type="button"
-                      onMouseDown={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
+                    </div>
+
+                    {/* Desktop Search Results Dropdown */}
+                    <HeaderSearchResults
+                      isOpen={
+                        isSearchOpen &&
+                        (searchQuery.trim().length > 0 ||
+                          isSearchLoading ||
+                          Boolean(searchError))
+                      }
+                      isLoading={isSearchLoading}
+                      error={searchError}
+                      results={searchResults}
+                      query={searchQuery}
+                      selectedIndex={selectedResultIndex}
+                      onSelectResult={handleSelectResult}
+                      onClose={() => {
                         setIsSearchOpen(false);
+                        setSearchQuery("");
+                        setSearchResults([]);
+                        setSelectedResultIndex(-1);
                       }}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        setIsSearchOpen(false);
-                      }}
-                      className="w-5 h-5 flex items-center justify-center rounded-full text-[#A8793E] hover:text-[#F7F1E8] hover:bg-white/10 transition-colors cursor-pointer mr-0.5"
-                      title={isUrdu ? "بند کریں" : "Close"}
-                    >
-                      <X className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
+                      isUrdu={isUrdu}
+                      mode="desktop"
+                    />
+                  </>
                 ) : (
                   <button
                     type="button"

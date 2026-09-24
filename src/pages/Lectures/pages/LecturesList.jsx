@@ -20,6 +20,7 @@ import { LectureCard, SectionSidebar, SectionLoader } from "@/components";
 import { COLORS } from "@/utils/themeColors";
 import { LECTURE_CATEGORIES, LECTURE_CATEGORY_TRANSLATIONS } from "@/utils/categories";
 import { OFFICIAL_SOCIAL_LINKS } from "@/constants/contact";
+import { useContentSearch } from "@/hooks/useContentSearch";
 
 export default function LecturesList() {
   const { settings } = useSettings();
@@ -29,9 +30,19 @@ export default function LecturesList() {
   const [searchParams] = useSearchParams();
   const queryCategory = searchParams.get("category");
 
-  const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [activeMedia, setActiveMedia] = useState(null);
+
+  // Global Atlas Search for Lectures (contentType = 'lecture')
+  const {
+    searchTerm,
+    setSearchTerm,
+    searchResults,
+    isSearching,
+    searchError,
+    clearSearch,
+    isSearchActive,
+  } = useContentSearch({ contentType: "lecture", limit: 12 });
 
   useEffect(() => {
     if (queryCategory !== null) {
@@ -45,10 +56,12 @@ export default function LecturesList() {
 
   const { data: lecturesData, loading, error } = useLecturesList({
     category: selectedCategory,
-    search: searchTerm,
   });
 
-  const lectures = Array.isArray(lecturesData) ? lecturesData : [];
+  const displayedLectures = isSearchActive
+    ? (selectedCategory ? searchResults.filter((l) => l.category === selectedCategory) : searchResults)
+    : (Array.isArray(lecturesData) ? lecturesData : []);
+  const isLoading = isSearchActive ? isSearching : loading;
 
   const handleSearchSubmit = (e) => {
     e?.preventDefault();
@@ -231,7 +244,7 @@ export default function LecturesList() {
             onSearchChange={setSearchTerm}
             onSearchSubmit={handleSearchSubmit}
             onClearSearch={() => {
-              setSearchTerm("");
+              clearSearch();
             }}
             searchPlaceholder={
               isRTL ? "بیانات تلاش کریں..." : "Search lectures..."
@@ -244,20 +257,39 @@ export default function LecturesList() {
             onCategoryChange={handleCategoryChange}
             isRTL={isRTL}
             icon={Play}
-            totalCount={lectures.length}
+            totalCount={displayedLectures.length}
           />
 
           {/* MAIN: Lecture Cards Grid */}
           <div className="flex-1 min-w-0 w-full">
-            {loading ? (
+            {isLoading ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
                 <SectionLoader type="lecture" count={6} />
               </div>
-            ) : lectures && lectures.length > 0 ? (
+            ) : searchError ? (
+              <div
+                className="text-center py-16 rounded-2xl border p-8 shadow-xs"
+                style={{
+                  backgroundColor: COLORS.white,
+                  borderColor: COLORS.border,
+                }}
+              >
+                <p className="text-sm font-semibold text-rose-600 mb-2">
+                  {isRTL ? "اس وقت تلاش ممکن نہیں ہے۔" : "Unable to search right now."}
+                </p>
+                <button
+                  type="button"
+                  onClick={clearSearch}
+                  className="px-4 py-1.5 text-xs rounded border border-gray-300 hover:bg-gray-50 transition-colors cursor-pointer"
+                >
+                  {isRTL ? "تلاش صاف کریں" : "Clear Search"}
+                </button>
+              </div>
+            ) : displayedLectures && displayedLectures.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
-                {lectures.map((lecture) => (
+                {displayedLectures.map((lecture) => (
                   <LectureCard
-                    key={lecture._id}
+                    key={lecture._id || lecture.id}
                     lecture={lecture}
                     onPlay={handleLectureAction}
                   />
@@ -284,13 +316,17 @@ export default function LecturesList() {
                   className="text-lg font-bold font-serif mb-1.5"
                   style={{ color: COLORS.textPrimary }}
                 >
-                  {isRTL ? "کوئی بیان نہیں ملا" : "No lectures found"}
+                  {isSearchActive
+                    ? isRTL ? "کوئی نتیجہ نہیں ملا" : "No results found"
+                    : isRTL ? "کوئی بیان نہیں ملا" : "No lectures found"}
                 </h3>
                 <p
                   className="text-xs max-w-sm mx-auto"
                   style={{ color: COLORS.textSecondary }}
                 >
-                  {isRTL
+                  {isSearchActive
+                    ? isRTL ? "براہ کرم تلاش کے الفاظ یا فلٹر تبدیل کریں۔" : "Try different keywords or check spelling."
+                    : isRTL
                     ? "براہ کرم فارمیٹ فلٹر بیجز یا تلاش کے الفاظ تبدیل کر کے دوبارہ کوشش کریں۔"
                     : "Please modify filters or search terms to find lectures."}
                 </p>
