@@ -16,7 +16,7 @@ import {
   FileText,
   Home,
 } from "lucide-react";
-import { getPublicationBySlug, getPublications } from "@/services";
+import { getPublicationBySlug } from "@/services";
 import { useCachedContent } from "@/hooks/useContentCache";
 import { STALE_TIMES } from "@/store/slices/contentSlice";
 import { useSettings } from "@/hooks/useSettings";
@@ -50,20 +50,8 @@ export default function BookDetail() {
     params: rawParam,
     fetcher: async () => {
       const data = await getPublicationBySlug(rawParam);
-      const bookData = data.book || data;
-      let relatedBooks = [];
-      try {
-        const allRes = await getPublications({
-          category: bookData.category,
-          limit: 4,
-        });
-        const otherBooks = (allRes.books || []).filter(
-          (b) => b._id !== bookData._id
-        );
-        relatedBooks = otherBooks.slice(0, 3);
-      } catch (rErr) {
-        console.warn("Failed to load related books", rErr);
-      }
+      const bookData = data?.book || data;
+      const relatedBooks = data?.related || [];
       return { book: bookData, relatedBooks };
     },
     staleTime: STALE_TIMES.publications,
