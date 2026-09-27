@@ -193,6 +193,7 @@ export default function Dashboard() {
     { to: '/admin/articles', label: 'نیا مضمون لکھیں', sub: 'اسلامی احکام شائع کریں', icon: Plus, gradient: 'linear-gradient(135deg,#6366f1,#4f46e5)', shadow: 'rgba(99,102,241,0.3)' },
     { to: '/admin/fatwas', label: 'نیا فتویٰ شامل کریں', sub: 'فقہی مسائل کے حل', icon: Bookmark, gradient: 'linear-gradient(135deg,#f59e0b,#d97706)', shadow: 'rgba(245,158,11,0.3)' },
     { to: '/admin/questions', label: 'سوالات کا جائزہ', sub: `${pQuestions} زیرِ التوا`, icon: HelpCircle, gradient: 'linear-gradient(135deg,#ef4444,#dc2626)', shadow: 'rgba(239,68,68,0.3)' },
+    { to: '/admin/messages', label: 'پیغامات دیکھیں', sub: `${tMessages} پیغامات موصول`, icon: Mail, gradient: 'linear-gradient(135deg,#64748b,#475569)', shadow: 'rgba(100,116,139,0.3)' },
     { to: '/admin/publications', label: 'مطبوعہ شامل کریں', sub: 'کتاب یا وسیلہ اپ لوڈ', icon: BookOpen, gradient: 'linear-gradient(135deg,#14b8a6,#0d9488)', shadow: 'rgba(20,184,166,0.3)' },
     { to: '/admin/lectures', label: 'بیان شامل کریں', sub: 'ویڈیو یا آڈیو مواد', icon: Mic, gradient: 'linear-gradient(135deg,#ec4899,#db2777)', shadow: 'rgba(236,72,153,0.3)' },
     { to: '/admin/events', label: 'پروگرامات کا انتظام', sub: 'آنے والے پروگرام', icon: CalendarDays, gradient: 'linear-gradient(135deg,#3b82f6,#2563eb)', shadow: 'rgba(59,130,246,0.3)' },

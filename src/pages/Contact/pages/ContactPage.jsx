@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSelector } from 'react-redux';
 import {
   Mail,
   Phone,
@@ -24,14 +25,14 @@ import { OFFICIAL_CONTACT, OFFICIAL_SOCIAL_LINKS, formatPhoneNumber, getTelLink 
 
 export default function ContactPage() {
   const { settings } = useSettings();
+  const { loggedInUser, isAuthenticated } = useSelector((state) => state.auth || {});
   const language =
     settings?.language === 'ur' || settings?.language === 'Urdu' ? 'ur' : 'en';
   const isRTL = language === 'ur';
 
   const [formData, setFormData] = useState({
     name: '',
-    email: '',
-    subject: '',
+    mobileNumber: '',
     message: '',
   });
 
@@ -40,43 +41,120 @@ export default function ContactPage() {
   const [success, setSuccess] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
 
+  // Auto-fill logged-in user details if available
+  useEffect(() => {
+    if (isAuthenticated && loggedInUser) {
+      setFormData((prev) => ({
+        ...prev,
+        name: prev.name || loggedInUser.name || '',
+        mobileNumber:
+          prev.mobileNumber ||
+          loggedInUser.contactPhone ||
+          loggedInUser.loginPhone ||
+          '',
+      }));
+    }
+  }, [isAuthenticated, loggedInUser]);
+
+  const normalizeMobile = (num) => {
+    if (!num) return '';
+    let cleaned = String(num).trim().replace(/[\s\-\(\)\.]/g, '');
+    if (cleaned.startsWith('+91')) cleaned = cleaned.slice(3);
+    else if (cleaned.startsWith('91') && cleaned.length === 12) cleaned = cleaned.slice(2);
+    else if (cleaned.startsWith('0') && cleaned.length === 11) cleaned = cleaned.slice(1);
+    return cleaned;
+  };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    if (name === 'mobileNumber') {
+      // Disallow non-numeric characters except +, - and space
+      const filtered = value.replace(/[^\d\+\-\s]/g, '');
+      setFormData((prev) => ({ ...prev, [name]: filtered }));
+      return;
+    }
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
+    if (actionLoading) return;
     setActionError(null);
 
-    if (
-      !formData.name?.trim() ||
-      !formData.email?.trim() ||
-      !formData.subject?.trim() ||
-      !formData.message?.trim()
-    ) {
+
+    // 1. Validate Name
+    if (!formData.name?.trim()) {
+      setActionError(
+        isRTL ? 'براہ کرم اپنا نام درج کریں۔' : 'Please enter your name.'
+      );
+      return;
+    }
+
+    if (formData.name.trim().length < 2) {
       setActionError(
         isRTL
-          ? 'براہ کرم تمام لازمی خانے پر کریں۔'
-          : 'Please fill in all required fields.'
+          ? 'نام کم از کم 2 حروف پر مشتمل ہونا چاہیے۔'
+          : 'Name must be at least 2 characters.'
+      );
+      return;
+    }
+
+    // 2. Validate Mobile
+    if (!formData.mobileNumber?.trim()) {
+      setActionError(
+        isRTL
+          ? 'براہ کرم اپنا موبائل نمبر درج کریں۔'
+          : 'Please enter your mobile number.'
+      );
+      return;
+    }
+
+    const normalizedMobile = normalizeMobile(formData.mobileNumber);
+    const phoneRegex = /^[6-9]\d{9}$/;
+
+    if (!phoneRegex.test(normalizedMobile)) {
+      setActionError(
+        isRTL
+          ? 'براہ کرم درست 10 ہندسوں پر مشتمل موبائل نمبر درج کریں (جو 6، 7، 8 یا 9 سے شروع ہو)۔'
+          : 'Please enter a valid 10-digit mobile number starting with 6, 7, 8, or 9.'
+      );
+      return;
+    }
+
+    // 3. Validate Message
+    if (!formData.message?.trim()) {
+      setActionError(
+        isRTL ? 'براہ کرم اپنا پیغام درج کریں۔' : 'Please enter your message.'
+      );
+      return;
+    }
+
+    if (formData.message.trim().length < 5) {
+      setActionError(
+        isRTL
+          ? 'پیغام کم از کم 5 حروف پر مشتمل ہونا چاہیے۔'
+          : 'Message must be at least 5 characters.'
       );
       return;
     }
 
     try {
       setActionLoading(true);
-      const result = await submitContact(formData);
+      const result = await submitContact({
+        name: formData.name.trim(),
+        mobileNumber: normalizedMobile,
+        message: formData.message.trim(),
+      });
       setSuccess(true);
       setSuccessMsg(
         result?.message ||
           (isRTL
-            ? 'آپ کا پیغام کامیابی کے ساتھ ارسال کر دیا گیا ہے۔ شکریہ!'
+            ? 'پیغام کامیابی سے بھیج دیا گیا'
             : 'Your message has been sent successfully. Thank you!')
       );
       setFormData({
         name: '',
-        email: '',
-        subject: '',
+        mobileNumber: '',
         message: '',
       });
     } catch (err) {
@@ -513,7 +591,7 @@ export default function ContactPage() {
                     </div>
                   )}
 
-                  {/* Name & Email Row */}
+                  {/* Name & Mobile Number Row */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label
@@ -543,16 +621,17 @@ export default function ContactPage() {
                         className="block text-xs font-bold uppercase tracking-wider mb-1.5"
                         style={{ color: COLORS?.textPrimary }}
                       >
-                        {isRTL ? 'آپ کا ای میل ایڈریس *' : 'Your Email *'}
+                        {isRTL ? 'موبائل نمبر *' : 'Mobile Number *'}
                       </label>
                       <input
-                        type="email"
-                        name="email"
-                        value={formData.email}
+                        type="tel"
+                        name="mobileNumber"
+                        value={formData.mobileNumber}
                         onChange={handleInputChange}
                         required
-                        placeholder="abdullah@example.com"
-                        className="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl border outline-none transition-all focus:border-primary"
+                        dir="ltr"
+                        placeholder={isRTL ? 'اپنا موبائل نمبر درج کریں' : 'Enter mobile number'}
+                        className="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl border outline-none transition-all focus:border-primary text-left"
                         style={{
                           borderColor: COLORS?.border,
                           backgroundColor: COLORS?.background,
@@ -560,34 +639,6 @@ export default function ContactPage() {
                         }}
                       />
                     </div>
-                  </div>
-
-                  {/* Subject */}
-                  <div>
-                    <label
-                      className="block text-xs font-bold uppercase tracking-wider mb-1.5"
-                      style={{ color: COLORS?.textPrimary }}
-                    >
-                      {isRTL ? 'پیغام کا موضوع *' : 'Subject *'}
-                    </label>
-                    <input
-                      type="text"
-                      name="subject"
-                      value={formData.subject}
-                      onChange={handleInputChange}
-                      required
-                      placeholder={
-                        isRTL
-                          ? 'مثال: علمی سوال / سیمینار کی دعوت / کتب کی طلب'
-                          : 'e.g. Academic Inquiry / Lecture Invitation'
-                      }
-                      className="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl border outline-none transition-all focus:border-primary"
-                      style={{
-                        borderColor: COLORS?.border,
-                        backgroundColor: COLORS?.background,
-                        color: COLORS?.textPrimary,
-                      }}
-                    />
                   </div>
 
                   {/* Message */}

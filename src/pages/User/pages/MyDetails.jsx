@@ -28,10 +28,15 @@ import {
   Activity,
   Layers,
   ArrowRight,
+  CheckCheck,
+  CornerDownLeft,
+  Send,
+  Clock,
 } from "lucide-react";
 import {
   getMyComments,
   getMyQuestions,
+  getMyContacts,
   updateMyProfile,
   deleteComment,
   updateMyQuestion,
@@ -594,6 +599,127 @@ function UserQuestionCard({
   );
 }
 
+/* ── Single User Message Card with WhatsApp-like Seen Indicator ───────── */
+function UserMessageCard({ message }) {
+  const isSeen = message.status === "seen" || Boolean(message.isRead);
+  const formattedDate = formatUrduDate(message.createdAt);
+  const formattedSeenDate = message.seenAt ? formatUrduDate(message.seenAt) : null;
+  const hasReply = Boolean(message.reply?.text);
+
+  return (
+    <div className="group relative rounded-[20px] bg-[#FBF7F0] border border-[#D8C6AC] hover:border-[#B58A4D] p-4 sm:p-6 shadow-[0_4px_18px_rgba(43,33,24,0.04)] hover:shadow-md transition-all duration-200 space-y-4">
+      <div className="flex flex-col gap-3.5" dir="rtl">
+        {/* Top Meta Row: WhatsApp-like Seen Status + Reply Badge + Date */}
+        <div className="flex flex-wrap items-center justify-between gap-2 text-xs border-b border-[#D8C6AC]/50 pb-3">
+          <div className="flex items-center gap-2">
+            {/* WhatsApp-Style Seen / Unseen Status Badge */}
+            {isSeen ? (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-sky-50 text-sky-800 border border-sky-200 shadow-2xs">
+                {/* Double Blue Ticks (WhatsApp Blue) */}
+                <CheckCheck className="w-4 h-4 text-[#0284c7] shrink-0" />
+                <span className="font-urdu text-xs font-bold">دیکھ لیا گیا</span>
+                <span className="font-sans text-[11px] text-sky-600 font-medium">/ Seen</span>
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200">
+                {/* Double Gray Ticks */}
+                <CheckCheck className="w-4 h-4 text-slate-400 shrink-0" />
+                <span className="font-urdu text-xs">ارسال ہو گیا</span>
+                <span className="font-sans text-[11px] text-slate-400 font-medium">/ Sent</span>
+              </span>
+            )}
+
+            {/* Reply Status Badge */}
+            {hasReply ? (
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-[#E5F2EC] text-[#1E6B47] border border-[#C1DFD1]">
+                <CornerDownLeft className="w-3.5 h-3.5 text-[#1E7F55]" />
+                <span className="font-urdu text-xs">جواب موصول ہوا</span>
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-[#F7EFE4] text-[#7A5328] border border-[#DFC8B2]">
+                <Clock className="w-3.5 h-3.5 text-[#A8793E]" />
+                <span className="font-urdu text-xs">جواب کا انتظار</span>
+              </span>
+            )}
+          </div>
+
+          {/* Submission and Seen Timestamps */}
+          <div className="flex items-center gap-3 text-xs text-[#7A7066]">
+            <div className="flex items-center gap-1.5">
+              <Calendar className="w-3.5 h-3.5 text-[#A8793E]" />
+              <span className="font-urdu text-sm font-medium">{formattedDate}</span>
+            </div>
+            {isSeen && formattedSeenDate && (
+              <span className="text-[11px] text-[#A8793E] font-urdu hidden sm:inline">
+                (دیکھا گیا: {formattedSeenDate})
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* User's Message Box */}
+        <div className="rounded-2xl border-r-4 border-r-[#A8793E] border border-[#D8C6AC]/70 bg-white/90 p-4 sm:p-5 shadow-2xs space-y-2">
+          <div className="flex items-center justify-between text-xs text-[#7A7066] pb-1.5 border-b border-[#D8C6AC]/30">
+            <span className="font-urdu font-bold text-xs text-[#21170F] inline-flex items-center gap-1.5">
+              <MessageSquare className="w-3.5 h-3.5 text-[#A8793E]" />
+              <span>آپ کا پیغام:</span>
+            </span>
+            {message.mobileNumber && (
+              <span className="font-mono text-[11px] text-[#A8793E] tracking-wide" dir="ltr">
+                {message.mobileNumber}
+              </span>
+            )}
+          </div>
+          <p
+            className="font-urdu text-base sm:text-lg text-[#21170F] leading-[2.3] sm:leading-[2.5] tracking-normal whitespace-pre-wrap break-words select-text pt-1"
+            dir="rtl"
+          >
+            {message.message}
+          </p>
+        </div>
+
+        {/* Admin / Mufti Sahab Reply (or Waiting Status) */}
+        {hasReply ? (
+          <div className="rounded-2xl border border-[#C8E5D8] bg-[#EAF5F0] p-4 sm:p-5 space-y-2 shadow-2xs">
+            <div className="flex items-center justify-between border-b border-[#C8E5D8] pb-2">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-lg bg-[#1E7F55] text-white flex items-center justify-center shrink-0 shadow-2xs">
+                  <CornerDownLeft className="w-3.5 h-3.5" />
+                </div>
+                <div>
+                  <span className="font-urdu text-sm sm:text-base font-bold text-[#1E6B47]">
+                    مفتی صاحب / ایڈمن کا جواب
+                  </span>
+                  <div className="flex items-center gap-2 text-xs text-[#1E7F55] font-urdu mt-0.5">
+                    <span>بذریعہ: {message.reply.repliedBy?.name || "مفتی صاحب"}</span>
+                    {message.reply.repliedAt && (
+                      <>
+                        <span>•</span>
+                        <span className="font-sans text-[11px]">{formatUrduDate(message.reply.repliedAt)}</span>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <p
+              className="font-urdu text-base sm:text-lg text-[#21170F] leading-[2.3] sm:leading-[2.5] tracking-normal whitespace-pre-wrap break-words select-text pt-1"
+              dir="rtl"
+            >
+              {message.reply.text}
+            </p>
+          </div>
+        ) : (
+          <div className="bg-[#F7EFE4]/60 rounded-xl border border-[#D8C6AC]/40 p-3 flex items-center gap-2 text-xs text-[#7A7066] font-urdu">
+            <Clock className="w-4 h-4 text-[#A8793E] shrink-0" />
+            <span>آپ کا پیغام موصول ہو چکا ہے۔ جیسے ہی مفتی صاحب جواب تحریر فرمائیں گے، وہ یہاں نظر آئے گا۔</span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 /* ── Profile Overview Information Tile ────────────────────────────────── */
 function InfoCard({ icon: Icon, urduLabel, englishLabel, value }) {
   return (
@@ -628,8 +754,10 @@ export default function MyDetails() {
   // Data states
   const [comments, setComments] = useState([]);
   const [questions, setQuestions] = useState([]);
+  const [messages, setMessages] = useState([]);
   const [loadingC, setLoadingC] = useState(true);
   const [loadingQ, setLoadingQ] = useState(true);
+  const [loadingM, setLoadingM] = useState(true);
   const [errorC, setErrorC] = useState(null);
 
   // Filter state for comments: "all", "article", "fatwa", "book", "question"
@@ -667,7 +795,7 @@ export default function MyDetails() {
   const [editLoading, setEditLoading] = useState(false);
   const [editError, setEditError] = useState("");
 
-  // Fetch comments & questions
+  // Fetch comments & questions & messages
   const loadComments = () => {
     setLoadingC(true);
     setErrorC(null);
@@ -702,10 +830,28 @@ export default function MyDetails() {
       .finally(() => setLoadingQ(false));
   };
 
+  const loadMessages = () => {
+    setLoadingM(true);
+    getMyContacts()
+      .then((d) => {
+        const list = Array.isArray(d?.messages)
+          ? d.messages
+          : Array.isArray(d)
+            ? d
+            : [];
+        setMessages(list);
+      })
+      .catch(() => {
+        setMessages([]);
+      })
+      .finally(() => setLoadingM(false));
+  };
+
   useEffect(() => {
     if (!isAuthenticated) return;
     loadComments();
     loadQuestions();
+    loadMessages();
   }, [isAuthenticated]);
 
   // Reset page when filter changes
@@ -980,9 +1126,11 @@ export default function MyDetails() {
                 ? "میرے تبصرے"
                 : activeTab === "questions"
                   ? "میرے سوالات"
-                  : activeTab === "settings"
-                    ? "اکاؤنٹ کی ترتیبات"
-                    : "پروفائل کا جائزہ"}
+                  : activeTab === "messages"
+                    ? "میرے پیغامات"
+                    : activeTab === "settings"
+                      ? "اکاؤنٹ کی ترتیبات"
+                      : "پروفائل کا جائزہ"}
             </span>
           </div>
 
@@ -1009,7 +1157,7 @@ export default function MyDetails() {
             </div>
           </div>
 
-          {/* All 5 Navigation Menus - Responsive Grid (All items 100% visible) */}
+          {/* All 6 Navigation Menus - Responsive Grid (All items 100% visible) */}
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-3" dir="rtl">
             <button
               type="button"
@@ -1057,6 +1205,25 @@ export default function MyDetails() {
               <span className={activeTab === "questions" || (activeTab === "comments" && activeFilter === "question") ? "text-[#2B2118]" : "text-[#E5C48A]"}>
                 میرے سوالات
               </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab("messages")}
+              className={`px-3 py-2.5 rounded-xl font-urdu text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer ${activeTab === "messages"
+                ? "bg-[#F7F1E8] text-[#2B2118] font-bold shadow-sm border border-[#A8793E]/40"
+                : "bg-black/35 text-[#E5C48A] hover:bg-black/50 hover:text-white border border-[#C49A5A]/35"
+                }`}
+            >
+              <Mail className={`w-4 h-4 shrink-0 ${activeTab === "messages" ? "text-[#A8793E]" : "text-[#C49A5A]"}`} />
+              <span className={activeTab === "messages" ? "text-[#2B2118]" : "text-[#E5C48A]"}>
+                میرے پیغامات
+              </span>
+              {messages.length > 0 && (
+                <span className="px-1.5 py-0.2 rounded-full text-[10px] font-mono font-bold bg-[#A8793E]/30">
+                  {messages.length}
+                </span>
+              )}
             </button>
 
             <button
@@ -1145,6 +1312,28 @@ export default function MyDetails() {
                     }`}
                 />
                 <span>میرے سوالات</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveTab("messages")}
+                className={`w-full flex items-center justify-between px-4 py-3 rounded-xl font-urdu text-base transition-all duration-150 cursor-pointer ${activeTab === "messages"
+                  ? "bg-[#F7F1E8] text-[#2B2118] font-bold shadow-md"
+                  : "text-[#E5C48A] hover:bg-white/10 hover:text-white"
+                  }`}
+              >
+                <div className="flex items-center gap-3">
+                  <Mail
+                    className={`w-5 h-5 ${activeTab === "messages" ? "text-[#A8793E]" : "text-[#C49A5A]"
+                      }`}
+                  />
+                  <span>میرے پیغامات</span>
+                </div>
+                {messages.length > 0 && (
+                  <span className="px-2 py-0.5 rounded-full text-xs font-mono font-bold bg-[#A8793E]/20 text-[#E5C48A]">
+                    {messages.length}
+                  </span>
+                )}
               </button>
 
               <button
@@ -1499,49 +1688,64 @@ export default function MyDetails() {
             {activeTab === "overview" && (
               <div className="space-y-6">
                 {/* Stats Row */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                   {/* Comments count */}
-                  <div className="p-5 rounded-[20px] bg-[#FBF7F0] border border-[#D8C6AC] shadow-xs flex items-center justify-between">
+                  <div className="p-4 sm:p-5 rounded-[20px] bg-[#FBF7F0] border border-[#D8C6AC] shadow-xs flex items-center justify-between">
                     <div>
-                      <p className="font-sans text-3xl font-extrabold text-[#21170F]">
+                      <p className="font-sans text-2xl sm:text-3xl font-extrabold text-[#21170F]">
                         {comments.length}
                       </p>
-                      <p className="font-urdu text-base text-[#5F554B] mt-1" dir="rtl">
+                      <p className="font-urdu text-sm sm:text-base text-[#5F554B] mt-1" dir="rtl">
                         میرے تبصرے
                       </p>
                     </div>
-                    <div className="w-12 h-12 rounded-xl bg-[#EFE4D5] border border-[#D8C6AC] flex items-center justify-center text-[#A8793E]">
-                      <MessageSquare className="w-6 h-6" />
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-[#EFE4D5] border border-[#D8C6AC] flex items-center justify-center text-[#A8793E] shrink-0">
+                      <MessageSquare className="w-5 h-5 sm:w-6 sm:h-6" />
                     </div>
                   </div>
 
                   {/* Questions count */}
-                  <div className="p-5 rounded-[20px] bg-[#FBF7F0] border border-[#D8C6AC] shadow-xs flex items-center justify-between">
+                  <div className="p-4 sm:p-5 rounded-[20px] bg-[#FBF7F0] border border-[#D8C6AC] shadow-xs flex items-center justify-between">
                     <div>
-                      <p className="font-sans text-3xl font-extrabold text-[#21170F]">
+                      <p className="font-sans text-2xl sm:text-3xl font-extrabold text-[#21170F]">
                         {questions.length}
                       </p>
-                      <p className="font-urdu text-base text-[#5F554B] mt-1" dir="rtl">
+                      <p className="font-urdu text-sm sm:text-base text-[#5F554B] mt-1" dir="rtl">
                         میرے سوالات
                       </p>
                     </div>
-                    <div className="w-12 h-12 rounded-xl bg-[#EFE4D5] border border-[#D8C6AC] flex items-center justify-center text-[#2C4A73]">
-                      <HelpCircle className="w-6 h-6" />
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-[#EFE4D5] border border-[#D8C6AC] flex items-center justify-center text-[#2C4A73] shrink-0">
+                      <HelpCircle className="w-5 h-5 sm:w-6 sm:h-6" />
+                    </div>
+                  </div>
+
+                  {/* Messages count */}
+                  <div className="p-4 sm:p-5 rounded-[20px] bg-[#FBF7F0] border border-[#D8C6AC] shadow-xs flex items-center justify-between">
+                    <div>
+                      <p className="font-sans text-2xl sm:text-3xl font-extrabold text-[#21170F]">
+                        {messages.length}
+                      </p>
+                      <p className="font-urdu text-sm sm:text-base text-[#5F554B] mt-1" dir="rtl">
+                        میرے پیغامات
+                      </p>
+                    </div>
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-[#EFE4D5] border border-[#D8C6AC] flex items-center justify-center text-[#A8793E] shrink-0">
+                      <Mail className="w-5 h-5 sm:w-6 sm:h-6" />
                     </div>
                   </div>
 
                   {/* Total Actions */}
-                  <div className="p-5 rounded-[20px] bg-[#FBF7F0] border border-[#D8C6AC] shadow-xs flex items-center justify-between">
+                  <div className="p-4 sm:p-5 rounded-[20px] bg-[#FBF7F0] border border-[#D8C6AC] shadow-xs flex items-center justify-between">
                     <div>
-                      <p className="font-sans text-3xl font-extrabold text-[#21170F]">
-                        {comments.length + questions.length}
+                      <p className="font-sans text-2xl sm:text-3xl font-extrabold text-[#21170F]">
+                        {comments.length + questions.length + messages.length}
                       </p>
-                      <p className="font-urdu text-base text-[#5F554B] mt-1" dir="rtl">
+                      <p className="font-urdu text-sm sm:text-base text-[#5F554B] mt-1" dir="rtl">
                         کل سرگرمیاں
                       </p>
                     </div>
-                    <div className="w-12 h-12 rounded-xl bg-[#EFE4D5] border border-[#D8C6AC] flex items-center justify-center text-[#1E7F55]">
-                      <Activity className="w-6 h-6" />
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-[#EFE4D5] border border-[#D8C6AC] flex items-center justify-center text-[#1E7F55] shrink-0">
+                      <Activity className="w-5 h-5 sm:w-6 sm:h-6" />
                     </div>
                   </div>
                 </div>
@@ -1642,7 +1846,29 @@ export default function MyDetails() {
               </div>
             )}
 
-            {/* ─── TAB 4: SETTINGS (اکاؤنٹ کی ترتیبات) ─── */}
+            {/* ─── TAB 4: MY MESSAGES (میرے پیغامات) ─── */}
+            {activeTab === "messages" && (
+              <div className="space-y-4">
+                {loadingM ? (
+                  <SkeletonCards count={3} />
+                ) : messages.length === 0 ? (
+                  <EmptyState
+                    title="ابھی کوئی پیغام موجود نہیں"
+                    description="آپ نے ابھی تک کوئی پیغام ارسال نہیں کیا ہے۔ آپ رابطہ صفحہ کے ذریعے مفتی صاحب کو براہِ راست پیغام بھیج سکتے ہیں۔"
+                    actionText="پیغام بھیجیں"
+                    actionLink="/contact"
+                  />
+                ) : (
+                  <div className="space-y-4">
+                    {messages.map((m) => (
+                      <UserMessageCard key={m._id} message={m} />
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* ─── TAB 5: SETTINGS (اکاؤنٹ کی ترتیبات) ─── */}
             {activeTab === "settings" && (
               <div className="space-y-6">
                 <div className="rounded-[22px] bg-[#FBF7F0] border border-[#D8C6AC] p-6 shadow-xs space-y-4" dir="rtl">

@@ -29,7 +29,8 @@ export default function AnimatedFeatureCard({
     <div className="h-full">
       <Link
         to={to}
-        className="group block h-full select-none transition-transform duration-300 ease-out hover:-translate-y-2"
+        aria-label={title}
+        className="group block h-full select-none transition-transform duration-300 ease-out hover:-translate-y-2 cursor-pointer no-underline focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[#A8793E] focus-visible:ring-offset-2 rounded-[26px] sm:rounded-[28px]"
       >
         {/* Main Card Shell */}
         <div className="relative h-full overflow-hidden rounded-[26px] sm:rounded-[28px] border-2 border-[#A8793E]/45 bg-gradient-to-b from-[#FFFDF9] via-[#FAF3EA] to-[#F3E7D7] shadow-[0_6px_20px_rgba(43,33,24,0.07),0_2px_6px_rgba(168,121,62,0.05)] transition-all duration-300 ease-out group-hover:border-[#A8793E] group-hover:shadow-[0_16px_36px_rgba(43,33,24,0.15),0_4px_12px_rgba(168,121,62,0.12)] flex flex-col">

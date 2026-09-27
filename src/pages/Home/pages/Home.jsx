@@ -19,6 +19,8 @@ import {
   Music,
   Feather,
   Video,
+  GraduationCap,
+  BookMarked,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -85,26 +87,28 @@ function SectionHeading({ title, linkTo, linkLabel }) {
     </div>
   );
 }
-// Statistics Counter Section Component (Matching Reference Mockup - Compact & Full Width)
+// Statistics / Categories Quick Access Section (Compact & Proportional Islamic Cards)
 function StatisticsSection({ stats }) {
   return (
-    <section className="py-3 sm:py-4.5 bg-background border-b border-border relative select-none">
-      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="py-2.5 sm:py-3.5 bg-background border-b border-border relative select-none">
+      <div className="w-full max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
         {/* Outer Warm Beige Islamic Panel Frame */}
-        <div className="bg-[#F7F1E8] rounded-2xl sm:rounded-3xl border border-[#A8793E]/40 p-2.5 sm:p-3.5 lg:p-4 shadow-[0_4px_16px_rgba(43,33,24,0.06)]">
+        <div className="bg-[#F7F1E8] rounded-xl sm:rounded-2xl border border-[#A8793E]/40 p-2 sm:p-3 lg:p-4 shadow-[0_2px_8px_rgba(43,33,24,0.05)]">
 
-          {/* 4 Cards Grid: 2x2 on mobile, 4-col on desktop */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 lg:gap-3.5">
+          {/* 6 Cards Grid: 3 cards per line on mobile, 3 on tablet, 6 on desktop */}
+          <div className="grid grid-cols-3 lg:grid-cols-6 gap-1.5 sm:gap-2.5 lg:gap-3 w-full">
             {stats.map((stat, index) => {
               const Icon = stat.icon;
               return (
-                <div
+                <Link
                   key={index}
-                  className="relative bg-[#F7F1E8] rounded-xl sm:rounded-2xl border border-[#A8793E]/35 p-2.5 sm:py-3.5 sm:px-3 lg:py-4 lg:px-4 flex flex-col items-center justify-center text-center shadow-[0_2px_6px_rgba(43,33,24,0.04)] hover:shadow-[0_4px_12px_rgba(43,33,24,0.09)] hover:border-[#A8793E] transition-all duration-300 group overflow-hidden"
+                  to={stat.to}
+                  aria-label={stat.ariaLabel || `${stat.label}${stat.value ? ` (${stat.value}+)` : ''}`}
+                  className="relative bg-[#F7F1E8] rounded-lg sm:rounded-xl border border-[#A8793E]/30 py-2.5 px-1 sm:py-3.5 sm:px-2.5 min-h-[105px] sm:min-h-[125px] h-full flex flex-col items-center justify-center text-center shadow-[0_1px_4px_rgba(43,33,24,0.03)] hover:shadow-[0_4px_12px_rgba(43,33,24,0.09)] hover:border-[#A8793E] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 group overflow-hidden cursor-pointer no-underline focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[#A8793E] focus-visible:ring-offset-1 w-full"
                 >
                   {/* Top-Left Subtle Islamic Lattice Accent */}
                   <svg
-                    className="absolute top-0 left-0 w-12 h-12 sm:w-14 sm:h-14 text-[#A8793E] opacity-20 pointer-events-none select-none z-0"
+                    className="absolute top-0 left-0 w-6 h-6 sm:w-8 sm:h-8 text-[#A8793E] opacity-20 pointer-events-none select-none z-0"
                     viewBox="0 0 60 60"
                     fill="none"
                     stroke="currentColor"
@@ -118,28 +122,31 @@ function StatisticsSection({ stats }) {
                   </svg>
 
                   {/* Dark Brown Circle Badge with Light Outer Ring */}
-                  <div className="relative z-10 w-9 h-9 sm:w-10 sm:h-10 lg:w-11 lg:h-11 rounded-full bg-[#2B2118] text-[#F7F1E8] flex items-center justify-center ring-3 sm:ring-4 ring-[#F3E3D8] border border-[#A8793E]/60 shadow-[0_2px_6px_rgba(43,33,24,0.15)] mb-1.5 sm:mb-2 transition-transform duration-300 group-hover:scale-105 shrink-0">
-                    <Icon className="w-4 h-4 sm:w-4.5 sm:h-4.5 lg:w-5 lg:h-5 text-[#F7F1E8]" />
+                  <div className="relative z-10 w-7 h-7 sm:w-8 sm:h-8 lg:w-8.5 lg:h-8.5 rounded-full bg-[#2B2118] text-[#F7F1E8] flex items-center justify-center ring-2 ring-[#F3E3D8] border border-[#A8793E]/60 shadow-[0_1px_3px_rgba(43,33,24,0.12)] mb-1 transition-transform duration-200 group-hover:scale-105 shrink-0">
+                    <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#F7F1E8]" />
                   </div>
 
-                  {/* Prominent Number */}
-                  <div className="relative z-10 text-xl sm:text-2xl lg:text-[26px] font-extrabold text-[#2A211A] leading-none mb-1 tracking-tight flex items-center justify-center">
-                    <span>{stat.value}</span>
-                    <span className="text-[#A8793E] font-bold text-base sm:text-lg lg:text-xl ms-0.5 select-none leading-none">
-                      +
-                    </span>
-                  </div>
+                  {/* Number Counter (+48, +35, etc.) */}
+                  {stat.value !== undefined && stat.value !== null && stat.value !== "" && (
+                    <div
+                      className="relative z-10 flex items-center justify-center gap-0.5 font-sans font-bold text-[#2B2118] text-sm sm:text-base lg:text-lg leading-none my-0.5 select-none"
+                      dir="ltr"
+                    >
+                      <span className="text-[#A8793E] font-bold text-xs sm:text-sm leading-none">+</span>
+                      <span>{stat.value}</span>
+                    </div>
+                  )}
 
-                  {/* Urdu Label */}
-                  <p className="relative z-10 text-xs sm:text-[13px] font-bold text-[#2A211A] leading-snug mb-1.5">
+                  {/* Section Urdu Title */}
+                  <p className="relative z-10 font-urdu text-[11px] min-[360px]:text-xs sm:text-sm lg:text-[14px] font-bold text-[#2A211A] leading-tight tracking-wide mb-1 transition-colors duration-200 group-hover:text-[#A8793E] max-w-full px-0.5">
                     {stat.label}
                   </p>
 
                   {/* Under-Card Flourish with 8-Petal Rosette */}
-                  <div className="relative z-10 flex items-center justify-center gap-1.5 w-full select-none pointer-events-none opacity-80">
-                    <span className="h-[1px] w-5 sm:w-6 bg-gradient-to-r from-transparent to-[#A8793E]/70" />
+                  <div className="relative z-10 flex items-center justify-center gap-0.5 sm:gap-1 w-full select-none pointer-events-none opacity-75 mt-0.5">
+                    <span className="h-[1px] w-2 sm:w-3.5 lg:w-4.5 bg-gradient-to-r from-transparent to-[#A8793E]/70" />
                     <svg
-                      className="w-3 h-3 text-[#A8793E] shrink-0"
+                      className="w-2 h-2 sm:w-2.5 sm:h-2.5 text-[#A8793E] shrink-0"
                       viewBox="0 0 24 24"
                       fill="none"
                       stroke="currentColor"
@@ -149,10 +156,10 @@ function StatisticsSection({ stats }) {
                       <path d="M12 2 L12 22 M2 12 L22 12 M5 5 L19 19 M5 19 L19 5" strokeWidth="1" />
                       <circle cx="12" cy="12" r="7" strokeWidth="0.75" strokeDasharray="1 2" />
                     </svg>
-                    <span className="h-[1px] w-5 sm:w-6 bg-gradient-to-l from-transparent to-[#A8793E]/70" />
+                    <span className="h-[1px] w-2 sm:w-3.5 lg:w-4.5 bg-gradient-to-l from-transparent to-[#A8793E]/70" />
                   </div>
 
-                </div>
+                </Link>
               );
             })}
           </div>
@@ -247,8 +254,16 @@ export default function Home() {
   const getCountValue = (key, fallbackKey) => {
     if (counts && counts[key] !== undefined && counts[key] !== null) return counts[key];
     if (fallbackKey && counts && counts[fallbackKey] !== undefined && counts[fallbackKey] !== null) return counts[fallbackKey];
+    if (key === "questions") {
+      const qTotal = questionsData?.totalQuestions ?? questionsData?.total ?? (Array.isArray(questionsData?.questions) ? questionsData.questions.length : null);
+      if (qTotal !== null && qTotal !== undefined) return qTotal;
+    }
+    if (key === "events") {
+      const eTotal = Array.isArray(eventsData) ? eventsData.length : (eventsData?.events?.length ?? eventsData?.total ?? null);
+      if (eTotal !== null && eTotal !== undefined) return eTotal;
+    }
     if (isLoadingCounts) return "...";
-    return 0;
+    return null;
   };
 
   const stats = [
@@ -256,21 +271,43 @@ export default function Home() {
       value: getCountValue("fatwas"),
       label: language === "en" ? "Fatwas" : "فتاویٰ",
       icon: Feather,
+      to: "/fatwas",
+      ariaLabel: language === "en" ? "View all Fatwas" : "شرعی فتاویٰ",
     },
     {
       value: getCountValue("articles"),
       label: language === "en" ? "Articles" : "مقالات",
       icon: Users,
+      to: "/articles",
+      ariaLabel: language === "en" ? "View all Articles" : "علمی مقالات",
     },
     {
       value: getCountValue("books", "publications"),
       label: language === "en" ? "Publications" : "مطبوعات",
       icon: BookOpen,
+      to: "/publications",
+      ariaLabel: language === "en" ? "View all Publications" : "کتب و مطبوعات",
     },
     {
       value: getCountValue("lectures"),
       label: language === "en" ? "Lectures" : "بیانات",
       icon: Video,
+      to: "/lectures",
+      ariaLabel: language === "en" ? "View all Lectures" : "آڈیو و ویڈیو بیانات",
+    },
+    {
+      value: getCountValue("questions"),
+      label: language === "en" ? "Q&A" : "سوال و جواب",
+      icon: HelpCircle,
+      to: "/qa",
+      ariaLabel: language === "en" ? "View all Questions and Answers" : "سوالات و جوابات",
+    },
+    {
+      value: getCountValue("events"),
+      label: language === "en" ? "Events" : "پروگرام",
+      icon: Calendar,
+      to: "/events",
+      ariaLabel: language === "en" ? "View all Events and Programs" : "پروگرام اور اجتماعات",
     },
   ];
 
@@ -297,8 +334,8 @@ export default function Home() {
 
   const FEATURES = [
     {
-      icon: BookOpen,
-      title: language === "en" ? "Articles" : "مقالات",
+      icon: GraduationCap,
+      title: language === "en" ? "Articles" : "علمی مقالات",
       description:
         language === "en"
           ? "Research-based Islamic articles covering Quran, Hadith, Fiqh, beliefs, contemporary issues, and educational topics."
@@ -311,26 +348,44 @@ export default function Home() {
       description:
         language === "en"
           ? "Authentic Islamic rulings and jurisprudential guidance based on the Quran, Sunnah, and reliable scholarship."
-          : "قرآن، سنت اور معتبر فقہی مصادر کی روشنی میں مستند فقہی مسائل اور فتاویٰ۔",
+          : "قرآن، سنت اور معتبر فقہی مصادر کی روشنی میں مستند فقہی رہنمائی اور فتاویٰ۔",
       to: "/fatwas",
     },
     {
-      icon: BookOpen,
-      title: language === "en" ? "Books" : "کتابیں",
+      icon: BookMarked,
+      title: language === "en" ? "Publications" : "کتب و مطبوعات",
       description:
         language === "en"
-          ? "Read and download books on various topics."
-          : "مختلف موضوعات پر مشتمل کتابوں کا مطالعہ کریں اور ڈاؤن لوڈ کریں۔",
+          ? "Read and download scholarly books and publications on various educational and Islamic topics."
+          : "مفتی صاحب اور اکابرین کی مختلف علمی، اصلاحی اور تحقیقی کتب کا مطالعہ اور ڈاؤن لوڈ۔",
       to: "/publications",
     },
     {
-      icon: Users,
+      icon: HelpCircle,
       title: language === "en" ? "Questions & Answers" : "سوال و جواب",
       description:
         language === "en"
           ? "Find answers to frequently asked Islamic questions and benefit from authentic guidance."
-          : "اسلامی مسائل سے متعلق سوالات کے مستند جوابات اور رہنمائی حاصل کریں۔",
+          : "عوامی دینی و فقہی سوالات کے مدلل و مستند جوابات اور آن لائن شرعی استفسار کی سہولت۔",
       to: "/qa",
+    },
+    {
+      icon: Video,
+      title: language === "en" ? "Lectures & Sermons" : "آڈیو و ویڈیو بیانات",
+      description:
+        language === "en"
+          ? "Listen to inspiring lectures, Friday sermons, and discourses on spiritual, moral, and social guidance."
+          : "اصلاحِ باطن، اخلاق و معاملات اور معارفِ شریعت پر مشتمل فکر انگیز صوتی و بصری خطبات۔",
+      to: "/lectures",
+    },
+    {
+      icon: Calendar,
+      title: language === "en" ? "Events & Programs" : "پروگرام اور اجتماعات",
+      description:
+        language === "en"
+          ? "Stay informed about upcoming conferences, educational seminars, and religious gatherings."
+          : "جامعہ اور ادارے کے زیر اہتمام منعقد ہونے والے اہم سیمینارز، علمی دروس اور دینی اجتماعات۔",
+      to: "/events",
     },
   ];
 
@@ -362,8 +417,8 @@ export default function Home() {
           </p>
         </div>
 
-        {/* Desktop View: Grid */}
-        <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Desktop View: Grid (3 columns x 2 rows for 6 cards) */}
+        <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-7">
           {FEATURES.map((feature, idx) => (
             <div key={feature.title}>
               <AnimatedFeatureCard

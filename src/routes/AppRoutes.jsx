@@ -53,6 +53,7 @@ const ManageSettings = lazy(() => import('../pages/Admin/pages/ManageSettings'))
 const ManageUsers = lazy(() => import('../pages/Admin/pages/ManageUsers'));
 const ManageComments = lazy(() => import('../pages/Admin/pages/ManageComments'));
 const ManageNotifications = lazy(() => import('../pages/Admin/pages/ManageNotifications'));
+const ManageMessages = lazy(() => import('../pages/Admin/pages/ManageMessages'));
 
 export default function AppRoutes() {
   return (
@@ -107,6 +108,7 @@ export default function AppRoutes() {
             <Route path="/admin/publications" element={<ManagePublications />} />
             <Route path="/admin/lectures" element={<ManageLectures />} />
             <Route path="/admin/events" element={<ManageEvents />} />
+            <Route path="/admin/messages" element={<ManageMessages />} />
             <Route path="/admin/settings" element={<ManageSettings />} />
             <Route path="/admin/users" element={<ManageUsers />} />
             <Route path="/admin/comments" element={<ManageComments />} />

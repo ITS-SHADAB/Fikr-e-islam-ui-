@@ -20,6 +20,7 @@ import {
   ChevronLeft,
   Bell,
   MessageSquare,
+  Mail,
 } from "lucide-react";
 import { logout } from "@/store/slices/authSlice";
 import { logoutUser } from "@/services";
@@ -36,6 +37,7 @@ const NAV_LINKS = [
   { to: "/admin/publications", label: "مطبوعات", icon: BookOpen },
   { to: "/admin/lectures", label: "بیانات", icon: Mic },
   { to: "/admin/events", label: "پروگرامات", icon: CalendarDays },
+  { to: "/admin/messages", label: "پیغامات", icon: Mail },
   { to: "/admin/users", label: "صارفین", icon: Users },
   { to: "/admin/comments", label: "تبصرے", icon: MessageSquare },
   { to: "/admin/notifications", label: "اطلاعات (نوٹیفیکیشنز)", icon: Bell },
