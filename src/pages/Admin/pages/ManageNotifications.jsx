@@ -22,6 +22,12 @@ import {
   Lock,
   Check,
   Loader2,
+  Trash2,
+  ChevronLeft,
+  ChevronRight,
+  CheckSquare,
+  Square,
+  History,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import {
@@ -29,12 +35,16 @@ import {
   getAdminNotificationStats,
   getAdminNotificationCampaigns,
   getAdminNotificationCampaign,
+  deleteAdminNotificationCampaign,
+  bulkDeleteAdminNotificationCampaigns,
+  cleanupAdminNotificationHistory,
   getAdminUsers,
   getAdminQuestions,
   getArticles,
   getFatwas,
   getPublications,
 } from "@/services";
+import { ConfirmationBox } from "@/components";
 import { useSettings } from "@/hooks/useSettings";
 
 /* ─── Type Icons & Badges ─── */
@@ -127,6 +137,23 @@ export default function ManageNotifications() {
   const [historyError, setHistoryError] = useState(null);
   const [searchFilter, setSearchFilter] = useState("");
   const [audienceFilter, setAudienceFilter] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+  const [totalCount, setTotalCount] = useState(0);
+  const [selectedIds, setSelectedIds] = useState([]);
+  const [retentionDays, setRetentionDays] = useState(90);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  // ─── Confirmation Dialog State ───
+  const [confirmDialog, setConfirmDialog] = useState({
+    isOpen: false,
+    title: "",
+    message: "",
+    onConfirm: null,
+    type: "danger",
+    confirmText: "",
+    cancelText: "",
+  });
 
   // ─── Selected Campaign for Details Modal ───
   const [selectedCampaign, setSelectedCampaign] = useState(null);
@@ -179,27 +206,29 @@ export default function ManageNotifications() {
   }, [isUrdu]);
 
   /**
-   * Fetch Campaign History
+   * Fetch Campaign History (with pagination)
    */
-  const loadHistory = useCallback(async () => {
+  const loadHistory = useCallback(async (pageToLoad = currentPage) => {
     try {
       setHistoryLoading(true);
       setHistoryError(null);
-      const res = await getAdminNotificationCampaigns();
+      const res = await getAdminNotificationCampaigns({ page: pageToLoad, limit: pageSize });
       const list = Array.isArray(res?.data) ? res.data : [];
       setCampaigns(list);
+      setTotalCount(typeof res?.total === "number" ? res.total : list.length);
+      setSelectedIds([]);
     } catch (err) {
       console.warn("Load notification history failed:", err);
       setHistoryError(err.response?.data?.message || (isUrdu ? "ہسٹری حاصل نہیں ہو سکی" : "Failed to load history"));
     } finally {
       setHistoryLoading(false);
     }
-  }, [isUrdu]);
+  }, [currentPage, pageSize, isUrdu]);
 
   useEffect(() => {
     loadStats();
-    loadHistory();
-  }, [loadStats, loadHistory]);
+    loadHistory(currentPage);
+  }, [loadStats, loadHistory, currentPage]);
 
   // Close dropdowns on click outside & cleanup timers on unmount
   useEffect(() => {
@@ -458,6 +487,176 @@ export default function ManageNotifications() {
       return titleMatch || msgMatch || recipientMatch;
     });
   }, [campaigns, audienceFilter, searchFilter]);
+
+  const visibleIds = useMemo(() => filteredCampaigns.map((c) => c._id), [filteredCampaigns]);
+  const isAllSelected = visibleIds.length > 0 && visibleIds.every((id) => selectedIds.includes(id));
+
+  /**
+   * Delete single notification campaign
+   */
+  const handleDeleteSingle = (campaign) => {
+    if (!campaign?._id) return;
+    setConfirmDialog({
+      isOpen: true,
+      title: isUrdu ? "نوٹیفیکیشن حذف کریں" : "Delete Notification",
+      message: isUrdu
+        ? `کیا آپ واقعی اس نوٹیفیکیشن "${campaign.title}" کو حذف کرنا چاہتے ہیں؟ یہ عمل واپس نہیں لیا جا سکتا۔`
+        : `Are you sure you want to delete the notification "${campaign.title}"? This action cannot be undone.`,
+      type: "danger",
+      confirmText: isUrdu ? "ہاں، حذف کریں" : "Yes, Delete",
+      cancelText: isUrdu ? "منسوخ کریں" : "Cancel",
+      onConfirm: async () => {
+        try {
+          setIsDeleting(true);
+          await deleteAdminNotificationCampaign(campaign._id);
+          toast.success(
+            isUrdu ? "نوٹیفیکیشن کامیابی سے حذف کر دیا گیا" : "Notification deleted successfully"
+          );
+          setConfirmDialog((prev) => ({ ...prev, isOpen: false }));
+
+          // Pagination safety: check if page becomes empty
+          const newTotal = Math.max(0, totalCount - 1);
+          const maxPage = Math.max(1, Math.ceil(newTotal / pageSize));
+          const targetPage = currentPage > maxPage ? maxPage : currentPage;
+          if (targetPage !== currentPage) {
+            setCurrentPage(targetPage);
+          } else {
+            loadHistory(currentPage);
+          }
+          loadStats();
+        } catch (err) {
+          console.error("Delete campaign error:", err);
+          toast.error(
+            err.response?.data?.message ||
+              (isUrdu ? "نوٹیفیکیشن حذف کرنے میں ناکامی" : "Failed to delete notification")
+          );
+        } finally {
+          setIsDeleting(false);
+        }
+      },
+    });
+  };
+
+  /**
+   * Bulk delete selected notification campaigns
+   */
+  const handleBulkDelete = () => {
+    if (selectedIds.length === 0) return;
+    const count = selectedIds.length;
+    setConfirmDialog({
+      isOpen: true,
+      title: isUrdu ? "منتخب شدہ نوٹیفیکیشنز حذف کریں" : "Delete Selected Notifications",
+      message: isUrdu
+        ? `کیا آپ واقعی ${count} منتخب شدہ نوٹیفیکیشنز کو حذف کرنا چاہتے ہیں؟ یہ عمل واپس نہیں لیا جا سکتا۔`
+        : `Are you sure you want to delete ${count} selected notifications? This action cannot be undone.`,
+      type: "danger",
+      confirmText: isUrdu ? `ہاں، سب ${count} حذف کریں` : `Delete ${count} Items`,
+      cancelText: isUrdu ? "منسوخ کریں" : "Cancel",
+      onConfirm: async () => {
+        try {
+          setIsDeleting(true);
+          const res = await bulkDeleteAdminNotificationCampaigns(selectedIds);
+          const deletedCount = res?.deletedCount ?? count;
+          toast.success(
+            isUrdu
+              ? `${deletedCount} نوٹیفیکیشنز کامیابی سے حذف کر دیے گئے`
+              : `Successfully deleted ${deletedCount} notifications`
+          );
+          setConfirmDialog((prev) => ({ ...prev, isOpen: false }));
+          setSelectedIds([]);
+
+          // Pagination safety
+          const newTotal = Math.max(0, totalCount - deletedCount);
+          const maxPage = Math.max(1, Math.ceil(newTotal / pageSize));
+          const targetPage = currentPage > maxPage ? maxPage : currentPage;
+          if (targetPage !== currentPage) {
+            setCurrentPage(targetPage);
+          } else {
+            loadHistory(currentPage);
+          }
+          loadStats();
+        } catch (err) {
+          console.error("Bulk delete campaigns error:", err);
+          toast.error(
+            err.response?.data?.message ||
+              (isUrdu ? "منتخب شدہ نوٹیفیکیشنز حذف کرنے میں ناکامی" : "Failed to delete selected notifications")
+          );
+        } finally {
+          setIsDeleting(false);
+        }
+      },
+    });
+  };
+
+  /**
+   * Retention cleanup old notifications
+   */
+  const handleCleanupHistory = () => {
+    setConfirmDialog({
+      isOpen: true,
+      title: isUrdu
+        ? `${retentionDays} دن سے پرانی تاریخ صاف کریں`
+        : `Delete Notifications Older Than ${retentionDays} Days`,
+      message: isUrdu
+        ? `کیا آپ واقعی وہ تمام نوٹیفیکیشنز اور ہسٹری حذف کرنا چاہتے ہیں جو ${retentionDays} دنوں سے پرانی ہیں؟ یہ عمل مستقل ہے اور اسے واپس نہیں لیا جا سکتا۔`
+        : `Are you sure you want to delete all notifications older than ${retentionDays} days? This action cannot be undone.`,
+      type: "danger",
+      confirmText: isUrdu ? "ہاں، ہسٹری صاف کریں" : `Cleanup Older Than ${retentionDays} Days`,
+      cancelText: isUrdu ? "منسوخ کریں" : "Cancel",
+      onConfirm: async () => {
+        try {
+          setIsDeleting(true);
+          const res = await cleanupAdminNotificationHistory(retentionDays);
+          const deletedCampaigns = res?.deletedCampaigns ?? 0;
+          if (deletedCampaigns > 0) {
+            toast.success(
+              isUrdu
+                ? `${deletedCampaigns} پرانی نوٹیفیکیشنز کامیابی سے صاف کر دی گئیں`
+                : `${deletedCampaigns} old notifications deleted successfully.`
+            );
+          } else {
+            toast(
+              isUrdu
+                ? `${retentionDays} دنوں سے پرانی کوئی نوٹیفیکیشن نہیں ملی`
+                : `No notifications older than ${retentionDays} days were found.`,
+              { icon: "ℹ️" }
+            );
+          }
+          setConfirmDialog((prev) => ({ ...prev, isOpen: false }));
+          setSelectedIds([]);
+          setCurrentPage(1);
+          loadHistory(1);
+          loadStats();
+        } catch (err) {
+          console.error("Cleanup history error:", err);
+          toast.error(
+            err.response?.data?.message ||
+              (isUrdu ? "ہسٹری صاف کرنے میں ناکامی" : "Failed to cleanup notification history")
+          );
+        } finally {
+          setIsDeleting(false);
+        }
+      },
+    });
+  };
+
+  /**
+   * Checkbox Selection Handlers
+   */
+  const handleToggleSelectAll = () => {
+    if (visibleIds.length === 0) return;
+    if (isAllSelected) {
+      setSelectedIds((prev) => prev.filter((id) => !visibleIds.includes(id)));
+    } else {
+      setSelectedIds((prev) => Array.from(new Set([...prev, ...visibleIds])));
+    }
+  };
+
+  const handleToggleSelectOne = (id) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-12" dir={isUrdu ? "rtl" : "ltr"}>
@@ -990,7 +1189,7 @@ export default function ManageNotifications() {
       {/* ── TAB 2: CAMPAIGN HISTORY ── */}
       {activeTab === "history" && (
         <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-4">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3 pb-3 border-b border-slate-100">
             <div>
               <h2 className="text-base font-bold text-slate-800">
                 {isUrdu ? "ارسال کردہ نوٹیفیکیشنز کی تاریخ" : "Broadcast Campaigns History"}
@@ -1000,10 +1199,56 @@ export default function ManageNotifications() {
               </p>
             </div>
 
-            {/* Filters */}
-            <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+            {/* Controls Row: Bulk Delete, Retention Cleanup, Search, Filters */}
+            <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto">
+              {/* Bulk Delete Button (Only visible when items are selected) */}
+              {selectedIds.length > 0 && (
+                <button
+                  type="button"
+                  onClick={handleBulkDelete}
+                  disabled={isDeleting}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer animate-in fade-in"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>
+                    {isUrdu
+                      ? `${selectedIds.length} منتخب شدہ حذف کریں`
+                      : `Delete Selected (${selectedIds.length})`}
+                  </span>
+                </button>
+              )}
+
+              {/* Retention Cleanup Control */}
+              <div className="inline-flex items-center bg-slate-50 border border-slate-200 rounded-xl p-0.5 text-xs">
+                <span className="px-2 text-slate-500 hidden sm:inline font-medium">
+                  {isUrdu ? "پرانی صفائی:" : "Cleanup:"}
+                </span>
+                <select
+                  value={retentionDays}
+                  onChange={(e) => setRetentionDays(Number(e.target.value))}
+                  className="bg-transparent px-2 py-1 text-xs text-slate-700 font-semibold focus:outline-none cursor-pointer"
+                  title={isUrdu ? "حذف کرنے کی مدت منتخب کریں" : "Select retention period"}
+                >
+                  <option value={30}>{isUrdu ? "30 دن پرانی" : "Older than 30d"}</option>
+                  <option value={60}>{isUrdu ? "60 دن پرانی" : "Older than 60d"}</option>
+                  <option value={90}>{isUrdu ? "90 دن پرانی" : "Older than 90d"}</option>
+                  <option value={180}>{isUrdu ? "180 دن پرانی" : "Older than 180d"}</option>
+                  <option value={365}>{isUrdu ? "365 دن (1 سال)" : "Older than 1 year"}</option>
+                </select>
+                <button
+                  type="button"
+                  onClick={handleCleanupHistory}
+                  disabled={isDeleting}
+                  title={isUrdu ? "منتخب مدت سے پرانی نوٹیفیکیشنز حذف کریں" : `Delete notifications older than ${retentionDays} days`}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 bg-amber-50 hover:bg-amber-600 hover:text-white text-amber-700 border border-amber-200 hover:border-amber-600 rounded-lg text-xs font-bold transition-colors cursor-pointer"
+                >
+                  <History className="w-3.5 h-3.5" />
+                  <span>{isUrdu ? "صاف کریں" : "Clean"}</span>
+                </button>
+              </div>
+
               {/* Search */}
-              <div className="relative flex-1 sm:w-56">
+              <div className="relative flex-1 sm:w-48">
                 <input
                   type="text"
                   value={searchFilter}
@@ -1045,8 +1290,8 @@ export default function ManageNotifications() {
               <p className="text-xs text-slate-600">{historyError}</p>
               <button
                 type="button"
-                onClick={loadHistory}
-                className="px-3 py-1.5 bg-[#A8793E] text-white rounded-lg text-xs font-bold"
+                onClick={() => loadHistory(currentPage)}
+                className="px-3 py-1.5 bg-[#A8793E] text-white rounded-lg text-xs font-bold cursor-pointer"
               >
                 {isUrdu ? "دوبارہ کوشش کریں" : "Try Again"}
               </button>
@@ -1074,13 +1319,27 @@ export default function ManageNotifications() {
               <table className="w-full text-right text-xs border-collapse" dir={isUrdu ? "rtl" : "ltr"}>
                 <thead>
                   <tr className="border-b border-slate-200 bg-slate-50/75 text-slate-500 font-bold">
+                    <th className="py-3 px-3 text-center w-10">
+                      <button
+                        type="button"
+                        onClick={handleToggleSelectAll}
+                        title={isUrdu ? "سب منتخب کریں" : "Select All"}
+                        className="text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
+                      >
+                        {isAllSelected ? (
+                          <CheckSquare className="w-4 h-4 text-[#A8793E]" />
+                        ) : (
+                          <Square className="w-4 h-4" />
+                        )}
+                      </button>
+                    </th>
                     <th className="py-3 px-3.5 text-right">{isUrdu ? "عنوان و پیغام" : "Notification"}</th>
                     <th className="py-3 px-3 text-center">{isUrdu ? "مخاطب" : "Audience"}</th>
                     <th className="py-3 px-3 text-center">{isUrdu ? "ارسال شدہ" : "Sent"}</th>
                     <th className="py-3 px-3 text-center">{isUrdu ? "پڑھا گیا" : "Read"}</th>
                     <th className="py-3 px-3 text-center">{isUrdu ? "پڑھنے کی شرح" : "Read Rate"}</th>
                     <th className="py-3 px-3 text-center">{isUrdu ? "تاریخ" : "Date"}</th>
-                    <th className="py-3 px-3 text-center">{isUrdu ? "تفصیلات" : "Action"}</th>
+                    <th className="py-3 px-3 text-center">{isUrdu ? "کارروائی" : "Actions"}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -1088,9 +1347,30 @@ export default function ManageNotifications() {
                     const aud = AUDIENCE_CONFIG[c.audience] || AUDIENCE_CONFIG.everyone;
                     const typeCfg = TYPE_CONFIG[c.type] || TYPE_CONFIG.general;
                     const TypeIcon = typeCfg.icon;
+                    const isSelected = selectedIds.includes(c._id);
 
                     return (
-                      <tr key={c._id} className="hover:bg-slate-50/80 transition-colors">
+                      <tr
+                        key={c._id}
+                        className={`transition-colors ${
+                          isSelected ? "bg-amber-50/50" : "hover:bg-slate-50/80"
+                        }`}
+                      >
+                        {/* Checkbox */}
+                        <td className="py-3.5 px-3 text-center">
+                          <button
+                            type="button"
+                            onClick={() => handleToggleSelectOne(c._id)}
+                            className="text-slate-400 hover:text-[#A8793E] transition-colors cursor-pointer"
+                          >
+                            {isSelected ? (
+                              <CheckSquare className="w-4 h-4 text-[#A8793E]" />
+                            ) : (
+                              <Square className="w-4 h-4" />
+                            )}
+                          </button>
+                        </td>
+
                         {/* Title & Preview */}
                         <td className="py-3.5 px-3.5 max-w-xs">
                           <div className="flex items-start gap-2">
@@ -1155,22 +1435,77 @@ export default function ManageNotifications() {
                             : "-"}
                         </td>
 
-                        {/* Action View */}
+                        {/* Action View & Delete */}
                         <td className="py-3.5 px-3 text-center">
-                          <button
-                            type="button"
-                            onClick={() => handleViewDetails(c)}
-                            className="inline-flex items-center gap-1 px-2.5 py-1 bg-slate-100 hover:bg-[#A8793E] hover:text-white text-slate-700 rounded-lg text-xs font-semibold transition-colors cursor-pointer"
-                          >
-                            <Eye className="w-3.5 h-3.5" />
-                            <span>{isUrdu ? "دیکھیں" : "View"}</span>
-                          </button>
+                          <div className="flex items-center justify-center gap-1.5">
+                            <button
+                              type="button"
+                              onClick={() => handleViewDetails(c)}
+                              title={isUrdu ? "تفصیلات دیکھیں" : "View Details"}
+                              className="inline-flex items-center gap-1 px-2.5 py-1 bg-slate-100 hover:bg-[#A8793E] hover:text-white text-slate-700 rounded-lg text-xs font-semibold transition-colors cursor-pointer"
+                            >
+                              <Eye className="w-3.5 h-3.5" />
+                              <span className="hidden md:inline">{isUrdu ? "دیکھیں" : "View"}</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteSingle(c)}
+                              disabled={isDeleting}
+                              title={isUrdu ? "حذف کریں" : "Delete Notification"}
+                              className="inline-flex items-center gap-1 px-2 py-1 bg-red-50 hover:bg-red-600 hover:text-white text-red-600 rounded-lg text-xs font-semibold transition-colors cursor-pointer border border-red-200 hover:border-red-600"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                              <span className="hidden md:inline">{isUrdu ? "حذف" : "Delete"}</span>
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     );
                   })}
                 </tbody>
               </table>
+            </div>
+          )}
+
+          {/* Pagination Controls */}
+          {!historyLoading && !historyError && totalCount > 0 && (
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-slate-100 text-xs text-slate-600">
+              <div>
+                <span>
+                  {isUrdu
+                    ? `کل ${totalCount} مہمات میں سے ${(currentPage - 1) * pageSize + 1} تا ${Math.min(currentPage * pageSize, totalCount)} ظاہر ہو رہی ہیں`
+                    : `Showing ${(currentPage - 1) * pageSize + 1} to ${Math.min(currentPage * pageSize, totalCount)} of ${totalCount} campaigns`}
+                </span>
+                {selectedIds.length > 0 && (
+                  <span className="ms-2 px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-bold text-[11px]">
+                    {isUrdu ? `${selectedIds.length} منتخب` : `${selectedIds.length} selected`}
+                  </span>
+                )}
+              </div>
+
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage <= 1 || historyLoading}
+                  className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-bold disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer inline-flex items-center gap-1"
+                >
+                  <ChevronLeft className="w-3.5 h-3.5" />
+                  <span>{isUrdu ? "پچھلا" : "Prev"}</span>
+                </button>
+                <span className="px-3 py-1 font-mono font-bold text-slate-700 bg-slate-50 border border-slate-200 rounded-lg">
+                  {currentPage} / {Math.max(1, Math.ceil(totalCount / pageSize))}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setCurrentPage((p) => Math.min(Math.ceil(totalCount / pageSize), p + 1))}
+                  disabled={currentPage >= Math.ceil(totalCount / pageSize) || historyLoading}
+                  className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-bold disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer inline-flex items-center gap-1"
+                >
+                  <span>{isUrdu ? "اگلا" : "Next"}</span>
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
             </div>
           )}
         </div>
@@ -1387,6 +1722,20 @@ export default function ManageNotifications() {
           </div>
         </div>
       )}
+
+      {/* ── CONFIRMATION BOX MODAL FOR DESTRUCTIVE ACTIONS ── */}
+      <ConfirmationBox
+        isOpen={confirmDialog.isOpen}
+        onClose={() => setConfirmDialog((prev) => ({ ...prev, isOpen: false }))}
+        onConfirm={confirmDialog.onConfirm}
+        title={confirmDialog.title}
+        message={confirmDialog.message}
+        type={confirmDialog.type || "danger"}
+        confirmText={confirmDialog.confirmText || (isUrdu ? "ہاں، حذف کریں" : "Yes, Delete")}
+        cancelText={confirmDialog.cancelText || (isUrdu ? "منسوخ کریں" : "Cancel")}
+        isLoading={isDeleting}
+        isRTL={isUrdu}
+      />
     </div>
   );
 }

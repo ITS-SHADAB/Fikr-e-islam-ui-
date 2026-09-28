@@ -21,12 +21,12 @@ export const getAdminNotificationStats = async () => {
 };
 
 /**
- * Get Admin Notification Campaign History
- * GET /api/admin/notifications
- * returns { success: true, count, data: [...] }
+ * Get Admin Notification Campaign History (with pagination)
+ * GET /api/admin/notifications?page=1&limit=20
+ * returns { success: true, count, total, page, limit, hasMore, data: [...] }
  */
-export const getAdminNotificationCampaigns = async () => {
-  const response = await API.get("/admin/notifications");
+export const getAdminNotificationCampaigns = async ({ page = 1, limit = 20 } = {}) => {
+  const response = await API.get(`/admin/notifications?page=${page}&limit=${limit}`);
   return response.data;
 };
 
@@ -46,3 +46,37 @@ export const getAdminNotificationCampaign = async (id) => {
 
 // Backward-compatible alias
 export const getAdminNotificationDetails = getAdminNotificationCampaign;
+
+/**
+ * Delete a Single Notification Campaign
+ * DELETE /api/admin/notifications/:id
+ */
+export const deleteAdminNotificationCampaign = async (id) => {
+  if (!id) return null;
+  const response = await API.delete(`/admin/notifications/${id}`);
+  return response.data;
+};
+
+/**
+ * Bulk Delete Selected Notification Campaigns
+ * DELETE /api/admin/notifications
+ * body: { ids: ["id1", "id2", ...] }
+ */
+export const bulkDeleteAdminNotificationCampaigns = async (ids = []) => {
+  const response = await API.delete("/admin/notifications", {
+    data: { ids },
+  });
+  return response.data;
+};
+
+/**
+ * Cleanup Old Notification Campaigns by Retention Period
+ * DELETE /api/admin/notifications/cleanup
+ * body: { olderThanDays: 30 | 60 | 90 | 180 | 365 }
+ */
+export const cleanupAdminNotificationHistory = async (olderThanDays = 90) => {
+  const response = await API.delete("/admin/notifications/cleanup", {
+    data: { olderThanDays },
+  });
+  return response.data;
+};

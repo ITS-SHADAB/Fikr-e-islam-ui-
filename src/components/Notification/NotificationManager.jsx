@@ -27,6 +27,32 @@ export default function NotificationManager() {
   // Listen for foreground push messages to show interactive toast popup
   useEffect(() => {
     const unsubscribe = listenToForegroundMessages((payload) => {
+      // 1. If this tab is in background (hidden), suppress toast — badge & context update is sufficient
+      if (typeof document !== "undefined" && document.visibilityState === "hidden") {
+        return;
+      }
+
+      const rawId =
+        payload.data?.notificationId ||
+        payload.data?._id ||
+        payload.messageId ||
+        `${payload.data?.title || ""}-${payload.data?.message || ""}`;
+
+      // 2. Multi-tab coordination: ensure only one visible tab displays the floating toast
+      const now = Date.now();
+      try {
+        const lastToastId = localStorage.getItem("fikr_last_toast_id");
+        const lastToastTime = parseInt(
+          localStorage.getItem("fikr_last_toast_time") || "0",
+          10
+        );
+        if (lastToastId === rawId && now - lastToastTime < 6000) {
+          return; // Another tab has already popped up this toast
+        }
+        localStorage.setItem("fikr_last_toast_id", rawId);
+        localStorage.setItem("fikr_last_toast_time", String(now));
+      } catch {}
+
       const title =
         payload.notification?.title ||
         payload.data?.title ||

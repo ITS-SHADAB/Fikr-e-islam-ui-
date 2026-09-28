@@ -20,78 +20,101 @@ const messaging = firebase.messaging();
 
 /**
  * Handle background push messages
+ * With data-only payloads from backend, this is the single authoritative
+ * source of OS / Browser tray push notifications.
  */
 messaging.onBackgroundMessage((payload) => {
-  const notificationTitle =
-    payload.notification?.title ||
-    payload.data?.title ||
-    "فکرِ اسلام (Fikr-e-Islam)";
+  try {
+    const data = payload.data || {};
+    const notificationTitle =
+      payload.notification?.title ||
+      data.title ||
+      "فکرِ اسلام (Fikr-e-Islam)";
 
-  const notificationBody =
-    payload.notification?.body ||
-    payload.data?.message ||
-    payload.data?.body ||
-    "";
+    const notificationBody =
+      payload.notification?.body ||
+      data.message ||
+      data.body ||
+      "";
 
-  const targetLink = payload.data?.link || payload.data?.url || "/";
+    const targetLink = data.url || data.link || "/";
+    const notificationTag =
+      data.notificationId ||
+      data._id ||
+      data.type ||
+      `fikr-${Date.now()}`;
 
-  const notificationOptions = {
-    body: notificationBody,
-    icon: payload.notification?.icon || "/favicon.ico",
-    badge: "/favicon.ico",
-    data: {
-      url: targetLink,
-      ...payload.data,
-    },
-    dir: "rtl",
-    lang: "ur",
-  };
+    const notificationOptions = {
+      body: notificationBody,
+      icon: payload.notification?.icon || "/favicon.ico",
+      badge: "/favicon.ico",
+      tag: String(notificationTag),
+      renotify: true,
+      data: {
+        url: targetLink,
+        ...data,
+      },
+      dir: "rtl",
+      lang: "ur",
+    };
 
-  // Broadcast to open client windows so open tabs immediately update their bell badge & dropdown
-  if (self.clients && self.clients.matchAll) {
-    self.clients
-      .matchAll({ type: "window", includeUncontrolled: true })
-      .then((windowClients) => {
-        for (const client of windowClients) {
-          client.postMessage({
-            type: "FCM_FOREGROUND_MESSAGE",
-            payload,
-          });
-        }
-      })
-      .catch(() => {});
+    // Broadcast to open client windows so background tabs update their badge & dropdown
+    if (self.clients && self.clients.matchAll) {
+      self.clients
+        .matchAll({ type: "window", includeUncontrolled: true })
+        .then((windowClients) => {
+          for (const client of windowClients) {
+            client.postMessage({
+              type: "FCM_FOREGROUND_MESSAGE",
+              payload,
+            });
+          }
+        })
+        .catch(() => {});
+    }
+
+    return self.registration.showNotification(
+      notificationTitle,
+      notificationOptions
+    );
+  } catch (err) {
+    console.error("[SW] onBackgroundMessage error:", err);
   }
-
-  return self.registration.showNotification(
-    notificationTitle,
-    notificationOptions
-  );
 });
 
 /**
  * Handle notification click in OS / browser tray
  */
 self.addEventListener("notificationclick", (event) => {
-  event.notification.close();
+  try {
+    event.notification.close();
 
-  const targetUrl = event.notification.data?.url || "/";
-  const absoluteUrl = new URL(targetUrl, self.location.origin).href;
+    const targetUrl = event.notification.data?.url || "/";
+    const absoluteUrl = new URL(targetUrl, self.location.origin).href;
 
-  event.waitUntil(
-    clients
-      .matchAll({ type: "window", includeUncontrolled: true })
-      .then((windowClients) => {
-        // Focus existing open window if available
-        for (const client of windowClients) {
-          if (client.url && "focus" in client) {
-            client.navigate(absoluteUrl);
-            return client.focus();
+    event.waitUntil(
+      clients
+        .matchAll({ type: "window", includeUncontrolled: true })
+        .then((windowClients) => {
+          // Focus existing open window if available
+          for (const client of windowClients) {
+            if (client.url && "focus" in client) {
+              if ("navigate" in client) {
+                client.navigate(absoluteUrl);
+              }
+              return client.focus();
+            }
           }
-        }
-        // If no open window, open a new window
-        if (clients.openWindow) {
-          return clients.openWindow(absoluteUrl);
-        }
-      })
-  );
+          // If no open window, open a new window
+          if (clients.openWindow) {
+            return clients.openWindow(absoluteUrl);
+          }
+        })
+        .catch((err) => {
+          console.error("[SW] notificationclick navigation error:", err);
+        })
+    );
+  } catch (clickErr) {
+    console.error("[SW] notificationclick error:", clickErr);
+  }
 });

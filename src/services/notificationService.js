@@ -157,6 +157,21 @@ export const registerFCMToken = async (token) => {
 export const registerFCMTokenApi = registerFCMToken;
 
 /**
+ * API 1b: Unregister / Unlink FCM Token on Logout
+ * POST /api/notifications/unregister
+ */
+export const unregisterFCMToken = async (token) => {
+  if (!token) return null;
+  try {
+    const response = await API.post("/notifications/unregister", { token });
+    return response.data;
+  } catch (err) {
+    console.warn("Unregister FCM token failed:", err?.message || err);
+    return null;
+  }
+};
+
+/**
  * Safely syncs the token with backend, preventing duplicate network requests
  */
 export const syncFCMTokenWithBackend = async (
@@ -296,24 +311,67 @@ export const clearDismissedNotificationIds = () => {
 };
 
 /**
- * Reset token cache on logout
+ * Reset token cache on logout and unregister device token on backend
  */
-export const handleLogoutTokenReset = () => {
+export const handleLogoutTokenReset = async () => {
   lastSyncedUserId = null;
+  lastRegisteredToken = null;
   try {
+    const currentToken = localStorage.getItem(STORAGE_TOKEN_KEY);
+    if (currentToken) {
+      await unregisterFCMToken(currentToken);
+    }
     localStorage.removeItem(STORAGE_SYNCED_USER_KEY);
-  } catch {}
+  } catch (err) {
+    console.warn("Logout token cleanup error:", err);
+  }
   clearDismissedNotificationIds();
 };
 
 // Global subscriber registry for incoming push notifications (singleton pattern)
 const foregroundListeners = new Set();
 let isForegroundListenerBound = false;
+const recentMessageDeduplicationMap = new Map();
+
+const dispatchToSubscribers = (payload) => {
+  if (!payload) return;
+  const rawId =
+    payload.data?.notificationId ||
+    payload.data?._id ||
+    payload.messageId ||
+    `${payload.data?.title || payload.notification?.title || ""}-${
+      payload.data?.message || payload.notification?.body || ""
+    }`;
+
+  const now = Date.now();
+  // Prevent duplicate foreground triggers within 8 seconds
+  if (
+    recentMessageDeduplicationMap.has(rawId) &&
+    now - recentMessageDeduplicationMap.get(rawId) < 8000
+  ) {
+    return;
+  }
+  recentMessageDeduplicationMap.set(rawId, now);
+
+  if (recentMessageDeduplicationMap.size > 50) {
+    for (const [key, time] of recentMessageDeduplicationMap.entries()) {
+      if (now - time > 15000) recentMessageDeduplicationMap.delete(key);
+    }
+  }
+
+  foregroundListeners.forEach((listener) => {
+    try {
+      listener(payload);
+    } catch (err) {
+      console.warn("Foreground message subscriber error:", err);
+    }
+  });
+};
 
 /**
  * Listen for foreground push notifications (when website is open)
- * Dispatches to all active subscribers and supports both FCM onMessage
- * and Service Worker postMessage (for background tab wakeups).
+ * Dispatches to all active subscribers with deduplication and supports
+ * both FCM onMessage and Service Worker postMessage (for background tab wakeups).
  */
 export const listenToForegroundMessages = (onReceive) => {
   if (typeof onReceive !== "function") return () => {};
@@ -329,13 +387,7 @@ export const listenToForegroundMessages = (onReceive) => {
         if (!messaging) return;
         try {
           onMessage(messaging, (payload) => {
-            foregroundListeners.forEach((listener) => {
-              try {
-                listener(payload);
-              } catch (err) {
-                console.warn("Foreground message subscriber error:", err);
-              }
-            });
+            dispatchToSubscribers(payload);
           });
         } catch (err) {
           console.warn("FCM onMessage setup failed:", err);
@@ -349,13 +401,7 @@ export const listenToForegroundMessages = (onReceive) => {
     if (typeof window !== "undefined" && "serviceWorker" in navigator) {
       navigator.serviceWorker.addEventListener("message", (event) => {
         if (event.data?.type === "FCM_FOREGROUND_MESSAGE" && event.data?.payload) {
-          foregroundListeners.forEach((listener) => {
-            try {
-              listener(event.data.payload);
-            } catch (err) {
-              console.warn("Service worker message subscriber error:", err);
-            }
-          });
+          dispatchToSubscribers(event.data.payload);
         }
       });
     }
@@ -368,11 +414,11 @@ export const listenToForegroundMessages = (onReceive) => {
 
 /**
  * API 2: Get Notifications
- * GET /api/notifications
- * Requires authentication. Returns { success: true, count, data: [...] }
+ * GET /api/notifications?page=1&limit=20
+ * Requires authentication. Returns { success: true, count, total, page, limit, hasMore, data: [...] }
  */
-export const getUserNotifications = async () => {
-  const response = await API.get("/notifications");
+export const getUserNotifications = async ({ page = 1, limit = 20 } = {}) => {
+  const response = await API.get(`/notifications?page=${page}&limit=${limit}`);
   return response.data;
 };
 

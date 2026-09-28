@@ -8,6 +8,7 @@ import {
   AUTH_RESET_PASSWORD,
 } from "@/constants/urls";
 import toast from "react-hot-toast";
+import { handleLogoutTokenReset } from "./notificationService";
 
 // Register User
 export const registerUser = async (formData) => {
@@ -54,6 +55,11 @@ export const loginUser = async (formData) => {
 // Logout User
 export const logoutUser = async () => {
   try {
+    try {
+      await handleLogoutTokenReset();
+    } catch (tokenErr) {
+      console.warn("Could not unregister FCM token during logout:", tokenErr);
+    }
     const response = await API.post(AUTH_LOGOUT);
 
     return response.data;
