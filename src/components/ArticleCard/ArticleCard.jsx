@@ -74,8 +74,9 @@ export default function ArticleCard({ article }) {
               <img
                 src={imageSrc}
                 alt={article?.title || ""}
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                loading="lazy"
                 decoding="async"
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 onError={() => setImgError(true)}
               />
               {/* Gradient overlay */}

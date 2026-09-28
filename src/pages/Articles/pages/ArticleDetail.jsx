@@ -347,6 +347,8 @@ export default function ArticleDetail() {
           <img
             src={featuredImageSrc}
             alt={article?.title || ""}
+            fetchPriority="high"
+            decoding="sync"
             className="absolute inset-0 w-full h-full object-cover select-none"
             onError={() => setHeroImgError(true)}
           />

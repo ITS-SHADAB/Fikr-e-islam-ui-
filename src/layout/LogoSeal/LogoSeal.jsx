@@ -1,6 +1,7 @@
 import React from 'react';
 import { COLORS } from '@/utils/themeColors';
 import logoImg from '@/assets/images/logo.jpeg';
+import logoWebp from '@/assets/images/logo.webp';
 
 export default function LogoSeal({ size = 76, opacity = 1, className = '', style = {} }) {
   return (
@@ -24,11 +25,17 @@ export default function LogoSeal({ size = 76, opacity = 1, className = '', style
         style={{ borderColor: COLORS.accent || "#A8793E", opacity: 0.9 }}
       />
       {/* Rounded Circular Logo */}
-      <img
-        src={logoImg}
-        alt="Mufti Faizan Sarwar Logo Seal"
-        className="w-full h-full rounded-full object-cover p-1 shadow-sm"
-      />
+      <picture className="w-full h-full">
+        <source type="image/webp" srcSet={logoWebp} />
+        <img
+          src={logoImg}
+          alt="Mufti Faizan Sarwar Logo Seal"
+          width={size}
+          height={size}
+          decoding="async"
+          className="w-full h-full rounded-full object-cover p-1 shadow-sm"
+        />
+      </picture>
     </div>
   );
 }

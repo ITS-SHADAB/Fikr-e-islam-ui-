@@ -387,8 +387,8 @@ export default function PublicationCard({ publication }) {
       category === "قرآن و تفاسیر" ||
       category === "حدیث";
     return isGreenTheme
-      ? "/assets/images/books/islamic-book-cover-green.jpg"
-      : "/assets/images/books/islamic-book-cover.jpg";
+      ? "/assets/images/books/islamic-book-cover-green.webp"
+      : "/assets/images/books/islamic-book-cover.webp";
   };
 
   const [imgSrc, setImgSrc] = useState(() => getCoverImageSrc(coverImage));
@@ -563,10 +563,13 @@ export default function PublicationCard({ publication }) {
                 <img
                   src={coverImageSrc}
                   alt={title}
-                  className="w-auto max-w-full max-h-full object-contain object-bottom filter drop-shadow-[0_12px_20px_rgba(43,33,24,0.24)] drop-shadow-[0_2px_4px_rgba(43,33,24,0.12)] rounded-xs"
+                  width="225"
+                  height="245"
+                  loading="lazy"
                   decoding="async"
+                  className="w-auto max-w-full max-h-full object-contain object-bottom filter drop-shadow-[0_12px_20px_rgba(43,33,24,0.24)] drop-shadow-[0_2px_4px_rgba(43,33,24,0.12)] rounded-xs"
                   onError={() => {
-                    const fallbackCover = "/assets/images/books/islamic-book-cover.jpg";
+                    const fallbackCover = "/assets/images/books/islamic-book-cover.webp";
                     if (imgSrc !== fallbackCover) {
                       setImgSrc(fallbackCover);
                     } else {

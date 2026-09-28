@@ -80,8 +80,8 @@ export default function BookDetail() {
       bookCategory === "قرآن و تفاسیر" ||
       bookCategory === "حدیث";
     return isGreenTheme
-      ? "/assets/images/books/islamic-book-cover-green.jpg"
-      : "/assets/images/books/islamic-book-cover.jpg";
+      ? "/assets/images/books/islamic-book-cover-green.webp"
+      : "/assets/images/books/islamic-book-cover.webp";
   };
 
   const [imgSrc, setImgSrc] = useState(() =>
@@ -201,8 +201,8 @@ export default function BookDetail() {
       category === "قرآن و تفاسیر" ||
       category === "حدیث";
     const fallback = isGreen
-      ? "/assets/images/books/islamic-book-cover-green.jpg"
-      : "/assets/images/books/islamic-book-cover.jpg";
+      ? "/assets/images/books/islamic-book-cover-green.webp"
+      : "/assets/images/books/islamic-book-cover.webp";
     if (imgSrc !== fallback) {
       setImgSrc(fallback);
     }
@@ -521,6 +521,9 @@ export default function BookDetail() {
                 <img
                   src={coverImageSrc}
                   alt={title}
+                  width="225"
+                  height="255"
+                  fetchPriority="high"
                   className="w-auto max-w-full max-h-full object-contain object-bottom filter drop-shadow-[0_12px_20px_rgba(43,33,24,0.24)] drop-shadow-[0_2px_4px_rgba(43,33,24,0.12)] rounded-xs"
                   decoding="async"
                   onError={handleImageError}
@@ -854,9 +857,13 @@ export default function BookDetail() {
                                 relBook.category === "قرآن و تفاسیر" ||
                                 relBook.category === "حدیث";
                               e.currentTarget.src = isGreen
-                                ? "/assets/images/books/islamic-book-cover-green.jpg"
-                                : "/assets/images/books/islamic-book-cover.jpg";
+                                ? "/assets/images/books/islamic-book-cover-green.webp"
+                                : "/assets/images/books/islamic-book-cover.webp";
                             }}
+                            width="40"
+                            height="56"
+                            loading="lazy"
+                            decoding="async"
                           />
                         ) : (
                           <BookOpen className="w-6 h-6 text-white/80" />

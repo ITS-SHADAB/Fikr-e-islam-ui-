@@ -24,8 +24,10 @@ import { logoutUser, globalSearch } from "@/services";
 import HeaderSearchResults, { resolveResultUrl } from "./HeaderSearchResults";
 import { useAuthModal } from "@/context/AuthModalContext";
 import headerProfileImg from "@/assets/images/header-profile.jpg";
+import headerProfileWebp from "@/assets/images/header-profile.webp";
 
 import logoImg from "@/assets/images/logo.jpeg";
+import logoWebp from "@/assets/images/logo.webp";
 
 /* ─── Corner Botanical Arabesque Branch SVG ─── */
 function CornerArabesque({ className = "" }) {
@@ -734,15 +736,22 @@ export default function Header() {
               }
             >
               <div className="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 lg:w-[84px] lg:h-[84px] rounded-full overflow-hidden border-2 border-[#A8793E]/70 shadow-[0_2px_12px_rgba(43,33,24,0.18)] bg-[#2B2118] shrink-0 transition-transform duration-300 group-hover:scale-105 group-hover:border-[#C5A87C]">
-                <img
-                  src={headerProfileImg}
-                  alt={
-                    isUrdu
-                      ? "مفتی فیضان سرور مصباحی"
-                      : "Mufti Faizan Sarwar Misbahi"
-                  }
-                  className="w-full h-full object-cover scale-[1.14] transition-transform duration-300 group-hover:scale-[1.18]"
-                />
+                <picture>
+                  <source srcSet={headerProfileWebp} type="image/webp" />
+                  <img
+                    src={headerProfileImg}
+                    alt={
+                      isUrdu
+                        ? "مفتی فیضان سرور مصباحی"
+                        : "Mufti Faizan Sarwar Misbahi"
+                    }
+                    width="84"
+                    height="84"
+                    loading="eager"
+                    decoding="async"
+                    className="w-full h-full object-cover scale-[1.14] transition-transform duration-300 group-hover:scale-[1.18]"
+                  />
+                </picture>
               </div>
             </Link>
 
@@ -757,15 +766,22 @@ export default function Header() {
               }
             >
               <div className="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 lg:w-[84px] lg:h-[84px] rounded-full overflow-hidden border-2 border-[#A8793E] shadow-[0_2px_14px_rgba(43,33,24,0.22)] bg-[#2B2118] shrink-0 p-[2px] transition-transform duration-300 group-hover:scale-105 group-hover:border-[#C5A87C]">
-                <img
-                  src={logoImg}
-                  alt={
-                    isUrdu
-                      ? "مفتی محمد فیضان سرور مصباحی مہر"
-                      : "Calligraphy Seal"
-                  }
-                  className="w-full h-full object-contain rounded-full transition-transform duration-300 group-hover:scale-105"
-                />
+                <picture>
+                  <source srcSet={logoWebp} type="image/webp" />
+                  <img
+                    src={logoImg}
+                    alt={
+                      isUrdu
+                        ? "مفتی محمد فیضان سرور مصباحی مہر"
+                        : "Calligraphy Seal"
+                    }
+                    width="84"
+                    height="84"
+                    loading="eager"
+                    decoding="async"
+                    className="w-full h-full object-contain rounded-full transition-transform duration-300 group-hover:scale-105"
+                  />
+                </picture>
               </div>
             </Link>
 

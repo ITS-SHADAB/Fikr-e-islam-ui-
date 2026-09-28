@@ -2,6 +2,7 @@ import React from "react";
 import { COLORS } from "@/utils/themeColors";
 
 import logoImg from "@/assets/images/logo.jpeg";
+import logoWebp from "@/assets/images/logo.webp";
 
 /**
  * Modern shimmering skeleton for cards and sections
@@ -101,13 +102,17 @@ export function Spinner({ size = "md", text = "" }) {
             animation: !isMini ? "loaderLogoBreathe 3s ease-in-out infinite" : "none",
           }}
         >
-          <img
-            src={logoImg}
-            alt="Loading..."
-            className={`${
-              imgSizes[size] || imgSizes.md
-            } rounded-full object-cover shadow-md border-2 border-[#A8793E]/80`}
-          />
+          <picture>
+            <source type="image/webp" srcSet={logoWebp} />
+            <img
+              src={logoImg}
+              alt="Loading..."
+              className={`${
+                imgSizes[size] || imgSizes.md
+              } rounded-full object-cover shadow-md border-2 border-[#A8793E]/80`}
+              decoding="async"
+            />
+          </picture>
         </div>
       </div>
 

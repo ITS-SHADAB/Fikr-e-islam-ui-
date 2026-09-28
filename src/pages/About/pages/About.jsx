@@ -30,8 +30,11 @@ import {
 } from 'lucide-react';
 import { FaWhatsapp, FaTelegramPlane } from 'react-icons/fa';
 import muftiSahebImg from '@/assets/images/muftiSaheb.png';
+import muftiSahebWebp from '@/assets/images/muftiSaheb.webp';
 import tarufBannerImg from '@/assets/images/taruf-banner.jpg';
+import tarufBannerWebp from '@/assets/images/taruf-banner.webp';
 import logoImg from '@/assets/images/logo.jpeg';
+import logoWebp from '@/assets/images/logo.webp';
 import { useSettings } from '@/hooks/useSettings';
 import { getPublications } from '@/services';
 import { COLORS } from '@/utils/themeColors';
@@ -137,7 +140,7 @@ export default function About() {
       ? 'قاضیٔ شریعت · استاذ الحدیث · محقق و مصنف'
       : 'Qazi-e-Shariat · Teacher of Hadith · Researcher & Author');
 
-  const scholarPhoto = scholarInfo.photo || muftiSahebImg;
+  const scholarPhoto = scholarInfo.photo || muftiSahebWebp || muftiSahebImg;
 
   // Fetch 4 selected books from database
   useEffect(() => {
@@ -531,12 +534,20 @@ export default function About() {
       ══════════════════════════════════════════════════════════════ */}
       <div className="about-animate about-d-1 about-banner-wrap w-full relative mb-8 sm:mb-10 lg:mb-12">
         <div className="about-banner-container relative w-full overflow-hidden">
-          {/* Clean Panoramic Background Image (Full-width, no text in image) */}
-          <img
-            src={tarufBannerImg}
-            alt={isRTL ? "تعارف - فقہ اسلامی" : "Taruf - Islamic Scholarship"}
-            className="about-banner-img"
-          />
+          {/* Clean Panoramic Background Image (Full-width, optimized WebP with JPG fallback) */}
+          <picture>
+            <source srcSet={tarufBannerWebp} type="image/webp" />
+            <img
+              src={tarufBannerImg}
+              alt={isRTL ? "تعارف - فقہ اسلامی" : "Taruf - Islamic Scholarship"}
+              width="1376"
+              height="260"
+              loading="eager"
+              decoding="async"
+              fetchPriority="high"
+              className="about-banner-img"
+            />
+          </picture>
 
           {/* Minimal Subtle Scrim for Visual Integration & Legibility */}
           <div className="about-banner-scrim" />
@@ -694,17 +705,25 @@ export default function About() {
                 aspectRatio: '3.9 / 4.9'
               }}
             >
-              {/* Authentic Scholar Image (Completely clean, sharp, no overlays) */}
-              <img
-                src={scholarPhoto}
-                alt={scholarName}
-                className="w-full h-full object-cover object-[center_20%] select-none transition-transform duration-500 hover:scale-[1.02]"
-                onError={(e) => {
-                  if (e.currentTarget.src !== muftiSahebImg) {
-                    e.currentTarget.src = muftiSahebImg;
-                  }
-                }}
-              />
+              {/* Authentic Scholar Image (Completely clean, sharp, optimized WebP with PNG fallback) */}
+              <picture>
+                <source srcSet={scholarInfo.photo ? scholarInfo.photo : muftiSahebWebp} type="image/webp" />
+                <img
+                  src={scholarPhoto}
+                  alt={scholarName}
+                  width="380"
+                  height="477"
+                  loading="eager"
+                  decoding="async"
+                  fetchPriority="high"
+                  className="w-full h-full object-cover object-[center_20%] select-none transition-transform duration-500 hover:scale-[1.02]"
+                  onError={(e) => {
+                    if (e.currentTarget.src !== muftiSahebImg) {
+                      e.currentTarget.src = muftiSahebImg;
+                    }
+                  }}
+                />
+              </picture>
             </div>
           </div>
 

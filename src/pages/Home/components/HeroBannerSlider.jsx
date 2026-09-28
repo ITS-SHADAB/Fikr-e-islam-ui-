@@ -95,18 +95,22 @@ export default function HeroBannerSlider() {
 
   const total = HERO_SLIDES.length;
 
-  // 1. Immediately preload and pre-decode ALL banner images into GPU VRAM on mount.
-  // This guarantees all textures are permanently hot in memory with zero scroll lag or blanking.
+  // Defer preloading subsequent slides until after initial page load and LCP (2s delay),
+  // ensuring Slide 1 downloads immediately without competing for bandwidth.
   useEffect(() => {
-    HERO_SLIDES.forEach((slide) => {
-      if (slide.image) {
-        const img = new Image();
-        img.src = slide.image;
-        if (img.decode) {
-          img.decode().catch(() => {});
+    const timer = setTimeout(() => {
+      HERO_SLIDES.slice(1).forEach((slide) => {
+        if (slide.image) {
+          const img = new Image();
+          img.src = slide.image;
+          if (img.decode) {
+            img.decode().catch(() => {});
+          }
         }
-      }
-    });
+      });
+    }, 2000);
+
+    return () => clearTimeout(timer);
   }, []);
 
   const paginate = useCallback(
@@ -145,19 +149,6 @@ export default function HeroBannerSlider() {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Hidden DOM element keeping all 3 image textures permanently mounted & rendered */}
-      <div className="hidden" aria-hidden="true">
-        {HERO_SLIDES.map((s) => (
-          <img
-            key={s.id}
-            src={s.image}
-            alt=""
-            loading="eager"
-            decoding="sync"
-          />
-        ))}
-      </div>
-
       {/* Full-width container */}
       <div className="w-full px-2 sm:px-4 lg:px-6">
         {/*
@@ -200,14 +191,17 @@ export default function HeroBannerSlider() {
               <img
                 src={currentSlide.image}
                 alt={currentSlide.alt}
+                width="1376"
+                height="768"
                 className="absolute inset-0 w-full h-full object-cover object-left sm:object-center pointer-events-none select-none"
                 onError={(e) => {
                   if (currentSlide.publicUrl && e.currentTarget.src !== currentSlide.publicUrl) {
                     e.currentTarget.src = currentSlide.publicUrl;
                   }
                 }}
+                fetchPriority={currentIndex === 0 ? "high" : "auto"}
                 loading="eager"
-                decoding="sync"
+                decoding={currentIndex === 0 ? "sync" : "async"}
                 draggable={false}
               />
 

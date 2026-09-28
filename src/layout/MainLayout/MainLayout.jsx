@@ -5,7 +5,6 @@ import { useSettings } from '@/hooks/useSettings';
 import { Navbar, Footer, Header } from '@/layout';
 import { COLORS } from '@/utils/themeColors';
 import { Spinner } from '@/components';
-import logoImg from '@/assets/images/logo.jpeg';
 
 export default function MainLayout() {
   const { pathname } = useLocation();

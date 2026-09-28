@@ -1410,14 +1410,21 @@ export default function MyDetails() {
                     <div className="w-full md:w-auto flex items-center justify-center shrink-0">
                       <div className="w-full sm:w-auto min-w-[240px] max-w-[300px] py-3 px-4 sm:py-4 sm:px-5 rounded-2xl bg-gradient-to-b from-[#FFFDF9] to-[#F5ECE0] border border-[#D8C6AC] shadow-inner text-center overflow-hidden flex sm:flex-col items-center justify-center gap-3 sm:gap-1.5">
                         <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full overflow-hidden border-2 border-[#C49A5A]/40 shadow-xs bg-[#EFE4D5] shrink-0">
-                          <img
-                            src="/assets/images/scholarly_quill_books.jpg"
-                            alt="Scholarship Emblem"
-                            onError={(e) => {
-                              e.target.style.display = "none";
-                            }}
-                            className="w-full h-full object-cover"
-                          />
+                          <picture className="w-full h-full">
+                            <source type="image/webp" srcSet="/assets/images/scholarly_quill_books.webp" />
+                            <img
+                              src="/assets/images/scholarly_quill_books.jpg"
+                              alt="Scholarship Emblem"
+                              width="56"
+                              height="56"
+                              loading="lazy"
+                              decoding="async"
+                              onError={(e) => {
+                                e.target.style.display = "none";
+                              }}
+                              className="w-full h-full object-cover"
+                            />
+                          </picture>
                         </div>
                         <div className="flex flex-col items-center">
                           <p

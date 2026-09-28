@@ -33,6 +33,7 @@ import {
   getTelLink
 } from '@/constants/contact';
 import logoImg from '@/assets/images/logo.jpeg';
+import logoWebp from '@/assets/images/logo.webp';
 
 /**
  * Symmetrical Islamic Arabesque Knot/Flourish Ornament Component
@@ -332,11 +333,18 @@ export default function Footer() {
         <div className="flex flex-col items-center">
           {/* Centered Circular Seal / Calligraphy Emblem */}
           <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full p-0.5 border-2 border-[#A8793E] bg-[#21170F] shadow-sm shadow-black/40 flex items-center justify-center overflow-hidden transition-transform duration-300 hover:scale-105">
-            <img
-              src={logoImg}
-              alt="Mufti Faizan Sarwar Emblem"
-              className="w-full h-full object-cover rounded-full select-none"
-            />
+            <picture className="w-full h-full">
+              <source type="image/webp" srcSet={logoWebp} />
+              <img
+                src={logoImg}
+                alt="Mufti Faizan Sarwar Emblem"
+                width="64"
+                height="64"
+                loading="lazy"
+                decoding="async"
+                className="w-full h-full object-cover rounded-full select-none"
+              />
+            </picture>
           </div>
 
           {/* Scholar Name in prominent Nastaleeq */}

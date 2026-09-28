@@ -29,6 +29,7 @@ import { ConfirmationBox } from "@/components";
 import NotificationDropdown from "@/components/Notification/NotificationDropdown";
 import { useNotifications } from "@/hooks/useNotifications";
 import logoImg from "@/assets/images/logo.jpeg";
+import logoWebp from "@/assets/images/logo.webp";
 
 const NAV_LINKS = [
   { to: "/", label: "عوامی ویب سائٹ", icon: Globe },
@@ -138,11 +139,17 @@ export default function AdminLayout() {
               boxShadow: "0 4px 12px rgba(251,191,36,0.35)",
             }}
           >
-            <img
-              src={logoImg}
-              alt="Logo"
-              className="w-full h-full object-cover rounded-full"
-            />
+            <picture className="w-full h-full">
+              <source type="image/webp" srcSet={logoWebp} />
+              <img
+                src={logoImg}
+                alt="Logo"
+                width="40"
+                height="40"
+                decoding="async"
+                className="w-full h-full object-cover rounded-full"
+              />
+            </picture>
           </div>
 
           {/* Brand text — hidden when collapsed */}
