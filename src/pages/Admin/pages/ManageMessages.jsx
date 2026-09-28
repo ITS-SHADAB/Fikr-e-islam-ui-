@@ -135,6 +135,21 @@ export default function ManageMessages() {
     fetchMessages(1, activeTab, searchQuery);
   };
 
+  // Auto-open specific message if query parameter present (from notification click)
+  useEffect(() => {
+    if (!messages || messages.length === 0) return;
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const targetId = params.get('contactId') || params.get('id');
+      if (targetId) {
+        const found = messages.find((m) => String(m._id) === String(targetId));
+        if (found) {
+          handleOpenMessage(found);
+        }
+      }
+    } catch {}
+  }, [messages]);
+
   // Open Message and automatically mark as SEEN if it was UNSEEN
   const handleOpenMessage = async (msg) => {
     setActiveMessage(msg);

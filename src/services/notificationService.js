@@ -477,8 +477,20 @@ export const getNotificationTargetUrl = (notification) => {
   if (data.target && typeof data.target === "string") return data.target;
   if (data.route && typeof data.route === "string") return data.route;
 
-  // 2. Type and ID / slug mappings
   const type = (notification.type || data.type || "").toLowerCase();
+
+  // 1. Admin-specific routes (highest priority to prevent admin actions opening public user routes)
+  if (type === "admin_question" || type === "question_admin") {
+    return "/admin/questions";
+  }
+  if (type === "admin_comment" || type === "comment_admin") {
+    return "/admin/comments";
+  }
+  if (type === "admin_contact" || type === "contact_admin" || type === "admin_message") {
+    return "/admin/messages";
+  }
+
+  // 2. Type and ID / slug mappings for public website
   const slug = data.slug || data.articleSlug || data.fatwaSlug || data.bookSlug;
   const id =
     data.id ||

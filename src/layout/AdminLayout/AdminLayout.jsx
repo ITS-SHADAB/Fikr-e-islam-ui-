@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Outlet, NavLink, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -26,6 +26,8 @@ import { logout } from "@/store/slices/authSlice";
 import { logoutUser } from "@/services";
 import toast from "react-hot-toast";
 import { ConfirmationBox } from "@/components";
+import NotificationDropdown from "@/components/Notification/NotificationDropdown";
+import { useNotifications } from "@/hooks/useNotifications";
 import logoImg from "@/assets/images/logo.jpeg";
 
 const NAV_LINKS = [
@@ -68,23 +70,15 @@ export default function AdminLayout() {
   const [collapsed, setCollapsed] = useState(false); // desktop collapse
   const [mobileOpen, setMobileOpen] = useState(false); // mobile slide-over
 
-  const [notifications, setNotifications] = useState([]);
+  // 🔔 Real-time notifications for Admin
+  const {
+    adminNotifications,
+    adminUnreadCount,
+    refreshAdminNotifications,
+    hasLoadedAdminNotifications,
+  } = useNotifications();
   const [showNotifDropdown, setShowNotifDropdown] = useState(false);
-
-  const handleNotificationClick = (notif) => {
-    // Remove from notification list
-    setNotifications((prev) => prev.filter((n) => n._id !== notif._id));
-    setShowNotifDropdown(false);
-
-    // Route to corresponding management section
-    if (notif.contentType === "article") {
-      navigate("/admin/articles");
-    } else if (notif.contentType === "fatwa") {
-      navigate("/admin/fatwas");
-    } else if (notif.contentType === "book") {
-      navigate("/admin/publications");
-    }
-  };
+  const notifBellRef = useRef(null);
 
   const handleConfirmLogout = async () => {
     setShowLogoutModal(false);
@@ -317,7 +311,7 @@ export default function AdminLayout() {
             <span className="text-slate-500 font-light">جامعہ بنوری ٹاؤن</span>
           </div>
 
-          <div className="mr-auto flex items-center gap-3">
+          <div className="ml-auto flex items-center gap-3">
             {/* View Live Website Quick Button */}
             <NavLink
               to="/"
@@ -331,62 +325,37 @@ export default function AdminLayout() {
             {/* Notification Bell */}
             <div className="relative">
               <button
-                onClick={() => setShowNotifDropdown(!showNotifDropdown)}
-                className="relative p-2 rounded-xl text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+                ref={notifBellRef}
+                type="button"
+                onClick={() => {
+                  setShowNotifDropdown((prev) => {
+                    const next = !prev;
+                    if (next) {
+                      refreshAdminNotifications({ silent: hasLoadedAdminNotifications });
+                    }
+                    return next;
+                  });
+                }}
+                className="relative p-2 rounded-xl text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
+                aria-label="اطلاعات (Notifications)"
+                title="اطلاعات (Notifications)"
               >
-                <Bell className="w-5 h-5" />
-                {notifications.length > 0 && (
-                  <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-red-500 ring-2 ring-white"></span>
+                <Bell className="w-5 h-5 text-slate-700" />
+                {adminUnreadCount > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-red-600 text-white text-[10px] font-bold flex items-center justify-center ring-2 ring-white shadow-xs">
+                    {adminUnreadCount > 99 ? "99+" : adminUnreadCount}
+                  </span>
                 )}
               </button>
 
-              {/* Notification dropdown */}
-              {showNotifDropdown && (
-                <div
-                  className="absolute left-0 mt-2 w-80 rounded-2xl bg-white shadow-2xl p-4 z-50 border border-slate-100"
-                  dir="rtl"
-                >
-                  <div className="flex justify-between items-center pb-3 border-b border-slate-100 mb-3">
-                    <span className="text-xs font-bold text-slate-800">
-                      اطلاعات (Notifications)
-                    </span>
-                    <span className="text-[10px] text-accent font-semibold px-2 py-0.5 rounded-full bg-amber-50">
-                      {notifications.length} نئی
-                    </span>
-                  </div>
-                  {notifications.length === 0 ? (
-                    <p className="text-center py-6 text-xs text-slate-400 font-bold">
-                      کوئی نیا نوٹیفیکیشن نہیں ہے
-                    </p>
-                  ) : (
-                    <div className="space-y-2 max-h-[300px] overflow-y-auto">
-                      {notifications.map((n, idx) => (
-                        <div
-                          key={idx}
-                          onClick={() => handleNotificationClick(n)}
-                          className="p-2.5 rounded-lg bg-slate-50 border border-slate-100 flex flex-col gap-1 text-right cursor-pointer hover:bg-slate-100 transition-colors"
-                        >
-                          <div className="flex justify-between items-center text-[10px]">
-                            <span className="font-bold text-primary">
-                              {n.user?.name || "صارف"}
-                            </span>
-                            <span className="text-slate-400 font-light">
-                              {n.contentType === "article"
-                                ? "مضمون"
-                                : n.contentType === "fatwa"
-                                  ? "فتویٰ"
-                                  : "کتاب"}
-                            </span>
-                          </div>
-                          <p className="text-xs text-slate-700 font-medium leading-relaxed">
-                            "{n.text}"
-                          </p>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
+              {/* Real-time Notification Dropdown */}
+              <NotificationDropdown
+                isOpen={showNotifDropdown}
+                onClose={() => setShowNotifDropdown(false)}
+                anchorRef={notifBellRef}
+                headerHeight={56}
+                isAdmin={true}
+              />
             </div>
           </div>
         </header>

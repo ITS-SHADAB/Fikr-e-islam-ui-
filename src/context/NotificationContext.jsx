@@ -24,6 +24,12 @@ import {
   clearDismissedNotificationIds,
   listenToForegroundMessages,
 } from "@/services/notificationService";
+import {
+  getAdminActivityNotifications,
+  getAdminUnreadActivityCount,
+  markAdminActivityNotificationAsRead,
+  markAllAdminActivityNotificationsAsRead,
+} from "@/services/adminNotification";
 
 const NotificationContext = createContext({
   permission: "default",
@@ -45,6 +51,17 @@ const NotificationContext = createContext({
   requestPermission: async () => {},
   dismissPrompt: () => {},
   addForegroundNotification: () => {},
+
+  // 🛡️ Dedicated Admin Notification State
+  adminNotifications: [],
+  adminUnreadCount: 0,
+  isAdminLoading: false,
+  hasLoadedAdminNotifications: false,
+  refreshAdminNotifications: async () => {},
+  refreshAdminUnreadCount: async () => {},
+  markAdminAsRead: async () => {},
+  markAllAdminAsRead: async () => {},
+  dismissAdminNotification: () => {},
 });
 
 export function NotificationProvider({ children }) {
@@ -61,9 +78,17 @@ export function NotificationProvider({ children }) {
   const [shouldShowPrompt, setShouldShowPrompt] = useState(false);
   const [hasLoadedNotifications, setHasLoadedNotifications] = useState(false);
 
-  const { isAuthenticated, loggedInUser } = useSelector(
+  // 🛡️ Dedicated Admin Notification State
+  const [adminNotifications, setAdminNotifications] = useState([]);
+  const [adminUnreadCount, setAdminUnreadCount] = useState(0);
+  const [isAdminLoading, setIsAdminLoading] = useState(false);
+  const [isAdminCountLoading, setIsAdminCountLoading] = useState(false);
+  const [hasLoadedAdminNotifications, setHasLoadedAdminNotifications] = useState(false);
+
+  const { isAuthenticated, loggedInUser, userRole } = useSelector(
     (state) => state.auth || {}
   );
+  const isAdmin = userRole === "admin" || loggedInUser?.role === "admin";
   const currentUserId = loggedInUser?._id || null;
   const previousAuthRef = useRef(isAuthenticated);
 
@@ -134,6 +159,153 @@ export function NotificationProvider({ children }) {
         return [];
       } finally {
         if (!silent) setIsLoading(false);
+      }
+    },
+    [isAuthenticated]
+  );
+
+  /**
+   * 🛡️ Fetch unread admin activity notification count (Admin only)
+   */
+  const refreshAdminUnreadCount = useCallback(async () => {
+    if (!isAuthenticated || !isAdmin) {
+      setAdminUnreadCount(0);
+      return 0;
+    }
+
+    try {
+      setIsAdminCountLoading(true);
+      const res = await getAdminUnreadActivityCount();
+      const count =
+        typeof res?.count === "number"
+          ? res.count
+          : typeof res?.unreadCount === "number"
+          ? res.unreadCount
+          : 0;
+      const dismissedIds = getDismissedNotificationIds();
+      const adjustedCount = Math.max(0, count - dismissedIds.length);
+      setAdminUnreadCount(adjustedCount);
+      return adjustedCount;
+    } catch (err) {
+      if (process.env.NODE_ENV !== "production") {
+        console.warn("Failed to fetch admin unread count:", err);
+      }
+      return 0;
+    } finally {
+      setIsAdminCountLoading(false);
+    }
+  }, [isAuthenticated, isAdmin]);
+
+  /**
+   * 🛡️ Fetch admin activity notifications (Admin only)
+   * Keeps both unread and recent read notifications visible in dropdown.
+   */
+  const refreshAdminNotifications = useCallback(
+    async ({ silent = false } = {}) => {
+      if (!isAuthenticated || !isAdmin) {
+        setAdminNotifications([]);
+        setAdminUnreadCount(0);
+        return [];
+      }
+
+      try {
+        if (!silent) setIsAdminLoading(true);
+        const res = await getAdminActivityNotifications({ page: 1, limit: 30 });
+        const list = Array.isArray(res?.data) ? res.data : [];
+        const dismissedIds = getDismissedNotificationIds();
+
+        // Keep all non-dismissed notifications visible
+        const visibleList = list.filter(
+          (n) => n && !dismissedIds.includes(n._id)
+        );
+
+        setAdminNotifications(visibleList);
+        setHasLoadedAdminNotifications(true);
+
+        const unreadCountCalc = visibleList.filter((n) => !n.isRead).length;
+        setAdminUnreadCount(unreadCountCalc);
+        return visibleList;
+      } catch (err) {
+        if (process.env.NODE_ENV !== "production") {
+          console.warn("Failed to fetch admin activity notifications:", err);
+        }
+        return [];
+      } finally {
+        if (!silent) setIsAdminLoading(false);
+      }
+    },
+    [isAuthenticated, isAdmin]
+  );
+
+  /**
+   * 🛡️ Mark single admin notification as read
+   * Updates state to isRead = true without removing from dropdown
+   */
+  const markAdminAsRead = useCallback(
+    async (id) => {
+      if (!id || !isAuthenticated) return;
+
+      setAdminNotifications((prev) =>
+        prev.map((n) => (n._id === id ? { ...n, isRead: true } : n))
+      );
+      setAdminUnreadCount((prev) => Math.max(0, prev - 1));
+
+      const isMongoId = typeof id === "string" && /^[0-9a-fA-F]{24}$/.test(id);
+      if (!isMongoId) return;
+
+      try {
+        await markAdminActivityNotificationAsRead(id);
+      } catch (err) {
+        if (process.env.NODE_ENV !== "production") {
+          console.warn(
+            "Background markAdminActivityNotificationAsRead failed:",
+            id,
+            err
+          );
+        }
+      }
+    },
+    [isAuthenticated]
+  );
+
+  /**
+   * 🛡️ Mark all admin notifications as read
+   */
+  const markAllAdminAsRead = useCallback(async () => {
+    if (!isAuthenticated || !isAdmin) return;
+    if (adminUnreadCount === 0 && adminNotifications.length === 0) return;
+
+    const prevNotifs = [...adminNotifications];
+    const prevCount = adminUnreadCount;
+
+    setAdminNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
+    setAdminUnreadCount(0);
+
+    try {
+      await markAllAdminActivityNotificationsAsRead();
+    } catch (err) {
+      setAdminNotifications(prevNotifs);
+      setAdminUnreadCount(prevCount);
+      toast.error("Could not mark all admin notifications as read.");
+      if (process.env.NODE_ENV !== "production") {
+        console.warn("markAllAdminAsRead failed:", err);
+      }
+    }
+  }, [isAuthenticated, isAdmin, adminUnreadCount, adminNotifications]);
+
+  /**
+   * 🛡️ Dismiss single admin notification (Swipe or [×] click)
+   */
+  const dismissAdminNotification = useCallback(
+    (id) => {
+      if (!id) return;
+      addDismissedNotificationId(id);
+      setAdminNotifications((prev) => prev.filter((n) => n._id !== id));
+      setAdminUnreadCount((prev) => Math.max(0, prev - 1));
+
+      const isMongoId = typeof id === "string" && /^[0-9a-fA-F]{24}$/.test(id);
+      if (isMongoId && isAuthenticated) {
+        markAdminActivityNotificationAsRead(id).catch(() => {});
       }
     },
     [isAuthenticated]
@@ -331,6 +503,82 @@ export function NotificationProvider({ children }) {
         createdAt: new Date().toISOString(),
       };
 
+      // 🛡️ Admin foreground push message
+      const isAdminType =
+        type === "admin_question" ||
+        type === "admin_comment" ||
+        type === "admin_contact" ||
+        (typeof type === "string" && type.startsWith("admin_"));
+
+      if (isAdmin && isAdminType) {
+        let wasAdded = false;
+        setAdminNotifications((prev) => {
+          const isDuplicate = prev.some((n) => {
+            if (n._id === rawId) return true;
+            if (
+              n.title === title &&
+              n.message === message &&
+              Math.abs(new Date(n.createdAt).getTime() - Date.now()) < 60000
+            ) {
+              return true;
+            }
+            return false;
+          });
+
+          if (isDuplicate) return prev;
+          wasAdded = true;
+          return [newNotif, ...prev];
+        });
+
+        if (wasAdded) {
+          setAdminUnreadCount((prev) => prev + 1);
+          setHasLoadedAdminNotifications(true);
+        }
+
+        // Silently reconcile with backend admin activity endpoint
+        try {
+          const res = await getAdminActivityNotifications({ page: 1, limit: 30 });
+          const list = Array.isArray(res?.data) ? res.data : [];
+          const currentDismissed = getDismissedNotificationIds();
+
+          const visibleFromBackend = list.filter(
+            (n) => n && !currentDismissed.includes(n._id)
+          );
+
+          setAdminNotifications((prev) => {
+            const merged = [...visibleFromBackend];
+            prev.forEach((local) => {
+              const matched = merged.some(
+                (b) =>
+                  b._id === local._id ||
+                  (b.title === local.title &&
+                    b.message === local.message &&
+                    Math.abs(
+                      new Date(b.createdAt).getTime() -
+                        new Date(local.createdAt).getTime()
+                    ) < 60000)
+              );
+              if (!matched && !currentDismissed.includes(local._id)) {
+                merged.unshift(local);
+              }
+            });
+            return merged;
+          });
+
+          const unreadFromBackend = visibleFromBackend.filter((n) => !n.isRead);
+          setAdminUnreadCount(unreadFromBackend.length);
+        } catch (err) {
+          if (process.env.NODE_ENV !== "production") {
+            console.warn("Silent admin reconcile with backend failed:", err);
+          }
+        }
+
+        // If it's an admin-specific notification, return to avoid duplicating in user list
+        if (isAdminType) {
+          return;
+        }
+      }
+
       // 1. Immediately update notifications & unread count (with strict deduplication)
       let wasAdded = false;
       setNotifications((prev) => {
@@ -402,7 +650,7 @@ export function NotificationProvider({ children }) {
         }
       }
     },
-    [isAuthenticated]
+    [isAuthenticated, isAdmin]
   );
 
   // Persistent real-time listener for incoming FCM notifications
@@ -425,6 +673,10 @@ export function NotificationProvider({ children }) {
         if (hasLoadedNotifications) {
           refreshNotifications({ silent: true });
         }
+        if (isAdmin) {
+          refreshAdminUnreadCount();
+          refreshAdminNotifications({ silent: true });
+        }
       }
     };
 
@@ -438,8 +690,11 @@ export function NotificationProvider({ children }) {
   }, [
     isAuthenticated,
     hasLoadedNotifications,
+    isAdmin,
     refreshUnreadCount,
     refreshNotifications,
+    refreshAdminUnreadCount,
+    refreshAdminNotifications,
   ]);
 
   // Synchronize on mount and auth state change
@@ -448,17 +703,32 @@ export function NotificationProvider({ children }) {
 
     if (isAuthenticated) {
       refreshUnreadCount();
+      if (isAdmin) {
+        refreshAdminUnreadCount();
+        refreshAdminNotifications({ silent: true });
+      }
     } else {
       setNotifications([]);
       setUnreadCount(0);
       setHasLoadedNotifications(false);
+      setAdminNotifications([]);
+      setAdminUnreadCount(0);
+      setHasLoadedAdminNotifications(false);
       if (previousAuthRef.current) {
         handleLogoutTokenReset();
       }
     }
 
     previousAuthRef.current = isAuthenticated;
-  }, [isAuthenticated, currentUserId, silentSync, refreshUnreadCount]);
+  }, [
+    isAuthenticated,
+    currentUserId,
+    isAdmin,
+    silentSync,
+    refreshUnreadCount,
+    refreshAdminUnreadCount,
+    refreshAdminNotifications,
+  ]);
 
   // Handle polite prompt appearance
   useEffect(() => {
@@ -495,6 +765,18 @@ export function NotificationProvider({ children }) {
     requestPermission: promptPermission,
     dismissPrompt,
     addForegroundNotification,
+
+    // 🛡️ Dedicated Admin Notification State & Actions
+    adminNotifications,
+    adminUnreadCount,
+    isAdminLoading,
+    isAdminCountLoading,
+    hasLoadedAdminNotifications,
+    refreshAdminNotifications,
+    refreshAdminUnreadCount,
+    markAdminAsRead,
+    markAllAdminAsRead,
+    dismissAdminNotification,
   };
 
   return (

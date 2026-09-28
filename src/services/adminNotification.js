@@ -80,3 +80,40 @@ export const cleanupAdminNotificationHistory = async (olderThanDays = 90) => {
   });
   return response.data;
 };
+
+/**
+ * 🔔 Get Admin Activity Notifications (Admin Only)
+ * GET /api/admin/notifications/activity?page=1&limit=20
+ */
+export const getAdminActivityNotifications = async ({ page = 1, limit = 20 } = {}) => {
+  const response = await API.get(`/admin/notifications/activity?page=${page}&limit=${limit}`);
+  return response.data;
+};
+
+/**
+ * 🔔 Get Admin Unread Activity Notification Count (Admin Only)
+ * GET /api/admin/notifications/unread-count
+ */
+export const getAdminUnreadActivityCount = async () => {
+  const response = await API.get("/admin/notifications/unread-count");
+  return response.data;
+};
+
+/**
+ * 🔔 Mark Single Admin Activity Notification as Read (Admin Only)
+ * PATCH /api/admin/notifications/:id/read
+ */
+export const markAdminActivityNotificationAsRead = async (id) => {
+  if (!id) return null;
+  const response = await API.patch(`/admin/notifications/${id}/read`);
+  return response.data;
+};
+
+/**
+ * 🔔 Mark All Admin Activity Notifications as Read (Admin Only)
+ * PATCH /api/admin/notifications/read-all
+ */
+export const markAllAdminActivityNotificationsAsRead = async () => {
+  const response = await API.patch("/admin/notifications/read-all");
+  return response.data;
+};

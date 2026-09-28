@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -13,6 +13,8 @@ import {
   Sparkles,
   AlertCircle,
   X,
+  MessageSquare,
+  Mail,
 } from "lucide-react";
 import { useNotifications } from "@/hooks/useNotifications";
 import { useSettings } from "@/hooks/useSettings";
@@ -26,6 +28,7 @@ export default function NotificationDropdown({
   onClose,
   anchorRef,
   headerHeight,
+  isAdmin = false,
 }) {
   const navigate = useNavigate();
   const dropdownRef = useRef(null);
@@ -33,22 +36,37 @@ export default function NotificationDropdown({
   const { settings } = useSettings();
   const isUrdu = settings?.language === "ur" || settings?.language === "Urdu";
 
-  const {
-    notifications,
-    unreadCount,
-    isLoading,
-    error,
-    refreshNotifications,
-    markAsRead,
-    markAllAsRead,
-    dismissNotification,
-  } = useNotifications();
+  const context = useNotifications();
+  const notifications = isAdmin ? context.adminNotifications : context.notifications;
+  const unreadCount = isAdmin ? context.adminUnreadCount : context.unreadCount;
+  const isLoading = isAdmin ? context.isAdminLoading : context.isLoading;
+  const error = isAdmin ? null : context.error;
+  const refreshNotifications = isAdmin
+    ? context.refreshAdminNotifications
+    : context.refreshNotifications;
+  const markAsRead = isAdmin ? context.markAdminAsRead : context.markAsRead;
+  const markAllAsRead = isAdmin ? context.markAllAdminAsRead : context.markAllAsRead;
+  const dismissNotification = isAdmin
+    ? context.dismissAdminNotification
+    : context.dismissNotification;
+
+  const [selectedNotification, setSelectedNotification] = useState(null);
+
+  // 🔔 Crucial: Fetch fresh notifications whenever dropdown opens
+  useEffect(() => {
+    if (isOpen) {
+      refreshNotifications({ silent: false });
+    }
+  }, [isOpen, refreshNotifications]);
 
   // Close dropdown on outside click or Escape key
   useEffect(() => {
     if (!isOpen) return;
 
     const handleClickOutside = (e) => {
+      // Don't close if clicking inside detail modal
+      if (e.target.closest("[data-notif-modal]")) return;
+
       if (
         dropdownRef.current &&
         !dropdownRef.current.contains(e.target) &&
@@ -60,7 +78,11 @@ export default function NotificationDropdown({
 
     const handleKeyDown = (e) => {
       if (e.key === "Escape") {
-        onClose();
+        if (selectedNotification) {
+          setSelectedNotification(null);
+        } else {
+          onClose();
+        }
       }
     };
 
@@ -73,13 +95,13 @@ export default function NotificationDropdown({
       document.removeEventListener("touchstart", handleClickOutside);
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [isOpen, onClose, anchorRef]);
+  }, [isOpen, onClose, anchorRef, selectedNotification]);
 
   /**
-   * Handle clicking an unread notification:
-   * 1. Immediately close dropdown
-   * 2. Mark as read (optimistically removes from unread list & background syncs)
-   * 3. Navigate smoothly to target URL if present
+   * Handle clicking a notification:
+   * 1. Mark as read
+   * 2. If targetUrl exists and is actionable, navigate
+   * 3. Otherwise show full detail modal
    */
   const handleNotificationClick = async (notification) => {
     if (isDraggingRef.current) return;
@@ -87,23 +109,24 @@ export default function NotificationDropdown({
     const notifId = notification._id;
     const targetUrl = getNotificationTargetUrl(notification);
 
-    // 1. Close dropdown immediately for responsive UX
-    onClose();
-
-    // 2. Mark as read in context (optimistic + background sync)
+    // Mark as read in context (optimistic + background sync)
     try {
       await markAsRead(notifId);
     } catch {
       // Background sync errors are safely handled inside markAsRead
     }
 
-    // 3. Navigate to target URL if present
-    if (targetUrl) {
+    // If specific target URL exists, navigate to it
+    if (targetUrl && targetUrl !== "/" && targetUrl !== "#") {
+      onClose();
       if (targetUrl.startsWith("http://") || targetUrl.startsWith("https://")) {
         window.open(targetUrl, "_blank", "noopener,noreferrer");
       } else {
         navigate(targetUrl);
       }
+    } else {
+      // If no page to navigate to, open full detail modal
+      setSelectedNotification(notification);
     }
   };
 
@@ -119,6 +142,12 @@ export default function NotificationDropdown({
 
   const getNotificationIcon = (type = "") => {
     const t = type.toLowerCase();
+    if (t.includes("comment")) {
+      return <MessageSquare className="w-3.5 h-3.5 text-[#DFC8A4]" />;
+    }
+    if (t.includes("contact") || t.includes("message")) {
+      return <Mail className="w-3.5 h-3.5 text-[#DFC8A4]" />;
+    }
     if (t.includes("article")) {
       return <FileText className="w-3.5 h-3.5 text-[#DFC8A4]" />;
     }
@@ -169,7 +198,9 @@ export default function NotificationDropdown({
                 : {}),
             }}
             className={`fixed inset-x-2.5 sm:inset-x-auto top-[58px] sm:top-full sm:mt-2 sm:absolute ${
-              isUrdu
+              isAdmin
+                ? "sm:right-0 sm:left-auto text-right"
+                : isUrdu
                 ? "sm:left-0 sm:right-auto text-right"
                 : "sm:right-0 sm:left-auto text-left"
             } w-auto sm:w-96 sm:max-w-[420px] max-h-[calc(100dvh-75px)] sm:max-h-[520px] bg-[#2B2118] border border-[#A8793E] rounded-2xl shadow-2xl p-3 sm:p-4 text-[#F7F1E8] select-none z-[9999] flex flex-col`}
@@ -286,10 +317,23 @@ export default function NotificationDropdown({
               </div>
             )}
 
-            {/* Unread-Only Notification Items with Framer-Motion Swipe & Dismiss */}
+            {/* Notification Items with Framer-Motion Swipe & Dismiss */}
             <AnimatePresence initial={false} mode="popLayout">
               {notifications.map((n) => {
                 const targetUrl = getNotificationTargetUrl(n);
+                const titleText =
+                  n.title ||
+                  n.data?.title ||
+                  (isUrdu ? "نئی اطلاع" : "Notification");
+                const messageText =
+                  n.message ||
+                  n.body ||
+                  n.data?.message ||
+                  n.data?.body ||
+                  n.data?.questionTitle ||
+                  n.data?.comment ||
+                  n.data?.text ||
+                  "";
 
                 return (
                   <motion.div
@@ -335,7 +379,11 @@ export default function NotificationDropdown({
                         handleNotificationClick(n);
                       }
                     }}
-                    className="relative p-2.5 sm:p-3 rounded-xl border border-[#A8793E] bg-[#3D2E22] hover:bg-[#453426] shadow-sm transition-colors cursor-pointer flex flex-col gap-1 select-none active:cursor-grabbing group overflow-hidden"
+                    className={`relative p-2.5 sm:p-3 rounded-xl border transition-colors cursor-pointer flex flex-col gap-1 select-none active:cursor-grabbing group overflow-hidden ${
+                      n.isRead
+                        ? "border-[#A8793E]/30 bg-[#33261c]/80 hover:bg-[#3d2e22]"
+                        : "border-[#A8793E] bg-[#3D2E22] hover:bg-[#453426] shadow-sm"
+                    }`}
                   >
                     {/* Top row: Icon, title with unread indicator, and close [×] button */}
                     <div className="flex items-start gap-2">
@@ -345,13 +393,19 @@ export default function NotificationDropdown({
 
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1.5">
-                          <span
-                            className="w-2 h-2 rounded-full bg-[#DFC8A4] shrink-0 shadow-xs"
-                            title={isUrdu ? "غیر پڑھا ہوا" : "Unread"}
-                            aria-label={isUrdu ? "غیر پڑھا ہوا" : "Unread"}
-                          />
-                          <h4 className="text-xs font-bold text-[#DFC8A4] truncate">
-                            {n.title}
+                          {!n.isRead && (
+                            <span
+                              className="w-2 h-2 rounded-full bg-[#DFC8A4] shrink-0 shadow-xs"
+                              title={isUrdu ? "غیر پڑھا ہوا" : "Unread"}
+                              aria-label={isUrdu ? "غیر پڑھا ہوا" : "Unread"}
+                            />
+                          )}
+                          <h4
+                            className={`text-xs font-bold truncate ${
+                              n.isRead ? "text-[#DFC8A4]/75" : "text-[#DFC8A4]"
+                            }`}
+                          >
+                            {titleText}
                           </h4>
                         </div>
                       </div>
@@ -369,9 +423,9 @@ export default function NotificationDropdown({
                     </div>
 
                     {/* Body text */}
-                    {n.message && (
-                      <p className="text-[11px] sm:text-xs text-[#F7F1E8]/80 line-clamp-2 leading-relaxed ps-8">
-                        {n.message}
+                    {messageText && (
+                      <p className="text-[11px] sm:text-xs text-[#F7F1E8]/85 line-clamp-3 leading-relaxed ps-8 font-urdu">
+                        {messageText}
                       </p>
                     )}
 
@@ -405,6 +459,65 @@ export default function NotificationDropdown({
             </div>
           )}
         </motion.div>
+
+        {/* Detailed Notification View Modal */}
+        {selectedNotification && (
+          <div
+            data-notif-modal="true"
+            className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs animate-in fade-in"
+            onClick={() => setSelectedNotification(null)}
+          >
+            <div
+              className="bg-[#2B2118] border border-[#A8793E] rounded-2xl max-w-md w-full p-5 shadow-2xl text-[#F7F1E8] relative flex flex-col gap-3"
+              dir={isUrdu ? "rtl" : "ltr"}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-start justify-between border-b border-[#A8793E]/30 pb-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full bg-[#A8793E]/20 border border-[#A8793E]/40 flex items-center justify-center shrink-0">
+                    {getNotificationIcon(selectedNotification.type)}
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-sm text-[#DFC8A4]">
+                      {selectedNotification.title || (isUrdu ? "اطلاع" : "Notification")}
+                    </h3>
+                    <p className="text-[10px] text-[#F7F1E8]/50">
+                      {formatNotificationTime(selectedNotification.createdAt, isUrdu)}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setSelectedNotification(null)}
+                  className="p-1.5 text-[#F7F1E8]/60 hover:text-[#DFC8A4] hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="py-2 text-xs sm:text-sm text-[#F7F1E8]/90 leading-relaxed font-urdu whitespace-pre-wrap max-h-60 overflow-y-auto custom-drawer-scrollbar">
+                {selectedNotification.message ||
+                  selectedNotification.body ||
+                  selectedNotification.data?.message ||
+                  selectedNotification.data?.body ||
+                  selectedNotification.data?.questionTitle ||
+                  selectedNotification.data?.comment ||
+                  selectedNotification.data?.text ||
+                  (isUrdu ? "کوئی تفصیل دستیاب نہیں ہے۔" : "No details available.")}
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-[#A8793E]/20">
+                <button
+                  type="button"
+                  onClick={() => setSelectedNotification(null)}
+                  className="px-4 py-1.5 rounded-lg text-xs font-semibold bg-white/10 hover:bg-white/20 text-[#F7F1E8] transition-colors cursor-pointer"
+                >
+                  {isUrdu ? "بند کریں" : "Close"}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </>
     )}
   </AnimatePresence>

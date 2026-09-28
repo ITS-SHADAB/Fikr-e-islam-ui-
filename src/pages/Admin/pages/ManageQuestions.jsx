@@ -588,6 +588,21 @@ export default function ManageQuestions() {
     setShowUnsavedModal(false);
   };
 
+  // Auto-open specific question from URL query param (from notification click)
+  useEffect(() => {
+    if (!questions || questions.length === 0) return;
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const targetId = params.get('questionId') || params.get('id');
+      if (targetId) {
+        const found = questions.find((q) => String(q._id) === String(targetId));
+        if (found) {
+          openAnswerModal(found);
+        }
+      }
+    } catch {}
+  }, [questions]);
+
   const handleRequestClose = () => {
     if (isDirty) {
       setShowUnsavedModal(true);
