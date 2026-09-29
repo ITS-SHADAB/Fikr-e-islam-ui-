@@ -54,9 +54,19 @@ export function useCachedContent({
   fetcherRef.current = fetcher;
 
   const data = queryState?.data || null;
+  const error = queryState?.error || null;
   const isFetched = !!queryState?.fetchedAt;
   const isFresh =
     isFetched && data ? Date.now() - queryState.fetchedAt < staleTime : false;
+
+  // Loading is true if:
+  // 1. queryState explicitly indicates loading (and there is no cached data to display)
+  // 2. OR if query is enabled, no data exists, no error has occurred, and it has not yet completed fetching
+  const loading = Boolean(
+    queryState?.loading
+      ? !data
+      : enabled && !data && !error && !isFetched
+  );
 
   // Dispatch fetch if not present or stale
   useEffect(() => {
@@ -64,10 +74,15 @@ export function useCachedContent({
 
     // Check if fetch is needed
     if (!queryState || !isFresh) {
+      const currentKey = key;
+      const currentFetcher = fetcherRef.current;
+
       dispatch(
         fetchContentWithCache({
-          key,
-          fetcher: () => fetcherRef.current(),
+          key: currentKey,
+          fetcher: async () => {
+            return await currentFetcher();
+          },
           staleTime,
           force: false,
         })
@@ -77,10 +92,14 @@ export function useCachedContent({
 
   const refetch = useCallback(
     (force = true) => {
+      const currentKey = key;
+      const currentFetcher = fetcherRef.current;
       return dispatch(
         fetchContentWithCache({
-          key,
-          fetcher: () => fetcherRef.current(),
+          key: currentKey,
+          fetcher: async () => {
+            return await currentFetcher();
+          },
           staleTime,
           force,
         })
@@ -91,10 +110,9 @@ export function useCachedContent({
 
   return {
     data,
-    // loading is true ONLY on the initial load when there is no cached data to display
-    loading: !!(queryState?.loading && !data),
+    loading,
     isRefreshing: !!queryState?.isRefreshing,
-    error: queryState?.error || null,
+    error,
     isFresh,
     refetch,
   };

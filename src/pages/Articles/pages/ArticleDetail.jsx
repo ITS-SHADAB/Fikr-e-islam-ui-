@@ -71,27 +71,7 @@ export default function ArticleDetail() {
     fetcher: async () => {
       const data = await getArticleBySlug(rawParam);
       const articleData = data?.article || data;
-      let related = data?.related || [];
-      if (!related.length || !related[0]?.summary) {
-        try {
-          let allRes = await getArticles({
-            category: articleData?.category,
-            limit: 4,
-          });
-          let others = (allRes?.articles || [])?.filter(
-            (a) => a?._id !== articleData?._id
-          );
-          if (!others.length) {
-            allRes = await getArticles({ limit: 4 });
-            others = (allRes?.articles || [])?.filter(
-              (a) => a?._id !== articleData?._id
-            );
-          }
-          if (others.length > 0) {
-            related = others.slice(0, 3);
-          }
-        } catch {}
-      }
+      const related = data?.related || [];
       return { article: articleData, related };
     },
     staleTime: STALE_TIMES.articles,

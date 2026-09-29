@@ -205,7 +205,7 @@ export default function FatwaCard({ fatwa }) {
           {/* Title Text */}
           <h3 className="flex-1 min-w-0 font-bold text-sm sm:text-[18px] md:text-[19px] leading-[1.7] font-['Payami_Nastaleeq',serif] text-[#1E1711] line-clamp-2 text-right break-words">
             <Link
-              to={`/fatwas/${slug}`}
+              to={`/fatwas/${fatwaIdentifier}`}
               className="hover:text-[#8C5E28] transition-colors block"
             >
               {title}
@@ -369,7 +369,7 @@ export default function FatwaCard({ fatwa }) {
 
         {/* Left side (in RTL): Primary CTA Button with Rich Gold Gradient */}
         <Link
-          to={`/fatwas/${slug}`}
+          to={`/fatwas/${fatwaIdentifier}`}
           className="inline-flex items-center gap-1 sm:gap-1.5 px-3 sm:px-4 py-1.5 rounded-full bg-gradient-to-r from-[#B58546] via-[#A8793E] to-[#8C5E28] hover:from-[#A07238] hover:to-[#7A4F1E] text-white text-[11px] sm:text-xs font-bold transition-all duration-200 shadow-xs hover:shadow-md cursor-pointer border border-[#C5A87C]/30 shrink-0"
         >
           {isRTL && (

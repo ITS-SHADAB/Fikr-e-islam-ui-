@@ -8,7 +8,7 @@ export const STALE_TIMES = {
   publications: 5 * 60 * 1000,  // 5 minutes
   lectures: 5 * 60 * 1000,      // 5 minutes
   questions: 3 * 60 * 1000,     // 3 minutes
-  events: 0,                    // 0 (always fresh, dynamic admin-managed resource)
+  events: 30 * 1000,            // 30 seconds (dynamic admin-managed resource, prevents render fetch storm)
   categories: 10 * 60 * 1000,   // 10 minutes (dynamic categories cached across components)
 };
 
@@ -57,8 +57,16 @@ export const fetchContentWithCache = createAsyncThunk(
       const { content } = getState();
       const entry = content?.queries?.[key];
 
-      // 1. In-flight protection: if already fetching or revalidating, do not duplicate
+      // 1. In-flight protection: if already fetching or revalidating, do not duplicate unless forced or stuck
       if (entry?.loading || entry?.isRefreshing) {
+        if (force) {
+          return true;
+        }
+        // Stale in-flight guard: if a request has been pending for > 15s (network dropped or hung), allow retry
+        const elapsed = entry?.startedAt ? Date.now() - entry.startedAt : Infinity;
+        if (elapsed > 15000) {
+          return true;
+        }
         return false;
       }
 
@@ -110,6 +118,7 @@ const contentSlice = createSlice({
           // Stale-while-revalidate: keep cached data visible, trigger background refresh
           existing.isRefreshing = true;
           existing.error = null;
+          existing.startedAt = Date.now();
         } else {
           // Initial fetch: no cached data yet
           state.queries[key] = {
@@ -118,6 +127,7 @@ const contentSlice = createSlice({
             isRefreshing: false,
             error: null,
             fetchedAt: null,
+            startedAt: Date.now(),
           };
         }
       })
@@ -129,14 +139,23 @@ const contentSlice = createSlice({
           isRefreshing: false,
           error: null,
           fetchedAt,
+          startedAt: null,
         };
       })
       .addCase(fetchContentWithCache.rejected, (state, action) => {
+        // CRITICAL FIX: If this rejection was triggered by condition() returning false
+        // (i.e. preventing a duplicate concurrent fetch), DO NOT overwrite in-flight state!
+        // The original in-flight request is still running and will complete.
+        if (action.meta?.condition) {
+          return;
+        }
+
         const key = action.payload?.key || action.meta?.arg?.key;
         const existing = state.queries[key];
         if (existing) {
           existing.loading = false;
           existing.isRefreshing = false;
+          existing.startedAt = null;
           // Preserve valid cached data if present!
           existing.error =
             action.payload?.error || action.error?.message || 'Request failed';

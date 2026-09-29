@@ -29,23 +29,24 @@ import { Spinner } from '@/components';
 import toast from 'react-hot-toast';
 
 export default function QADetail() {
-  const { slug } = useParams();
+  const { slug, id } = useParams();
+  const rawParam = slug || id;
   const navigate = useNavigate();
   const { loggedInUser, userRole } = useSelector((state) => state.auth);
   const isAdmin = userRole === 'admin' || loggedInUser?.role === 'admin';
 
   const { data, loading, error } = useCachedContent({
     type: 'questions_detail',
-    params: slug,
+    params: rawParam,
     fetcher: async () => {
-      const res = await getQuestionBySlug(slug);
+      const res = await getQuestionBySlug(rawParam);
       if (!res?.question) {
         throw new Error('سوال نہیں ملا');
       }
       return res;
     },
     staleTime: STALE_TIMES.questions,
-    enabled: !!slug,
+    enabled: !!rawParam,
   });
 
   const question = data?.question || null;
@@ -54,7 +55,7 @@ export default function QADetail() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, [slug]);
+  }, [rawParam]);
 
   const handleCopyLink = () => {
     const url = window.location.href;

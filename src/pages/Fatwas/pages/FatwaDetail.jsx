@@ -55,7 +55,8 @@ const THEME = {
 };
 
 export default function FatwaDetail() {
-  const { slug } = useParams();
+  const { slug, id } = useParams();
+  const rawParam = slug || id;
   const { settings } = useSettings();
   const language =
     settings?.language === "ur" || settings?.language === "Urdu" ? "ur" : "en";
@@ -63,29 +64,15 @@ export default function FatwaDetail() {
 
   const { data: detailData, loading, error } = useCachedContent({
     type: "fatwas_detail",
-    params: slug,
+    params: rawParam,
     fetcher: async () => {
-      const data = await getFatwaBySlug(slug);
+      const data = await getFatwaBySlug(rawParam);
       const fatwaData = data?.fatwa || data;
-      let related = data?.related || [];
-      if (!related.length && fatwaData?.category) {
-        try {
-          const allRes = await getFatwas({
-            category: fatwaData?.category,
-            limit: 4,
-          });
-          const others = (allRes?.fatwas || [])?.filter(
-            (f) => f?._id !== fatwaData?._id
-          );
-          related = others?.slice(0, 3) || [];
-        } catch (rErr) {
-          console.warn("Failed to load related fatwas", rErr);
-        }
-      }
+      const related = data?.related || [];
       return { fatwa: fatwaData, related };
     },
     staleTime: STALE_TIMES.fatwas,
-    enabled: !!slug,
+    enabled: !!rawParam,
   });
 
   const fatwa = detailData?.fatwa || null;
@@ -98,7 +85,7 @@ export default function FatwaDetail() {
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [slug]);
+  }, [rawParam]);
 
   const shareUrl = typeof window !== "undefined" ? window?.location?.href : "";
 

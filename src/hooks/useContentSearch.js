@@ -187,6 +187,7 @@ export function useContentSearch({
           err.code === 'ERR_CANCELED' ||
           controller.signal.aborted
         ) {
+          setIsSearching(false);
           return;
         }
         console.error(`[Search Error] ${contentType}:`, err);

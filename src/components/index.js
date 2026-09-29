@@ -38,3 +38,4 @@ export * from "./Modal";
 export * from "./ConfirmationBox";
 export * from "./SectionSidebar";
 export * from "./Loader";
+export { default as ErrorBoundary } from "./ErrorBoundary/ErrorBoundary";
