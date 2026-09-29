@@ -29,6 +29,7 @@ import {
   getAdminUnreadActivityCount,
   markAdminActivityNotificationAsRead,
   markAllAdminActivityNotificationsAsRead,
+  deleteAdminActivityNotification,
 } from "@/services/adminNotification";
 
 const NotificationContext = createContext({
@@ -198,7 +199,7 @@ export function NotificationProvider({ children }) {
 
   /**
    * 🛡️ Fetch admin activity notifications (Admin only)
-   * Keeps both unread and recent read notifications visible in dropdown.
+   * Strictly filters for unread notifications and excludes locally dismissed items.
    */
   const refreshAdminNotifications = useCallback(
     async ({ silent = false } = {}) => {
@@ -210,21 +211,20 @@ export function NotificationProvider({ children }) {
 
       try {
         if (!silent) setIsAdminLoading(true);
-        const res = await getAdminActivityNotifications({ page: 1, limit: 30 });
+        const res = await getAdminActivityNotifications({ page: 1, limit: 30, unread: true });
         const list = Array.isArray(res?.data) ? res.data : [];
         const dismissedIds = getDismissedNotificationIds();
 
-        // Keep all non-dismissed notifications visible
-        const visibleList = list.filter(
-          (n) => n && !dismissedIds.includes(n._id)
+        // ONLY UNREAD NOTIFICATIONS + EXCLUDE LOCALLY DISMISSED
+        const unreadOnly = list.filter(
+          (n) => n && !n.isRead && !dismissedIds.includes(n._id)
         );
 
-        setAdminNotifications(visibleList);
+        setAdminNotifications(unreadOnly);
         setHasLoadedAdminNotifications(true);
 
-        const unreadCountCalc = visibleList.filter((n) => !n.isRead).length;
-        setAdminUnreadCount(unreadCountCalc);
-        return visibleList;
+        setAdminUnreadCount(unreadOnly.length);
+        return unreadOnly;
       } catch (err) {
         if (process.env.NODE_ENV !== "production") {
           console.warn("Failed to fetch admin activity notifications:", err);
@@ -239,16 +239,16 @@ export function NotificationProvider({ children }) {
 
   /**
    * 🛡️ Mark single admin notification as read
-   * Updates state to isRead = true without removing from dropdown
+   * Optimistically removes notification from visible list and decrements unread count immediately.
    */
   const markAdminAsRead = useCallback(
     async (id) => {
       if (!id || !isAuthenticated) return;
 
-      setAdminNotifications((prev) =>
-        prev.map((n) => (n._id === id ? { ...n, isRead: true } : n))
-      );
+      // Optimistically remove from visible list and decrement count immediately
+      setAdminNotifications((prev) => prev.filter((n) => n._id !== id));
       setAdminUnreadCount((prev) => Math.max(0, prev - 1));
+      addDismissedNotificationId(id);
 
       const isMongoId = typeof id === "string" && /^[0-9a-fA-F]{24}$/.test(id);
       if (!isMongoId) return;
@@ -270,6 +270,7 @@ export function NotificationProvider({ children }) {
 
   /**
    * 🛡️ Mark all admin notifications as read
+   * Optimistically clears all notifications from modal and resets count to 0.
    */
   const markAllAdminAsRead = useCallback(async () => {
     if (!isAuthenticated || !isAdmin) return;
@@ -278,7 +279,11 @@ export function NotificationProvider({ children }) {
     const prevNotifs = [...adminNotifications];
     const prevCount = adminUnreadCount;
 
-    setAdminNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
+    // Optimistically clear all notifications from visible list and reset count
+    adminNotifications.forEach((n) => {
+      if (n?._id) addDismissedNotificationId(n._id);
+    });
+    setAdminNotifications([]);
     setAdminUnreadCount(0);
 
     try {
@@ -294,7 +299,7 @@ export function NotificationProvider({ children }) {
   }, [isAuthenticated, isAdmin, adminUnreadCount, adminNotifications]);
 
   /**
-   * 🛡️ Dismiss single admin notification (Swipe or [×] click)
+   * 🛡️ Dismiss single admin notification (Swipe, [×] click, or detail modal dismiss)
    */
   const dismissAdminNotification = useCallback(
     (id) => {
@@ -306,6 +311,7 @@ export function NotificationProvider({ children }) {
       const isMongoId = typeof id === "string" && /^[0-9a-fA-F]{24}$/.test(id);
       if (isMongoId && isAuthenticated) {
         markAdminActivityNotificationAsRead(id).catch(() => {});
+        deleteAdminActivityNotification(id).catch(() => {});
       }
     },
     [isAuthenticated]

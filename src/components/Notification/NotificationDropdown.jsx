@@ -52,10 +52,12 @@ export default function NotificationDropdown({
 
   const [selectedNotification, setSelectedNotification] = useState(null);
 
-  // 🔔 Crucial: Fetch fresh notifications whenever dropdown opens
+  // 🔔 Crucial: Fetch fresh notifications whenever dropdown opens & reset detail modal
   useEffect(() => {
     if (isOpen) {
       refreshNotifications({ silent: false });
+    } else {
+      setSelectedNotification(null);
     }
   }, [isOpen, refreshNotifications]);
 
@@ -506,14 +508,60 @@ export default function NotificationDropdown({
                   (isUrdu ? "کوئی تفصیل دستیاب نہیں ہے۔" : "No details available.")}
               </div>
 
-              <div className="flex items-center justify-end gap-2 pt-2 border-t border-[#A8793E]/20">
+              <div className="flex items-center justify-between gap-2 pt-2 border-t border-[#A8793E]/20">
+                {/* Dismiss button to remove notification completely */}
                 <button
                   type="button"
-                  onClick={() => setSelectedNotification(null)}
-                  className="px-4 py-1.5 rounded-lg text-xs font-semibold bg-white/10 hover:bg-white/20 text-[#F7F1E8] transition-colors cursor-pointer"
+                  onClick={() => {
+                    if (selectedNotification?._id) {
+                      dismissNotification(selectedNotification._id);
+                    }
+                    setSelectedNotification(null);
+                  }}
+                  className="px-3 py-1.5 rounded-lg text-xs font-semibold text-red-300 hover:text-red-200 hover:bg-red-500/20 transition-colors cursor-pointer flex items-center gap-1"
+                  title={isUrdu ? "اطلاع ہٹائیں" : "Dismiss notification"}
                 >
-                  {isUrdu ? "بند کریں" : "Close"}
+                  <X className="w-3.5 h-3.5" />
+                  <span>{isUrdu ? "اطلاع ہٹائیں" : "Dismiss"}</span>
                 </button>
+
+                <div className="flex items-center gap-2">
+                  {getNotificationTargetUrl(selectedNotification) && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const targetUrl = getNotificationTargetUrl(selectedNotification);
+                        if (selectedNotification?._id) {
+                          markAsRead(selectedNotification._id);
+                          dismissNotification(selectedNotification._id);
+                        }
+                        setSelectedNotification(null);
+                        onClose();
+                        if (targetUrl.startsWith("http://") || targetUrl.startsWith("https://")) {
+                          window.open(targetUrl, "_blank", "noopener,noreferrer");
+                        } else {
+                          navigate(targetUrl);
+                        }
+                      }}
+                      className="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-[#A8793E] hover:bg-[#8f6430] text-[#F7F1E8] transition-colors cursor-pointer flex items-center gap-1 shadow-xs"
+                    >
+                      <span>{isUrdu ? "دیکھیں" : "View"}</span>
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (selectedNotification?._id) {
+                        markAsRead(selectedNotification._id);
+                        dismissNotification(selectedNotification._id);
+                      }
+                      setSelectedNotification(null);
+                    }}
+                    className="px-4 py-1.5 rounded-lg text-xs font-semibold bg-white/10 hover:bg-white/20 text-[#F7F1E8] transition-colors cursor-pointer"
+                  >
+                    {isUrdu ? "بند کریں" : "Close"}
+                  </button>
+                </div>
               </div>
             </div>
           </div>

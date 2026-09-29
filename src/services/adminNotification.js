@@ -117,3 +117,13 @@ export const markAllAdminActivityNotificationsAsRead = async () => {
   const response = await API.patch("/admin/notifications/read-all");
   return response.data;
 };
+
+/**
+ * 🗑️ Delete Single Admin Activity Notification (Admin Only)
+ * DELETE /api/admin/notifications/:id
+ */
+export const deleteAdminActivityNotification = async (id) => {
+  if (!id) return null;
+  const response = await API.delete(`/admin/notifications/${id}`);
+  return response.data;
+};

@@ -177,10 +177,6 @@
   border-color: var(--color-accent);
 }
 
-.title-serif {
-  font-family: 'Playfair Display', serif;
-}
-
 /* Sleek custom scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
@@ -279,8 +275,7 @@
 [dir="rtl"] h3,
 [dir="rtl"] h4,
 [dir="rtl"] h5,
-[dir="rtl"] h6,
-[dir="rtl"] .title-serif {
+[dir="rtl"] h6 {
   font-family: 'Payami Nastaleeq', 'Noto Nastaliq Urdu', 'Urdu Typesetting', 'Jameel Noori Nastaleeq', 'Noto Naskh Arabic', serif;
   line-height: 1.5;
 }

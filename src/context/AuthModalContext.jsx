@@ -1,10 +1,22 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, Suspense } from 'react';
 import { useSelector } from 'react-redux';
 import Modal from '@/components/Modal/Modal';
-import Login from '@/pages/Admin/pages/Login';
-import Signup from '@/pages/Admin/pages/Signup';
-import ForgotPassword from '@/pages/Admin/pages/ForgotPassword';
-import ResetPassword from '@/pages/Admin/pages/ResetPassword';
+import { lazyWithRetry } from '@/utils/lazyWithRetry';
+import { Spinner } from '@/components/Loader';
+
+// Code-split authentication components — deferred until auth modal is opened
+const Login = lazyWithRetry(() => import('@/pages/Admin/pages/Login'));
+const Signup = lazyWithRetry(() => import('@/pages/Admin/pages/Signup'));
+const ForgotPassword = lazyWithRetry(() => import('@/pages/Admin/pages/ForgotPassword'));
+const ResetPassword = lazyWithRetry(() => import('@/pages/Admin/pages/ResetPassword'));
+
+function AuthModalLoadingFallback() {
+  return (
+    <div className="flex items-center justify-center min-h-[260px] w-full py-8">
+      <Spinner size="md" />
+    </div>
+  );
+}
 
 const AuthModalContext = createContext({
   isOpen: false,
@@ -93,34 +105,36 @@ export function AuthModalProvider({ children }) {
         height="max-h-[92vh]"
         dir="ltr"
       >
-        {mode === 'login' ? (
-          <Login
-            isModal={true}
-            onClose={closeAuthModal}
-            onSwitchToSignup={() => setMode('signup')}
-            onSwitchToForgotPassword={() => setMode('forgot-password')}
-          />
-        ) : mode === 'signup' ? (
-          <Signup
-            isModal={true}
-            onClose={closeAuthModal}
-            onSwitchToLogin={() => setMode('login')}
-          />
-        ) : mode === 'reset-password' ? (
-          <ResetPassword
-            isModal={true}
-            token={resetToken}
-            onClose={closeAuthModal}
-            onSwitchToLogin={() => setMode('login')}
-            onSwitchToForgotPassword={() => setMode('forgot-password')}
-          />
-        ) : (
-          <ForgotPassword
-            isModal={true}
-            onClose={closeAuthModal}
-            onBackToLogin={() => setMode('login')}
-          />
-        )}
+        <Suspense fallback={<AuthModalLoadingFallback />}>
+          {mode === 'login' ? (
+            <Login
+              isModal={true}
+              onClose={closeAuthModal}
+              onSwitchToSignup={() => setMode('signup')}
+              onSwitchToForgotPassword={() => setMode('forgot-password')}
+            />
+          ) : mode === 'signup' ? (
+            <Signup
+              isModal={true}
+              onClose={closeAuthModal}
+              onSwitchToLogin={() => setMode('login')}
+            />
+          ) : mode === 'reset-password' ? (
+            <ResetPassword
+              isModal={true}
+              token={resetToken}
+              onClose={closeAuthModal}
+              onSwitchToLogin={() => setMode('login')}
+              onSwitchToForgotPassword={() => setMode('forgot-password')}
+            />
+          ) : (
+            <ForgotPassword
+              isModal={true}
+              onClose={closeAuthModal}
+              onBackToLogin={() => setMode('login')}
+            />
+          )}
+        </Suspense>
       </Modal>
     </AuthModalContext.Provider>
   );

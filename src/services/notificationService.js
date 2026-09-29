@@ -276,7 +276,9 @@ const STORAGE_DISMISSED_IDS_KEY = "notification_dismissed_ids";
 export const getDismissedNotificationIds = () => {
   if (typeof window === "undefined") return [];
   try {
-    const raw = sessionStorage.getItem(STORAGE_DISMISSED_IDS_KEY);
+    const raw =
+      localStorage.getItem(STORAGE_DISMISSED_IDS_KEY) ||
+      sessionStorage.getItem(STORAGE_DISMISSED_IDS_KEY);
     if (!raw) return [];
     const parsed = JSON.parse(raw);
     return Array.isArray(parsed) ? parsed : [];
@@ -293,9 +295,14 @@ export const addDismissedNotificationId = (id) => {
   try {
     const current = getDismissedNotificationIds();
     if (!current.includes(id)) {
-      // Retain latest 150 IDs to prevent storage bloat
-      const updated = [...current, id].slice(-150);
-      sessionStorage.setItem(STORAGE_DISMISSED_IDS_KEY, JSON.stringify(updated));
+      // Retain latest 200 IDs to prevent storage bloat
+      const updated = [...current, id].slice(-200);
+      try {
+        localStorage.setItem(STORAGE_DISMISSED_IDS_KEY, JSON.stringify(updated));
+      } catch {}
+      try {
+        sessionStorage.setItem(STORAGE_DISMISSED_IDS_KEY, JSON.stringify(updated));
+      } catch {}
     }
   } catch {}
 };
@@ -306,6 +313,7 @@ export const addDismissedNotificationId = (id) => {
 export const clearDismissedNotificationIds = () => {
   if (typeof window === "undefined") return;
   try {
+    localStorage.removeItem(STORAGE_DISMISSED_IDS_KEY);
     sessionStorage.removeItem(STORAGE_DISMISSED_IDS_KEY);
   } catch {}
 };

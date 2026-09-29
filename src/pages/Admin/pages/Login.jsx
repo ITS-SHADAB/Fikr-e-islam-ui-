@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, Link, Navigate } from "react-router-dom";
 import { Eye, EyeOff, AlertTriangle, ArrowRight } from "lucide-react";
 import { login, clearAuthError } from "../../../store/slices/authSlice";
 import GoogleAuthButton from "@/components/Auth/GoogleAuthButton";
 import AuthDivider from "@/components/Auth/AuthDivider";
-import ForgotPassword from "./ForgotPassword";
+import { lazyWithRetry } from "@/utils/lazyWithRetry";
+
+const ForgotPassword = lazyWithRetry(() => import("./ForgotPassword"));
 
 /* ─── Animated required asterisk ─────────────────────────────────────── */
 function RequiredStar() {
@@ -151,11 +153,13 @@ export default function Login({
   // If switched to internal forgot password view
   if (internalView === "forgot-password") {
     return (
-      <ForgotPassword
-        isModal={isModal}
-        onClose={onClose}
-        onBackToLogin={() => setInternalView("login")}
-      />
+      <Suspense fallback={null}>
+        <ForgotPassword
+          isModal={isModal}
+          onClose={onClose}
+          onBackToLogin={() => setInternalView("login")}
+        />
+      </Suspense>
     );
   }
 

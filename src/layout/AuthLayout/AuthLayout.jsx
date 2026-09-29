@@ -12,18 +12,18 @@ export default function AuthLayout() {
   useEffect(() => {
     // Force LTR + English font for all auth pages
     document.body.dir = 'ltr';
-    document.body.style.fontFamily = "'Inter', 'Outfit', sans-serif";
+    document.body.style.fontFamily = "'Inter', sans-serif";
 
     // On unmount: always restore Urdu RTL (the rest of the app is always Urdu)
     return () => {
       document.body.dir = 'rtl';
       document.body.style.fontFamily =
-        "'Pyami Nastaliq', 'Payami Nastaleeq', 'Noto Nastaliq Urdu', 'Noto Sans Arabic', 'Inter', sans-serif";
+        "'Payami Nastaleeq', 'Noto Nastaliq Urdu', 'Noto Naskh Arabic', 'Inter', sans-serif";
     };
   }, []);
 
   return (
-    <div dir="ltr" lang="en" style={{ textAlign: 'left', fontFamily: "'Inter', 'Outfit', sans-serif" }}>
+    <div dir="ltr" lang="en" style={{ textAlign: 'left', fontFamily: "'Inter', sans-serif" }}>
       <Outlet />
     </div>
   );

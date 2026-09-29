@@ -24,7 +24,7 @@ const getReadingTime = (text = "") => {
   const words = text?.trim()?.split(/\s+/)?.filter(Boolean)?.length || 0;
   return Math.max(1, Math.ceil(words / 200));
 };
-import { getArticleBySlug, getArticles } from "@/services";
+import { getArticleBySlug } from "@/services";
 import { useCachedContent } from "@/hooks/useContentCache";
 import { STALE_TIMES } from "@/store/slices/contentSlice";
 import { useSettings } from "@/hooks/useSettings";
