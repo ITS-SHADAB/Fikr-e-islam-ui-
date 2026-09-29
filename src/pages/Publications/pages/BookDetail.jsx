@@ -523,7 +523,7 @@ export default function BookDetail() {
                   alt={title}
                   width="225"
                   height="255"
-                  fetchPriority="high"
+                  fetchpriority="high"
                   className="w-auto max-w-full max-h-full object-contain object-bottom filter drop-shadow-[0_12px_20px_rgba(43,33,24,0.24)] drop-shadow-[0_2px_4px_rgba(43,33,24,0.12)] rounded-xs"
                   decoding="async"
                   onError={handleImageError}

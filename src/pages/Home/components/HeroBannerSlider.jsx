@@ -199,7 +199,7 @@ export default function HeroBannerSlider() {
                     e.currentTarget.src = currentSlide.publicUrl;
                   }
                 }}
-                fetchPriority={currentIndex === 0 ? "high" : "auto"}
+                fetchpriority={currentIndex === 0 ? "high" : "auto"}
                 loading="eager"
                 decoding={currentIndex === 0 ? "sync" : "async"}
                 draggable={false}

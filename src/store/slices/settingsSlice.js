@@ -368,6 +368,7 @@ const settingsSlice = createSlice({
         saveCachedSettings(action.payload);
       })
       .addCase(fetchSettings.rejected, (state, action) => {
+        if (action.meta?.condition) return;
         state.loading = false;
         state.isFetched = true;
         state.error = action.payload;

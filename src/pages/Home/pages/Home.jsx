@@ -169,14 +169,16 @@ function StatisticsSection({ stats }) {
   );
 }
 
+const HOMEPAGE_ITEM_LIMIT = { limit: 3 };
+
 export default function Home() {
   const { settings } = useSettings();
-  const { data: articlesData, loading: isLoadingArticles } = useArticlesList({ limit: 3 });
-  const { data: fatwasData, loading: isLoadingFatwas } = useFatwasList({ limit: 3 });
-  const { data: questionsData, loading: isLoadingQuestions } = useQuestionsList({ limit: 3 });
-  const { data: publicationsData, loading: isLoadingPublications } = usePublicationsList({ limit: 3 });
-  const { data: lecturesData, loading: isLoadingLectures } = useLecturesList({ limit: 3 });
-  const { data: eventsData, loading: isLoadingEvents } = useEventsList({ limit: 3 });
+  const { data: articlesData, loading: isLoadingArticles } = useArticlesList(HOMEPAGE_ITEM_LIMIT);
+  const { data: fatwasData, loading: isLoadingFatwas } = useFatwasList(HOMEPAGE_ITEM_LIMIT);
+  const { data: questionsData, loading: isLoadingQuestions } = useQuestionsList(HOMEPAGE_ITEM_LIMIT);
+  const { data: publicationsData, loading: isLoadingPublications } = usePublicationsList(HOMEPAGE_ITEM_LIMIT);
+  const { data: lecturesData, loading: isLoadingLectures } = useLecturesList(HOMEPAGE_ITEM_LIMIT);
+  const { data: eventsData, loading: isLoadingEvents } = useEventsList(HOMEPAGE_ITEM_LIMIT);
   const { data: countsData, loading: isLoadingCounts } = useContentCounts();
 
   const articles = Array.isArray(articlesData?.articles) ? articlesData.articles : [];

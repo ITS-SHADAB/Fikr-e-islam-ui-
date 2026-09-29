@@ -544,7 +544,7 @@ export default function About() {
               height="260"
               loading="eager"
               decoding="async"
-              fetchPriority="high"
+              fetchpriority="high"
               className="about-banner-img"
             />
           </picture>
@@ -715,7 +715,7 @@ export default function About() {
                   height="477"
                   loading="eager"
                   decoding="async"
-                  fetchPriority="high"
+                  fetchpriority="high"
                   className="w-full h-full object-cover object-[center_20%] select-none transition-transform duration-500 hover:scale-[1.02]"
                   onError={(e) => {
                     if (e.currentTarget.src !== muftiSahebImg) {
