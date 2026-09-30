@@ -39,6 +39,8 @@ import { useSettings } from '@/hooks/useSettings';
 import { getPublications } from '@/services';
 import { COLORS } from '@/utils/themeColors';
 import { OFFICIAL_CONTACT, OFFICIAL_SOCIAL_LINKS, formatPhoneNumber, getTelLink } from '@/constants/contact';
+import { SEO } from '@/components';
+import { getPersonEntitySchema, getBreadcrumbSchema } from '@/utils/seoHelpers';
 import './About.css';
 
 export default function About() {
@@ -528,6 +530,16 @@ export default function About() {
       className="about-page-root min-h-screen pt-3 sm:pt-4 pb-8 sm:pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto selection:bg-[#A8793E]/20"
       dir={isRTL ? 'rtl' : 'ltr'}
     >
+      <SEO
+        title="سوانح و علمی خدمات | مفتی محمد فیضان سرور مصباحی"
+        description="مفتی محمد فیضان سرور مصباحی (قاضیٔ شریعت دار القضاء ادارۂ شرعیہ اورنگ آباد) کا تفصیلی تعارف، علمی سفر، اساتذہ، تدریسی خدمات اور تحقیقی تصانیف۔"
+        canonical="/about"
+        image={muftiSahebWebp || muftiSahebImg}
+        schema={[
+          getPersonEntitySchema(),
+          getBreadcrumbSchema([{ name: 'تعارف و سوانح', url: '/about' }]),
+        ]}
+      />
 
       {/* ══════════════════════════════════════════════════════════════
           TOP TARUF HERO BANNER (Full-Width, Clean, Cinematic)
@@ -1195,7 +1207,7 @@ export default function About() {
             </h2>
           </div>
           <Link
-            to="/books"
+            to="/publications"
             className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-[#8C6239] hover:text-[#5c4024] transition-colors"
           >
             <span className="about-urdu">{isRTL ? 'تمام تصانیف دیکھیں' : 'View All'}</span>
@@ -1207,7 +1219,7 @@ export default function About() {
           {displayedBooks.map((book, idx) => (
             <Link
               key={book._id || idx}
-              to="/books"
+              to={book.slug ? `/publications/${book.slug}` : '/publications'}
               className="about-card p-4 sm:p-4.5 flex flex-col justify-between w-full max-w-full min-w-0 overflow-hidden group cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-md block no-underline"
             >
               <div className="space-y-2 min-w-0">

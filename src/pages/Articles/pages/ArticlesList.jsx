@@ -4,8 +4,8 @@ import { Search, X, BookOpen, ChevronLeft, ChevronRight, Filter } from 'lucide-r
 import { useArticlesList } from '@/hooks/useContentCache';
 import { useContentSearch } from '@/hooks/useContentSearch';
 import { useCategories } from '@/hooks/useCategories';
-import { useSettings } from '@/hooks/useSettings';
-import { ArticleCard } from '@/components';
+import { ArticleCard, SEO } from '@/components';
+import { getCollectionSchema, getBreadcrumbSchema } from '@/utils/seoHelpers';
 import { COLORS } from '@/utils/themeColors';
 
 export default function ArticlesList() {
@@ -90,10 +90,31 @@ export default function ArticlesList() {
   };
 
   const { categories = [], loading: categoriesLoading } = useCategories('article');
-  const hasFilters = selectedCategory || isSearchActive;
+  const isSearchResult = Boolean(isSearchActive || searchParams.get('search') || searchParams.get('q'));
+  const hasFilters = selectedCategory || isSearchResult;
 
   return (
     <div dir={isRTL ? 'rtl' : 'ltr'} className="min-h-screen" style={{ backgroundColor: COLORS?.background }}>
+      <SEO
+        title={
+          isSearchResult
+            ? 'تلاش مقالات | فکرِ اسلام'
+            : selectedCategory
+            ? `${selectedCategory} - مقالات | فکرِ اسلام`
+            : 'علمی مقالات | مفتی محمد فیضان سرور مصباحی'
+        }
+        description="قرآن، حدیث، فقہ، عقائد، عصری مسائل اور اسلامی تعلیمات پر مبنی مستند اور تحقیقی علمی مقالات۔"
+        canonical="/articles"
+        noindex={isSearchResult}
+        schema={[
+          getCollectionSchema({
+            name: 'علمی مقالات',
+            description: 'قرآن، حدیث، فقہ اور اسلامی تعلیمات پر مبنی تحقیقی مقالات۔',
+            url: '/articles',
+          }),
+          getBreadcrumbSchema([{ name: 'مقالات', url: '/articles' }]),
+        ]}
+      />
 
       {/* ══════════════════════════════════════════════════
           HERO HEADER — Editorial masthead

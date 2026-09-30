@@ -19,7 +19,8 @@ import {
 } from 'lucide-react';
 import { useEventsList } from '@/hooks/useContentCache';
 import { useSettings } from '@/hooks/useSettings';
-import { EventCard } from '@/components';
+import { EventCard, SEO } from '@/components';
+import { getCollectionSchema, getBreadcrumbSchema } from '@/utils/seoHelpers';
 import { COLORS } from '@/utils/themeColors';
 import { useContentSearch } from '@/hooks/useContentSearch';
 
@@ -238,6 +239,19 @@ export default function EventsList() {
       className="min-h-screen font-sans"
       style={{ backgroundColor: COLORS?.background }}
     >
+      <SEO
+        title="پروگرامز اور علمی اجتماعات | فکرِ اسلام"
+        description="دار الافتاء اور ادارے کے تحت منعقد ہونے والے خصوصی دروس، علمی سیمینارز اور دینی اجتماعات کا شیڈول اور تفصیلات۔"
+        canonical="/events"
+        schema={[
+          getCollectionSchema({
+            name: 'پروگرامز اور علمی اجتماعات',
+            description: 'علمی، فکری و تربیتی اجتماعات اور سیمینارز کا شیڈول۔',
+            url: '/events',
+          }),
+          getBreadcrumbSchema([{ name: 'پروگرامز', url: '/events' }]),
+        ]}
+      />
       {/* ══════════════════════════════════════════════════
           1. HERO HEADER — Rich Editorial Masthead with Border Accents
       ══════════════════════════════════════════════════ */}

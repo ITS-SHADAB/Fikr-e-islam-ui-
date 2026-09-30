@@ -26,7 +26,8 @@ import { getFatwaBySlug, getFatwas } from "@/services";
 import { useCachedContent } from "@/hooks/useContentCache";
 import { STALE_TIMES } from "@/store/slices/contentSlice";
 import { useSettings } from "@/hooks/useSettings";
-import { FatwaCard, PdfViewer, Spinner } from "@/components";
+import { FatwaCard, PdfViewer, Spinner, SEO } from "@/components";
+import { getFatwaSchema, getBreadcrumbSchema } from "@/utils/seoHelpers";
 import CommentsSection from "@/components/CommentsSection";
 import { FATWA_CATEGORY_TRANSLATIONS } from "@/utils/categories";
 import { COLORS } from "@/utils/themeColors";
@@ -128,6 +129,11 @@ export default function FatwaDetail() {
         style={{ backgroundColor: COLORS?.background }}
         dir={isRTL ? "rtl" : "ltr"}
       >
+        <SEO
+          title={isRTL ? "فتویٰ دستیاب نہیں" : "Fatwa Not Found"}
+          description={isRTL ? "مطلوبہ فتویٰ موجود نہیں ہے یا ہٹا دیا گیا ہے۔" : "The requested fatwa does not exist or has been removed."}
+          noindex={true}
+        />
         <FileText
           className="w-16 h-16 mb-4 opacity-30"
           style={{ color: COLORS?.primary }}
@@ -244,6 +250,26 @@ export default function FatwaDetail() {
       dir={isRTL ? "rtl" : "ltr"}
       style={{ backgroundColor: COLORS?.background }}
     >
+      <SEO
+        title={fatwa.title}
+        description={fatwa.summary || fatwa.question}
+        canonical={`/fatwas/${fatwa.slug || rawParam}`}
+        type="article"
+        schema={[
+          getFatwaSchema({
+            title: fatwa.title,
+            summary: fatwa.summary || fatwa.question,
+            slug: fatwa.slug || rawParam,
+            publishDate: fatwa.publishDate || fatwa.createdAt,
+            updatedAt: fatwa.updatedAt,
+            category: categoryLabel,
+          }),
+          getBreadcrumbSchema([
+            { name: isRTL ? "فتاویٰ" : "Fatwas", url: "/fatwas" },
+            { name: fatwa.title, url: `/fatwas/${fatwa.slug || rawParam}` },
+          ]),
+        ]}
+      />
       {/* ══════════════════════════════════════════════════════════════
           HERO BANNER — Ruling headline & category (PRESERVED AS WAS)
       ══════════════════════════════════════════════════════════════ */}

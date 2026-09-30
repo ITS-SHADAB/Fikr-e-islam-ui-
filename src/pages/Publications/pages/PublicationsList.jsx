@@ -4,7 +4,8 @@ import { BookOpen, Book } from 'lucide-react';
 import { usePublicationsList } from '@/hooks/useContentCache';
 import { useCategories } from '@/hooks/useCategories';
 import { useSettings } from '@/hooks/useSettings';
-import { PublicationCard, SectionSidebar, Spinner } from '@/components';
+import { PublicationCard, SectionSidebar, Spinner, SEO } from '@/components';
+import { getCollectionSchema, getBreadcrumbSchema } from '@/utils/seoHelpers';
 import { COLORS } from '@/utils/themeColors';
 import { useContentSearch } from '@/hooks/useContentSearch';
 
@@ -75,6 +76,7 @@ export default function PublicationsList() {
   };
 
   const { categories = [], loading: categoriesLoading } = useCategories('book');
+  const isSearchResult = Boolean(isSearchActive || searchParams.get('search') || searchParams.get('q'));
 
   return (
     <div
@@ -82,6 +84,26 @@ export default function PublicationsList() {
       className="min-h-screen py-6 md:py-8"
       style={{ backgroundColor: COLORS.background }}
     >
+      <SEO
+        title={
+          isSearchResult
+            ? 'تلاش کتب | فکرِ اسلام'
+            : selectedCategory
+            ? `${selectedCategory} - کتب و مطبوعات | فکرِ اسلام`
+            : 'کتب و مطبوعات | مفتی محمد فیضان سرور مصباحی'
+        }
+        description="مفتی محمد فیضان سرور مصباحی کی علمی و تحقیقی تصانیف، کتب، رسائل اور درسی کتب کی تفصیلات و پی ڈی ایف مطالعہ۔"
+        canonical="/publications"
+        noindex={isSearchResult}
+        schema={[
+          getCollectionSchema({
+            name: 'کتب و مطبوعات',
+            description: 'علمی و تحقیقی تصانیف اور کتب۔',
+            url: '/publications',
+          }),
+          getBreadcrumbSchema([{ name: 'کتب و مطبوعات', url: '/publications' }]),
+        ]}
+      />
       <div className="mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* ── Page heading ── */}

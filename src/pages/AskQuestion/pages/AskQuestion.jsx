@@ -14,6 +14,8 @@ import {
 import { submitQuestion } from '@/services';
 import { COLORS } from '@/utils/themeColors';
 import { useAuthModal } from '@/context/AuthModalContext';
+import { SEO } from '@/components';
+import { getBreadcrumbSchema } from '@/utils/seoHelpers';
 
 export default function AskQuestion() {
   const navigate = useNavigate();
@@ -84,6 +86,18 @@ export default function AskQuestion() {
       className="py-8 md:py-12 min-h-screen"
       style={{ backgroundColor: COLORS.background }}
     >
+      <SEO
+        title="شرعی سوال پوچھیں | فکرِ اسلام"
+        description="دار الافتاء میں مفتی فیضان سرور مصباحی سے اپنے شرعی، فقہی اور دینی مسائل کے حل کے لیے آن لائن سوال پوچھیں اور مستند شرعی رہنمائی حاصل کریں۔"
+        canonical="/ask"
+        type="website"
+        schema={[
+          getBreadcrumbSchema([
+            { name: 'صفحہ اول', url: '/' },
+            { name: 'سوال پوچھیں', url: '/ask' },
+          ]),
+        ]}
+      />
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Back Link */}
         <div className="mb-4">

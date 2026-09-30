@@ -1,0 +1,18 @@
+# robots.txt for https://muftifaizansarwar.in
+User-agent: *
+Allow: /
+
+# Disallow private and administrative areas
+Disallow: /admin/
+Disallow: /login
+Disallow: /signup
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /reset-password/
+Disallow: /new-password
+Disallow: /new-password/
+Disallow: /my-details
+Disallow: /api/
+
+# Sitemap location
+Sitemap: https://muftifaizansarwar.in/sitemap.xml

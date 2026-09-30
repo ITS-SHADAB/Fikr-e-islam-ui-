@@ -26,7 +26,8 @@ import {
   PUBLICATION_CATEGORY_TRANSLATIONS,
   BOOK_LANGUAGE_TRANSLATIONS,
 } from "@/utils/categories";
-import { PdfViewer, Spinner } from "@/components";
+import { PdfViewer, Spinner, SEO } from "@/components";
+import { getBookSchema, getBreadcrumbSchema } from "@/utils/seoHelpers";
 import CommentsSection from "@/components/CommentsSection";
 import {
   MihrabArchBackground,
@@ -145,6 +146,11 @@ export default function BookDetail() {
         style={{ backgroundColor: COLORS.background }}
         dir={isRTL ? "rtl" : "ltr"}
       >
+        <SEO
+          title={isRTL ? "کتاب دستیاب نہیں ہے" : "Book Not Found"}
+          description={isRTL ? "مطلوبہ کتاب موجود نہیں ہے یا ہٹا دی گئی ہے۔" : "The requested book does not exist or has been removed."}
+          noindex={true}
+        />
         <div
           className="w-16 h-16 rounded-full flex items-center justify-center mb-4 shadow-sm"
           style={{ backgroundColor: `${COLORS.primary}15` }}
@@ -286,6 +292,30 @@ export default function BookDetail() {
       className="w-full py-2.5 sm:py-4 md:py-5 pb-6 sm:pb-8 md:pb-10"
       style={{ backgroundColor: COLORS.background }}
     >
+      <SEO
+        title={title}
+        description={cleanSummary || summary}
+        canonical={`/publications/${slug || rawParam}`}
+        image={coverImage?.url}
+        type="book"
+        schema={[
+          getBookSchema({
+            title,
+            summary: cleanSummary || summary,
+            slug: slug || rawParam,
+            author,
+            coverImage: coverImage?.url,
+            pageCount,
+            publishDate: rawDate,
+            updatedAt: book?.updatedAt,
+            blanguage,
+          }),
+          getBreadcrumbSchema([
+            { name: isRTL ? "کتب و مطبوعات" : "Publications", url: "/publications" },
+            { name: title, url: `/publications/${slug || rawParam}` },
+          ]),
+        ]}
+      />
       <div className="w-full max-w-4xl lg:max-w-5xl mx-auto px-3 sm:px-6 space-y-2.5 sm:space-y-3.5">
         {/* ══════════════════════════════════════════════════════════════
             1. BREADCRUMBS & LANGUAGE PILL (Exact Match to Target Design)
@@ -827,7 +857,7 @@ export default function BookDetail() {
                 return (
                   <Link
                     key={relBook._id}
-                    to={`/publications/slug/${relBook.slug || relBook._id}`}
+                    to={`/publications/${relBook.slug || relBook._id}`}
                     className="p-3.5 sm:p-4 rounded-2xl border shadow-2xs hover:shadow-md transition-all duration-300 flex flex-col justify-between group"
                     style={{
                       backgroundColor: "#FAF6EE",

@@ -14,7 +14,8 @@ import {
   Settings,
 } from 'lucide-react';
 import { useQuestionsList } from '@/hooks/useContentCache';
-import { SectionSidebar, Spinner } from '@/components';
+import { SectionSidebar, Spinner, SEO } from '@/components';
+import { getCollectionSchema, getBreadcrumbSchema } from '@/utils/seoHelpers';
 import { COLORS } from '@/utils/themeColors';
 import { QA_CATEGORIES, QA_TRANSLATIONS } from '@/utils/categories';
 import { useCategories } from '@/hooks/useCategories';
@@ -105,12 +106,34 @@ export default function QAList() {
     }
   };
 
+  const isSearchResult = Boolean(isSearchActive || searchParams.get('search') || searchParams.get('q'));
+
   return (
     <div
       dir="rtl"
       className="py-6 md:py-8 min-h-screen"
       style={{ backgroundColor: COLORS.background }}
     >
+      <SEO
+        title={
+          isSearchResult
+            ? 'تلاش سوال و جواب | فکرِ اسلام'
+            : selectedCategory
+            ? `${selectedCategory} - سوال و جواب | فکرِ اسلام`
+            : 'سوال و جواب (دار الافتاء) | مفتی محمد فیضان سرور مصباحی'
+        }
+        description="عوام کی طرف سے پوچھے گئے دینی، فقہی و اخلاقی مسائل اور مفتی محمد فیضان سرور مصباحی کے تسلی بخش و مستند شرعی جوابات۔"
+        canonical="/qa"
+        noindex={isSearchResult}
+        schema={[
+          getCollectionSchema({
+            name: 'دینی سوال و جواب',
+            description: 'عوام کے شرعی سوالات اور مفتی صاحب کے مستند جوابات۔',
+            url: '/qa',
+          }),
+          getBreadcrumbSchema([{ name: 'سوال و جواب', url: '/qa' }]),
+        ]}
+      />
       <div className="mx-auto px-4 sm:px-6 lg:px-8">
         {/* Page Header */}
         <div className="mb-6 md:mb-8 text-center">

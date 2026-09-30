@@ -1,5 +1,61 @@
 {
+  "redirects": [
+    {
+      "source": "/articles/slug/:slug",
+      "destination": "/articles/:slug",
+      "permanent": true
+    },
+    {
+      "source": "/fatwas/slug/:slug",
+      "destination": "/fatwas/:slug",
+      "permanent": true
+    },
+    {
+      "source": "/books/slug/:slug",
+      "destination": "/publications/:slug",
+      "permanent": true
+    },
+    {
+      "source": "/books/:slug",
+      "destination": "/publications/:slug",
+      "permanent": true
+    },
+    {
+      "source": "/books",
+      "destination": "/publications",
+      "permanent": true
+    },
+    {
+      "source": "/publications/slug/:slug",
+      "destination": "/publications/:slug",
+      "permanent": true
+    },
+    {
+      "source": "/questions/slug/:slug",
+      "destination": "/qa/:slug",
+      "permanent": true
+    },
+    {
+      "source": "/questions/:slug",
+      "destination": "/qa/:slug",
+      "permanent": true
+    },
+    {
+      "source": "/questions",
+      "destination": "/qa",
+      "permanent": true
+    },
+    {
+      "source": "/qa/slug/:slug",
+      "destination": "/qa/:slug",
+      "permanent": true
+    }
+  ],
   "rewrites": [
+    {
+      "source": "/sitemap.xml",
+      "destination": "https://api.muftifaizansarwar.in/sitemap.xml"
+    },
     {
       "source": "/api/:path*",
       "destination": "https://api.muftifaizansarwar.in/api/:path*"

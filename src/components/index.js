@@ -38,4 +38,5 @@ export * from "./Modal";
 export * from "./ConfirmationBox";
 export * from "./SectionSidebar";
 export * from "./Loader";
+export * from "./SEO";
 export { default as ErrorBoundary } from "./ErrorBoundary/ErrorBoundary";

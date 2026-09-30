@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { HelpCircle, ArrowRight } from 'lucide-react';
 import { useSettings } from '@/hooks/useSettings';
+import { SEO } from '@/components';
 
 export default function PageNotFound() {
   const { settings } = useSettings();
@@ -9,6 +10,11 @@ export default function PageNotFound() {
 
   return (
     <div className={`bg-background dark:bg-slate-900 min-h-[70vh] flex flex-col items-center justify-center p-6 text-center transition-colors duration-200`} dir={language === 'ur' ? 'rtl' : 'ltr'}>
+      <SEO
+        title={language === 'en' ? 'Page Not Found - 404 | Fikr-e-Islam' : 'صفحہ نہیں ملا - 404 | فکرِ اسلام'}
+        description={language === 'en' ? 'The page you are looking for does not exist or has been moved.' : 'آپ کا مطلوبہ صفحہ دستیاب نہیں ہے یا تبدیل ہو چکا ہے۔'}
+        noindex={true}
+      />
       <div className="w-16 h-16 rounded-full bg-primary/10 dark:bg-emerald-900/20 flex items-center justify-center text-primary dark:text-emerald-400 mb-6 animate-bounce">
         <HelpCircle className="w-8 h-8 text-accent dark:text-accent" />
       </div>

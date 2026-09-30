@@ -24,8 +24,8 @@ import { getQuestionBySlug } from '@/services';
 import { useCachedContent } from '@/hooks/useContentCache';
 import { STALE_TIMES } from '@/store/slices/contentSlice';
 import { COLORS } from '@/utils/themeColors';
-import { QA_TRANSLATIONS } from '@/utils/categories';
-import { Spinner } from '@/components';
+import { Spinner, SEO } from '@/components';
+import { getQASchema, getBreadcrumbSchema } from '@/utils/seoHelpers';
 import toast from 'react-hot-toast';
 
 export default function QADetail() {
@@ -108,6 +108,11 @@ export default function QADetail() {
         className="min-h-screen py-16 px-4"
         style={{ backgroundColor: COLORS.background }}
       >
+        <SEO
+          title="سوال نہیں ملا | مفتی فیضان سرور"
+          description="مطلوبہ سوال موجود نہیں ہے یا ہٹا دیا گیا ہے۔"
+          noindex={true}
+        />
         <div
           className="max-w-xl mx-auto text-center p-8 rounded-2xl border bg-white shadow-xs"
           style={{ borderColor: COLORS.border }}
@@ -136,6 +141,25 @@ export default function QADetail() {
       className="min-h-screen py-6 md:py-10 text-right"
       style={{ backgroundColor: COLORS.background }}
     >
+      <SEO
+        title={question.questionTitle}
+        description={question.answerContent || question.detailedQuestion}
+        canonical={`/qa/${question.slug || rawParam}`}
+        schema={[
+          getQASchema({
+            questionTitle: question.questionTitle,
+            detailedQuestion: question.detailedQuestion,
+            answerContent: question.answerContent,
+            slug: question.slug || rawParam,
+            answeredAt: question.answeredAt,
+            answeredByName: question.answeredBy?.name,
+          }),
+          getBreadcrumbSchema([
+            { name: 'سوال و جواب', url: '/qa' },
+            { name: question.questionTitle, url: `/qa/${question.slug || rawParam}` },
+          ]),
+        ]}
+      />
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* ── Top Navigation & Actions Bar ── */}

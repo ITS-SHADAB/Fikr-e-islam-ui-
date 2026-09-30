@@ -4,8 +4,8 @@ import { Search, X, ShieldAlert, ChevronLeft, ChevronRight, Scale } from 'lucide
 import { useFatwasList } from '@/hooks/useContentCache';
 import { useContentSearch } from '@/hooks/useContentSearch';
 import { useCategories } from '@/hooks/useCategories';
-import { useSettings } from '@/hooks/useSettings';
-import { FatwaCard } from '@/components';
+import { FatwaCard, SEO } from '@/components';
+import { getCollectionSchema, getBreadcrumbSchema } from '@/utils/seoHelpers';
 import { COLORS } from '@/utils/themeColors';
 
 export default function FatwasList() {
@@ -89,7 +89,8 @@ export default function FatwasList() {
   };
 
   const { categories = [], loading: categoriesLoading } = useCategories('fatwa');
-  const hasFilters = selectedCategory || isSearchActive;
+  const isSearchResult = Boolean(isSearchActive || searchParams.get('search') || searchParams.get('q'));
+  const hasFilters = selectedCategory || isSearchResult;
 
   const getPageNumbers = (current, totalCount) => {
     if (totalCount <= 5) {
@@ -112,6 +113,26 @@ export default function FatwasList() {
       className="min-h-screen w-full max-w-full overflow-x-hidden"
       style={{ backgroundColor: COLORS?.background }}
     >
+      <SEO
+        title={
+          isSearchResult
+            ? 'تلاش فتاویٰ | فکرِ اسلام'
+            : selectedCategory
+            ? `${selectedCategory} - فتاویٰ | فکرِ اسلام`
+            : 'شرعی فتاویٰ و دار الافتاء | مفتی محمد فیضان سرور مصباحی'
+        }
+        description="قرآن، سنت اور معتبر فقہی مصادر کی روشنی میں مفتی محمد فیضان سرور مصباحی کے جاری کردہ تحقیقی و مستند شرعی فتاویٰ۔"
+        canonical="/fatwas"
+        noindex={isSearchResult}
+        schema={[
+          getCollectionSchema({
+            name: 'شرعی فتاویٰ و احکام',
+            description: 'قرآن و سنت کی روشنی میں مستند شرعی رہنمائی اور فتاویٰ۔',
+            url: '/fatwas',
+          }),
+          getBreadcrumbSchema([{ name: 'فتاویٰ', url: '/fatwas' }]),
+        ]}
+      />
       {/* ══════════════════════════════════════════════════
           HERO HEADER — Darul Ifta Banner & Search
       ══════════════════════════════════════════════════ */}

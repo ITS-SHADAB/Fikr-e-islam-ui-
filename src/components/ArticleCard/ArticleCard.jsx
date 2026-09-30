@@ -20,7 +20,7 @@ export default function ArticleCard({ article }) {
 
   if (!article) return null;
 
-  const detailUrl = `/articles/slug/${article?.slug || article?._id}`;
+  const detailUrl = `/articles/${article?.slug || article?._id}`;
 
   const formattedDate = article?.publishDate
     ? new Date(article?.publishDate).toLocaleDateString("ur-PK", {

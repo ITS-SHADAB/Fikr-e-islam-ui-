@@ -20,6 +20,8 @@ import {
 import { FaWhatsapp, FaTelegramPlane } from 'react-icons/fa';
 import { submitContact } from '@/services';
 import { useSettings } from '@/hooks/useSettings';
+import { SEO } from '@/components';
+import { getBreadcrumbSchema } from '@/utils/seoHelpers';
 import { COLORS } from '@/utils/themeColors';
 import { OFFICIAL_CONTACT, OFFICIAL_SOCIAL_LINKS, formatPhoneNumber, getTelLink } from '@/constants/contact';
 
@@ -241,6 +243,20 @@ export default function ContactPage() {
       style={{ backgroundColor: COLORS?.background }}
       dir={isRTL ? 'rtl' : 'ltr'}
     >
+      <SEO
+        title="رابطہ فرمائیں | مفتی محمد فیضان سرور مصباحی"
+        description="دار القضاء ادارۂ شرعیہ اورنگ آباد اور مفتی محمد فیضان سرور مصباحی سے شرعی رہنمائی، فتاویٰ اور علمی سوالات کے لیے باضابطہ رابطہ کریں۔"
+        canonical="/contact"
+        schema={[
+          {
+            '@type': 'ContactPage',
+            name: 'رابطہ و شرعی استفسار',
+            description: 'مفتی صاحب سے براہِ راست رابطہ اور شرعی استفسار کا صفحہ۔',
+            url: 'https://muftifaizansarwar.in/contact',
+          },
+          getBreadcrumbSchema([{ name: 'رابطہ', url: '/contact' }]),
+        ]}
+      />
       {/* ══════════════════════════════════════════════════
           1. HERO HEADER — Contact & Inquiries Masthead
       ══════════════════════════════════════════════════ */}

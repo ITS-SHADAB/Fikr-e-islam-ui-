@@ -44,7 +44,9 @@ import {
   EventCard,
   QaCard,
   SectionLoader,
+  SEO,
 } from "@/components";
+import { getWebSiteSchema, getPersonEntitySchema } from "@/utils/seoHelpers";
 import SeamlessMobileSlider from "../components/SeamlessMobileSlider";
 import { FATWA_TRANSLATIONS, LECTURE_TRANSLATIONS } from "@/utils/categories";
 import AnimatedFeatureCard from "../components/AnimatedFeatureCard";
@@ -393,6 +395,12 @@ export default function Home() {
 
   return (
     <div className="bg-background min-h-screen relative">
+      <SEO
+        title="مفتی محمد فیضان سرور مصباحی | فکرِ اسلام (Fikr-e-Islam)"
+        description="مفتی فیضان سرور کی باضابطہ ویب سائٹ - فقہی فتاویٰ، علمی مضامین، کتب و رسائل، سوال و جواب اور شرعی رہنمائی۔ Official platform of Mufti Faizan Sarwar Misbahi (Fikr-e-Islam)."
+        canonical="/"
+        schema={[getWebSiteSchema(), getPersonEntitySchema()]}
+      />
       {/* 1. HERO BANNER CAROUSEL */}
       <HeroBannerSlider />
 

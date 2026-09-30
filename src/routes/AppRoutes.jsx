@@ -1,5 +1,5 @@
 import React, { Suspense } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate, useParams } from 'react-router-dom';
 
 // Layout Imports
 import { MainLayout } from '@/layout';
@@ -19,6 +19,12 @@ function PageLoader() {
       <Spinner size="md" />
     </div>
   );
+}
+
+// Client-side 301-equivalent redirect helper for duplicate route aliases
+function RedirectWithSlug({ toPrefix }) {
+  const { slug } = useParams();
+  return <Navigate to={`${toPrefix}/${slug || ''}`} replace />;
 }
 
 // Public Page Imports (Lazy-Loaded with Auto-Retry)
@@ -69,25 +75,26 @@ export default function AppRoutes() {
             <Route path="about" element={<About />} />
 
             <Route path="articles" element={<ArticlesList />} />
-            <Route path="articles/slug/:slug" element={<ArticleDetail />} />
+            <Route path="articles/slug/:slug" element={<RedirectWithSlug toPrefix="/articles" />} />
             <Route path="articles/:slug" element={<ArticleDetail />} />
 
             <Route path="fatwas" element={<FatwasList />} />
-            <Route path="fatwas/slug/:slug" element={<FatwaDetail />} />
+            <Route path="fatwas/slug/:slug" element={<RedirectWithSlug toPrefix="/fatwas" />} />
             <Route path="fatwas/:slug" element={<FatwaDetail />} />
 
             <Route path="ask" element={<AskQuestion />} />
             <Route path="qa" element={<QAList />} />
-            <Route path="qa/slug/:slug" element={<QADetail />} />
+            <Route path="qa/slug/:slug" element={<RedirectWithSlug toPrefix="/qa" />} />
             <Route path="qa/:slug" element={<QADetail />} />
-            <Route path="questions/slug/:slug" element={<QADetail />} />
-            <Route path="questions/:slug" element={<QADetail />} />
+            <Route path="questions" element={<Navigate to="/qa" replace />} />
+            <Route path="questions/slug/:slug" element={<RedirectWithSlug toPrefix="/qa" />} />
+            <Route path="questions/:slug" element={<RedirectWithSlug toPrefix="/qa" />} />
             <Route path="publications" element={<PublicationsList />} />
-            <Route path="publications/slug/:slug" element={<BookDetail />} />
+            <Route path="publications/slug/:slug" element={<RedirectWithSlug toPrefix="/publications" />} />
             <Route path="publications/:slug" element={<BookDetail />} />
-            <Route path="books" element={<PublicationsList />} />
-            <Route path="books/slug/:slug" element={<BookDetail />} />
-            <Route path="books/:slug" element={<BookDetail />} />
+            <Route path="books" element={<Navigate to="/publications" replace />} />
+            <Route path="books/slug/:slug" element={<RedirectWithSlug toPrefix="/publications" />} />
+            <Route path="books/:slug" element={<RedirectWithSlug toPrefix="/publications" />} />
             <Route path="lectures" element={<LecturesList />} />
             <Route path="events" element={<EventsList />} />
             <Route path="contact" element={<ContactPage />} />

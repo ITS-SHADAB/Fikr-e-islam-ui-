@@ -30,7 +30,8 @@ import { STALE_TIMES } from "@/store/slices/contentSlice";
 import { useSettings } from "@/hooks/useSettings";
 import { BACKEND_URL } from "@/constants/urls";
 import { ARTICLE_CATEGORY_TRANSLATIONS } from "@/utils/categories";
-import { ArticleCard, PdfViewer, Spinner } from "@/components";
+import { ArticleCard, PdfViewer, Spinner, SEO } from "@/components";
+import { getArticleSchema, getBreadcrumbSchema } from "@/utils/seoHelpers";
 import CommentsSection from "@/components/CommentsSection";
 import toast from "react-hot-toast";
 import {
@@ -202,6 +203,11 @@ export default function ArticleDetail() {
         style={{ backgroundColor: "#E8DFD2" }}
         dir={isRTL ? "rtl" : "ltr"}
       >
+        <SEO
+          title={isRTL ? "مضمون دستیاب نہیں" : "Article Not Found"}
+          description={isRTL ? "مطلوبہ مضمون موجود نہیں یا ہٹا دیا گیا ہے۔" : "The article was not found or removed."}
+          noindex={true}
+        />
         <FileText
           className="w-16 h-16 mb-4 opacity-30"
           style={{ color: THEME.goldAccent }}
@@ -273,6 +279,28 @@ export default function ArticleDetail() {
       className="min-h-screen relative overflow-hidden"
       style={{ backgroundColor: "#E8DFD2" }}
     >
+      <SEO
+        title={article.title}
+        description={article.summary}
+        canonical={`/articles/${article.slug || rawParam}`}
+        image={featuredImageSrc}
+        type="article"
+        schema={[
+          getArticleSchema({
+            title: article.title,
+            summary: article.summary,
+            slug: article.slug || rawParam,
+            publishDate: article.publishDate || article.createdAt,
+            updatedAt: article.updatedAt,
+            image: featuredImageSrc,
+            category: categoryLabel,
+          }),
+          getBreadcrumbSchema([
+            { name: isRTL ? "مقالات" : "Articles", url: "/articles" },
+            { name: article.title, url: `/articles/${article.slug || rawParam}` },
+          ]),
+        ]}
+      />
       {/* Background Decorative Pattern */}
       <IslamicBackgroundPattern />
 

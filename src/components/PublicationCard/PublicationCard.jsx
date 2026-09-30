@@ -343,7 +343,7 @@ export default function PublicationCard({ publication }) {
     publisher,
   } = publication;
 
-  const detailUrl = `/publications/slug/${slug || _id}`;
+  const detailUrl = `/publications/${slug || _id}`;
 
   // Bookmark sync with localStorage
   useEffect(() => {

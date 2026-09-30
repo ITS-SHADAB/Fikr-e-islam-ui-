@@ -16,7 +16,8 @@ import {
 import toast from "react-hot-toast";
 import { useLecturesList } from "@/hooks/useContentCache";
 import { useSettings } from "@/hooks/useSettings";
-import { LectureCard, SectionSidebar, SectionLoader } from "@/components";
+import { LectureCard, SectionSidebar, SectionLoader, SEO } from "@/components";
+import { getCollectionSchema, getBreadcrumbSchema } from "@/utils/seoHelpers";
 import { COLORS } from "@/utils/themeColors";
 import { LECTURE_CATEGORIES, LECTURE_CATEGORY_TRANSLATIONS } from "@/utils/categories";
 import { OFFICIAL_SOCIAL_LINKS } from "@/constants/contact";
@@ -134,12 +135,34 @@ export default function LecturesList() {
       ? settings.socialLinks.youtube
       : OFFICIAL_SOCIAL_LINKS.youtube;
 
+  const isSearchResult = Boolean(isSearchActive || searchParams.get("search") || searchParams.get("q"));
+
   return (
     <div
       dir={isRTL ? "rtl" : "ltr"}
       className="bg-background py-8 md:py-12 min-h-screen"
       style={{ backgroundColor: COLORS.background }}
     >
+      <SEO
+        title={
+          isSearchResult
+            ? 'تلاش بیانات | فکرِ اسلام'
+            : selectedCategory
+            ? `${selectedCategory} - خطابات | فکرِ اسلام`
+            : 'خطابات و بیانات | مفتی محمد فیضان سرور مصباحی'
+        }
+        description="مفتی محمد فیضان سرور مصباحی کے اصلاحی خطابات، دروسِ حدیث، علمی بیانات اور صوتی و بصری مواعظ۔"
+        canonical="/lectures"
+        noindex={isSearchResult}
+        schema={[
+          getCollectionSchema({
+            name: 'خطابات و بیانات',
+            description: 'علمی، فکری و اصلاحی بیانات اور مواعظ۔',
+            url: '/lectures',
+          }),
+          getBreadcrumbSchema([{ name: 'خطابات', url: '/lectures' }]),
+        ]}
+      />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header Title */}
         <div className="mb-8 md:mb-10 text-center">
