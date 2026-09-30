@@ -46,7 +46,8 @@ export const fetchContentWithCache = createAsyncThunk(
     } catch (err) {
       const message =
         err?.response?.data?.message || err?.message || 'Failed to fetch content';
-      return rejectWithValue({ key, error: message });
+      const status = err?.response?.status || (err?.response ? 500 : null);
+      return rejectWithValue({ key, error: message, status });
     }
   },
   {
@@ -159,6 +160,17 @@ const contentSlice = createSlice({
           // Preserve valid cached data if present!
           existing.error =
             action.payload?.error || action.error?.message || 'Request failed';
+          existing.status = action.payload?.status || null;
+        } else {
+          state.queries[key] = {
+            data: null,
+            loading: false,
+            isRefreshing: false,
+            error: action.payload?.error || action.error?.message || 'Request failed',
+            status: action.payload?.status || null,
+            fetchedAt: null,
+            startedAt: null,
+          };
         }
       });
   },

@@ -13,6 +13,7 @@ export default function PageNotFound() {
       <SEO
         title={language === 'en' ? 'Page Not Found - 404 | Fikr-e-Islam' : 'صفحہ نہیں ملا - 404 | فکرِ اسلام'}
         description={language === 'en' ? 'The page you are looking for does not exist or has been moved.' : 'آپ کا مطلوبہ صفحہ دستیاب نہیں ہے یا تبدیل ہو چکا ہے۔'}
+        canonical={typeof window !== 'undefined' ? window.location.pathname : '/404'}
         noindex={true}
       />
       <div className="w-16 h-16 rounded-full bg-primary/10 dark:bg-emerald-900/20 flex items-center justify-center text-primary dark:text-emerald-400 mb-6 animate-bounce">

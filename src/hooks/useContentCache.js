@@ -108,11 +108,18 @@ export function useCachedContent({
     [key, staleTime, dispatch]
   );
 
+  const status = queryState?.status || null;
+  const isNotFound = status === 404;
+  const isApiError = Boolean(error && status !== 404);
+
   return {
     data,
     loading,
     isRefreshing: !!queryState?.isRefreshing,
     error,
+    status,
+    isNotFound,
+    isApiError,
     isFresh,
     refetch,
   };

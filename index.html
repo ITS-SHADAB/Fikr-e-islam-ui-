@@ -9,7 +9,18 @@
   <title>مفتی فیضان سرور | Mufti Faizan Sarwar</title>
   <meta name="description" content="مفتی فیضان سرور کی باضابطہ ویب سائٹ - فقہی فتاویٰ، علمی مضامین، کتب و رسائل، سوال و جواب اور شرعی رہنمائی۔ Official website of Mufti Faizan Sarwar featuring authentic Islamic articles, fatwas, books, and Q&amp;A." />
   <meta name="robots" content="index, follow" />
-  <link rel="canonical" href="https://muftifaizansarwar.in/" />
+  <script>
+    (function () {
+      try {
+        var p = window.location.pathname || "/";
+        var c = "https://muftifaizansarwar.in" + (p === "/" ? "/" : p.replace(/\/+$/, ""));
+        var link = document.createElement("link");
+        link.rel = "canonical";
+        link.href = c;
+        document.head.appendChild(link);
+      } catch (e) {}
+    })();
+  </script>
 
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website" />

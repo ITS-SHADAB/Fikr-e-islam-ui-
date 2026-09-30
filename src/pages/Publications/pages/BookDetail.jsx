@@ -27,7 +27,7 @@ import {
   BOOK_LANGUAGE_TRANSLATIONS,
 } from "@/utils/categories";
 import { PdfViewer, Spinner, SEO } from "@/components";
-import { getBookSchema, getBreadcrumbSchema } from "@/utils/seoHelpers";
+import { getBookSchema, getBreadcrumbSchema, safeDecodeSlug } from "@/utils/seoHelpers";
 import CommentsSection from "@/components/CommentsSection";
 import {
   MihrabArchBackground,
@@ -40,23 +40,31 @@ import toast from "react-hot-toast";
 export default function BookDetail() {
   const { id, slug } = useParams();
   const rawParam = slug || id;
+  const cleanSlug = safeDecodeSlug(rawParam);
   const navigate = useNavigate();
   const { settings } = useSettings();
   const language =
     settings?.language === "ur" || settings?.language === "Urdu" ? "ur" : "en";
   const isRTL = language === "ur";
 
-  const { data: detailData, loading, error } = useCachedContent({
+  const {
+    data: detailData,
+    loading,
+    error,
+    isNotFound,
+    isApiError,
+    refetch,
+  } = useCachedContent({
     type: "publications_detail",
-    params: rawParam,
+    params: cleanSlug,
     fetcher: async () => {
-      const data = await getPublicationBySlug(rawParam);
+      const data = await getPublicationBySlug(cleanSlug);
       const bookData = data?.book || data;
       const relatedBooks = data?.related || [];
       return { book: bookData, relatedBooks };
     },
     staleTime: STALE_TIMES.publications,
-    enabled: !!rawParam,
+    enabled: !!cleanSlug,
   });
 
   const book = detailData?.book || null;
@@ -128,18 +136,26 @@ export default function BookDetail() {
     }
   };
 
+  // ── 1. Loading State ──
   if (loading) {
     return (
       <div
         className="min-h-screen flex items-center justify-center"
         style={{ backgroundColor: COLORS.background }}
       >
+        <SEO
+          title={isRTL ? "کتاب لوڈ ہو رہی ہے... | مفتی فیضان سرور" : "Loading Book... | Mufti Faizan Sarwar"}
+          description={isRTL ? "مفتی فیضان سرور کی تصنیف و علمی مطالعہ۔" : "Islamic publication and book by Mufti Faizan Sarwar."}
+          canonical={`/publications/${cleanSlug}`}
+          noindex={false}
+        />
         <Spinner size="lg" text="کتاب کی تفصیلات لوڈ ہو رہی ہیں..." />
       </div>
     );
   }
 
-  if (error || !book) {
+  // ── 2. Definitive Not Found State (404) ──
+  if (isNotFound || (!book && !loading && !error)) {
     return (
       <div
         className="min-h-screen flex flex-col items-center justify-center p-6 text-center"
@@ -149,6 +165,7 @@ export default function BookDetail() {
         <SEO
           title={isRTL ? "کتاب دستیاب نہیں ہے" : "Book Not Found"}
           description={isRTL ? "مطلوبہ کتاب موجود نہیں ہے یا ہٹا دی گئی ہے۔" : "The requested book does not exist or has been removed."}
+          canonical={`/publications/${cleanSlug}`}
           noindex={true}
         />
         <div
@@ -167,10 +184,9 @@ export default function BookDetail() {
           className="text-sm max-w-md mb-6"
           style={{ color: COLORS.textSecondary }}
         >
-          {error ||
-            (isRTL
-              ? "مطلوبہ کتاب موجود نہیں ہے یا ہٹا دی گئی ہے۔"
-              : "The requested book does not exist or has been removed.")}
+          {isRTL
+            ? "مطلوبہ کتاب موجود نہیں ہے یا ہٹا دی گئی ہے۔"
+            : "The requested book does not exist or has been removed."}
         </p>
         <Link
           to="/publications"
@@ -179,6 +195,51 @@ export default function BookDetail() {
         >
           {isRTL ? "تمام کتب دیکھیں" : "View All Books"}
         </Link>
+      </div>
+    );
+  }
+
+  // ── 3. Temporary API / Network Error ──
+  if (isApiError || (error && !book)) {
+    return (
+      <div
+        className="min-h-screen flex flex-col items-center justify-center p-6 text-center"
+        style={{ backgroundColor: COLORS.background }}
+        dir={isRTL ? "rtl" : "ltr"}
+      >
+        <SEO
+          title={isRTL ? "عارضی رابطہ منقطع | مفتی فیضان سرور" : "Connection Issue | Mufti Faizan Sarwar"}
+          description={isRTL ? "کتاب لوڈ کرنے میں عارضی دشواری پیش آئی ہے۔ برائے مہربانی صفحہ دوبارہ لوڈ فرمائیں۔" : "A temporary network or server issue occurred while loading this book. Please retry."}
+          canonical={`/publications/${cleanSlug}`}
+          noindex={false}
+        />
+        <div
+          className="w-16 h-16 rounded-full flex items-center justify-center mb-4 shadow-sm"
+          style={{ backgroundColor: `${COLORS.primary}15` }}
+        >
+          <BookOpen className="w-8 h-8 text-amber-600" />
+        </div>
+        <h2
+          className="text-2xl font-bold font-serif mb-2"
+          style={{ color: COLORS.textPrimary }}
+        >
+          {isRTL ? "عارضی رابطہ منقطع" : "Temporary Connection Issue"}
+        </h2>
+        <p
+          className="text-sm max-w-md mb-6"
+          style={{ color: COLORS.textSecondary }}
+        >
+          {error || (isRTL
+            ? "سرور سے رابطہ قائم نہیں ہو سکا۔ برائے مہربانی دوبارہ کوشش فرمائیں۔"
+            : "Unable to reach the server. Please check your connection and retry.")}
+        </p>
+        <button
+          onClick={() => refetch(true)}
+          className="px-6 py-2.5 rounded-xl font-bold text-white text-sm cursor-pointer shadow-sm hover:opacity-95"
+          style={{ backgroundColor: COLORS.primary }}
+        >
+          {isRTL ? "دوبارہ کوشش کریں" : "Retry"}
+        </button>
       </div>
     );
   }
@@ -295,14 +356,15 @@ export default function BookDetail() {
       <SEO
         title={title}
         description={cleanSummary || summary}
-        canonical={`/publications/${slug || rawParam}`}
+        canonical={`/publications/${slug || cleanSlug}`}
         image={coverImage?.url}
         type="book"
+        noindex={false}
         schema={[
           getBookSchema({
             title,
             summary: cleanSummary || summary,
-            slug: slug || rawParam,
+            slug: slug || cleanSlug,
             author,
             coverImage: coverImage?.url,
             pageCount,
@@ -312,7 +374,7 @@ export default function BookDetail() {
           }),
           getBreadcrumbSchema([
             { name: isRTL ? "کتب و مطبوعات" : "Publications", url: "/publications" },
-            { name: title, url: `/publications/${slug || rawParam}` },
+            { name: title, url: `/publications/${slug || cleanSlug}` },
           ]),
         ]}
       />

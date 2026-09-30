@@ -25,28 +25,36 @@ import { useCachedContent } from '@/hooks/useContentCache';
 import { STALE_TIMES } from '@/store/slices/contentSlice';
 import { COLORS } from '@/utils/themeColors';
 import { Spinner, SEO } from '@/components';
-import { getQASchema, getBreadcrumbSchema } from '@/utils/seoHelpers';
+import { getQASchema, getBreadcrumbSchema, safeDecodeSlug } from '@/utils/seoHelpers';
 import toast from 'react-hot-toast';
 
 export default function QADetail() {
   const { slug, id } = useParams();
   const rawParam = slug || id;
+  const cleanSlug = safeDecodeSlug(rawParam);
   const navigate = useNavigate();
   const { loggedInUser, userRole } = useSelector((state) => state.auth);
   const isAdmin = userRole === 'admin' || loggedInUser?.role === 'admin';
 
-  const { data, loading, error } = useCachedContent({
+  const {
+    data,
+    loading,
+    error,
+    isNotFound,
+    isApiError,
+    refetch,
+  } = useCachedContent({
     type: 'questions_detail',
-    params: rawParam,
+    params: cleanSlug,
     fetcher: async () => {
-      const res = await getQuestionBySlug(rawParam);
+      const res = await getQuestionBySlug(cleanSlug);
       if (!res?.question) {
         throw new Error('سوال نہیں ملا');
       }
       return res;
     },
     staleTime: STALE_TIMES.questions,
-    enabled: !!rawParam,
+    enabled: !!cleanSlug,
   });
 
   const question = data?.question || null;
@@ -55,7 +63,7 @@ export default function QADetail() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, [rawParam]);
+  }, [cleanSlug]);
 
   const handleCopyLink = () => {
     const url = window.location.href;
@@ -89,6 +97,7 @@ export default function QADetail() {
 
   const answeredDate = question?.answeredAt || question?.updatedAt || question?.createdAt;
 
+  // ── 1. Loading State ──
   if (loading) {
     return (
       <div
@@ -96,12 +105,19 @@ export default function QADetail() {
         className="min-h-[70vh] py-16 flex items-center justify-center"
         style={{ backgroundColor: COLORS.background }}
       >
+        <SEO
+          title="سوال لوڈ ہو رہا ہے... | مفتی فیضان سرور"
+          description="مفتی فیضان سرور کی جانب سے شرعی سوال و جواب۔"
+          canonical={`/qa/${cleanSlug}`}
+          noindex={false}
+        />
         <Spinner size="lg" text="تفصیلات لوڈ ہو رہی ہیں..." />
       </div>
     );
   }
 
-  if (error || !question) {
+  // ── 2. Definitive Not Found State (404) ──
+  if (isNotFound || (!question && !loading && !error)) {
     return (
       <div
         dir="rtl"
@@ -111,6 +127,7 @@ export default function QADetail() {
         <SEO
           title="سوال نہیں ملا | مفتی فیضان سرور"
           description="مطلوبہ سوال موجود نہیں ہے یا ہٹا دیا گیا ہے۔"
+          canonical={`/qa/${cleanSlug}`}
           noindex={true}
         />
         <div
@@ -135,6 +152,43 @@ export default function QADetail() {
     );
   }
 
+  // ── 3. Temporary API / Network Error ──
+  if (isApiError || (error && !question)) {
+    return (
+      <div
+        dir="rtl"
+        className="min-h-screen py-16 px-4"
+        style={{ backgroundColor: COLORS.background }}
+      >
+        <SEO
+          title="عارضی رابطہ منقطع | مفتی فیضان سرور"
+          description="سوال کی تفصیلات لوڈ کرنے میں عارضی دشواری پیش آئی ہے۔ برائے مہربانی دوبارہ کوشش فرمائیں۔"
+          canonical={`/qa/${cleanSlug}`}
+          noindex={false}
+        />
+        <div
+          className="max-w-xl mx-auto text-center p-8 rounded-2xl border bg-white shadow-xs"
+          style={{ borderColor: COLORS.border }}
+        >
+          <HelpCircle className="w-12 h-12 mx-auto mb-3 text-amber-600" />
+          <h2 className="text-xl font-bold font-['Noto_Nastaliq_Urdu'] mb-2" style={{ color: COLORS.primary }}>
+            عارضی رابطہ منقطع
+          </h2>
+          <p className="text-xs text-slate-500 mb-6">
+            {error || 'سرور سے رابطہ قائم نہیں ہو سکا۔ برائے مہربانی دوبارہ کوشش فرمائیں۔'}
+          </p>
+          <button
+            onClick={() => refetch(true)}
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-white font-bold text-xs uppercase tracking-wider transition-colors cursor-pointer"
+            style={{ backgroundColor: COLORS.primary }}
+          >
+            دوبارہ کوشش کریں
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
       dir="rtl"
@@ -144,19 +198,20 @@ export default function QADetail() {
       <SEO
         title={question.questionTitle}
         description={question.answerContent || question.detailedQuestion}
-        canonical={`/qa/${question.slug || rawParam}`}
+        canonical={`/qa/${question.slug || cleanSlug}`}
+        noindex={false}
         schema={[
           getQASchema({
             questionTitle: question.questionTitle,
             detailedQuestion: question.detailedQuestion,
             answerContent: question.answerContent,
-            slug: question.slug || rawParam,
+            slug: question.slug || cleanSlug,
             answeredAt: question.answeredAt,
             answeredByName: question.answeredBy?.name,
           }),
           getBreadcrumbSchema([
             { name: 'سوال و جواب', url: '/qa' },
-            { name: question.questionTitle, url: `/qa/${question.slug || rawParam}` },
+            { name: question.questionTitle, url: `/qa/${question.slug || cleanSlug}` },
           ]),
         ]}
       />

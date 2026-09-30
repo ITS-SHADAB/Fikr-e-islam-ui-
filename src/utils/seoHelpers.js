@@ -30,27 +30,59 @@ export const cleanText = (str = '', maxLength = 160) => {
 };
 
 /**
- * Normalizes and builds a canonical production URL with Unicode slug encoding
+ * Safely decodes a URL slug, handling both single and double percent-encoded Unicode strings
+ */
+export const safeDecodeSlug = (str = '') => {
+  if (!str || typeof str !== 'string') return '';
+  let decoded = str;
+  try {
+    for (let i = 0; i < 3; i++) {
+      if (!decoded.includes('%')) break;
+      const next = decodeURIComponent(decoded);
+      if (next === decoded) break;
+      decoded = next;
+    }
+  } catch {
+    // Return current progress if malformed sequence
+  }
+  return decoded.trim();
+};
+
+/**
+ * Normalizes and builds a canonical production URL with Unicode slug encoding.
+ * Byte-for-byte consistent with sitemap.xml and idempotent.
  */
 export const buildCanonicalUrl = (basePath = '', slug = '') => {
-  let path = String(basePath || '').trim();
-  if (path.startsWith('http://') || path.startsWith('https://')) {
+  let fullPath = String(basePath || '').trim();
+  if (fullPath.startsWith('http://') || fullPath.startsWith('https://')) {
     try {
-      const u = new URL(path);
-      path = u.pathname;
+      const u = new URL(fullPath);
+      fullPath = u.pathname;
     } catch {
-      path = path.replace(/^https?:\/\/[^/]+/, '');
+      fullPath = fullPath.replace(/^https?:\/\/[^/]+/, '');
     }
   }
-  if (!path.startsWith('/')) path = `/${path}`;
-  if (path.length > 1 && path.endsWith('/')) path = path.slice(0, -1);
 
-  if (!slug) {
-    return `${BASE_PRODUCTION_URL}${path === '/' ? '' : path}`;
+  if (slug) {
+    const cleanSlug = safeDecodeSlug(slug);
+    const cleanBase = fullPath.replace(/\/+$/, '');
+    fullPath = `${cleanBase}/${cleanSlug}`;
   }
 
-  const encodedSlug = encodeURI(String(slug).trim());
-  return `${BASE_PRODUCTION_URL}${path}/${encodedSlug}`;
+  if (!fullPath.startsWith('/')) fullPath = `/${fullPath}`;
+  if (fullPath.length > 1 && fullPath.endsWith('/')) fullPath = fullPath.slice(0, -1);
+
+  if (fullPath === '/' || !fullPath) {
+    return `${BASE_PRODUCTION_URL}/`;
+  }
+
+  // Split path segments, decode each safely to avoid double-encoding, then encodeURI
+  const segments = fullPath
+    .split('/')
+    .filter(Boolean)
+    .map((seg) => encodeURI(safeDecodeSlug(seg)));
+
+  return `${BASE_PRODUCTION_URL}/${segments.join('/')}`;
 };
 
 /**

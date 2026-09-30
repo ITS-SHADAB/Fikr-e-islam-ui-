@@ -73,11 +73,18 @@ export default function SEO({
     setMetaTag('name', 'robots', robotsContent);
 
     // 4. Canonical URL
-    let fullCanonical = BASE_PRODUCTION_URL;
+    let fullCanonical;
     if (canonical) {
       fullCanonical = canonical.startsWith('http')
         ? canonical
         : buildCanonicalUrl(canonical);
+    } else {
+      // Default safely to current pathname so we never declare homepage canonical for deep pages
+      const currentPath =
+        typeof window !== 'undefined' && window.location?.pathname
+          ? window.location.pathname
+          : '/';
+      fullCanonical = buildCanonicalUrl(currentPath);
     }
     setLinkTag('canonical', fullCanonical);
 

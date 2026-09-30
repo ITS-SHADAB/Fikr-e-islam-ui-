@@ -28,7 +28,7 @@ import { useCachedContent } from "@/hooks/useContentCache";
 import { STALE_TIMES } from "@/store/slices/contentSlice";
 import { useSettings } from "@/hooks/useSettings";
 import { FatwaCard, PdfViewer, Spinner, SEO } from "@/components";
-import { getFatwaSchema, getBreadcrumbSchema } from "@/utils/seoHelpers";
+import { getFatwaSchema, getBreadcrumbSchema, safeDecodeSlug } from "@/utils/seoHelpers";
 import CommentsSection from "@/components/CommentsSection";
 import { FATWA_CATEGORY_TRANSLATIONS } from "@/utils/categories";
 import { COLORS } from "@/utils/themeColors";
@@ -65,9 +65,10 @@ const DUPLICATE_FATWAS_REDIRECT = {
 export default function FatwaDetail() {
   const { slug, id } = useParams();
   const rawParam = slug || id;
+  const cleanSlug = safeDecodeSlug(rawParam);
 
-  if (rawParam && DUPLICATE_FATWAS_REDIRECT[rawParam]) {
-    return <Navigate to={`/fatwas/${DUPLICATE_FATWAS_REDIRECT[rawParam]}`} replace />;
+  if (cleanSlug && DUPLICATE_FATWAS_REDIRECT[cleanSlug]) {
+    return <Navigate to={`/fatwas/${DUPLICATE_FATWAS_REDIRECT[cleanSlug]}`} replace />;
   }
 
   const { settings } = useSettings();
@@ -75,17 +76,24 @@ export default function FatwaDetail() {
     settings?.language === "ur" || settings?.language === "Urdu" ? "ur" : "en";
   const isRTL = language === "ur";
 
-  const { data: detailData, loading, error } = useCachedContent({
+  const {
+    data: detailData,
+    loading,
+    error,
+    isNotFound,
+    isApiError,
+    refetch,
+  } = useCachedContent({
     type: "fatwas_detail",
-    params: rawParam,
+    params: cleanSlug,
     fetcher: async () => {
-      const data = await getFatwaBySlug(rawParam);
+      const data = await getFatwaBySlug(cleanSlug);
       const fatwaData = data?.fatwa || data;
       const related = data?.related || [];
       return { fatwa: fatwaData, related };
     },
     staleTime: STALE_TIMES.fatwas,
-    enabled: !!rawParam,
+    enabled: !!cleanSlug,
   });
 
   const fatwa = detailData?.fatwa || null;
@@ -98,7 +106,7 @@ export default function FatwaDetail() {
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [rawParam]);
+  }, [cleanSlug]);
 
   const shareUrl = typeof window !== "undefined" ? window?.location?.href : "";
 
@@ -123,18 +131,26 @@ export default function FatwaDetail() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  // ── 1. LOADING STATE: Keep page indexable & declare self-canonical ──
   if (loading) {
     return (
       <div
         className="min-h-screen flex items-center justify-center"
         style={{ backgroundColor: COLORS?.background }}
       >
+        <SEO
+          title={isRTL ? "فتویٰ لوڈ ہو رہا ہے... | مفتی فیضان سرور" : "Loading Fatwa... | Mufti Faizan Sarwar"}
+          description={isRTL ? "مفتی فیضان سرور کے قلم سے مستند فقہی فتویٰ و شرعی رہنمائی۔" : "Authentic Islamic fatwa and Shariah guidance by Mufti Faizan Sarwar."}
+          canonical={`/fatwas/${cleanSlug}`}
+          noindex={false}
+        />
         <Spinner size="lg" text="فتویٰ لوڈ ہو رہا ہے..." />
       </div>
     );
   }
 
-  if (error || !fatwa) {
+  // ── 2. DEFINITIVE NOT FOUND STATE: 404 from backend ──
+  if (isNotFound || (!fatwa && !loading && !error)) {
     return (
       <div
         className="min-h-screen flex flex-col items-center justify-center p-6 text-center"
@@ -144,6 +160,7 @@ export default function FatwaDetail() {
         <SEO
           title={isRTL ? "فتویٰ دستیاب نہیں" : "Fatwa Not Found"}
           description={isRTL ? "مطلوبہ فتویٰ موجود نہیں ہے یا ہٹا دیا گیا ہے۔" : "The requested fatwa does not exist or has been removed."}
+          canonical={`/fatwas/${cleanSlug}`}
           noindex={true}
         />
         <FileText
@@ -160,10 +177,9 @@ export default function FatwaDetail() {
           className="text-sm max-w-md mb-6 font-['Payami_Nastaleeq',serif]"
           style={{ color: COLORS?.textSecondary }}
         >
-          {error ||
-            (isRTL
-              ? "مطلوبہ فتویٰ موجود نہیں ہے یا ہٹا دیا گیا ہے۔"
-              : "The requested fatwa does not exist or has been removed.")}
+          {isRTL
+            ? "مطلوبہ فتویٰ موجود نہیں ہے یا ہٹا دیا گیا ہے۔"
+            : "The requested fatwa does not exist or has been removed."}
         </p>
         <Link
           to="/fatwas"
@@ -172,6 +188,48 @@ export default function FatwaDetail() {
         >
           {isRTL ? "تمام فتاویٰ" : "All Fatwas"}
         </Link>
+      </div>
+    );
+  }
+
+  // ── 3. TEMPORARY API / NETWORK ERROR: Do NOT emit noindex, allow Googlebot to re-crawl ──
+  if (isApiError || (error && !fatwa)) {
+    return (
+      <div
+        className="min-h-screen flex flex-col items-center justify-center p-6 text-center"
+        style={{ backgroundColor: COLORS?.background }}
+        dir={isRTL ? "rtl" : "ltr"}
+      >
+        <SEO
+          title={isRTL ? "عارضی رابطہ منقطع | مفتی فیضان سرور" : "Connection Issue | Mufti Faizan Sarwar"}
+          description={isRTL ? "فتویٰ کی تفصیلات لوڈ کرنے میں عارضی دشواری پیش آئی ہے۔ برائے مہربانی صفحہ دوبارہ لوڈ فرمائیں۔" : "A temporary network or server issue occurred while loading this fatwa. Please retry."}
+          canonical={`/fatwas/${cleanSlug}`}
+          noindex={false}
+        />
+        <HelpCircle
+          className="w-16 h-16 mb-4 text-amber-600 opacity-70"
+        />
+        <h2
+          className="text-2xl font-bold font-serif mb-2"
+          style={{ color: COLORS?.textPrimary }}
+        >
+          {isRTL ? "عارضی رابطہ منقطع" : "Temporary Connection Issue"}
+        </h2>
+        <p
+          className="text-sm max-w-md mb-6 font-['Payami_Nastaleeq',serif]"
+          style={{ color: COLORS?.textSecondary }}
+        >
+          {error || (isRTL
+            ? "سرور سے رابطہ قائم نہیں ہو سکا۔ برائے مہربانی دوبارہ کوشش فرمائیں۔"
+            : "Unable to reach the server. Please check your connection and retry.")}
+        </p>
+        <button
+          onClick={() => refetch(true)}
+          className="px-6 py-2.5 rounded-xl font-bold text-white text-sm cursor-pointer shadow-sm hover:opacity-95"
+          style={{ backgroundColor: COLORS?.primary }}
+        >
+          {isRTL ? "دوبارہ کوشش کریں" : "Retry"}
+        </button>
       </div>
     );
   }
@@ -265,20 +323,21 @@ export default function FatwaDetail() {
       <SEO
         title={fatwa.title}
         description={fatwa.summary || fatwa.question}
-        canonical={`/fatwas/${fatwa.slug || rawParam}`}
+        canonical={`/fatwas/${fatwa.slug || cleanSlug}`}
         type="article"
+        noindex={false}
         schema={[
           getFatwaSchema({
             title: fatwa.title,
             summary: fatwa.summary || fatwa.question,
-            slug: fatwa.slug || rawParam,
+            slug: fatwa.slug || cleanSlug,
             publishDate: fatwa.publishDate || fatwa.createdAt,
             updatedAt: fatwa.updatedAt,
             category: categoryLabel,
           }),
           getBreadcrumbSchema([
             { name: isRTL ? "فتاویٰ" : "Fatwas", url: "/fatwas" },
-            { name: fatwa.title, url: `/fatwas/${fatwa.slug || rawParam}` },
+            { name: fatwa.title, url: `/fatwas/${fatwa.slug || cleanSlug}` },
           ]),
         ]}
       />

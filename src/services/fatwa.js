@@ -23,13 +23,15 @@ export const getFatwas = async (params) => {
   }
 };
 
+import { safeDecodeSlug } from '@/utils/seoHelpers';
+
 export const getFatwaBySlug = async (slug) => {
   try {
-    const response = await API.get(`${FATWAS}/slug/${slug}`);
+    const cleanSlug = safeDecodeSlug(slug);
+    const response = await API.get(`${FATWAS}/slug/${encodeURIComponent(cleanSlug)}`);
     return response.data;
   } catch (error) {
     console.error("Get Fatwa By Slug Error:", error);
-    toast.error(error.response?.data?.message || error.message);
     throw error;
   }
 };

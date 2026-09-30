@@ -24,13 +24,15 @@ export const getPublications = async (params) => {
   }
 };
 
+import { safeDecodeSlug } from '@/utils/seoHelpers';
+
 export const getPublicationBySlug = async (slug) => {
   try {
-    const response = await API.get(`${PUBLICATIONS}/slug/${slug}`);
+    const cleanSlug = safeDecodeSlug(slug);
+    const response = await API.get(`${PUBLICATIONS}/slug/${encodeURIComponent(cleanSlug)}`);
     return response.data;
   } catch (error) {
     console.error("Get Publication By Slug Error:", error);
-    toast.error(error.response?.data?.message || error.message);
     throw error;
   }
 };

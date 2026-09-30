@@ -31,7 +31,7 @@ import { useSettings } from "@/hooks/useSettings";
 import { BACKEND_URL } from "@/constants/urls";
 import { ARTICLE_CATEGORY_TRANSLATIONS } from "@/utils/categories";
 import { ArticleCard, PdfViewer, Spinner, SEO } from "@/components";
-import { getArticleSchema, getBreadcrumbSchema } from "@/utils/seoHelpers";
+import { getArticleSchema, getBreadcrumbSchema, safeDecodeSlug } from "@/utils/seoHelpers";
 import CommentsSection from "@/components/CommentsSection";
 import toast from "react-hot-toast";
 import {
@@ -62,22 +62,31 @@ const THEME = {
 export default function ArticleDetail() {
   const { slug, id } = useParams();
   const rawParam = slug || id;
+  const cleanSlug = safeDecodeSlug(rawParam);
+
   const { settings } = useSettings();
   const language =
     settings?.language === "ur" || settings?.language === "Urdu" ? "ur" : "en";
   const isRTL = language === "ur";
 
-  const { data: detailData, loading, error } = useCachedContent({
+  const {
+    data: detailData,
+    loading,
+    error,
+    isNotFound,
+    isApiError,
+    refetch,
+  } = useCachedContent({
     type: "articles_detail",
-    params: rawParam,
+    params: cleanSlug,
     fetcher: async () => {
-      const data = await getArticleBySlug(rawParam);
+      const data = await getArticleBySlug(cleanSlug);
       const articleData = data?.article || data;
       const related = data?.related || [];
       return { article: articleData, related };
     },
     staleTime: STALE_TIMES.articles,
-    enabled: !!rawParam,
+    enabled: !!cleanSlug,
   });
 
   const article = detailData?.article || null;
@@ -98,7 +107,7 @@ export default function ArticleDetail() {
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [rawParam]);
+  }, [cleanSlug]);
 
   const shareUrl = typeof window !== "undefined" ? window?.location?.href : "";
 
@@ -184,20 +193,26 @@ export default function ArticleDetail() {
     }
   };
 
-  /* ── Loading State ── */
+  /* ── 1. Loading State ── */
   if (loading) {
     return (
       <div
         className="min-h-screen flex items-center justify-center"
         style={{ backgroundColor: "#E8DFD2" }}
       >
+        <SEO
+          title={isRTL ? "مضمون لوڈ ہو رہا ہے... | مفتی فیضان سرور" : "Loading Article... | Mufti Faizan Sarwar"}
+          description={isRTL ? "مفتی فیضان سرور کے قلم سے مستند علمی و تحقیقی مضمون۔" : "Authentic Islamic research article by Mufti Faizan Sarwar."}
+          canonical={`/articles/${cleanSlug}`}
+          noindex={false}
+        />
         <Spinner size="lg" text="مضمون لوڈ ہو رہا ہے..." />
       </div>
     );
   }
 
-  /* ── Error State ── */
-  if (error || !article) {
+  /* ── 2. Definitive Not Found State (404) ── */
+  if (isNotFound || (!article && !loading && !error)) {
     return (
       <div
         className="min-h-screen flex flex-col items-center justify-center p-6 text-center"
@@ -207,6 +222,7 @@ export default function ArticleDetail() {
         <SEO
           title={isRTL ? "مضمون دستیاب نہیں" : "Article Not Found"}
           description={isRTL ? "مطلوبہ مضمون موجود نہیں یا ہٹا دیا گیا ہے۔" : "The article was not found or removed."}
+          canonical={`/articles/${cleanSlug}`}
           noindex={true}
         />
         <FileText
@@ -223,10 +239,9 @@ export default function ArticleDetail() {
           className="text-sm max-w-md mb-6 font-['Payami_Nastaleeq',serif]"
           style={{ color: THEME.textMuted }}
         >
-          {error ||
-            (isRTL
-              ? "مطلوبہ مضمون موجود نہیں یا ہٹا دیا گیا ہے۔"
-              : "The article was not found or removed.")}
+          {isRTL
+            ? "مطلوبہ مضمون موجود نہیں یا ہٹا دیا گیا ہے۔"
+            : "The article was not found or removed."}
         </p>
         <Link
           to="/articles"
@@ -235,6 +250,48 @@ export default function ArticleDetail() {
         >
           {isRTL ? "تمام مقالات" : "All Articles"}
         </Link>
+      </div>
+    );
+  }
+
+  /* ── 3. Temporary API / Network Error ── */
+  if (isApiError || (error && !article)) {
+    return (
+      <div
+        className="min-h-screen flex flex-col items-center justify-center p-6 text-center"
+        style={{ backgroundColor: "#E8DFD2" }}
+        dir={isRTL ? "rtl" : "ltr"}
+      >
+        <SEO
+          title={isRTL ? "عارضی رابطہ منقطع | مفتی فیضان سرور" : "Connection Issue | Mufti Faizan Sarwar"}
+          description={isRTL ? "مضمون لوڈ کرنے میں عارضی دشواری پیش آئی ہے۔ برائے مہربانی صفحہ دوبارہ لوڈ فرمائیں۔" : "A temporary network or server issue occurred while loading this article. Please retry."}
+          canonical={`/articles/${cleanSlug}`}
+          noindex={false}
+        />
+        <FileText
+          className="w-16 h-16 mb-4 text-amber-600 opacity-70"
+        />
+        <h2
+          className="text-2xl font-bold font-serif mb-2"
+          style={{ color: THEME.darkBrown }}
+        >
+          {isRTL ? "عارضی رابطہ منقطع" : "Temporary Connection Issue"}
+        </h2>
+        <p
+          className="text-sm max-w-md mb-6 font-['Payami_Nastaleeq',serif]"
+          style={{ color: THEME.textMuted }}
+        >
+          {error || (isRTL
+            ? "سرور سے رابطہ قائم نہیں ہو سکا۔ برائے مہربانی دوبارہ کوشش فرمائیں۔"
+            : "Unable to reach the server. Please check your connection and retry.")}
+        </p>
+        <button
+          onClick={() => refetch(true)}
+          className="px-6 py-2.5 rounded-xl font-bold text-white text-sm font-['Payami_Nastaleeq',serif] cursor-pointer shadow-sm hover:opacity-95"
+          style={{ backgroundColor: THEME.darkBrown }}
+        >
+          {isRTL ? "دوبارہ کوشش کریں" : "Retry"}
+        </button>
       </div>
     );
   }
@@ -283,14 +340,15 @@ export default function ArticleDetail() {
       <SEO
         title={article.title}
         description={article.summary}
-        canonical={`/articles/${article.slug || rawParam}`}
+        canonical={`/articles/${article.slug || cleanSlug}`}
         image={featuredImageSrc}
         type="article"
+        noindex={false}
         schema={[
           getArticleSchema({
             title: article.title,
             summary: article.summary,
-            slug: article.slug || rawParam,
+            slug: article.slug || cleanSlug,
             publishDate: article.publishDate || article.createdAt,
             updatedAt: article.updatedAt,
             image: featuredImageSrc,
@@ -298,7 +356,7 @@ export default function ArticleDetail() {
           }),
           getBreadcrumbSchema([
             { name: isRTL ? "مقالات" : "Articles", url: "/articles" },
-            { name: article.title, url: `/articles/${article.slug || rawParam}` },
+            { name: article.title, url: `/articles/${article.slug || cleanSlug}` },
           ]),
         ]}
       />

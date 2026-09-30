@@ -23,13 +23,15 @@ export const getArticles = async (params) => {
   }
 };
 
+import { safeDecodeSlug } from '@/utils/seoHelpers';
+
 export const getArticleBySlug = async (slug) => {
   try {
-    const response = await API.get(`${ARTICLES}/slug/${slug}`);
+    const cleanSlug = safeDecodeSlug(slug);
+    const response = await API.get(`${ARTICLES}/slug/${encodeURIComponent(cleanSlug)}`);
     return response.data;
   } catch (error) {
     console.error("Get Article By Slug Error:", error);
-    toast.error(error.response?.data?.message || error.message);
     throw error;
   }
 };

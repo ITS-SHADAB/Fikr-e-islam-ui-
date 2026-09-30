@@ -40,9 +40,12 @@ export const getPublicQuestions = async (params = {}) => {
   }
 };
 
+import { safeDecodeSlug } from '@/utils/seoHelpers';
+
 export const getQuestionBySlug = async (slug) => {
   try {
-    const response = await API.get(`${QUESTIONS}/${slug}`);
+    const cleanSlug = safeDecodeSlug(slug);
+    const response = await API.get(`${QUESTIONS}/${encodeURIComponent(cleanSlug)}`);
     return response.data;
   } catch (error) {
     console.error("Get Question By Slug Error:", error);
