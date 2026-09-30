@@ -4,27 +4,70 @@
 // FATWA CATEGORIES
 // ============================================================
 export const FATWA_CATEGORIES = [
-  { value: 'SALAH', labelUr: 'نماز', labelEn: 'SALAH' },
-  { value: 'FASTING', labelUr: 'روزہ', labelEn: 'FASTING' },
-  { value: 'ZAKAT', labelUr: 'زکوٰۃ', labelEn: 'ZAKAT' },
-  { value: 'HAJJ_UMRAH', labelUr: 'حج و عمرہ', labelEn: 'HAJJ & UMRAH' },
-  { value: 'MARRIAGE', labelUr: 'نکاح', labelEn: 'MARRIAGE' },
-  { value: 'DIVORCE', labelUr: 'طلاق', labelEn: 'DIVORCE' },
-  { value: 'BUSINESS', labelUr: 'تجارت', labelEn: 'BUSINESS' },
-  { value: 'FAMILY_ISSUES', labelUr: 'خاندانی امور', labelEn: 'FAMILY ISSUES' },
-  { value: 'EDUCATION', labelUr: 'تعلیم', labelEn: 'EDUCATION' },
-  { value: 'GENERAL_QUESTIONS', labelUr: 'عام معلومات', labelEn: 'GENERAL QUESTIONS' },
+  { value: 'طلاق', labelUr: 'طلاق', labelEn: 'Divorce' },
+  { value: 'نماز', labelUr: 'نماز', labelEn: 'Salah' },
+  { value: 'نکاح', labelUr: 'نکاح', labelEn: 'Marriage' },
+  { value: 'عقائد', labelUr: 'عقائد', labelEn: 'Aqeedah' },
+  { value: 'عدت', labelUr: 'عدت', labelEn: 'Iddah' },
+  { value: 'مسجد', labelUr: 'مسجد', labelEn: 'Masjid' },
+  { value: 'نماز جمعہ', labelUr: 'نماز جمعہ', labelEn: 'Friday Prayer' },
+  { value: 'لباس', labelUr: 'لباس', labelEn: 'Clothing' },
+  { value: 'حقوق الزوجین', labelUr: 'حقوق الزوجین', labelEn: 'Spousal Rights' },
+  { value: 'طہارت', labelUr: 'طہارت', labelEn: 'Purification' },
+  { value: 'معاشرت', labelUr: 'معاشرت', labelEn: 'Social Conduct' },
+  { value: 'توبہ', labelUr: 'توبہ', labelEn: 'Repentance' },
+  { value: 'وراثت', labelUr: 'وراثت', labelEn: 'Inheritance' },
+  { value: 'وصیت', labelUr: 'وصیت', labelEn: 'Wills' },
+  { value: 'قرآن', labelUr: 'قرآن', labelEn: 'Quran' },
+  { value: 'فتویٰ', labelUr: 'فتویٰ', labelEn: 'Fatwa' },
+  { value: 'نماز جنازہ', labelUr: 'نماز جنازہ', labelEn: 'Funeral Prayer' },
+  { value: 'وقف و مسجد', labelUr: 'وقف و مسجد', labelEn: 'Waqf & Mosque' },
+  { value: 'روزہ', labelUr: 'روزہ', labelEn: 'Fasting' },
+  { value: 'زکوٰۃ', labelUr: 'زکوٰۃ', labelEn: 'Zakat' },
+  { value: 'حج و عمرہ', labelUr: 'حج و عمرہ', labelEn: 'Hajj & Umrah' },
+  { value: 'تجارت', labelUr: 'تجارت', labelEn: 'Business' },
+  { value: 'خاندانی امور', labelUr: 'خاندانی امور', labelEn: 'Family Issues' },
+  { value: 'تعلیم', labelUr: 'تعلیم', labelEn: 'Education' },
 ];
 
 export const FATWA_VALUES = FATWA_CATEGORIES.map(c => c.value);
-export const FATWA_TRANSLATIONS = FATWA_CATEGORIES.reduce((acc, c) => {
-  acc[c.value] = c.labelUr;
-  return acc;
-}, {});
-export const FATWA_EN_LABELS = FATWA_CATEGORIES.reduce((acc, c) => {
-  acc[c.value] = c.labelEn;
-  return acc;
-}, {});
+
+export const FATWA_TRANSLATIONS = {
+  ...FATWA_CATEGORIES.reduce((acc, c) => {
+    acc[c.value] = c.labelUr;
+    return acc;
+  }, {}),
+  // Backward compatibility aliases for English constants
+  DIVORCE: 'طلاق',
+  SALAH: 'نماز',
+  MARRIAGE: 'نکاح',
+  AQEEDAH: 'عقائد',
+  FASTING: 'روزہ',
+  ZAKAT: 'زکوٰۃ',
+  HAJJ_UMRAH: 'حج و عمرہ',
+  BUSINESS: 'تجارت',
+  FAMILY_ISSUES: 'خاندانی امور',
+  EDUCATION: 'تعلیم',
+  GENERAL_QUESTIONS: 'عام معلومات',
+};
+
+export const FATWA_EN_LABELS = {
+  ...FATWA_CATEGORIES.reduce((acc, c) => {
+    acc[c.value] = c.labelEn;
+    return acc;
+  }, {}),
+  DIVORCE: 'Divorce',
+  SALAH: 'Salah',
+  MARRIAGE: 'Marriage',
+  AQEEDAH: 'Aqeedah',
+  FASTING: 'Fasting',
+  ZAKAT: 'Zakat',
+  HAJJ_UMRAH: 'Hajj & Umrah',
+  BUSINESS: 'Business',
+  FAMILY_ISSUES: 'Family Issues',
+  EDUCATION: 'Education',
+  GENERAL_QUESTIONS: 'General Questions',
+};
 
 // ============================================================
 // PUBLICATION CATEGORIES

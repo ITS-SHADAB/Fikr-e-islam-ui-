@@ -141,19 +141,19 @@ export default function QAList() {
             className="text-xs font-bold uppercase tracking-widest block mb-1 font-['Noto_Nastaliq_Urdu']"
             style={{ color: COLORS.accent }}
           >
-            باہمی گفتگو و رہنمائی
+            دار الافتاء و شرعی رہنمائی
           </span>
           <div className="flex items-center justify-center gap-2 mb-2">
             <span style={{ color: COLORS.accent }} className="text-base select-none">❖</span>
             <h1 className="text-lg sm:text-xl font-extrabold font-['Noto_Nastaliq_Urdu']" style={{ color: COLORS.primary }}>
-              سوالات اور جوابات
+              دینی و شرعی سوالات اور جوابات
             </h1>
             <span style={{ color: COLORS.accent }} className="text-base select-none">❖</span>
           </div>
           <p className="text-xs sm:text-sm font-light max-w-xl mx-auto" style={{ color: COLORS.textSecondary }}>
-            عوام کی طرف سے پوچھے گئے اور مفتی صاحب کے جواب دیے گئے دینی و فقہی مسائل کا مطالعہ کریں۔
+            عوام الناس کی جانب سے پوچھے گئے روزمرہ دینی، فقہی و اخلاقی مسائل اور مفتی محمد فیضان سرور مصباحی کے تسلی بخش و مستند شرعی جوابات۔
           </p>
-          <div className="mt-4 flex justify-center">
+          <div className="mt-4 flex flex-wrap justify-center items-center gap-3">
             {isAdmin ? (
               <Link
                 to="/admin/questions"
@@ -168,14 +168,28 @@ export default function QAList() {
                 <span>ایڈمن: سوالات کا انتظام کریں</span>
               </Link>
             ) : (
-              <Link
-                to="/ask"
-                className="inline-flex items-center gap-2 px-5 py-2 rounded-full text-white text-xs font-bold uppercase tracking-wider shadow-xs hover:opacity-90 transition-opacity"
-                style={{ backgroundColor: COLORS.primary }}
-              >
-                <HelpCircle className="w-3.5 h-3.5 text-[#E5D8CA]" />
-                نیا سوال پوچھیں
-              </Link>
+              <>
+                <Link
+                  to="/ask"
+                  className="inline-flex items-center gap-2 px-5 py-2 rounded-full text-white text-xs font-bold uppercase tracking-wider shadow-xs hover:opacity-90 transition-opacity"
+                  style={{ backgroundColor: COLORS.primary }}
+                >
+                  <HelpCircle className="w-3.5 h-3.5 text-[#E5D8CA]" />
+                  نیا سوال پوچھیں
+                </Link>
+                <Link
+                  to="/fatwas"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold border transition-colors shadow-2xs hover:bg-white"
+                  style={{
+                    backgroundColor: `${COLORS.accent}15`,
+                    borderColor: `${COLORS.accent}40`,
+                    color: COLORS.primary,
+                  }}
+                >
+                  <BookOpen className="w-3.5 h-3.5 text-amber-700" />
+                  دار الافتاء کے تفصیلی فتاویٰ
+                </Link>
+              </>
             )}
           </div>
         </div>
@@ -419,10 +433,10 @@ export default function QAList() {
                 <h3 className="text-lg font-bold font-['Noto_Nastaliq_Urdu'] mb-1" style={{ color: COLORS.textPrimary }}>
                   {isSearchActive ? 'کوئی نتیجہ نہیں ملا' : 'کوئی جواب شدہ سوال نہیں ملا'}
                 </h3>
-                <p className="text-xs text-slate-500 max-w-sm mx-auto mb-5">
+                <p className="text-xs text-slate-500 max-w-md mx-auto mb-5 leading-relaxed">
                   {isSearchActive
                     ? 'براہ کرم تلاش کے الفاظ یا فلٹر تبدیل کریں۔'
-                    : 'براہ کرم تلاش کے الفاظ یا زمرے کے فلٹرز تبدیل کریں۔'}
+                    : 'فی الوقت اس زمرے میں کوئی سوال موجود نہیں ہے۔ اگر آپ کے پاس کوئی دینی یا شرعی مسئلہ ہے تو آپ مفتی صاحب سے سوال ارسال فرما سکتے ہیں۔'}
                 </p>
                 {!isAdmin && (
                   <Link

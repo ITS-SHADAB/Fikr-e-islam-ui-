@@ -41,6 +41,7 @@ import {
   IslamicBookSeal,
   IslamicGeometricWatermark,
 } from "@/pages/Fatwas/components/FatwaDetailDecorativeAssets";
+import TalaqSeriesNavigator from "../components/TalaqSeriesNavigator";
 
 // ═════════════════════════════════════════════════════════════════════
 // Exact Palette from Fatwa Detail / Design System
@@ -400,10 +401,14 @@ export default function ArticleDetail() {
           {/* Bottom of Hero: Metadata Bar (Always visible & right-aligned with dark pill backing) */}
           <div className="flex flex-wrap items-center justify-start gap-2.5 sm:gap-4 text-xs sm:text-sm font-['Payami_Nastaleeq',serif] pt-3 sm:pt-4 border-t border-white/20 text-white w-full text-right">
             {/* Author */}
-            <span className="flex items-center gap-1.5 font-medium bg-black/40 px-2.5 py-1 rounded-lg backdrop-blur-xs border border-white/10">
+            <Link
+              to="/about"
+              className="flex items-center gap-1.5 font-medium bg-black/40 px-2.5 py-1 rounded-lg backdrop-blur-xs border border-white/10 hover:bg-black/60 transition-colors"
+              title="مفتی صاحب کے متعلق جانیں"
+            >
               <User className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#DEC498] shrink-0" />
-              <span>{article?.author || "مفتی فیضان سرور مصباحی"}</span>
-            </span>
+              <span className="hover:text-amber-200 transition-colors">{article?.author || "مفتی فیضان سرور مصباحی"}</span>
+            </Link>
 
             {/* Date */}
             <span className="flex items-center gap-1.5 font-medium bg-black/40 px-2.5 py-1 rounded-lg backdrop-blur-xs border border-white/10">
@@ -756,6 +761,54 @@ export default function ArticleDetail() {
                 })}
               </div>
             </div>
+          </section>
+        )}
+
+        {/* ── 5-PART TALAQ RESEARCH SERIES INTERLINKING (ایک مجلس کی تین طلاقیں) ── */}
+        <TalaqSeriesNavigator currentSlug={article?.slug || rawParam} theme={THEME} />
+
+        {/* ── CONTEXTUAL SALAH BOOK RECOMMENDATION ── */}
+        {(article?.category?.includes('نماز') || article?.title?.includes('نماز') || article?.title?.includes('رفع الیدین')) && (
+          <section
+            dir="rtl"
+            className="my-5 rounded-2xl border p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4 transition-all"
+            style={{
+              backgroundColor: THEME.cardBg,
+              borderColor: THEME.secondaryBorder,
+            }}
+          >
+            <div className="flex items-center gap-3">
+              <div
+                className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border"
+                style={{
+                  backgroundColor: "#2B2118",
+                  borderColor: THEME.secondaryBorder,
+                  color: "#FAF6EF",
+                }}
+              >
+                <BookOpen className="w-5 h-5 text-amber-300" />
+              </div>
+              <div>
+                <span className="text-[11px] font-bold text-[#A8793E] font-['Payami_Nastaleeq',serif] block">
+                  متعلقہ علمی و فقہی تصنیف
+                </span>
+                <h3 className="text-sm sm:text-base font-bold font-['Payami_Nastaleeq',serif] text-[#2B2118]">
+                  مسئلۂ ترکِ رفع الیدین اور احناف
+                </h3>
+                <p className="text-xs font-['Payami_Nastaleeq',serif] text-[#685545] mt-0.5">
+                  نماز میں ترکِ رفع الیدین پر فقہِ حنفی اور احادیثِ رسول ﷺ کی روشنی میں مفتی صاحب کی مدلل کتاب۔
+                </p>
+              </div>
+            </div>
+
+            <Link
+              to="/publications/مسئلہ-ترک-رفع-الیدین-اور-احناف"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white shrink-0 hover:opacity-95 transition-all shadow-xs"
+              style={{ backgroundColor: "#2B2118" }}
+            >
+              <span>کتاب ملاحظہ فرمائیں</span>
+              <ArrowLeft className="w-3.5 h-3.5" />
+            </Link>
           </section>
         )}
 

@@ -357,6 +357,254 @@ export default function LecturesList() {
             )}
           </div>
         </div>
+
+        {/* ══════════════════════════════════════════════════════════════
+            TOPICAL LECTURE CONTEXT & SEMANTIC GUIDES (Indexable Textual Section)
+        ══════════════════════════════════════════════════════════════ */}
+        <section
+          className="mt-12 pt-8 border-t"
+          style={{ borderColor: `${COLORS.border}80` }}
+          dir={isRTL ? "rtl" : "ltr"}
+        >
+          <div className="text-center max-w-2xl mx-auto mb-8">
+            <span
+              className="text-xs font-bold uppercase tracking-widest block mb-1.5 font-serif"
+              style={{ color: COLORS.accent }}
+            >
+              {isRTL ? "موضوعاتی و فکری رہنمائی" : "TOPICAL SCHOLARLY DISCOURSES"}
+            </span>
+            <h2
+              className="text-xl sm:text-2xl font-bold font-serif mb-2"
+              style={{ color: COLORS.primary }}
+            >
+              {isRTL
+                ? "اصلاحی و فکری خطابات کے مرکزی موضوعات"
+                : "Central Themes of Lectures & Sermons"}
+            </h2>
+            <p
+              className="text-xs sm:text-sm font-light leading-relaxed"
+              style={{ color: COLORS.textSecondary }}
+            >
+              {isRTL
+                ? "مفتی محمد فیضان سرور مصباحی کے ویڈیو بیانات کے مستند موضوعات، اہم شرعی نکات اور متعلقہ علمی مصادر کا تعارف۔"
+                : "Scholarly overview of major themes, Shariah points, and related research content by Mufti Faizan Sarwar Misbahi."}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-8">
+            {/* Topic 1: شب برات */}
+            <div
+              className="rounded-2xl p-5 sm:p-6 border shadow-xs flex flex-col justify-between"
+              style={{
+                backgroundColor: COLORS.white,
+                borderColor: COLORS.border,
+              }}
+            >
+              <div>
+                <div className="flex items-center justify-between gap-2 mb-2.5">
+                  <span
+                    className="text-[11px] font-bold px-2.5 py-0.5 rounded-full"
+                    style={{
+                      backgroundColor: `${COLORS.accent}20`,
+                      color: COLORS.primary,
+                    }}
+                  >
+                    اسلامی عبادات و وظائف
+                  </span>
+                  <Link
+                    to="/about"
+                    className="text-xs font-semibold hover:underline"
+                    style={{ color: COLORS.accent }}
+                  >
+                    مفتی فیضان سرور مصباحی
+                  </Link>
+                </div>
+                <h3
+                  className="text-base sm:text-lg font-bold font-serif mb-2"
+                  style={{ color: COLORS.primary }}
+                >
+                  شبِ برات: فضائل، شرعی اعمال اور بدعات سے اجتناب
+                </h3>
+                <p
+                  className="text-xs sm:text-sm leading-relaxed mb-3"
+                  style={{ color: COLORS.textSecondary }}
+                >
+                  شعبان المعظم کی پندرہویں رات کی شرعی فضیلت، توبہ و استغفار، نوافل اور اگلے روز روزہ رکھنے کی فضیلت۔ آتش بازی، غیر شرعی رسومات اور خرافات سے سختی سے بچنے کی تاکید۔
+                </p>
+              </div>
+              <div className="pt-3 border-t flex items-center justify-between text-xs"
+                style={{ borderColor: `${COLORS.border}60` }}
+              >
+                <Link
+                  to="/articles"
+                  className="font-bold hover:underline"
+                  style={{ color: COLORS.primary }}
+                >
+                  متعلقہ علمی مضامین پڑھیں ←
+                </Link>
+              </div>
+            </div>
+
+            {/* Topic 2: مزارات پر عورتوں کی حاضری */}
+            <div
+              className="rounded-2xl p-5 sm:p-6 border shadow-xs flex flex-col justify-between"
+              style={{
+                backgroundColor: COLORS.white,
+                borderColor: COLORS.border,
+              }}
+            >
+              <div>
+                <div className="flex items-center justify-between gap-2 mb-2.5">
+                  <span
+                    className="text-[11px] font-bold px-2.5 py-0.5 rounded-full"
+                    style={{
+                      backgroundColor: `${COLORS.accent}20`,
+                      color: COLORS.primary,
+                    }}
+                  >
+                    فقہی و اصلاحی مسائل
+                  </span>
+                  <Link
+                    to="/about"
+                    className="text-xs font-semibold hover:underline"
+                    style={{ color: COLORS.accent }}
+                  >
+                    مفتی فیضان سرور مصباحی
+                  </Link>
+                </div>
+                <h3
+                  className="text-base sm:text-lg font-bold font-serif mb-2"
+                  style={{ color: COLORS.primary }}
+                >
+                  مزاراتِ اولیاء پر عورتوں کی حاضری کی شرعی ممانعت
+                </h3>
+                <p
+                  className="text-xs sm:text-sm leading-relaxed mb-3"
+                  style={{ color: COLORS.textSecondary }}
+                >
+                  کتبِ فقہ و فتاویٰ کی روشنی میں مزارات و مقابر پر عورتوں کے جانے کی شرعی ممانعت، بے پردگی اور فتنوں کے سدِ باب پر مبنی مدلل بیان۔
+                </p>
+              </div>
+              <div className="pt-3 border-t flex items-center justify-between text-xs"
+                style={{ borderColor: `${COLORS.border}60` }}
+              >
+                <Link
+                  to="/fatwas?category=عقائد"
+                  className="font-bold hover:underline"
+                  style={{ color: COLORS.primary }}
+                >
+                  متعلقہ شرعی فتاویٰ دیکھیں ←
+                </Link>
+              </div>
+            </div>
+
+            {/* Topic 3: شادی میں غلط رسوم کا سدباب */}
+            <div
+              className="rounded-2xl p-5 sm:p-6 border shadow-xs flex flex-col justify-between"
+              style={{
+                backgroundColor: COLORS.white,
+                borderColor: COLORS.border,
+              }}
+            >
+              <div>
+                <div className="flex items-center justify-between gap-2 mb-2.5">
+                  <span
+                    className="text-[11px] font-bold px-2.5 py-0.5 rounded-full"
+                    style={{
+                      backgroundColor: `${COLORS.accent}20`,
+                      color: COLORS.primary,
+                    }}
+                  >
+                    معاشرتی اصلاح و نکاح
+                  </span>
+                  <Link
+                    to="/about"
+                    className="text-xs font-semibold hover:underline"
+                    style={{ color: COLORS.accent }}
+                  >
+                    مفتی فیضان سرور مصباحی
+                  </Link>
+                </div>
+                <h3
+                  className="text-base sm:text-lg font-bold font-serif mb-2"
+                  style={{ color: COLORS.primary }}
+                >
+                  شادی بیاہ میں غیر شرعی و ہندوانہ رسومات کا سدِ باب
+                </h3>
+                <p
+                  className="text-xs sm:text-sm leading-relaxed mb-3"
+                  style={{ color: COLORS.textSecondary }}
+                >
+                  نکاح کو آسان اور سنت کے مطابق بنانے کی ترغیب۔ جہیز، بے جا مطالبات، گانے بجانے، ڈی جے اور غیر اسلامی رسوم کی شرعی ممانعت پر معاشرتی اصلاحی خطاب۔
+                </p>
+              </div>
+              <div className="pt-3 border-t flex items-center justify-between text-xs"
+                style={{ borderColor: `${COLORS.border}60` }}
+              >
+                <Link
+                  to="/fatwas?category=نکاح"
+                  className="font-bold hover:underline"
+                  style={{ color: COLORS.primary }}
+                >
+                  نکاح و حقوق الزوجین کے فتاویٰ ←
+                </Link>
+              </div>
+            </div>
+
+            {/* Topic 4: سجدۂ تعظیمی کی شرعی حرمت */}
+            <div
+              className="rounded-2xl p-5 sm:p-6 border shadow-xs flex flex-col justify-between"
+              style={{
+                backgroundColor: COLORS.white,
+                borderColor: COLORS.border,
+              }}
+            >
+              <div>
+                <div className="flex items-center justify-between gap-2 mb-2.5">
+                  <span
+                    className="text-[11px] font-bold px-2.5 py-0.5 rounded-full"
+                    style={{
+                      backgroundColor: `${COLORS.accent}20`,
+                      color: COLORS.primary,
+                    }}
+                  >
+                    عقیدہ و توحید
+                  </span>
+                  <Link
+                    to="/about"
+                    className="text-xs font-semibold hover:underline"
+                    style={{ color: COLORS.accent }}
+                  >
+                    مفتی فیضان سرور مصباحی
+                  </Link>
+                </div>
+                <h3
+                  className="text-base sm:text-lg font-bold font-serif mb-2"
+                  style={{ color: COLORS.primary }}
+                >
+                  عقیدۂ توحید اور غیر اللہ کو سجدۂ تعظیمی کی قطعی حرمت
+                </h3>
+                <p
+                  className="text-xs sm:text-sm leading-relaxed mb-3"
+                  style={{ color: COLORS.textSecondary }}
+                >
+                  سجدۂ عبادت صرف اللہ تعالیٰ کے لیے خاص ہے اور کسی کو بھی سجدۂ تعظیمی کرنا حرامِ قطعی و گناہِ کبیرہ ہے۔ پیر یا مزار کے سامنے سجدہ ریز ہونے کے خلاف واضح شرعی موقف۔
+                </p>
+              </div>
+              <div className="pt-3 border-t flex items-center justify-between text-xs"
+                style={{ borderColor: `${COLORS.border}60` }}
+              >
+                <Link
+                  to="/articles?category=عقائد+و+اسلامی+فکر"
+                  className="font-bold hover:underline"
+                  style={{ color: COLORS.primary }}
+                >
+                  عقائد و فکری مضامین مطالعہ کریں ←
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
       </div>
 
       {/* Audio-only modal (only displays if an audio lecture without YouTube is selected) */}

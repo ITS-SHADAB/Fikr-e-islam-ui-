@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, Navigate } from "react-router-dom";
 import {
   Calendar,
   Eye,
@@ -8,6 +8,7 @@ import {
   Bookmark,
   HelpCircle,
   FileText,
+  BookOpen,
   Download,
   ExternalLink,
   Share2,
@@ -55,9 +56,20 @@ const THEME = {
   cardShadow: "0 8px 30px rgba(43, 33, 24, 0.06)",
 };
 
+const DUPLICATE_FATWAS_REDIRECT = {
+  'جاندار-کی-تصویر-والے-کپڑے-کی-بنائی-و-کڑھائی-پر-کمائی-کا-حکم-1': 'جاندار-کی-تصویر-والے-کپڑے-کی-بنائی-و-کڑھائی-پر-کمائی-کا-حکم',
+  'امام-مسجد-سے-متعلق-دس-متفرق-سوالات-کے-جوابات-1': 'امام-مسجد-سے-متعلق-دس-متفرق-سوالات-کے-جوابات',
+  'بیوی-کی-کمائی-میں-شوہر-کے-تصرف-کا-حکم-1': 'بیوی-کی-کمائی-میں-شوہر-کے-تصرف-کا-حکم',
+};
+
 export default function FatwaDetail() {
   const { slug, id } = useParams();
   const rawParam = slug || id;
+
+  if (rawParam && DUPLICATE_FATWAS_REDIRECT[rawParam]) {
+    return <Navigate to={`/fatwas/${DUPLICATE_FATWAS_REDIRECT[rawParam]}`} replace />;
+  }
+
   const { settings } = useSettings();
   const language =
     settings?.language === "ur" || settings?.language === "Urdu" ? "ur" : "en";
@@ -314,6 +326,16 @@ export default function FatwaDetail() {
               <Scale className="w-3 h-3" />
               <span>{categoryLabel}</span>
             </span>
+
+            {/* Display official fatwa number if available in database */}
+            {(fatwa?.fatwaNumber || fatwa?.number) && (
+              <span
+                className="inline-flex items-center gap-1 text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider text-white bg-amber-900/60 border border-amber-400/30"
+              >
+                <FileText className="w-3 h-3 text-amber-300" />
+                <span>فتویٰ نمبر: {fatwa.fatwaNumber || fatwa.number}</span>
+              </span>
+            )}
           </div>
 
           <h1 className="text-xl sm:text-2xl font-bold font-serif leading-[1.8] text-white mb-3">
@@ -341,13 +363,17 @@ export default function FatwaDetail() {
                 </span>
               </span>
             )}
-            <span className="flex items-center gap-1.5">
+            <Link
+              to="/about"
+              className="flex items-center gap-1.5 hover:text-white transition-colors"
+              title="مفتی محمد فیضان سرور مصباحی کے متعلق جانیں"
+            >
               <span
                 className="w-2 h-2 rounded-full inline-block"
                 style={{ backgroundColor: COLORS?.accent }}
               />
-              <span>{isRTL ? "دار الافتاء و التحقیق" : "Darul Ifta"}</span>
-            </span>
+              <span className="hover:underline">{isRTL ? "دار الافتاء: مفتی محمد فیضان سرور مصباحی" : "Darul Ifta: Mufti Faizan Sarwar"}</span>
+            </Link>
           </div>
         </div>
       </div>
@@ -460,8 +486,108 @@ export default function FatwaDetail() {
           />
         </div>
 
-        {/* ── SUBSEQUENT SECTIONS: COMMENTS, RELATED FATWAS ── */}
+        {/* ── SUBSEQUENT SECTIONS: SEMANTIC RESEARCH CALLOUTS, COMMENTS, RELATED FATWAS ── */}
         <div className="mt-3.5 sm:mt-4 space-y-3 sm:space-y-3.5 relative z-10">
+
+          {/* ══════════════════════════════════════════════════════════════
+              SEMANTIC LINK 1: TALAQ RESEARCH SERIES (ایک مجلس کی تین طلاقیں)
+          ══════════════════════════════════════════════════════════════ */}
+          {(fatwa?.category === 'طلاق' || fatwa?.title?.includes('طلاق')) && (
+            <section
+              className="rounded-[20px] sm:rounded-[24px] border p-4 sm:p-5 transition-all"
+              style={{
+                backgroundColor: THEME.cardBg,
+                borderColor: THEME.secondaryBorder,
+                boxShadow: THEME.cardShadow,
+              }}
+              dir="rtl"
+            >
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div
+                    className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border"
+                    style={{
+                      backgroundColor: "#2B2118",
+                      borderColor: THEME.secondaryBorder,
+                      color: "#FAF6EF",
+                    }}
+                  >
+                    <BookOpen className="w-5 h-5 text-amber-300" />
+                  </div>
+                  <div>
+                    <span className="text-[11px] font-bold text-[#A8793E] font-['Payami_Nastaleeq',serif] block">
+                      متعلقہ علمی و فقہی تحقیقی سلسلہ (5 اقساط)
+                    </span>
+                    <h3 className="text-sm sm:text-base font-bold font-['Payami_Nastaleeq',serif] text-[#2B2118]">
+                      ایک مجلس کی تین طلاقیں: جامعہ منعمیہ پٹنہ کے فتوے کا علمی جائزہ
+                    </h3>
+                    <p className="text-xs font-['Payami_Nastaleeq',serif] text-[#685545] mt-0.5">
+                      ایک نشست میں تین طلاق کے وقوع پر مفتی محمد فیضان سرور مصباحی کا تفصیلی علمی، قرآنی و حدیثی مقالہ۔
+                    </p>
+                  </div>
+                </div>
+
+                <Link
+                  to="/articles/ایک-مجلس-کی-تین-طلاقیں-جامعہ-منعمیہ-پٹنہ-کے-فتوے-کا-علمی-جائزہ-قسط-اول"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white shrink-0 hover:opacity-95 transition-all shadow-xs"
+                  style={{ backgroundColor: "#2B2118" }}
+                >
+                  <span>تحقیقی مقالہ پڑھیں</span>
+                  <ArrowLeft className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+            </section>
+          )}
+
+          {/* ══════════════════════════════════════════════════════════════
+              SEMANTIC LINK 2: SALAH RESEARCH BOOK (مسئلۂ ترکِ رفع الیدین اور احناف)
+          ══════════════════════════════════════════════════════════════ */}
+          {(fatwa?.category === 'نماز' || fatwa?.title?.includes('نماز') || fatwa?.title?.includes('مسجد') || fatwa?.category === 'نماز جمعہ') && (
+            <section
+              className="rounded-[20px] sm:rounded-[24px] border p-4 sm:p-5 transition-all"
+              style={{
+                backgroundColor: THEME.cardBg,
+                borderColor: THEME.secondaryBorder,
+                boxShadow: THEME.cardShadow,
+              }}
+              dir="rtl"
+            >
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div
+                    className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border"
+                    style={{
+                      backgroundColor: "#2B2118",
+                      borderColor: THEME.secondaryBorder,
+                      color: "#FAF6EF",
+                    }}
+                  >
+                    <BookOpen className="w-5 h-5 text-amber-300" />
+                  </div>
+                  <div>
+                    <span className="text-[11px] font-bold text-[#A8793E] font-['Payami_Nastaleeq',serif] block">
+                      متعلقہ فقہی تصنیف و مطالعہ
+                    </span>
+                    <h3 className="text-sm sm:text-base font-bold font-['Payami_Nastaleeq',serif] text-[#2B2118]">
+                      مسئلۂ ترکِ رفع الیدین اور احناف
+                    </h3>
+                    <p className="text-xs font-['Payami_Nastaleeq',serif] text-[#685545] mt-0.5">
+                      نماز میں ترکِ رفع الیدین اور حنفی فقہی اصولوں پر مفتی محمد فیضان سرور مصباحی کی مستند کتاب۔
+                    </p>
+                  </div>
+                </div>
+
+                <Link
+                  to="/publications/مسئلہ-ترک-رفع-الیدین-اور-احناف"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white shrink-0 hover:opacity-95 transition-all shadow-xs"
+                  style={{ backgroundColor: "#2B2118" }}
+                >
+                  <span>کتاب دیکھیں</span>
+                  <ArrowLeft className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+            </section>
+          )}
 
           {/* ══════════════════════════════════════════════════════════════
               CARD 5: COMMENTS ACCORDION (تبصرے و آراء)

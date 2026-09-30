@@ -412,7 +412,7 @@ export default function BookDetail() {
               {title}
             </h1>
 
-            {/* Author Row - Clean Border Style without Bulky Box Gradient */}
+            {/* Author Row - Clean Border Style with Link to About */}
             {author && (
               <div
                 className="flex items-center gap-2 py-1 px-2.5 rounded-lg border text-xs sm:text-sm font-serif"
@@ -425,9 +425,13 @@ export default function BookDetail() {
                 <span className="text-[#8C6239] font-medium text-[11px] sm:text-xs shrink-0">
                   {isRTL ? "مصنف:" : "Author:"}
                 </span>
-                <span className="font-bold text-[#2B1E16] break-words min-w-0">
+                <Link
+                  to="/about"
+                  className="font-bold text-[#2B1E16] hover:text-[#8C6239] hover:underline transition-colors break-words min-w-0"
+                  title="مصنف کے متعلق جانیں"
+                >
                   {author}
-                </span>
+                </Link>
               </div>
             )}
 
@@ -815,6 +819,66 @@ export default function BookDetail() {
           )}
         </div>
 
+        {/* ══════════════════════════════════════════════════════════════
+            SEMANTIC LINKING: RELATED SALAH FATWAS & ARTICLES
+        ══════════════════════════════════════════════════════════════ */}
+        {(slug?.includes('مسئلہ-ترک-رفع-الیدین-اور-احناف') || title?.includes('رفع الیدین') || category?.includes('نماز')) && (
+          <section
+            dir="rtl"
+            className="rounded-2xl border p-4 sm:p-5 my-4"
+            style={{
+              backgroundColor: "#FAF6EE",
+              borderColor: "rgba(200, 164, 106, 0.6)",
+            }}
+          >
+            <div className="flex items-center justify-between mb-3 pb-2 border-b"
+              style={{ borderColor: "rgba(200, 164, 106, 0.4)" }}
+            >
+              <div className="flex items-center gap-2">
+                <FileText className="w-4 h-4 text-[#8C6239]" />
+                <h3 className="text-xs sm:text-sm font-bold font-serif text-[#2B1E16]">
+                  متعلقہ شرعی فتاویٰ و فقہی تحقیقات (نماز و احکام)
+                </h3>
+              </div>
+              <Link
+                to="/fatwas?category=نماز"
+                className="text-[11px] font-bold text-[#8C6239] hover:underline font-serif"
+              >
+                تمام نماز فتاویٰ ←
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <Link
+                to="/fatwas/امام-مسجد-سے-متعلق-دس-متفرق-سوالات-کے-جوابات"
+                className="p-3 rounded-xl border bg-white/80 hover:bg-white transition-all text-right group flex flex-col justify-between"
+                style={{ borderColor: "rgba(200, 164, 106, 0.35)" }}
+              >
+                <span className="text-xs font-semibold text-[#2B1E16] font-serif line-clamp-2 mb-1.5 group-hover:text-[#8C6239]">
+                  امامِ مسجد سے متعلق دس متفرق سوالات کے جوابات (شرعی فتویٰ)
+                </span>
+                <span className="text-[10px] text-[#8C6239] font-medium flex items-center gap-1 self-start font-serif">
+                  <span>فتویٰ ملاحظہ فرمائیں</span>
+                  <ArrowLeft className="w-2.5 h-2.5" />
+                </span>
+              </Link>
+
+              <Link
+                to="/articles"
+                className="p-3 rounded-xl border bg-white/80 hover:bg-white transition-all text-right group flex flex-col justify-between"
+                style={{ borderColor: "rgba(200, 164, 106, 0.35)" }}
+              >
+                <span className="text-xs font-semibold text-[#2B1E16] font-serif line-clamp-2 mb-1.5 group-hover:text-[#8C6239]">
+                  فقہی و تحقیقی مضامین (مفتی محمد فیضان سرور مصباحی کے مقالات)
+                </span>
+                <span className="text-[10px] text-[#8C6239] font-medium flex items-center gap-1 self-start font-serif">
+                  <span>مقالات ملاحظہ فرمائیں</span>
+                  <ArrowLeft className="w-2.5 h-2.5" />
+                </span>
+              </Link>
+            </div>
+          </section>
+        )}
 
         {/* ══════════════════════════════════════════════════════════════
             7. RELATED BOOKS SECTION

@@ -11,6 +11,21 @@
       "permanent": true
     },
     {
+      "source": "/fatwas/جاندار-کی-تصویر-والے-کپڑے-کی-بنائی-و-کڑھائی-پر-کمائی-کا-حکم-1",
+      "destination": "/fatwas/جاندار-کی-تصویر-والے-کپڑے-کی-بنائی-و-کڑھائی-پر-کمائی-کا-حکم",
+      "permanent": true
+    },
+    {
+      "source": "/fatwas/امام-مسجد-سے-متعلق-دس-متفرق-سوالات-کے-جوابات-1",
+      "destination": "/fatwas/امام-مسجد-سے-متعلق-دس-متفرق-سوالات-کے-جوابات",
+      "permanent": true
+    },
+    {
+      "source": "/fatwas/بیوی-کی-کمائی-میں-شوہر-کے-تصرف-کا-حکم-1",
+      "destination": "/fatwas/بیوی-کی-کمائی-میں-شوہر-کے-تصرف-کا-حکم",
+      "permanent": true
+    },
+    {
       "source": "/books/slug/:slug",
       "destination": "/publications/:slug",
       "permanent": true
