@@ -396,8 +396,8 @@ export default function Home() {
   return (
     <div className="bg-background min-h-screen relative">
       <SEO
-        title="مفتی محمد فیضان سرور مصباحی | فکرِ اسلام (Fikr-e-Islam)"
-        description="مفتی فیضان سرور کی باضابطہ ویب سائٹ - فقہی فتاویٰ، علمی مضامین، کتب و رسائل، سوال و جواب اور شرعی رہنمائی۔ Official platform of Mufti Faizan Sarwar Misbahi (Fikr-e-Islam)."
+        title="مفتی محمد فیضان سرور مصباحی | باضابطہ ویب سائٹ"
+        description="مفتی محمد فیضان سرور مصباحی کی باضابطہ ویب سائٹ - فقہی فتاویٰ، علمی مضامین، کتب و رسائل، سوال و جواب اور شرعی رہنمائی۔ Official website of Mufti Faizan Sarwar Misbahi."
         canonical="/"
         schema={[getWebSiteSchema(), getPersonEntitySchema()]}
       />

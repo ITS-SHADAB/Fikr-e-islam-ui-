@@ -98,9 +98,9 @@ export default function ArticlesList() {
       <SEO
         title={
           isSearchResult
-            ? 'تلاش مقالات | فکرِ اسلام'
+            ? 'تلاش مقالات | مفتی محمد فیضان سرور مصباحی'
             : selectedCategory
-            ? `${selectedCategory} - مقالات | فکرِ اسلام`
+            ? `${selectedCategory} - مقالات | مفتی محمد فیضان سرور مصباحی`
             : 'علمی مقالات | مفتی محمد فیضان سرور مصباحی'
         }
         description="قرآن، حدیث، فقہ، عقائد، عصری مسائل اور اسلامی تعلیمات پر مبنی مستند اور تحقیقی علمی مقالات۔"

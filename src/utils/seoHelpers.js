@@ -1,6 +1,6 @@
 /**
  * Production SEO Helpers & Schema.org Structured Data Generators
- * Target Entity: Mufti Faizan Sarwar Misbahi / Fikr-e-Islam
+ * Target Entity: Mufti Faizan Sarwar Misbahi
  * Canonical Domain: https://muftifaizansarwar.in
  */
 
@@ -115,13 +115,6 @@ export const getPersonEntitySchema = () => ({
     'https://whatsapp.com/channel/0029Va62ICRDZ4LaWYNIr32k',
     'https://www.facebook.com/share/1JcsQwS4h5/',
   ],
-  worksFor: {
-    '@type': 'Organization',
-    '@id': `${BASE_PRODUCTION_URL}/#organization`,
-    name: 'Fikr-e-Islam',
-    alternateName: ['فکر اسلام', 'Fikr e Islam', 'Fikre Islam', 'Fikr-e-Islam Mufti Faizan Sarwar'],
-    url: `${BASE_PRODUCTION_URL}/`,
-  },
   knowsAbout: [
     'Islamic Jurisprudence (Fiqh)',
     'Hadith Studies (Usool-e-Hadith)',
@@ -136,12 +129,14 @@ export const getPersonEntitySchema = () => ({
 export const getWebSiteSchema = () => ({
   '@type': 'WebSite',
   '@id': `${BASE_PRODUCTION_URL}/#website`,
-  name: 'فکرِ اسلام | مفتی محمد فیضان سرور مصباحی',
+  name: 'مفتی محمد فیضان سرور مصباحی',
   alternateName: [
+    'Mufti Faizan Sarwar Misbahi',
+    'Mufti Faizan Sarwar',
+    'Mufti Faizan Sarvar',
+    'مفتی فیضان سرور',
+    'فکرِ اسلام',
     'Fikr-e-Islam',
-    'Fikr e Islam',
-    'Fikre Islam',
-    'Mufti Faizan Sarwar Website',
   ],
   url: `${BASE_PRODUCTION_URL}/`,
   publisher: {
@@ -207,7 +202,7 @@ export const getArticleSchema = ({
       '@id': `${BASE_PRODUCTION_URL}/#person`,
     },
     publisher: {
-      '@id': `${BASE_PRODUCTION_URL}/#organization`,
+      '@id': `${BASE_PRODUCTION_URL}/#person`,
     },
   };
 
@@ -251,7 +246,7 @@ export const getFatwaSchema = ({
       '@id': `${BASE_PRODUCTION_URL}/#person`,
     },
     publisher: {
-      '@id': `${BASE_PRODUCTION_URL}/#organization`,
+      '@id': `${BASE_PRODUCTION_URL}/#person`,
     },
     image: DEFAULT_OG_IMAGE,
   };

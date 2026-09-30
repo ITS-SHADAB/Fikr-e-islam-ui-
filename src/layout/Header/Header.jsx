@@ -806,14 +806,14 @@ export default function Header() {
                 to="/"
                 className="group flex items-center justify-center gap-2.5 sm:gap-3.5 transition-transform duration-200 hover:scale-[1.01] -my-0.5 sm:-my-1 py-0.5"
               >
-                <h1
+                <span
                   style={{
                     fontFamily: "'Payami Quran', 'Noto Naskh Arabic', serif",
                   }}
                   className="text-xl sm:text-2xl md:text-[26px] lg:text-[28px] font-bold text-[#2A211A] leading-tight tracking-tight group-hover:text-[#5C4433] transition-colors my-0 py-0"
                 >
                   مفتی فیضان سرور مصباحی
-                </h1>
+                </span>
               </Link>
 
               {/* Continuous Straight Divider Line with Subheading Badge (Placed JUST below the name) */}

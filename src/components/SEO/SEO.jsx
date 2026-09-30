@@ -6,9 +6,9 @@ import {
   buildCanonicalUrl,
 } from '@/utils/seoHelpers';
 
-const SITE_NAME = 'مفتی محمد فیضان سرور مصباحی | فکرِ اسلام';
+const SITE_NAME = 'مفتی محمد فیضان سرور مصباحی';
 const DEFAULT_DESCRIPTION =
-  'مفتی فیضان سرور کی باضابطہ ویب سائٹ - فقہی فتاویٰ، علمی مضامین، کتب و رسائل، سوال و جواب اور شرعی رہنمائی۔ Official platform of Mufti Faizan Sarwar Misbahi (Fikr-e-Islam).';
+  'مفتی محمد فیضان سرور مصباحی کی باضابطہ ویب سائٹ - فقہی فتاویٰ، علمی مضامین، کتب و رسائل، سوال و جواب اور شرعی رہنمائی۔ Official website of Mufti Faizan Sarwar Misbahi.';
 
 /**
  * Helper to update or create a <meta> element in document.head
@@ -58,7 +58,7 @@ export default function SEO({
     // 1. Dynamic Title
     const pageTitle = cleanText(title, 100);
     const fullTitle = pageTitle
-      ? pageTitle.includes('فیضان سرور') || pageTitle.includes('فکر')
+      ? pageTitle.includes('فیضان سرور') || pageTitle.includes('Faizan Sarwar')
         ? pageTitle
         : `${pageTitle} | ${SITE_NAME}`
       : SITE_NAME;
@@ -95,7 +95,7 @@ export default function SEO({
         : `${BASE_PRODUCTION_URL}${image}`
       : DEFAULT_OG_IMAGE;
 
-    setMetaTag('property', 'og:site_name', 'مفتی فیضان سرور | Fikr-e-Islam');
+    setMetaTag('property', 'og:site_name', 'مفتی محمد فیضان سرور مصباحی');
     setMetaTag('property', 'og:locale', 'ur_PK');
     setMetaTag('property', 'og:type', type);
     setMetaTag('property', 'og:title', fullTitle);

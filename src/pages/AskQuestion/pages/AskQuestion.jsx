@@ -87,7 +87,7 @@ export default function AskQuestion() {
       style={{ backgroundColor: COLORS.background }}
     >
       <SEO
-        title="شرعی سوال پوچھیں | فکرِ اسلام"
+        title="شرعی سوال پوچھیں | مفتی محمد فیضان سرور مصباحی"
         description="دار الافتاء میں مفتی فیضان سرور مصباحی سے اپنے شرعی، فقہی اور دینی مسائل کے حل کے لیے آن لائن سوال پوچھیں اور مستند شرعی رہنمائی حاصل کریں۔"
         canonical="/ask"
         type="website"

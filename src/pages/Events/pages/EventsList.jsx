@@ -240,7 +240,7 @@ export default function EventsList() {
       style={{ backgroundColor: COLORS?.background }}
     >
       <SEO
-        title="پروگرامز اور علمی اجتماعات | فکرِ اسلام"
+        title="پروگرامز اور علمی اجتماعات | مفتی محمد فیضان سرور مصباحی"
         description="دار الافتاء اور ادارے کے تحت منعقد ہونے والے خصوصی دروس، علمی سیمینارز اور دینی اجتماعات کا شیڈول اور تفصیلات۔"
         canonical="/events"
         schema={[

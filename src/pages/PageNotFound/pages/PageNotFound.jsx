@@ -11,7 +11,7 @@ export default function PageNotFound() {
   return (
     <div className={`bg-background dark:bg-slate-900 min-h-[70vh] flex flex-col items-center justify-center p-6 text-center transition-colors duration-200`} dir={language === 'ur' ? 'rtl' : 'ltr'}>
       <SEO
-        title={language === 'en' ? 'Page Not Found - 404 | Fikr-e-Islam' : 'صفحہ نہیں ملا - 404 | فکرِ اسلام'}
+        title={language === 'en' ? 'Page Not Found - 404 | Mufti Faizan Sarwar Misbahi' : 'صفحہ نہیں ملا - 404 | مفتی محمد فیضان سرور مصباحی'}
         description={language === 'en' ? 'The page you are looking for does not exist or has been moved.' : 'آپ کا مطلوبہ صفحہ دستیاب نہیں ہے یا تبدیل ہو چکا ہے۔'}
         canonical={typeof window !== 'undefined' ? window.location.pathname : '/404'}
         noindex={true}
