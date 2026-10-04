@@ -2,6 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Search, X, BookOpen, ChevronLeft, ChevronRight, Filter } from 'lucide-react';
 import { useArticlesList } from '@/hooks/useContentCache';
+import { useSettings } from '@/hooks/useSettings';
 import { useContentSearch } from '@/hooks/useContentSearch';
 import { useCategories } from '@/hooks/useCategories';
 import { ArticleCard, SEO } from '@/components';

@@ -2,6 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Search, X, ShieldAlert, ChevronLeft, ChevronRight, Scale } from 'lucide-react';
 import { useFatwasList } from '@/hooks/useContentCache';
+import { useSettings } from '@/hooks/useSettings';
 import { useContentSearch } from '@/hooks/useContentSearch';
 import { useCategories } from '@/hooks/useCategories';
 import { FatwaCard, SEO } from '@/components';

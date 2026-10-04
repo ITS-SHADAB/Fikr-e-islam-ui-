@@ -26,6 +26,7 @@ import { STALE_TIMES } from '@/store/slices/contentSlice';
 import { COLORS } from '@/utils/themeColors';
 import { Spinner, SEO } from '@/components';
 import { getQASchema, getBreadcrumbSchema, safeDecodeSlug } from '@/utils/seoHelpers';
+import { QA_TRANSLATIONS } from '@/utils/categories';
 import toast from 'react-hot-toast';
 
 export default function QADetail() {

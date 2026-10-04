@@ -24,7 +24,7 @@ export const getNotificationPermission = () => {
   if (typeof window === "undefined" || !("Notification" in window)) {
     return "unsupported";
   }
-  return Notification.permission;
+  return window.Notification.permission;
 };
 
 /**
@@ -252,7 +252,7 @@ export const requestNotificationPermission = async ({
   }
 
   try {
-    const permission = await Notification.requestPermission();
+    const permission = await window.Notification.requestPermission();
 
     if (permission === "granted") {
       clearPromptDismissed();

@@ -28,6 +28,7 @@ import {
   CheckSquare,
   Square,
   History,
+  TrendingUp,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import {

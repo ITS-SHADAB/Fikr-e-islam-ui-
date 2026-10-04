@@ -274,6 +274,7 @@ const Table = ({
   totalDataLabel = "",
   totalDataValue = "",
   isFilterMultiple = false,
+  showfilter = false,
   additionalButtons = <></>,
 }) => {
   const [searchItem, setSearchItem] = useState("");
