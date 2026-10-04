@@ -4,8 +4,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link id="app-favicon" rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <link id="app-apple-icon" rel="apple-touch-icon" href="/favicon.svg" />
+  <link rel="icon" href="/favicon.ico" sizes="any" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="apple-touch-icon" href="/favicon.png" />
   <title>مفتی فیضان سرور | Mufti Faizan Sarwar</title>
   <meta name="description" content="مفتی فیضان سرور کی باضابطہ ویب سائٹ - فقہی فتاویٰ، علمی مضامین، کتب و رسائل، سوال و جواب اور شرعی رہنمائی۔ Official website of Mufti Faizan Sarwar featuring authentic Islamic articles, fatwas, books, and Q&amp;A." />
   <meta name="robots" content="index, follow" />
@@ -42,57 +43,6 @@
     href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@400;500;600;700&family=Noto+Naskh+Arabic:wght@400;600;700&display=swap"
     rel="stylesheet" />
 
-  <!-- Dynamic Circular Favicon Generator (cuts out dark square corners to make icon 100% round) -->
-  <script>
-    (function () {
-      var img = new Image();
-      img.onerror = function () {
-        if (img.src.indexOf('.webp') !== -1) {
-          img.src = "/assets/images/logo.jpeg";
-        }
-      };
-      img.onload = function () {
-        try {
-          var canvas = document.createElement("canvas");
-          canvas.width = 128;
-          canvas.height = 128;
-          var ctx = canvas.getContext("2d");
-
-          // 1. Transparent background, circular clip path
-          ctx.beginPath();
-          ctx.arc(64, 64, 62, 0, Math.PI * 2, true);
-          ctx.closePath();
-          ctx.clip();
-
-          // 2. Draw logo image centered
-          ctx.drawImage(img, 0, 0, 128, 128);
-
-          // 3. Draw antique gold border ring
-          ctx.beginPath();
-          ctx.arc(64, 64, 60, 0, Math.PI * 2);
-          ctx.strokeStyle = "#A8793E";
-          ctx.lineWidth = 4;
-          ctx.stroke();
-
-          var roundedDataUrl = canvas.toDataURL("image/png");
-
-          var fav = document.getElementById("app-favicon");
-          if (fav) {
-            fav.type = "image/png";
-            fav.href = roundedDataUrl;
-          }
-
-          var apple = document.getElementById("app-apple-icon");
-          if (apple) {
-            apple.href = roundedDataUrl;
-          }
-        } catch (e) {
-          console.warn("Rounded favicon generation notice:", e);
-        }
-      };
-      img.src = "/assets/images/logo.webp";
-    })();
-  </script>
 </head>
 
 <body class="bg-[#F3E3D8] text-[#2A211A] selection:bg-[#A8793E] selection:text-[#F7F1E8]">
