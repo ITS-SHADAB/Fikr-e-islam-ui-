@@ -6,6 +6,7 @@ import { useSettings } from '@/hooks/useSettings';
 import { Input, Table, ConfirmationBox } from '@/components';
 
 import { CATEGORY_MAP, LECTURE_TRANSLATIONS } from '@/utils/categories';
+import { getUserFriendlyError } from '@/utils/errorHandler';
 
 export default function ManageLectures() {
   const { settings } = useSettings();
@@ -98,7 +99,7 @@ export default function ManageLectures() {
         showSuccess(language === 'en' ? 'Lecture added successfully.' : 'بیان کامیابی سے شامل ہو گیا۔');
       }
     } catch (err) {
-      setActionError(err.response?.data?.message || err.message || 'Failed to save lecture');
+      setActionError(getUserFriendlyError(err, 'lecture', language === 'en' ? 'en' : 'ur').message);
     } finally {
       setActionLoading(false);
     }
@@ -118,7 +119,7 @@ export default function ManageLectures() {
       await deleteLecture(id);
       showSuccess(language === 'en' ? 'Lecture deleted successfully.' : 'بیان کامیابی سے حذف کر دیا گیا۔');
     } catch (err) {
-      setActionError(err.response?.data?.message || err.message || 'Failed to delete lecture');
+      setActionError(getUserFriendlyError(err, 'lecture', language === 'en' ? 'en' : 'ur').message);
     } finally {
       setDeleteTargetId(null);
     }

@@ -40,3 +40,5 @@ export * from "./SectionSidebar";
 export * from "./Loader";
 export * from "./SEO";
 export { default as ErrorBoundary } from "./ErrorBoundary/ErrorBoundary";
+export * from "./ErrorRetry";
+

@@ -5,7 +5,7 @@ import { useArticlesList } from '@/hooks/useContentCache';
 import { useSettings } from '@/hooks/useSettings';
 import { useContentSearch } from '@/hooks/useContentSearch';
 import { useCategories } from '@/hooks/useCategories';
-import { ArticleCard, SEO } from '@/components';
+import { ArticleCard, SEO, InlineErrorState } from '@/components';
 import { getCollectionSchema, getBreadcrumbSchema } from '@/utils/seoHelpers';
 import { COLORS } from '@/utils/themeColors';
 
@@ -43,6 +43,7 @@ export default function ArticlesList() {
     data,
     loading: listLoading,
     error: listError,
+    refetch,
   } = useArticlesList({
     category: selectedCategory,
     page,
@@ -329,6 +330,13 @@ export default function ArticlesList() {
               </div>
             ))}
           </div>
+        ) : error && (!articles || articles.length === 0) ? (
+          <InlineErrorState
+            error={error}
+            context="article"
+            onRetry={() => refetch(true)}
+            className="my-8"
+          />
         ) : articles && articles.length > 0 ? (
           <>
             {/* Article Grid */}

@@ -31,6 +31,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import toast from "react-hot-toast";
+import { getUserFriendlyError, notifyError } from "@/utils/errorHandler";
 import {
   sendAdminNotification,
   getAdminNotificationStats,
@@ -200,7 +201,7 @@ export default function ManageNotifications() {
       }
     } catch (err) {
       console.warn("Load notification stats failed:", err);
-      setStatsError(err.response?.data?.message || (isUrdu ? "اعداد و شمار حاصل نہیں ہو سکے" : "Failed to load statistics"));
+      setStatsError(getUserFriendlyError(err, 'notification', isUrdu ? 'ur' : 'en').message);
     } finally {
       setStatsLoading(false);
     }
@@ -220,7 +221,7 @@ export default function ManageNotifications() {
       setSelectedIds([]);
     } catch (err) {
       console.warn("Load notification history failed:", err);
-      setHistoryError(err.response?.data?.message || (isUrdu ? "ہسٹری حاصل نہیں ہو سکی" : "Failed to load history"));
+      setHistoryError(getUserFriendlyError(err, 'notification', isUrdu ? 'ur' : 'en').message);
     } finally {
       setHistoryLoading(false);
     }
@@ -466,7 +467,7 @@ export default function ManageNotifications() {
       setActiveTab("history");
     } catch (err) {
       console.error("Send notification error:", err);
-      toast.error(err.response?.data?.message || err.message || (isUrdu ? "نوٹیفیکیشن بھیجنے میں ناکامی" : "Failed to send notification"));
+      notifyError(err, 'notification', isUrdu ? 'ur' : 'en');
     } finally {
       setIsSending(false);
     }
@@ -527,10 +528,7 @@ export default function ManageNotifications() {
           loadStats();
         } catch (err) {
           console.error("Delete campaign error:", err);
-          toast.error(
-            err.response?.data?.message ||
-              (isUrdu ? "نوٹیفیکیشن حذف کرنے میں ناکامی" : "Failed to delete notification")
-          );
+          notifyError(err, 'notification', isUrdu ? 'ur' : 'en');
         } finally {
           setIsDeleting(false);
         }
@@ -578,10 +576,7 @@ export default function ManageNotifications() {
           loadStats();
         } catch (err) {
           console.error("Bulk delete campaigns error:", err);
-          toast.error(
-            err.response?.data?.message ||
-              (isUrdu ? "منتخب شدہ نوٹیفیکیشنز حذف کرنے میں ناکامی" : "Failed to delete selected notifications")
-          );
+          notifyError(err, 'notification', isUrdu ? 'ur' : 'en');
         } finally {
           setIsDeleting(false);
         }
@@ -630,10 +625,7 @@ export default function ManageNotifications() {
           loadStats();
         } catch (err) {
           console.error("Cleanup history error:", err);
-          toast.error(
-            err.response?.data?.message ||
-              (isUrdu ? "ہسٹری صاف کرنے میں ناکامی" : "Failed to cleanup notification history")
-          );
+          notifyError(err, 'notification', isUrdu ? 'ur' : 'en');
         } finally {
           setIsDeleting(false);
         }

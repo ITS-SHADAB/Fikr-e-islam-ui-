@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Calendar,
   Folder,
@@ -19,6 +19,7 @@ function stripHtml(html) {
 }
 
 export default function QaCard({ question }) {
+  const navigate = useNavigate();
   const { settings } = useSettings();
   const language =
     settings?.language === "ur" || settings?.language === "Urdu" ? "ur" : "en";
@@ -109,14 +110,28 @@ export default function QaCard({ question }) {
         await navigator.clipboard.writeText(shareUrl);
         toast.success(isRTL ? "لنک کاپی ہو گیا!" : "Link copied!");
       } catch {
-        toast.error("Sharing not supported");
+        toast.error(isRTL ? "شیئر کرنے میں ناکامی" : "Sharing not supported");
       }
+    }
+  };
+
+  const handleCardClick = (e) => {
+    // If the click is on an interactive button (Bookmark, Share), let button handler handle it
+    if (e.target.closest("button")) return;
+    // If the click is already on a link, let default link action proceed
+    if (e.target.closest("a")) return;
+
+    if (e.metaKey || e.ctrlKey) {
+      window.open(qaDetailUrl, "_blank");
+    } else {
+      navigate(qaDetailUrl);
     }
   };
 
   return (
     <article
-      className="group relative rounded-[20px] sm:rounded-[24px] p-3.5 sm:p-4.5 md:p-5 transition-all duration-300 overflow-hidden border shadow-[0_4px_20px_rgba(43,33,24,0.06),0_1px_4px_rgba(43,33,24,0.03)] hover:shadow-[0_10px_28px_rgba(43,33,24,0.09)] hover:border-[#C8A46A]/70 flex flex-col justify-between"
+      onClick={handleCardClick}
+      className="group relative rounded-[20px] sm:rounded-[24px] p-3.5 sm:p-4.5 md:p-5 transition-all duration-300 overflow-hidden border shadow-[0_4px_20px_rgba(43,33,24,0.06),0_1px_4px_rgba(43,33,24,0.03)] hover:shadow-[0_10px_28px_rgba(43,33,24,0.09)] hover:border-[#C8A46A]/70 flex flex-col justify-between cursor-pointer"
       style={{
         background:
           "linear-gradient(175deg, #FCF9F2 0%, #F9F3E8 60%, #F4ECE0 100%)",
@@ -271,7 +286,7 @@ export default function QaCard({ question }) {
               “
             </span>
             <Link to={qaDetailUrl} className="block group/q flex-1 min-w-0">
-              <h3 className="text-base xs:text-lg sm:text-[19px] md:text-[20px] font-bold font-['Payami_Nastaleeq',serif] leading-[1.55] sm:leading-[1.6] text-center text-[#1E140C] group-hover/q:text-[#8C5E28] transition-colors line-clamp-2 break-words">
+              <h3 className="text-base xs:text-lg sm:text-[19px] md:text-[20px] font-bold font-['Payami_Nastaleeq',serif] leading-[1.55] sm:leading-[1.6] text-center text-[#1E140C] group-hover:text-[#8C5E28] transition-colors line-clamp-2 break-words">
                 {title}
               </h3>
             </Link>

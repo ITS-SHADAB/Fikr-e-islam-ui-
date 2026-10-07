@@ -7,6 +7,7 @@ import { Input, PdfViewer, Table, ConfirmationBox } from '@/components';
 import { BACKEND_URL } from '@/constants/urls';
 import { useCategories } from '@/hooks/useCategories';
 import { CATEGORY_MAP, PUBLICATION_TRANSLATIONS, BOOK_LANGUAGE_TRANSLATIONS } from '@/utils/categories';
+import { getUserFriendlyError } from '@/utils/errorHandler';
 
 const BOOK_LANGUAGES = [
   { value: 'ur', labelUr: 'اردو', labelEn: 'Urdu' },
@@ -217,7 +218,7 @@ export default function ManagePublications() {
         showSuccess(language === 'en' ? 'Publication added successfully.' : 'مطبوعہ کامیابی سے شامل ہو گئی۔');
       }
     } catch (err) {
-      setActionError(err.response?.data?.message || err.message || 'Failed to save publication');
+      setActionError(getUserFriendlyError(err, 'publication', language === 'en' ? 'en' : 'ur').message);
     } finally {
       setActionLoading(false);
     }
@@ -237,7 +238,7 @@ export default function ManagePublications() {
       await deletePublication(id);
       showSuccess(language === 'en' ? 'Publication deleted successfully.' : 'مطبوعہ کامیابی سے حذف کر دی گئی۔');
     } catch (err) {
-      setActionError(err.response?.data?.message || err.message || 'Failed to delete publication');
+      setActionError(getUserFriendlyError(err, 'publication', language === 'en' ? 'en' : 'ur').message);
     } finally {
       setDeleteTargetId(null);
     }

@@ -34,6 +34,7 @@ import {
   deleteContactReply,
 } from '@/services';
 import { ConfirmationBox } from '@/components';
+import { notifyError } from '@/utils/errorHandler';
 import toast from 'react-hot-toast';
 
 /* ─────────────────────────────────────────
@@ -119,7 +120,7 @@ export default function ManageMessages() {
       }
     } catch (err) {
       console.error('Error fetching messages:', err);
-      toast.error('پیغامات لوڈ کرنے میں خرابی پیش آئی');
+      notifyError(err, 'contact');
     } finally {
       setLoading(false);
     }
@@ -233,6 +234,7 @@ export default function ManageMessages() {
       toast.success('جواب کامیابی سے محفوظ اور ارسال ہو گیا');
     } catch (err) {
       console.error('Error sending reply:', err);
+      notifyError(err, 'contact');
     } finally {
       setReplyLoading(false);
     }
@@ -260,6 +262,7 @@ export default function ManageMessages() {
       toast.success('جواب کامیابی سے ہٹا دیا گیا');
     } catch (err) {
       console.error('Error deleting reply:', err);
+      notifyError(err, 'contact');
     } finally {
       setReplyLoading(false);
     }
@@ -314,7 +317,7 @@ export default function ManageMessages() {
       );
     } catch (err) {
       console.error('Error toggling message status:', err);
-      toast.error('حیثیت تبدیل نہیں ہو سکی');
+      notifyError(err, 'contact');
     } finally {
       setActionLoading(false);
     }
@@ -351,7 +354,7 @@ export default function ManageMessages() {
       toast.success('پیغام کامیابی سے حذف کر دیا گیا');
     } catch (err) {
       console.error('Error deleting message:', err);
-      toast.error('پیغام حذف نہیں ہو سکا');
+      notifyError(err, 'contact');
     } finally {
       setActionLoading(false);
     }

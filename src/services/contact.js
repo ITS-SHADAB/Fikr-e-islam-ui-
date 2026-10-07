@@ -1,6 +1,6 @@
 import API from './api';
 import { CONTACTS } from '@/constants/urls';
-import toast from 'react-hot-toast';
+import { notifyError } from '@/utils/errorHandler';
 
 export const submitContact = async (data) => {
   try {
@@ -8,7 +8,7 @@ export const submitContact = async (data) => {
     return response.data;
   } catch (error) {
     console.error("Submit Contact Error:", error);
-    toast.error(error.response?.data?.message || error.message);
+    notifyError(error, 'contact');
     throw error;
   }
 };
@@ -19,7 +19,6 @@ export const getContacts = async (params = {}) => {
     return response.data;
   } catch (error) {
     console.error("Get Contacts Error:", error);
-    toast.error(error.response?.data?.message || error.message);
     throw error;
   }
 };
@@ -40,7 +39,6 @@ export const getContactById = async (id) => {
     return response.data;
   } catch (error) {
     console.error("Get Contact By ID Error:", error);
-    toast.error(error.response?.data?.message || error.message);
     throw error;
   }
 };
@@ -52,7 +50,7 @@ export const markContactSeen = async (id, status) => {
     return response.data;
   } catch (error) {
     console.error("Mark Contact Seen Error:", error);
-    toast.error(error.response?.data?.message || error.message);
+    notifyError(error, 'contact');
     throw error;
   }
 };
@@ -64,7 +62,7 @@ export const markContactReadStatus = async (id, toggle = true) => {
     return response.data;
   } catch (error) {
     console.error("Mark Contact Read Status Error:", error);
-    toast.error(error.response?.data?.message || error.message);
+    notifyError(error, 'contact');
     throw error;
   }
 };
@@ -75,7 +73,7 @@ export const deleteContact = async (id) => {
     return response.data;
   } catch (error) {
     console.error("Delete Contact Error:", error);
-    toast.error(error.response?.data?.message || error.message);
+    notifyError(error, 'contact');
     throw error;
   }
 };
@@ -86,7 +84,7 @@ export const replyToContact = async (id, text) => {
     return response.data;
   } catch (error) {
     console.error("Reply To Contact Error:", error);
-    toast.error(error.response?.data?.message || error.message);
+    notifyError(error, 'contact');
     throw error;
   }
 };
@@ -97,7 +95,7 @@ export const deleteContactReply = async (id) => {
     return response.data;
   } catch (error) {
     console.error("Delete Contact Reply Error:", error);
-    toast.error(error.response?.data?.message || error.message);
+    notifyError(error, 'contact');
     throw error;
   }
 };
@@ -111,5 +109,3 @@ export const getMyContacts = async (params = {}) => {
     return { success: true, messages: [] };
   }
 };
-
-

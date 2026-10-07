@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { getSettings as fetchSettingsApi, putSettings as updateSettingsApi } from '@/services';
 import { OFFICIAL_CONTACT, OFFICIAL_SOCIAL_LINKS } from '@/constants/contact';
+import { getUserFriendlyError } from '@/utils/errorHandler';
 
 export const DEFAULT_SETTINGS = {
   language: 'ur',
@@ -292,8 +293,8 @@ export const fetchSettings = createAsyncThunk(
       const data = await fetchSettingsApi();
       return getLocalSettings(data);
     } catch (error) {
-      const message = error.response?.data?.message || error.message || 'Failed to load settings';
-      return thunkAPI.rejectWithValue(message);
+      const friendly = getUserFriendlyError(error, 'settings');
+      return thunkAPI.rejectWithValue(friendly.message);
     }
   },
   {
@@ -316,8 +317,8 @@ export const updateSettings = createAsyncThunk(
       const data = await updateSettingsApi(payload);
       return getLocalSettings(data);
     } catch (error) {
-      const message = error.response?.data?.message || error.message || 'Failed to update settings';
-      return thunkAPI.rejectWithValue(message);
+      const friendly = getUserFriendlyError(error, 'settings');
+      return thunkAPI.rejectWithValue(friendly.message);
     }
   }
 );

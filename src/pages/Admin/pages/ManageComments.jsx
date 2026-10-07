@@ -32,6 +32,7 @@ import {
 } from '@/services';
 import { COLORS } from '@/utils/themeColors';
 import { ConfirmationBox } from '@/components';
+import { notifyError } from '@/utils/errorHandler';
 import toast from 'react-hot-toast';
 
 /* ─────────────────────────────────────────
@@ -226,7 +227,7 @@ export default function ManageComments() {
       setTotalPages(res.totalPages || 1);
       setTotalCount(res.totalComments || 0);
     } catch (err) {
-      toast.error(err?.response?.data?.message || 'تبصرے لوڈ کرنے میں ناکامی');
+      notifyError(err, 'comment');
     } finally {
       setLoading(false);
     }
@@ -265,7 +266,7 @@ export default function ManageComments() {
       fetchComments();
       fetchStats();
     } catch (err) {
-      toast.error(err?.response?.data?.message || 'منظوری میں ناکامی');
+      notifyError(err, 'comment');
     }
   };
 
@@ -276,7 +277,7 @@ export default function ManageComments() {
       fetchComments();
       fetchStats();
     } catch (err) {
-      toast.error(err?.response?.data?.message || 'بحالی میں ناکامی');
+      notifyError(err, 'comment');
     }
   };
 
@@ -290,7 +291,7 @@ export default function ManageComments() {
       fetchComments();
       fetchStats();
     } catch (err) {
-      toast.error(err?.response?.data?.message || 'حذف کرنے میں ناکامی');
+      notifyError(err, 'comment');
     } finally {
       setIsActionLoading(false);
     }

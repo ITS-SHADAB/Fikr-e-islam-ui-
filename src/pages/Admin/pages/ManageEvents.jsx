@@ -29,6 +29,7 @@ import { useDispatch } from 'react-redux';
 import { invalidateContentCache } from '@/store/slices/contentSlice';
 import { Input, Table, ConfirmationBox } from '@/components';
 import { getEventPosterUrl, getGoogleMapsUrl } from '@/utils/utils';
+import { getUserFriendlyError } from '@/utils/errorHandler';
 
 const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
 const ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp'];
@@ -434,9 +435,7 @@ export default function ManageEvents() {
       }
     } catch (err) {
       console.error('Failed to save event:', err);
-      setActionError(
-        err.response?.data?.message || err.message || 'Failed to save event'
-      );
+      setActionError(getUserFriendlyError(err, 'event', language === 'en' ? 'en' : 'ur').message);
     } finally {
       setActionLoading(false);
       setActionLoadingText('');
@@ -470,9 +469,7 @@ export default function ManageEvents() {
       // 4. Fetch latest events from backend & replace state with fresh response
       await loadEvents();
     } catch (err) {
-      setActionError(
-        err.response?.data?.message || err.message || 'Failed to delete event'
-      );
+      setActionError(getUserFriendlyError(err, 'event', language === 'en' ? 'en' : 'ur').message);
     } finally {
       setDeleteTargetId(null);
     }

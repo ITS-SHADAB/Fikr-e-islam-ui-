@@ -13,6 +13,7 @@ import {
 import toast from "react-hot-toast";
 import { resetPasswordApi } from "@/services";
 import { checkAuthStatus } from "@/store/slices/authSlice";
+import { getUserFriendlyError, notifyError } from "@/utils/errorHandler";
 
 /* ─── Animated required asterisk ─────────────────────────────────────── */
 function RequiredStar() {
@@ -188,13 +189,15 @@ export default function ResetPassword({
         console.warn("Auth check after reset returned:", authErr);
       }
     } catch (err) {
-      const msg = err.message || "Reset link is invalid or has expired.";
-      setLocalError(msg);
-      toast.error(msg);
+      const friendly = getUserFriendlyError(err, "password");
+      setLocalError(friendly.message);
+      notifyError(err, "password");
 
       if (
-        msg.toLowerCase().includes("invalid") ||
-        msg.toLowerCase().includes("expired")
+        friendly.type === "NOT_FOUND" ||
+        friendly.status === 400 ||
+        err?.message?.toLowerCase?.()?.includes("invalid") ||
+        err?.message?.toLowerCase?.()?.includes("expired")
       ) {
         setIsTokenInvalid(true);
       }

@@ -215,8 +215,13 @@ export default function EventCard({ event, isCompact = false }) {
 
             {/* Event Title */}
             <h3
-              className="text-sm sm:text-base font-bold font-serif leading-snug mb-0.5 group-hover:text-accent transition-colors line-clamp-1 sm:line-clamp-2"
-              style={{ color: COLORS?.primary }}
+              dir="rtl"
+              className="text-sm sm:text-base font-bold font-serif leading-snug mb-0.5 group-hover:text-accent transition-colors line-clamp-1 sm:line-clamp-2 text-right"
+              style={{
+                color: COLORS?.primary,
+                textAlign: 'right',
+                direction: 'rtl',
+              }}
             >
               {title}
             </h3>
@@ -224,7 +229,9 @@ export default function EventCard({ event, isCompact = false }) {
             {/* Description (compact 2 lines max) */}
             {description && (
               <p
-                className="text-[11px] sm:text-xs leading-relaxed font-normal line-clamp-2 mb-1.5 text-slate-600"
+                dir="rtl"
+                className="text-[11px] sm:text-xs leading-relaxed font-normal line-clamp-2 mb-1.5 text-slate-600 text-right"
+                style={{ textAlign: 'right', direction: 'rtl' }}
               >
                 {description}
               </p>

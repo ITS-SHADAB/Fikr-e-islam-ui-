@@ -5,6 +5,7 @@ import { getAdminUsers, updateUser, deleteUser } from '@/services';
 import { useSettings } from '@/hooks/useSettings';
 import { Input, ImageViewer, Table, ConfirmationBox } from '@/components';
 import { COLORS } from '@/utils/themeColors';
+import { getUserFriendlyError } from '@/utils/errorHandler';
 
 
 
@@ -225,7 +226,7 @@ export default function ManageUsers() {
         showSuccess(t.successUpdate);
       }
     } catch (err) {
-      setActionError(err.response?.data?.message || err.message || 'Failed to update user');
+      setActionError(getUserFriendlyError(err, 'user', language === 'en' ? 'en' : 'ur').message);
     } finally {
       setActionLoading(false);
     }
@@ -248,7 +249,7 @@ export default function ManageUsers() {
     } catch (err) {
       setErrorModal({
         isOpen: true,
-        message: err.response?.data?.message || err.message || 'Failed to deactivate user'
+        message: getUserFriendlyError(err, 'user', language === 'en' ? 'en' : 'ur').message
       });
     } finally {
       setDeleteTargetId(null);

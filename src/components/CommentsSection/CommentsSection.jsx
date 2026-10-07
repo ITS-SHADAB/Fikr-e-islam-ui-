@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useSelector } from "react-redux";
 import { AlertCircle, RefreshCw } from "lucide-react";
 import toast from "react-hot-toast";
+import { getUserFriendlyError, notifyError } from "@/utils/errorHandler";
+import { InlineErrorState } from "@/components";
 
 import {
   getComments,
@@ -68,9 +70,8 @@ export default function CommentsSection({
         }
       } catch (err) {
         console.error("Failed to load comments:", err);
-        setFetchError(
-          err?.response?.data?.message || "Failed to load comments."
-        );
+        const friendly = getUserFriendlyError(err, "comment");
+        setFetchError(friendly.message);
       } finally {
         if (showLoading) setIsLoading(false);
       }
@@ -106,7 +107,7 @@ export default function CommentsSection({
       await loadComments(false);
     } catch (err) {
       console.error("Post comment error:", err);
-      toast.error(err?.response?.data?.message || "Failed to post comment");
+      notifyError(err, "comment");
     } finally {
       setIsSubmittingTopLevel(false);
     }
@@ -158,7 +159,7 @@ export default function CommentsSection({
       await loadComments(false);
     } catch (err) {
       console.error("Post reply error:", err);
-      toast.error(err?.response?.data?.message || "Failed to post reply");
+      notifyError(err, "comment");
     } finally {
       setIsSubmittingReply(false);
     }
@@ -181,7 +182,7 @@ export default function CommentsSection({
       await loadComments(false);
     } catch (err) {
       console.error("Edit comment error:", err);
-      toast.error(err?.response?.data?.message || "Failed to update comment");
+      notifyError(err, "comment");
     }
   };
 
@@ -201,7 +202,7 @@ export default function CommentsSection({
       await loadComments(false);
     } catch (err) {
       console.error("Delete comment error:", err);
-      toast.error(err?.response?.data?.message || "Failed to delete comment");
+      notifyError(err, "comment");
     } finally {
       setIsDeleting(false);
     }
@@ -236,38 +237,12 @@ export default function CommentsSection({
         <CommentSkeleton count={3} />
       ) : fetchError ? (
         /* Error State with Retry */
-        <div
-          className="rounded-2xl border p-6 text-center my-4"
-          style={{
-            backgroundColor: `${COLORS.cardBg || "#F7F1E8"}60`,
-            borderColor: `${COLORS.border}40`,
-          }}
-        >
-          <AlertCircle className="w-8 h-8 text-rose-500 mx-auto mb-2 opacity-80" />
-          <p
-            className="text-sm font-semibold mb-1"
-            style={{ color: COLORS.primary }}
-          >
-            {isRTL
-              ? "تبصرے لوڈ کرنے میں مسئلہ پیش آیا"
-              : "Unable to load comments"}
-          </p>
-          <p
-            className="text-xs mb-3"
-            style={{ color: COLORS.textSecondary }}
-          >
-            {fetchError}
-          </p>
-          <button
-            type="button"
-            onClick={() => loadComments(true)}
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold text-white shadow-xs hover:opacity-90 transition-opacity cursor-pointer"
-            style={{ backgroundColor: COLORS.primary }}
-          >
-            <RefreshCw className="w-3.5 h-3.5" />
-            <span>{isRTL ? "دوبارہ کوشش کریں" : "Try Again"}</span>
-          </button>
-        </div>
+        <InlineErrorState
+          error={fetchError}
+          context="comment"
+          onRetry={() => loadComments(true)}
+          className="my-4"
+        />
       ) : commentsList.length === 0 ? (
         /* Empty State */
         <CommentEmptyState isRTL={isRTL} />

@@ -223,8 +223,13 @@ export default function LectureCard({ lecture, onPlay }) {
 
           {/* Title */}
           <h3
-            className="font-bold text-base sm:text-lg font-serif leading-[1.8] line-clamp-2 transition-colors duration-200 group-hover:text-red-700 mb-2"
-            style={{ color: COLORS.primary }}
+            dir="rtl"
+            className="font-bold text-base sm:text-lg font-serif leading-[1.8] line-clamp-2 transition-colors duration-200 group-hover:text-red-700 mb-2 text-right"
+            style={{
+              color: COLORS.primary,
+              textAlign: "right",
+              direction: "rtl",
+            }}
           >
             {title}
           </h3>
@@ -232,8 +237,13 @@ export default function LectureCard({ lecture, onPlay }) {
           {/* Description */}
           {description && (
             <p
-              className="text-xs sm:text-sm font-normal leading-[1.9] line-clamp-2 mb-2"
-              style={{ color: COLORS.textSecondary }}
+              dir="rtl"
+              className="text-xs sm:text-sm font-normal leading-[1.9] line-clamp-2 mb-2 text-right"
+              style={{
+                color: COLORS.textSecondary,
+                textAlign: "right",
+                direction: "rtl",
+              }}
             >
               {description}
             </p>

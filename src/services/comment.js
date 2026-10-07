@@ -1,5 +1,5 @@
 import API from './api';
-import toast from 'react-hot-toast';
+import { notifyError } from '@/utils/errorHandler';
 
 export const getComments = async (contentType, contentId, sort = 'newest') => {
   try {
@@ -9,7 +9,6 @@ export const getComments = async (contentType, contentId, sort = 'newest') => {
     return response.data;
   } catch (error) {
     console.error("Get Comments Error:", error);
-    toast.error(error.response?.data?.message || error.message);
     throw error;
   }
 };
@@ -20,7 +19,7 @@ export const createComment = async (data) => {
     return response.data;
   } catch (error) {
     console.error("Create Comment Error:", error);
-    toast.error(error.response?.data?.message || error.message);
+    notifyError(error, 'comment');
     throw error;
   }
 };
@@ -31,7 +30,7 @@ export const updateComment = async (commentId, data) => {
     return response.data;
   } catch (error) {
     console.error("Update Comment Error:", error);
-    toast.error(error.response?.data?.message || error.message);
+    notifyError(error, 'comment');
     throw error;
   }
 };
@@ -42,7 +41,7 @@ export const deleteComment = async (commentId) => {
     return response.data;
   } catch (error) {
     console.error("Delete Comment Error:", error);
-    toast.error(error.response?.data?.message || error.message);
+    notifyError(error, 'comment');
     throw error;
   }
 };
@@ -74,6 +73,7 @@ export const approveAdminComment = async (commentId) => {
     return response.data;
   } catch (error) {
     console.error("Approve Comment Error:", error);
+    notifyError(error, 'comment');
     throw error;
   }
 };
@@ -84,7 +84,7 @@ export const restoreAdminComment = async (commentId) => {
     return response.data;
   } catch (error) {
     console.error("Restore Comment Error:", error);
+    notifyError(error, 'comment');
     throw error;
   }
 };
-

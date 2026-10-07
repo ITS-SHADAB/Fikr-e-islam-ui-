@@ -4,6 +4,7 @@ import {
   registerUser,
   checkAuthStatus as checkAuthStatusApi,
 } from "@/services";
+import { getUserFriendlyError } from "@/utils/errorHandler";
 
 // Helper to safely parse cached user from local storage
 const getStoredUser = () => {
@@ -58,9 +59,8 @@ export const register = createAsyncThunk(
 
       return data;
     } catch (error) {
-      const message =
-        error.response?.data?.message || error.message || "Registration failed";
-      return thunkAPI.rejectWithValue(message);
+      const friendly = getUserFriendlyError(error, "signup");
+      return thunkAPI.rejectWithValue(friendly.message);
     }
   }
 );
@@ -83,9 +83,8 @@ export const login = createAsyncThunk(
 
       return data;
     } catch (error) {
-      const message =
-        error.response?.data?.message || error.message || "Login failed";
-      return thunkAPI.rejectWithValue(message);
+      const friendly = getUserFriendlyError(error, "login");
+      return thunkAPI.rejectWithValue(friendly.message);
     }
   }
 );
@@ -100,7 +99,8 @@ export const checkAuthStatus = createAsyncThunk(
       // Session is expired or invalid
       localStorage.removeItem("adminToken");
       localStorage.removeItem("adminInfo");
-      return thunkAPI.rejectWithValue("Session expired");
+      const friendly = getUserFriendlyError(error, "auth");
+      return thunkAPI.rejectWithValue(friendly.message);
     }
   }
 );

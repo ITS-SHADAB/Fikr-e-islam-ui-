@@ -16,7 +16,7 @@ import {
 import toast from "react-hot-toast";
 import { useLecturesList } from "@/hooks/useContentCache";
 import { useSettings } from "@/hooks/useSettings";
-import { LectureCard, SectionSidebar, SectionLoader, SEO } from "@/components";
+import { LectureCard, SectionSidebar, SectionLoader, SEO, InlineErrorState } from "@/components";
 import { getCollectionSchema, getBreadcrumbSchema } from "@/utils/seoHelpers";
 import { COLORS } from "@/utils/themeColors";
 import { LECTURE_CATEGORIES, LECTURE_CATEGORY_TRANSLATIONS } from "@/utils/categories";
@@ -55,7 +55,7 @@ export default function LecturesList() {
 
   const categories = LECTURE_CATEGORIES;
 
-  const { data: lecturesData, loading, error } = useLecturesList({
+  const { data: lecturesData, loading, error, refetch } = useLecturesList({
     category: selectedCategory,
   });
 
@@ -289,25 +289,19 @@ export default function LecturesList() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
                 <SectionLoader type="lecture" count={6} />
               </div>
-            ) : searchError ? (
-              <div
-                className="text-center py-16 rounded-2xl border p-8 shadow-xs"
-                style={{
-                  backgroundColor: COLORS.white,
-                  borderColor: COLORS.border,
+            ) : (searchError || error) && (!displayedLectures || displayedLectures.length === 0) ? (
+              <InlineErrorState
+                error={searchError || error}
+                context="lecture"
+                onRetry={() => {
+                  if (isSearchActive) {
+                    clearSearch();
+                  } else {
+                    refetch(true);
+                  }
                 }}
-              >
-                <p className="text-sm font-semibold text-rose-600 mb-2">
-                  {isRTL ? "اس وقت تلاش ممکن نہیں ہے۔" : "Unable to search right now."}
-                </p>
-                <button
-                  type="button"
-                  onClick={clearSearch}
-                  className="px-4 py-1.5 text-xs rounded border border-gray-300 hover:bg-gray-50 transition-colors cursor-pointer"
-                >
-                  {isRTL ? "تلاش صاف کریں" : "Clear Search"}
-                </button>
-              </div>
+                className="my-8"
+              />
             ) : displayedLectures && displayedLectures.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
                 {displayedLectures.map((lecture) => (

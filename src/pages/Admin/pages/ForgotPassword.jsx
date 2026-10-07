@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { ArrowLeft, Mail, AlertTriangle, CheckCircle2 } from "lucide-react";
 import toast from "react-hot-toast";
 import { forgotPasswordApi } from "@/services";
+import { getUserFriendlyError, notifyError } from "@/utils/errorHandler";
 
 /* ─── Animated required asterisk ─────────────────────────────────────── */
 function RequiredStar() {
@@ -62,11 +63,9 @@ export default function ForgotPassword({
       setIsSubmitted(true);
       toast.success(msg);
     } catch (err) {
-      const msg =
-        err.message ||
-        "Unable to process your request. Please try again later.";
-      setError(msg);
-      toast.error(msg);
+      const friendly = getUserFriendlyError(err, "password");
+      setError(friendly.message);
+      notifyError(err, "password");
     } finally {
       setLoading(false);
     }

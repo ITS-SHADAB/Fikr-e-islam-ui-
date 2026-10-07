@@ -1,6 +1,7 @@
 import API from './api';
 import { FATWAS } from '@/constants/urls';
-import toast from 'react-hot-toast';
+import { notifyError } from '@/utils/errorHandler';
+import { safeDecodeSlug } from '@/utils/seoHelpers';
 
 export const getFatwas = async (params) => {
   try {
@@ -18,12 +19,9 @@ export const getFatwas = async (params) => {
     return response.data;
   } catch (error) {
     console.error("Get Fatwas Error:", error);
-    toast.error(error.response?.data?.message || error.message);
     throw error;
   }
 };
-
-import { safeDecodeSlug } from '@/utils/seoHelpers';
 
 export const getFatwaBySlug = async (slug) => {
   try {
@@ -42,7 +40,7 @@ export const createFatwa = async (data) => {
     return response.data;
   } catch (error) {
     console.error("Create Fatwa Error:", error);
-    toast.error(error.response?.data?.message || error.message);
+    notifyError(error, 'fatwa');
     throw error;
   }
 };
@@ -53,7 +51,7 @@ export const updateFatwa = async (id, data) => {
     return response.data;
   } catch (error) {
     console.error("Update Fatwa Error:", error);
-    toast.error(error.response?.data?.message || error.message);
+    notifyError(error, 'fatwa');
     throw error;
   }
 };
@@ -64,7 +62,7 @@ export const deleteFatwa = async (id) => {
     return response.data;
   } catch (error) {
     console.error("Delete Fatwa Error:", error);
-    toast.error(error.response?.data?.message || error.message);
+    notifyError(error, 'fatwa');
     throw error;
   }
 };

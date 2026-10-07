@@ -1,9 +1,7 @@
 import API from './api';
-import toast from 'react-hot-toast';
+import { notifyError } from '@/utils/errorHandler';
 
 // Get comments made by the currently logged-in user
-// Uses the existing GET /comments/:contentType/:contentId endpoint indirectly
-// by fetching the user's own profile data which the server exposes via /users/me
 export const getMyComments = async () => {
   try {
     const response = await API.get('/comments/my');
@@ -46,8 +44,7 @@ export const updateMyProfile = async (formData) => {
     return response.data;
   } catch (error) {
     console.error('updateMyProfile:', error.response?.data?.message || error.message);
-    toast.error(error.response?.data?.message || error.message);
+    notifyError(error, 'profile');
     throw error;
   }
 };
-

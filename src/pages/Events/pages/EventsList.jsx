@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 import { useEventsList } from '@/hooks/useContentCache';
 import { useSettings } from '@/hooks/useSettings';
-import { EventCard, SEO } from '@/components';
+import { EventCard, SEO, InlineErrorState } from '@/components';
 import { getCollectionSchema, getBreadcrumbSchema } from '@/utils/seoHelpers';
 import { COLORS } from '@/utils/themeColors';
 import { useContentSearch } from '@/hooks/useContentSearch';
@@ -49,7 +49,7 @@ export default function EventsList() {
     settings?.language === 'ur' || settings?.language === 'Urdu' ? 'ur' : 'en';
   const isRTL = language === 'ur';
 
-  const { data: eventsData, loading, error } = useEventsList({ includePast: 'true' });
+  const { data: eventsData, loading, error, refetch } = useEventsList({ includePast: 'true' });
   const rawEvents = Array.isArray(eventsData) ? eventsData : eventsData?.events || [];
 
   // Deduplicate events by _id
@@ -789,25 +789,19 @@ export default function EventsList() {
                     style={{ borderColor: COLORS?.primary }}
                   />
                 </div>
-              ) : searchError ? (
-                <div
-                  className="rounded-2xl p-10 text-center border-2 shadow-xs"
-                  style={{
-                    backgroundColor: COLORS?.white,
-                    borderColor: COLORS?.border,
+              ) : (searchError || error) && (!displayedEvents || displayedEvents.length === 0) ? (
+                <InlineErrorState
+                  error={searchError || error}
+                  context="event"
+                  onRetry={() => {
+                    if (isSearchActive) {
+                      clearSearch();
+                    } else {
+                      refetch(true);
+                    }
                   }}
-                >
-                  <p className="text-sm font-semibold text-rose-600 mb-2">
-                    {isRTL ? 'اس وقت تلاش ممکن نہیں ہے۔' : 'Unable to search right now.'}
-                  </p>
-                  <button
-                    type="button"
-                    onClick={clearSearch}
-                    className="px-4 py-1.5 text-xs rounded border border-gray-300 hover:bg-gray-50 transition-colors cursor-pointer"
-                  >
-                    {isRTL ? 'تلاش صاف کریں' : 'Clear Search'}
-                  </button>
-                </div>
+                  className="my-4"
+                />
               ) : displayedEvents?.length > 0 ? (
                 <div className="space-y-4">
                   {displayedEvents.map((event) => (

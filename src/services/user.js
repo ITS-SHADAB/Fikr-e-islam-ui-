@@ -1,5 +1,5 @@
 import API from './api';
-import toast from 'react-hot-toast';
+import { notifyError } from '@/utils/errorHandler';
 
 export const getAdminUsers = async (params = {}) => {
   try {
@@ -7,7 +7,6 @@ export const getAdminUsers = async (params = {}) => {
     return response.data;
   } catch (error) {
     console.error("Get Admin Users Error:", error);
-    toast.error(error.response?.data?.message || error.message);
     throw error;
   }
 };
@@ -18,7 +17,6 @@ export const getUserById = async (id) => {
     return response.data;
   } catch (error) {
     console.error("Get User By ID Error:", error);
-    toast.error(error.response?.data?.message || error.message);
     throw error;
   }
 };
@@ -29,7 +27,7 @@ export const updateUser = async (id, userData) => {
     return response.data;
   } catch (error) {
     console.error("Update User Error:", error);
-    toast.error(error.response?.data?.message || error.message);
+    notifyError(error, 'user');
     throw error;
   }
 };
@@ -40,7 +38,7 @@ export const deleteUser = async (id) => {
     return response.data;
   } catch (error) {
     console.error("Delete User Error:", error);
-    toast.error(error.response?.data?.message || error.message);
+    notifyError(error, 'user');
     throw error;
   }
 };

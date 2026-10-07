@@ -30,7 +30,7 @@ import { STALE_TIMES } from "@/store/slices/contentSlice";
 import { useSettings } from "@/hooks/useSettings";
 import { BACKEND_URL } from "@/constants/urls";
 import { ARTICLE_CATEGORY_TRANSLATIONS } from "@/utils/categories";
-import { ArticleCard, PdfViewer, Spinner, SEO } from "@/components";
+import { ArticleCard, PdfViewer, Spinner, SEO, InlineErrorState } from "@/components";
 import { getArticleSchema, getBreadcrumbSchema, safeDecodeSlug } from "@/utils/seoHelpers";
 import CommentsSection from "@/components/CommentsSection";
 import toast from "react-hot-toast";
@@ -268,30 +268,13 @@ export default function ArticleDetail() {
           canonical={`/articles/${cleanSlug}`}
           noindex={false}
         />
-        <FileText
-          className="w-16 h-16 mb-4 text-amber-600 opacity-70"
-        />
-        <h2
-          className="text-2xl font-bold font-serif mb-2"
-          style={{ color: THEME.darkBrown }}
-        >
-          {isRTL ? "عارضی رابطہ منقطع" : "Temporary Connection Issue"}
-        </h2>
-        <p
-          className="text-sm max-w-md mb-6 font-['Payami_Nastaleeq',serif]"
-          style={{ color: THEME.textMuted }}
-        >
-          {error || (isRTL
-            ? "سرور سے رابطہ قائم نہیں ہو سکا۔ برائے مہربانی دوبارہ کوشش فرمائیں۔"
-            : "Unable to reach the server. Please check your connection and retry.")}
-        </p>
-        <button
-          onClick={() => refetch(true)}
-          className="px-6 py-2.5 rounded-xl font-bold text-white text-sm font-['Payami_Nastaleeq',serif] cursor-pointer shadow-sm hover:opacity-95"
-          style={{ backgroundColor: THEME.darkBrown }}
-        >
-          {isRTL ? "دوبارہ کوشش کریں" : "Retry"}
-        </button>
+        <div className="max-w-xl mx-auto w-full">
+          <InlineErrorState
+            error={error}
+            context="article"
+            onRetry={() => refetch(true)}
+          />
+        </div>
       </div>
     );
   }

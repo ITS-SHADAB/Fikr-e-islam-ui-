@@ -24,7 +24,7 @@ import { getQuestionBySlug } from '@/services';
 import { useCachedContent } from '@/hooks/useContentCache';
 import { STALE_TIMES } from '@/store/slices/contentSlice';
 import { COLORS } from '@/utils/themeColors';
-import { Spinner, SEO } from '@/components';
+import { Spinner, SEO, InlineErrorState } from '@/components';
 import { getQASchema, getBreadcrumbSchema, safeDecodeSlug } from '@/utils/seoHelpers';
 import { QA_TRANSLATIONS } from '@/utils/categories';
 import toast from 'react-hot-toast';
@@ -167,24 +167,12 @@ export default function QADetail() {
           canonical={`/qa/${cleanSlug}`}
           noindex={false}
         />
-        <div
-          className="max-w-xl mx-auto text-center p-8 rounded-2xl border bg-white shadow-xs"
-          style={{ borderColor: COLORS.border }}
-        >
-          <HelpCircle className="w-12 h-12 mx-auto mb-3 text-amber-600" />
-          <h2 className="text-xl font-bold font-['Noto_Nastaliq_Urdu'] mb-2" style={{ color: COLORS.primary }}>
-            عارضی رابطہ منقطع
-          </h2>
-          <p className="text-xs text-slate-500 mb-6">
-            {error || 'سرور سے رابطہ قائم نہیں ہو سکا۔ برائے مہربانی دوبارہ کوشش فرمائیں۔'}
-          </p>
-          <button
-            onClick={() => refetch(true)}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-white font-bold text-xs uppercase tracking-wider transition-colors cursor-pointer"
-            style={{ backgroundColor: COLORS.primary }}
-          >
-            دوبارہ کوشش کریں
-          </button>
+        <div className="max-w-xl mx-auto">
+          <InlineErrorState
+            error={error}
+            context="question"
+            onRetry={() => refetch(true)}
+          />
         </div>
       </div>
     );

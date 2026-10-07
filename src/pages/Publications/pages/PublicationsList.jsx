@@ -4,7 +4,7 @@ import { BookOpen, Book } from 'lucide-react';
 import { usePublicationsList } from '@/hooks/useContentCache';
 import { useCategories } from '@/hooks/useCategories';
 import { useSettings } from '@/hooks/useSettings';
-import { PublicationCard, SectionSidebar, Spinner, SEO } from '@/components';
+import { PublicationCard, SectionSidebar, Spinner, SEO, InlineErrorState } from '@/components';
 import { getCollectionSchema, getBreadcrumbSchema } from '@/utils/seoHelpers';
 import { COLORS } from '@/utils/themeColors';
 import { useContentSearch } from '@/hooks/useContentSearch';
@@ -43,6 +43,7 @@ export default function PublicationsList() {
     data,
     loading,
     error,
+    refetch,
   } = usePublicationsList({
     category: selectedCategory,
     page,
@@ -185,6 +186,13 @@ export default function PublicationsList() {
                   {isRTL ? 'تلاش صاف کریں' : 'Clear Search'}
                 </button>
               </div>
+            ) : error && (!displayedPublications || displayedPublications.length === 0) ? (
+              <InlineErrorState
+                error={error}
+                context="publication"
+                onRetry={() => refetch(true)}
+                className="my-8"
+              />
             ) : displayedPublications && displayedPublications.length > 0 ? (
               <>
                 <div className="flex flex-col gap-4 mb-10">

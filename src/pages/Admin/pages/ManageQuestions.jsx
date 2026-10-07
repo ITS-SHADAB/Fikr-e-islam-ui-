@@ -34,6 +34,7 @@ import {
   Tag,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { getUserFriendlyError } from '@/utils/errorHandler';
 import {
   getAdminQuestions,
   getQuestionStats,
@@ -706,8 +707,8 @@ export default function ManageQuestions() {
       loadQuestions(page, statusFilter, categoryFilter, searchTerm);
       loadStats();
     } catch (err) {
-      const msg = err.response?.data?.message || err.message || 'جواب محفوظ کرنے میں ناکامی';
-      showErrorNotification(msg);
+      const friendly = getUserFriendlyError(err, 'question', 'ur');
+      showErrorNotification(friendly.message);
     } finally {
       setActionLoading(false);
     }
@@ -723,7 +724,7 @@ export default function ManageQuestions() {
       loadQuestions(page, statusFilter, categoryFilter, searchTerm);
       loadStats();
     } catch (err) {
-      setErrorModal({ isOpen: true, message: err.response?.data?.message || err.message });
+      setErrorModal({ isOpen: true, message: getUserFriendlyError(err, 'question', 'ur').message });
     } finally {
       setActionId(null);
     }
@@ -740,7 +741,7 @@ export default function ManageQuestions() {
       loadQuestions(page, statusFilter, categoryFilter, searchTerm);
       loadStats();
     } catch (err) {
-      setErrorModal({ isOpen: true, message: err.response?.data?.message || err.message });
+      setErrorModal({ isOpen: true, message: getUserFriendlyError(err, 'question', 'ur').message });
     } finally {
       setActionId(null);
     }
@@ -757,7 +758,7 @@ export default function ManageQuestions() {
       loadQuestions(page, statusFilter, categoryFilter, searchTerm);
       loadStats();
     } catch (err) {
-      setErrorModal({ isOpen: true, message: err.response?.data?.message || err.message });
+      setErrorModal({ isOpen: true, message: getUserFriendlyError(err, 'question', 'ur').message });
     } finally {
       setActionId(null);
     }
@@ -773,7 +774,7 @@ export default function ManageQuestions() {
       loadQuestions(page, statusFilter, categoryFilter, searchTerm);
       loadStats();
     } catch (err) {
-      setErrorModal({ isOpen: true, message: err.response?.data?.message || err.message });
+      setErrorModal({ isOpen: true, message: getUserFriendlyError(err, 'question', 'ur').message });
     } finally {
       setActionId(null);
     }
@@ -798,7 +799,7 @@ export default function ManageQuestions() {
       loadQuestions(page, statusFilter, categoryFilter, searchTerm);
       loadStats();
     } catch (err) {
-      setErrorModal({ isOpen: true, message: err.response?.data?.message || err.message || 'سوال حذف کرنے میں ناکامی' });
+      setErrorModal({ isOpen: true, message: getUserFriendlyError(err, 'question', 'ur').message });
     } finally {
       setDeleteTargetId(null);
       setActionId(null);

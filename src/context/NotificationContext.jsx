@@ -8,6 +8,7 @@ import React, {
 } from "react";
 import { useSelector } from "react-redux";
 import toast from "react-hot-toast";
+import { notifyError } from "@/utils/errorHandler";
 import {
   getNotificationPermission,
   getOrRegisterFCMToken,
@@ -291,7 +292,7 @@ export function NotificationProvider({ children }) {
     } catch (err) {
       setAdminNotifications(prevNotifs);
       setAdminUnreadCount(prevCount);
-      toast.error("Could not mark all admin notifications as read.");
+      notifyError(err, 'notification', 'ur');
       if (process.env.NODE_ENV !== "production") {
         console.warn("markAllAdminAsRead failed:", err);
       }
@@ -401,7 +402,7 @@ export function NotificationProvider({ children }) {
       // Rollback on failure
       setNotifications(prevNotifications);
       setUnreadCount(prevUnreadCount);
-      toast.error("Could not mark all notifications as read. Please try again.");
+      notifyError(err, 'notification', 'ur');
       if (process.env.NODE_ENV !== "production") {
         console.warn("Mark all notifications read failed:", err);
       }

@@ -14,7 +14,7 @@ import {
   Settings,
 } from 'lucide-react';
 import { useQuestionsList } from '@/hooks/useContentCache';
-import { SectionSidebar, Spinner, SEO } from '@/components';
+import { SectionSidebar, Spinner, SEO, InlineErrorState } from '@/components';
 import { getCollectionSchema, getBreadcrumbSchema } from '@/utils/seoHelpers';
 import { COLORS } from '@/utils/themeColors';
 import { QA_CATEGORIES, QA_TRANSLATIONS } from '@/utils/categories';
@@ -56,6 +56,8 @@ export default function QAList() {
   const {
     data,
     loading,
+    error,
+    refetch,
   } = useQuestionsList({
     category: selectedCategory || undefined,
     page,
@@ -227,22 +229,19 @@ export default function QAList() {
                   text={isSearchActive ? 'تلاش جاری ہے...' : 'سوالات لوڈ ہو رہے ہیں...'}
                 />
               </div>
-            ) : searchError ? (
-              <div
-                className="text-center py-16 rounded-2xl border bg-white"
-                style={{ borderColor: COLORS.border }}
-              >
-                <p className="text-sm font-semibold text-rose-600 mb-2">
-                  اس وقت تلاش ممکن نہیں ہے۔
-                </p>
-                <button
-                  type="button"
-                  onClick={clearSearch}
-                  className="px-4 py-1.5 text-xs rounded border border-gray-300 hover:bg-gray-50 transition-colors"
-                >
-                  تلاش صاف کریں
-                </button>
-              </div>
+            ) : (searchError || error) && (!displayedQuestions || displayedQuestions.length === 0) ? (
+              <InlineErrorState
+                error={searchError || error}
+                context="question"
+                onRetry={() => {
+                  if (isSearchActive) {
+                    clearSearch();
+                  } else {
+                    refetch(true);
+                  }
+                }}
+                className="my-8"
+              />
             ) : displayedQuestions && displayedQuestions.length > 0 ? (
               <>
                 <div className="space-y-4 mb-10">

@@ -1,4 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { getUserFriendlyError } from '@/utils/errorHandler';
 
 export const DEFAULT_STALE_TIME = 5 * 60 * 1000; // 5 minutes
 
@@ -44,10 +45,14 @@ export const fetchContentWithCache = createAsyncThunk(
       const data = await fetcher();
       return { key, data, fetchedAt: Date.now() };
     } catch (err) {
-      const message =
-        err?.response?.data?.message || err?.message || 'Failed to fetch content';
+      const friendly = getUserFriendlyError(err, key);
       const status = err?.response?.status || (err?.response ? 500 : null);
-      return rejectWithValue({ key, error: message, status });
+      return rejectWithValue({
+        key,
+        error: friendly.message,
+        friendly,
+        status,
+      });
     }
   },
   {

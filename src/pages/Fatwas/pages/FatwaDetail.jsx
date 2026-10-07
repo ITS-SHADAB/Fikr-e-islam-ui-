@@ -27,7 +27,7 @@ import { getFatwaBySlug, getFatwas } from "@/services";
 import { useCachedContent } from "@/hooks/useContentCache";
 import { STALE_TIMES } from "@/store/slices/contentSlice";
 import { useSettings } from "@/hooks/useSettings";
-import { FatwaCard, PdfViewer, Spinner, SEO } from "@/components";
+import { FatwaCard, PdfViewer, Spinner, SEO, InlineErrorState } from "@/components";
 import { getFatwaSchema, getBreadcrumbSchema, safeDecodeSlug } from "@/utils/seoHelpers";
 import CommentsSection from "@/components/CommentsSection";
 import { FATWA_CATEGORY_TRANSLATIONS } from "@/utils/categories";
@@ -206,30 +206,13 @@ export default function FatwaDetail() {
           canonical={`/fatwas/${cleanSlug}`}
           noindex={false}
         />
-        <HelpCircle
-          className="w-16 h-16 mb-4 text-amber-600 opacity-70"
-        />
-        <h2
-          className="text-2xl font-bold font-serif mb-2"
-          style={{ color: COLORS?.textPrimary }}
-        >
-          {isRTL ? "عارضی رابطہ منقطع" : "Temporary Connection Issue"}
-        </h2>
-        <p
-          className="text-sm max-w-md mb-6 font-['Payami_Nastaleeq',serif]"
-          style={{ color: COLORS?.textSecondary }}
-        >
-          {error || (isRTL
-            ? "سرور سے رابطہ قائم نہیں ہو سکا۔ برائے مہربانی دوبارہ کوشش فرمائیں۔"
-            : "Unable to reach the server. Please check your connection and retry.")}
-        </p>
-        <button
-          onClick={() => refetch(true)}
-          className="px-6 py-2.5 rounded-xl font-bold text-white text-sm cursor-pointer shadow-sm hover:opacity-95"
-          style={{ backgroundColor: COLORS?.primary }}
-        >
-          {isRTL ? "دوبارہ کوشش کریں" : "Retry"}
-        </button>
+        <div className="max-w-xl mx-auto w-full">
+          <InlineErrorState
+            error={error}
+            context="fatwa"
+            onRetry={() => refetch(true)}
+          />
+        </div>
       </div>
     );
   }

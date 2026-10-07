@@ -70,11 +70,7 @@ export default function FatwaCard({ fatwa }) {
       : summary
     : "";
 
-  const questionPreview = question
-    ? question.length > 120
-      ? `${question.slice(0, 120)}...`
-      : question
-    : "";
+  const questionPreview = question || "";
 
   const fatwaIdentifier = slug || fatwa?._id || "";
   const fullShareUrl =
@@ -253,7 +249,7 @@ export default function FatwaCard({ fatwa }) {
           </div>
 
           {/* Urdu Question Text (Without quotation marks or left badge) */}
-          <p className="text-xs sm:text-[13px] text-[#3A2A1E] font-['Payami_Nastaleeq',serif] leading-[1.8] line-clamp-2 text-right px-1.5 sm:px-2.5 font-normal break-words">
+          <p className="text-xs sm:text-[13px] text-[#3A2A1E] font-['Payami_Nastaleeq',serif] leading-[1.8] text-right px-1.5 sm:px-2.5 font-normal break-words">
             {questionPreview}
           </p>
         </div>

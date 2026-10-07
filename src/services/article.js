@@ -1,6 +1,7 @@
 import API from './api';
 import { ARTICLES } from '@/constants/urls';
-import toast from 'react-hot-toast';
+import { notifyError } from '@/utils/errorHandler';
+import { safeDecodeSlug } from '@/utils/seoHelpers';
 
 export const getArticles = async (params) => {
   try {
@@ -18,12 +19,9 @@ export const getArticles = async (params) => {
     return response.data;
   } catch (error) {
     console.error("Get Articles Error:", error);
-    toast.error(error.response?.data?.message || error.message);
     throw error;
   }
 };
-
-import { safeDecodeSlug } from '@/utils/seoHelpers';
 
 export const getArticleBySlug = async (slug) => {
   try {
@@ -46,7 +44,7 @@ export const createArticle = async (data) => {
     return response.data;
   } catch (error) {
     console.error("Create Article Error:", error);
-    toast.error(error.response?.data?.message || error.message);
+    notifyError(error, 'article');
     throw error;
   }
 };
@@ -61,7 +59,7 @@ export const updateArticle = async (id, data) => {
     return response.data;
   } catch (error) {
     console.error("Update Article Error:", error);
-    toast.error(error.response?.data?.message || error.message);
+    notifyError(error, 'article');
     throw error;
   }
 };
@@ -72,7 +70,7 @@ export const deleteArticle = async (id) => {
     return response.data;
   } catch (error) {
     console.error("Delete Article Error:", error);
-    toast.error(error.response?.data?.message || error.message);
+    notifyError(error, 'article');
     throw error;
   }
 };

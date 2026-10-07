@@ -26,7 +26,7 @@ import {
   PUBLICATION_CATEGORY_TRANSLATIONS,
   BOOK_LANGUAGE_TRANSLATIONS,
 } from "@/utils/categories";
-import { PdfViewer, Spinner, SEO } from "@/components";
+import { PdfViewer, Spinner, SEO, InlineErrorState } from "@/components";
 import { getBookSchema, getBreadcrumbSchema, safeDecodeSlug } from "@/utils/seoHelpers";
 import CommentsSection from "@/components/CommentsSection";
 import {
@@ -213,33 +213,13 @@ export default function BookDetail() {
           canonical={`/publications/${cleanSlug}`}
           noindex={false}
         />
-        <div
-          className="w-16 h-16 rounded-full flex items-center justify-center mb-4 shadow-sm"
-          style={{ backgroundColor: `${COLORS.primary}15` }}
-        >
-          <BookOpen className="w-8 h-8 text-amber-600" />
+        <div className="max-w-xl mx-auto w-full">
+          <InlineErrorState
+            error={error}
+            context="publication"
+            onRetry={() => refetch(true)}
+          />
         </div>
-        <h2
-          className="text-2xl font-bold font-serif mb-2"
-          style={{ color: COLORS.textPrimary }}
-        >
-          {isRTL ? "عارضی رابطہ منقطع" : "Temporary Connection Issue"}
-        </h2>
-        <p
-          className="text-sm max-w-md mb-6"
-          style={{ color: COLORS.textSecondary }}
-        >
-          {error || (isRTL
-            ? "سرور سے رابطہ قائم نہیں ہو سکا۔ برائے مہربانی دوبارہ کوشش فرمائیں۔"
-            : "Unable to reach the server. Please check your connection and retry.")}
-        </p>
-        <button
-          onClick={() => refetch(true)}
-          className="px-6 py-2.5 rounded-xl font-bold text-white text-sm cursor-pointer shadow-sm hover:opacity-95"
-          style={{ backgroundColor: COLORS.primary }}
-        >
-          {isRTL ? "دوبارہ کوشش کریں" : "Retry"}
-        </button>
       </div>
     );
   }

@@ -20,6 +20,7 @@ import { getFatwas, createFatwa, updateFatwa, deleteFatwa } from '@/services';
 import { Table, ConfirmationBox, PdfViewer } from '@/components';
 import { FATWA_CATEGORIES, FATWA_TRANSLATIONS } from '@/utils/categories';
 import { COLORS } from '@/utils/themeColors';
+import { getUserFriendlyError } from '@/utils/errorHandler';
 
 export default function ManageFatwas() {
   const [deleteTargetId, setDeleteTargetId] = useState(null);
@@ -213,11 +214,7 @@ export default function ManageFatwas() {
         showSuccess('نیا فتویٰ کامیابی کے ساتھ شائع ہو گیا۔');
       }
     } catch (err) {
-      setActionError(
-        err?.response?.data?.message ||
-          err?.message ||
-          'فتویٰ محفوظ نہیں ہو سکا'
-      );
+      setActionError(getUserFriendlyError(err, 'fatwa', 'ur').message);
     } finally {
       setActionLoading(false);
     }
@@ -237,11 +234,7 @@ export default function ManageFatwas() {
       await deleteFatwa(id);
       showSuccess('فتویٰ کامیابی کے ساتھ حذف کر دیا گیا۔');
     } catch (err) {
-      setActionError(
-        err?.response?.data?.message ||
-          err?.message ||
-          'فتویٰ حذف نہیں ہو سکا'
-      );
+      setActionError(getUserFriendlyError(err, 'fatwa', 'ur').message);
     } finally {
       setDeleteTargetId(null);
     }

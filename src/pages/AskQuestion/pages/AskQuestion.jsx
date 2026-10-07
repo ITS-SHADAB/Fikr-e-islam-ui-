@@ -14,6 +14,7 @@ import {
 import { submitQuestion } from '@/services';
 import { COLORS } from '@/utils/themeColors';
 import { useAuthModal } from '@/context/AuthModalContext';
+import { getUserFriendlyError } from '@/utils/errorHandler';
 import { SEO } from '@/components';
 import { getBreadcrumbSchema } from '@/utils/seoHelpers';
 
@@ -72,9 +73,8 @@ export default function AskQuestion() {
         detailedQuestion: '',
       });
     } catch (err) {
-      setActionError(
-        err?.response?.data?.message || err?.message || 'سوال بھیجنے میں ناکامی ہوئی'
-      );
+      const friendly = getUserFriendlyError(err, 'question');
+      setActionError(friendly.message);
     } finally {
       setActionLoading(false);
     }

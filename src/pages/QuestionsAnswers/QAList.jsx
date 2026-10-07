@@ -6,6 +6,7 @@ import { useSettings } from '@/hooks/useSettings';
 import { Input } from '@/components';
 
 import { QA_CATEGORIES, QA_TRANSLATIONS } from '@/utils/categories';
+import { getUserFriendlyError } from '@/utils/errorHandler';
 
 export default function QAList() {
   const { settings } = useSettings();
@@ -44,7 +45,7 @@ export default function QAList() {
       setPage(data.currentPage || 1);
       setTotal(data.totalQuestions || 0);
     } catch (err) {
-      setError(err.response?.data?.message || err.message || 'Failed to load questions');
+      setError(getUserFriendlyError(err, 'question', language === 'en' ? 'en' : 'ur').message);
     } finally {
       setLoading(false);
     }

@@ -25,6 +25,7 @@ import {
   ARTICLE_CATEGORIES,
   ARTICLE_TRANSLATIONS,
 } from '@/utils/categories';
+import { getUserFriendlyError } from '@/utils/errorHandler';
 
 export default function ManageArticles() {
   const { settings } = useSettings();
@@ -244,11 +245,7 @@ export default function ManageArticles() {
         );
       }
     } catch (err) {
-      setActionError(
-        err.response?.data?.message ||
-          err.message ||
-          'Failed to save article'
-      );
+      setActionError(getUserFriendlyError(err, 'article', language === 'en' ? 'en' : 'ur').message);
     } finally {
       setActionLoading(false);
     }
@@ -272,11 +269,7 @@ export default function ManageArticles() {
           : 'مضمون کامیابی سے حذف کر دیا گیا۔'
       );
     } catch (err) {
-      setActionError(
-        err.response?.data?.message ||
-          err.message ||
-          'Failed to delete article'
-      );
+      setActionError(getUserFriendlyError(err, 'article', language === 'en' ? 'en' : 'ur').message);
     } finally {
       setDeleteTargetId(null);
     }

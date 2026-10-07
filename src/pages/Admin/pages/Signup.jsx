@@ -11,6 +11,7 @@ import {
 import { register, clearAuthError } from "../../../store/slices/authSlice";
 import GoogleAuthButton from "@/components/Auth/GoogleAuthButton";
 import AuthDivider from "@/components/Auth/AuthDivider";
+import { getUserFriendlyError } from "@/utils/errorHandler";
 
 /* ─── Animated required asterisk ─────────────────────────────────────── */
 function RequiredStar() {
@@ -234,7 +235,8 @@ export default function Signup({ isModal = false, onClose, onSwitchToLogin }) {
     );
   }
 
-  const displayError = localError || error;
+  const rawError = localError || error;
+  const displayError = rawError ? getUserFriendlyError(rawError, "signup").message : null;
 
   return (
     <div dir="ltr" className="text-left font-sans w-full">

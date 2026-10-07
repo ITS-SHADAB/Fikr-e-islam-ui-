@@ -46,6 +46,7 @@ import { updateUserProfile, logout } from "@/store/slices/authSlice";
 import { useAuthModal } from "@/context/AuthModalContext";
 import { Spinner, Modal } from "@/components";
 import toast from "react-hot-toast";
+import { getUserFriendlyError, notifyError } from "@/utils/errorHandler";
 
 /* ── Typography & Direction Helpers ───────────────────────────────────── */
 function isUrduText(text) {
@@ -809,7 +810,7 @@ export default function MyDetails() {
         setComments(list);
       })
       .catch((err) => {
-        setErrorC("تبصرے لوڈ نہیں ہو سکے۔");
+        setErrorC(getUserFriendlyError(err, 'comment', 'ur').message);
         setComments([]);
       })
       .finally(() => setLoadingC(false));
@@ -909,9 +910,7 @@ export default function MyDetails() {
       toast.success("تبصرہ کامیابی سے حذف کر دیا گیا");
       setDeleteConfirmComment(null);
     } catch (err) {
-      toast.error(
-        err.response?.data?.message || err.message || "تبصرہ حذف کرنے میں ناکامی"
-      );
+      notifyError(err, 'comment');
     } finally {
       setIsDeleting(false);
     }
@@ -965,11 +964,7 @@ export default function MyDetails() {
         setEditQuestionModal(null);
       }
     } catch (err) {
-      setEditQuestionError(
-        err.response?.data?.message ||
-        err.message ||
-        "سوال اپ ڈیٹ کرنے میں غلطی ہوئی۔"
-      );
+      setEditQuestionError(getUserFriendlyError(err, 'question', 'ur').message);
     } finally {
       setEditQuestionLoading(false);
     }
@@ -991,11 +986,7 @@ export default function MyDetails() {
       toast.success(res?.message || "سوال کامیابی سے حذف کر دیا گیا");
       setDeleteConfirmQuestion(null);
     } catch (err) {
-      toast.error(
-        err.response?.data?.message ||
-        err.message ||
-        "سوال حذف کرنے میں ناکامی"
-      );
+      notifyError(err, 'question');
     } finally {
       setIsDeletingQuestion(false);
     }
@@ -1054,11 +1045,7 @@ export default function MyDetails() {
         setIsEditOpen(false);
       }
     } catch (err) {
-      setEditError(
-        err.response?.data?.message ||
-        err.message ||
-        "پروفائل اپ ڈیٹ کرنے میں غلطی ہوئی۔"
-      );
+      setEditError(getUserFriendlyError(err, 'profile', 'ur').message);
     } finally {
       setEditLoading(false);
     }

@@ -7,7 +7,7 @@ import {
   AUTH_FORGOT_PASSWORD,
   AUTH_RESET_PASSWORD,
 } from "@/constants/urls";
-import toast from "react-hot-toast";
+import { notifyError } from "@/utils/errorHandler";
 import { handleLogoutTokenReset } from "./notificationService";
 
 // Register User
@@ -21,13 +21,10 @@ export const registerUser = async (formData) => {
     };
 
     const response = await API.post(AUTH_REGISTER, payload);
-
     return response.data;
   } catch (error) {
     console.error("Register Error:", error);
-
-    toast.error(error.response?.data?.message || error.message);
-
+    notifyError(error, 'signup');
     throw error;
   }
 };
@@ -41,13 +38,10 @@ export const loginUser = async (formData) => {
     };
 
     const response = await API.post(AUTH_LOGIN, payload);
-
     return response.data;
   } catch (error) {
     console.error("Login Error:", error);
-
-    toast.error(error.response?.data?.message || error.message);
-
+    notifyError(error, 'login');
     throw error;
   }
 };
@@ -61,13 +55,10 @@ export const logoutUser = async () => {
       console.warn("Could not unregister FCM token during logout:", tokenErr);
     }
     const response = await API.post(AUTH_LOGOUT);
-
     return response.data;
   } catch (error) {
     console.error("Logout Error:", error);
-
-    toast.error(error.response?.data?.message || error.message);
-
+    notifyError(error, 'auth');
     throw error;
   }
 };
@@ -76,14 +67,12 @@ export const logoutUser = async () => {
 export const checkAuthStatus = async () => {
   try {
     const response = await API.get(AUTH_ME);
-
     return response.data;
   } catch (error) {
     // Expected 401 for guest users - do not pollute console
     if (error.response?.status !== 401) {
       console.error("Auth Status Error:", error);
     }
-
     throw error;
   }
 };
@@ -95,11 +84,8 @@ export const forgotPasswordApi = async (email) => {
     return response.data;
   } catch (error) {
     console.error("Forgot Password Error:", error);
-    const message =
-      error.response?.data?.message ||
-      error.message ||
-      "Unable to process your request. Please try again later.";
-    throw new Error(message);
+    notifyError(error, 'password');
+    throw error;
   }
 };
 
@@ -113,10 +99,7 @@ export const resetPasswordApi = async (token, { password, confirmPassword }) => 
     return response.data;
   } catch (error) {
     console.error("Reset Password Error:", error);
-    const message =
-      error.response?.data?.message ||
-      error.message ||
-      "Reset link is invalid or has expired.";
-    throw new Error(message);
+    notifyError(error, 'password');
+    throw error;
   }
 };

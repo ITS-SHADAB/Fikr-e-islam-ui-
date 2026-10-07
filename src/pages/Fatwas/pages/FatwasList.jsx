@@ -5,7 +5,7 @@ import { useFatwasList } from '@/hooks/useContentCache';
 import { useSettings } from '@/hooks/useSettings';
 import { useContentSearch } from '@/hooks/useContentSearch';
 import { useCategories } from '@/hooks/useCategories';
-import { FatwaCard, SEO } from '@/components';
+import { FatwaCard, SEO, InlineErrorState } from '@/components';
 import { getCollectionSchema, getBreadcrumbSchema } from '@/utils/seoHelpers';
 import { COLORS } from '@/utils/themeColors';
 
@@ -43,6 +43,7 @@ export default function FatwasList() {
     data,
     loading: listLoading,
     error: listError,
+    refetch,
   } = useFatwasList({
     category: selectedCategory,
     page,
@@ -388,6 +389,13 @@ export default function FatwasList() {
               </div>
             ))}
           </div>
+        ) : error && (!fatwas || fatwas.length === 0) ? (
+          <InlineErrorState
+            error={error}
+            context="fatwa"
+            onRetry={() => refetch(true)}
+            className="my-8"
+          />
         ) : fatwas && fatwas.length > 0 ? (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8 sm:mb-10 w-full">

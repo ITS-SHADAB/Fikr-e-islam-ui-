@@ -1,6 +1,7 @@
 import API from './api';
 import { QUESTIONS } from '@/constants/urls';
-import toast from 'react-hot-toast';
+import { notifyError } from '@/utils/errorHandler';
+import { safeDecodeSlug } from '@/utils/seoHelpers';
 
 export const submitQuestion = async (data) => {
   try {
@@ -8,7 +9,7 @@ export const submitQuestion = async (data) => {
     return response.data;
   } catch (error) {
     console.error("Submit Question Error:", error);
-    toast.error(error.response?.data?.message || error.message);
+    notifyError(error, 'question');
     throw error;
   }
 };
@@ -35,12 +36,9 @@ export const getPublicQuestions = async (params = {}) => {
     return response.data;
   } catch (error) {
     console.error("Get Public Questions Error:", error);
-    toast.error(error.response?.data?.message || error.message);
     throw error;
   }
 };
-
-import { safeDecodeSlug } from '@/utils/seoHelpers';
 
 export const getQuestionBySlug = async (slug) => {
   try {
@@ -71,7 +69,7 @@ export const updateMyQuestion = async (questionId, data) => {
     return response.data;
   } catch (error) {
     console.error("Update Question Error:", error);
-    toast.error(error.response?.data?.message || error.message);
+    notifyError(error, 'question');
     throw error;
   }
 };
@@ -82,7 +80,7 @@ export const deleteMyQuestion = async (questionId) => {
     return response.data;
   } catch (error) {
     console.error("Delete Question Error:", error);
-    toast.error(error.response?.data?.message || error.message);
+    notifyError(error, 'question');
     throw error;
   }
 };
@@ -93,7 +91,6 @@ export const getAdminQuestions = async (params) => {
     return response.data;
   } catch (error) {
     console.error("Get Admin Questions Error:", error);
-    toast.error(error.response?.data?.message || error.message);
     throw error;
   }
 };
@@ -104,7 +101,6 @@ export const getQuestionStats = async () => {
     return response.data;
   } catch (error) {
     console.error("Get Question Stats Error:", error);
-    toast.error(error.response?.data?.message || error.message);
     throw error;
   }
 };
@@ -115,7 +111,6 @@ export const getAdminQuestionById = async (id) => {
     return response.data;
   } catch (error) {
     console.error("Get Admin Question By Id Error:", error);
-    toast.error(error.response?.data?.message || error.message);
     throw error;
   }
 };
@@ -126,7 +121,7 @@ export const restoreQuestion = async (id) => {
     return response.data;
   } catch (error) {
     console.error("Restore Question Error:", error);
-    toast.error(error.response?.data?.message || error.message);
+    notifyError(error, 'question');
     throw error;
   }
 };
@@ -137,7 +132,7 @@ export const permanentDeleteQuestion = async (id) => {
     return response.data;
   } catch (error) {
     console.error("Permanent Delete Question Error:", error);
-    toast.error(error.response?.data?.message || error.message);
+    notifyError(error, 'question');
     throw error;
   }
 };
@@ -148,7 +143,7 @@ export const answerQuestion = async (id, data) => {
     return response.data;
   } catch (error) {
     console.error("Answer Question Error:", error);
-    toast.error(error.response?.data?.message || error.message);
+    notifyError(error, 'question');
     throw error;
   }
 };
@@ -159,7 +154,7 @@ export const approveQuestion = async (id) => {
     return response.data;
   } catch (error) {
     console.error("Approve Question Error:", error);
-    toast.error(error.response?.data?.message || error.message);
+    notifyError(error, 'question');
     throw error;
   }
 };
@@ -170,7 +165,7 @@ export const rejectQuestion = async (id) => {
     return response.data;
   } catch (error) {
     console.error("Reject Question Error:", error);
-    toast.error(error.response?.data?.message || error.message);
+    notifyError(error, 'question');
     throw error;
   }
 };
@@ -181,7 +176,7 @@ export const publishQuestion = async (id, isPublic) => {
     return response.data;
   } catch (error) {
     console.error("Publish Question Error:", error);
-    toast.error(error.response?.data?.message || error.message);
+    notifyError(error, 'question');
     throw error;
   }
 };
@@ -193,7 +188,7 @@ export const deleteQuestion = async (id) => {
     return response.data;
   } catch (error) {
     console.error("Delete Question Error:", error);
-    toast.error(error.response?.data?.message || error.message);
+    notifyError(error, 'question');
     throw error;
   }
 };

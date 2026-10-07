@@ -30,7 +30,39 @@ export default function App() {
             <AuthModalProvider>
               <NotificationManager />
               <AppRoutes />
-              <Toaster position="top-center" reverseOrder={false} />
+              <Toaster
+                position="top-center"
+                reverseOrder={false}
+                toastOptions={{
+                  duration: 4000,
+                  style: {
+                    borderRadius: "14px",
+                    background: "#2B2118",
+                    color: "#FFFFFF",
+                    fontSize: "13px",
+                    fontFamily:
+                      "'Payami Nastaleeq', 'Noto Nastaliq Urdu', system-ui, sans-serif",
+                    padding: "12px 18px",
+                    boxShadow: "0 8px 24px rgba(43, 33, 24, 0.25)",
+                    direction: "rtl",
+                    textAlign: "right",
+                    maxWidth: "440px",
+                    border: "1px solid rgba(168, 121, 62, 0.4)",
+                  },
+                  error: {
+                    iconTheme: {
+                      primary: "#E06B6B",
+                      secondary: "#2B2118",
+                    },
+                  },
+                  success: {
+                    iconTheme: {
+                      primary: "#10B981",
+                      secondary: "#2B2118",
+                    },
+                  },
+                }}
+              />
             </AuthModalProvider>
           </NotificationProvider>
         </AppInitializer>

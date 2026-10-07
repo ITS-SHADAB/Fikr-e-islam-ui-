@@ -6,6 +6,7 @@ import { login, clearAuthError } from "../../../store/slices/authSlice";
 import GoogleAuthButton from "@/components/Auth/GoogleAuthButton";
 import AuthDivider from "@/components/Auth/AuthDivider";
 import { lazyWithRetry } from "@/utils/lazyWithRetry";
+import { getUserFriendlyError } from "@/utils/errorHandler";
 
 const ForgotPassword = lazyWithRetry(() => import("./ForgotPassword"));
 
@@ -163,7 +164,8 @@ export default function Login({
     );
   }
 
-  const displayError = localError || error;
+  const rawError = localError || error;
+  const displayError = rawError ? getUserFriendlyError(rawError, "login").message : null;
 
   return (
     <div dir="ltr" className="text-left font-sans w-full">
