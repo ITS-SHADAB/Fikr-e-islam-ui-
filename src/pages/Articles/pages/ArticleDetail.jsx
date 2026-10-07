@@ -450,8 +450,8 @@ export default function ArticleDetail() {
           </div>
 
           {/* Middle: Title aligned to the RIGHT */}
-          <div className="my-auto py-3 text-right w-full">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-[44px] font-bold font-['Payami_Nastaleeq',serif] text-white leading-[1.8] sm:leading-[1.9] drop-shadow-md text-right">
+          <div className="my-auto py-4 sm:py-6 text-right w-full">
+            <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-[38px] xl:text-[42px] font-bold font-['Payami_Nastaleeq',serif] text-white leading-[2.1] sm:leading-[2.2] md:leading-[2.3] drop-shadow-md text-right">
               {article?.title}
             </h1>
           </div>
@@ -622,10 +622,10 @@ export default function ArticleDetail() {
 
               <h2
                 id="article-summary-heading"
-                className="font-bold whitespace-nowrap leading-none pr-0.5 select-none"
+                className="font-bold whitespace-nowrap pr-0.5 select-none"
                 style={{ color: THEME.mainText }}
               >
-                <span className="text-[14px] xs:text-[15.5px] sm:text-[17px] font-['Payami_Nastaleeq',serif] leading-none pt-0.5">
+                <span className="text-[14px] xs:text-[15.5px] sm:text-[17px] font-['Payami_Nastaleeq',serif] leading-normal pt-1 block">
                   {isRTL ? "مضمون کا خلاصہ" : "Article Summary"}
                 </span>
               </h2>
@@ -768,7 +768,7 @@ export default function ArticleDetail() {
                   <BookOpen className="w-4.5 h-4.5 stroke-[2.2]" />
                 </div>
                 <h2
-                  className="text-xl sm:text-2xl md:text-3xl font-bold font-['Payami_Nastaleeq',serif] leading-none"
+                  className="text-xl sm:text-2xl md:text-3xl font-bold font-['Payami_Nastaleeq',serif] leading-[1.8] sm:leading-[1.9] pt-1"
                   style={{ color: THEME.darkBrown }}
                 >
                   {isRTL ? "مکمل مضمون" : "Full Article"}

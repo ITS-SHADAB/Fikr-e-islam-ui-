@@ -49,7 +49,7 @@ export default function EventsList() {
     settings?.language === 'ur' || settings?.language === 'Urdu' ? 'ur' : 'en';
   const isRTL = language === 'ur';
 
-  const { data: eventsData, loading, error } = useEventsList();
+  const { data: eventsData, loading, error } = useEventsList({ includePast: 'true' });
   const rawEvents = Array.isArray(eventsData) ? eventsData : eventsData?.events || [];
 
   // Deduplicate events by _id
@@ -78,7 +78,7 @@ export default function EventsList() {
   // Calendar State
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(null);
-  const [activeTab, setActiveTab] = useState('all'); // 'all', 'upcoming', 'past', 'calendar'
+  const [activeTab, setActiveTab] = useState('upcoming'); // 'upcoming', 'all', 'past', 'calendar'
 
   // Year and Month of Calendar View
   const currentYear = currentDate.getFullYear();
@@ -167,21 +167,38 @@ export default function EventsList() {
   const upcomingEvents = useMemo(
     () =>
       events?.filter
-        ? events.filter(
-            (e) => new Date(e?.eventDate).getTime() >= nowTime - 86400000
-          )
+        ? events
+            .filter(
+              (e) => new Date(e?.eventDate).getTime() >= nowTime - 86400000
+            )
+            .sort(
+              (a, b) =>
+                new Date(a?.eventDate).getTime() -
+                new Date(b?.eventDate).getTime()
+            )
         : [],
     [events, nowTime]
   );
   const pastEvents = useMemo(
     () =>
       events?.filter
-        ? events.filter(
-            (e) => new Date(e?.eventDate).getTime() < nowTime - 86400000
-          )
+        ? events
+            .filter(
+              (e) => new Date(e?.eventDate).getTime() < nowTime - 86400000
+            )
+            .sort(
+              (a, b) =>
+                new Date(b?.eventDate).getTime() -
+                new Date(a?.eventDate).getTime()
+            )
         : [],
     [events, nowTime]
   );
+
+  // All events ordered with upcoming nearest events first, followed by past events
+  const allEvents = useMemo(() => {
+    return [...upcomingEvents, ...pastEvents];
+  }, [upcomingEvents, pastEvents]);
 
   // Selected date key
   const selectedDateKey = selectedDate
@@ -200,12 +217,14 @@ export default function EventsList() {
       return searchResults;
     }
 
-    let list = events;
+    let list = allEvents;
 
     if (activeTab === 'upcoming') {
       list = upcomingEvents;
     } else if (activeTab === 'past') {
       list = pastEvents;
+    } else if (activeTab === 'all') {
+      list = allEvents;
     } else if (activeTab === 'calendar' && selectedDate) {
       list = selectedDateEvents;
     }
@@ -215,7 +234,7 @@ export default function EventsList() {
     isSearchActive,
     searchResults,
     activeTab,
-    events,
+    allEvents,
     upcomingEvents,
     pastEvents,
     selectedDate,
@@ -621,7 +640,7 @@ export default function EventsList() {
                   type="button"
                   onClick={() => {
                     setSelectedDate(null);
-                    setActiveTab('all');
+                    setActiveTab('upcoming');
                   }}
                   className="p-1.5 rounded-xl border hover:bg-white transition-colors cursor-pointer text-xs font-bold flex items-center gap-1 shadow-2xs"
                   style={{
@@ -654,25 +673,6 @@ export default function EventsList() {
                 <button
                   type="button"
                   onClick={() => {
-                    setActiveTab('all');
-                    setSelectedDate(null);
-                  }}
-                  className="px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer shadow-2xs"
-                  style={{
-                    backgroundColor:
-                      activeTab === 'all' ? COLORS?.primary : 'transparent',
-                    color: activeTab === 'all' ? '#fff' : COLORS?.textSecondary,
-                    border: `1px solid ${
-                      activeTab === 'all' ? COLORS?.primary : COLORS?.border
-                    }`,
-                  }}
-                >
-                  {isRTL ? 'تمام' : 'All'} ({events?.length || 0})
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => {
                     setActiveTab('upcoming');
                     setSelectedDate(null);
                   }}
@@ -688,6 +688,25 @@ export default function EventsList() {
                   }}
                 >
                   {isRTL ? 'آنے والے' : 'Upcoming'} ({upcomingEvents?.length || 0})
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveTab('all');
+                    setSelectedDate(null);
+                  }}
+                  className="px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer shadow-2xs"
+                  style={{
+                    backgroundColor:
+                      activeTab === 'all' ? COLORS?.primary : 'transparent',
+                    color: activeTab === 'all' ? '#fff' : COLORS?.textSecondary,
+                    border: `1px solid ${
+                      activeTab === 'all' ? COLORS?.primary : COLORS?.border
+                    }`,
+                  }}
+                >
+                  {isRTL ? 'تمام' : 'All'} ({events?.length || 0})
                 </button>
 
                 <button

@@ -200,7 +200,28 @@ export default function Home() {
         map.set(item._id, item);
       }
     });
-    return Array.from(map.values());
+    const unique = Array.from(map.values());
+    const nowTime = Date.now();
+    const startOfToday = nowTime - 86400000;
+
+    // Upcoming events: nearest date first
+    const upcoming = unique
+      .filter((e) => new Date(e?.eventDate).getTime() >= startOfToday)
+      .sort(
+        (a, b) =>
+          new Date(a?.eventDate).getTime() - new Date(b?.eventDate).getTime()
+      );
+
+    // Past events: most recent past first
+    const past = unique
+      .filter((e) => new Date(e?.eventDate).getTime() < startOfToday)
+      .sort(
+        (a, b) =>
+          new Date(b?.eventDate).getTime() - new Date(a?.eventDate).getTime()
+      );
+
+    // Pehle latest/upcoming, phir guzashta past events
+    return [...upcoming, ...past];
   }, [rawEvents]);
 
   const [activeMedia, setActiveMedia] = useState(null);

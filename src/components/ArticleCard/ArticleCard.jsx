@@ -24,10 +24,10 @@ export default function ArticleCard({ article }) {
 
   const formattedDate = article?.publishDate
     ? new Date(article?.publishDate).toLocaleDateString("ur-PK", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      })
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    })
     : "";
 
   const getImageSrc = (img) => {
@@ -142,7 +142,7 @@ export default function ArticleCard({ article }) {
           {/* Article Title */}
           <Link to={detailUrl} className="block w-full text-right">
             <h2
-              className="font-bold text-base sm:text-lg leading-[1.8] font-['Payami_Nastaleeq',serif] text-right line-clamp-2 group-hover:underline transition-colors w-full"
+              className="font-bold text-base sm:text-lg leading-[2.1] sm:leading-[2.2] font-['Payami_Nastaleeq',serif] text-right line-clamp-2 group-hover:underline transition-colors w-full pb-0.5"
               style={{ color: COLORS?.primary }}
               dir="rtl"
             >

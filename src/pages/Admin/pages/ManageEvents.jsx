@@ -97,13 +97,17 @@ export default function ManageEvents() {
   const loadEvents = async () => {
     try {
       setLoading(true);
-      const data = await getEvents();
+      const data = await getEvents({ includePast: 'true' });
       const raw = Array.isArray(data) ? data : (data.events || []);
       const map = new Map();
       raw.forEach((ev) => {
         if (ev && ev._id) map.set(ev._id, ev);
       });
-      setEvents(Array.from(map.values()));
+      setEvents(
+        Array.from(map.values()).sort(
+          (a, b) => new Date(a.eventDate).getTime() - new Date(b.eventDate).getTime()
+        )
+      );
     } catch (err) {
       console.error('Failed to load events:', err);
     } finally {

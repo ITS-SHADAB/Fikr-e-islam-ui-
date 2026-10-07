@@ -134,7 +134,7 @@ export default function ArticlesList() {
             {isRTL ? 'مستند علمی مقالات' : 'SCHOLARLY ARTICLES'}
           </span>
           <h1
-            className="text-xl sm:text-2xl font-bold font-serif mb-3 leading-snug"
+            className="text-xl sm:text-2xl md:text-3xl font-bold font-serif mb-3 leading-[1.8] sm:leading-[2]"
             style={{ color: '#ffffff' }}
           >
             {isRTL ? 'اسلامی مضامین و مقالات' : 'Islamic Articles'}
