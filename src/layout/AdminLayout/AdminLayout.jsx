@@ -315,7 +315,7 @@ export default function AdminLayout() {
             <Shield className="w-4 h-4 text-indigo-400" />
             <span className="font-bold text-slate-800">ایڈمن پورٹل</span>
             <span className="text-slate-300">/</span>
-            <span className="text-slate-500 font-light">جامعہ بنوری ٹاؤن</span>
+            <span className="text-slate-500 font-light">مفتی فیضان سرور</span>
           </div>
 
           <div className="ml-auto flex items-center gap-3">

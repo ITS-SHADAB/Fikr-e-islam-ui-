@@ -11,13 +11,13 @@ export default function Bayyinat() {
   return (
     <PageContainer
       title={language === 'en' ? 'Monthly Bayyinat' : 'ماہنامہ بینات'}
-      subtitle={language === 'en' ? 'The scholarly & reformative voice of Jamia Uloom Islamia Banuri Town' : 'جامعہ العلوم الاسلامیہ بنوری ٹاؤن کا ترجمانِ علمی و اصلاحی مجلہ'}
+      subtitle={language === 'en' ? 'The scholarly & reformative voice' : 'ترجمانِ علمی و اصلاحی مجلہ'}
     >
       <div className={`space-y-6 ${language === 'ur' ? 'text-right' : 'text-left'}`} dir={language === 'ur' ? 'rtl' : 'ltr'}>
         <p>
           {language === 'en'
-            ? '"Bayyinat" is the representative, scientific, research-oriented, and training monthly magazine of the Jamia, published at the beginning of each Islamic month. It was founded by the founder of the Jamia, Allama Syed Muhammad Yusuf Banuri (may Allah have mercy on him) in 1962, to spread the message of religion and authentic interpretations of the Quran and Sunnah to the educated class.'
-            : '"بینات" جامعہ کا ترجمان اور ایک علمی، تحقیقی، دینی اور تربیتی مجلہ ہے، جو ہر اسلامی مہینے کے آغاز میں شائع ہوتا ہے۔ اس کی بنیاد بانی جامعہ علامہ سید محمد یوسف بنوری رحمہ اللہ نے سنہ 1962ء میں رکھی تھی تاکہ دین کے پیغام اور قرآن و سنت کی سچی تشریحات کو پڑھے لکھے طبقے تک عام کیا جا سکے۔'
+            ? '"Bayyinat" is a scientific, research-oriented, and training magazine published to spread the authentic interpretations of the Quran and Sunnah.'
+            : '"بینات" ایک علمی، تحقیقی، دینی اور تربیتی سلسلہ ہے، جو دین کے پیغام اور قرآن و سنت کی سچی تشریحات کو عام کرنے کے لیے پیش کیا جاتا ہے۔'
           }
         </p>
 
@@ -50,7 +50,7 @@ export default function Bayyinat() {
           </li>
           <li>
             <strong>{language === 'en' ? 'Fatwas: ' : 'فتاویٰ:'}</strong>{' '}
-            {language === 'en' ? 'Simple explanations of selected fatwas issued by Darul Ifta Banuri Town.' : 'دارالافتاء بنوری ٹاؤن کی طرف سے جاری کردہ منتخب فتاویٰ کی عام فہم تشریح۔'}
+            {language === 'en' ? 'Simple explanations of selected fatwas issued by Darul Ifta.' : 'دارالافتاء کی طرف سے جاری کردہ منتخب فتاویٰ کی عام فہم تشریح۔'}
           </li>
           <li>
             <strong>{language === 'en' ? 'Obituaries & Biographies: ' : 'وفیات و سوانح:'}</strong>{' '}

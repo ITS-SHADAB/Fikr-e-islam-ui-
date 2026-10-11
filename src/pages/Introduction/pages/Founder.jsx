@@ -4,8 +4,8 @@ import PageContainer from '../../../components/PageContainer/PageContainer'
 export default function Founder() {
   return (
     <PageContainer
-      title="بانی جامعہ حضرت بنوری رحمہ اللہ"
-      subtitle="محدث العصر حضرت علامہ سید محمد یوسف بنوری نور اللہ مرقدہ"
+      title="تعارف و سوانح"
+      subtitle="سوانح حیات و علمی خدمات"
     >
       <div className="space-y-6">
         <div className="bg-background border-r-4 border-accent p-5 my-4">
@@ -27,7 +27,7 @@ export default function Founder() {
 
         <h3 className="text-[22px] font-bold text-primary border-b pb-2">علمی و تصنیفی خدمات</h3>
         <p>
-          علامہ بنوری رحمہ اللہ نے حدیث، فقہ اور کلام کے موضوعات پر گرانقدر تصانیف تحریر کیں۔ آپ کی مشہور ترین شرحِ ترمذی "معارف السنن" علمی دنیا میں ایک معرکۃ الآراء اور مستند علمی شاہکار تسلیم کی جاتی ہے۔
+          آپ نے حدیث، فقہ اور کلام کے موضوعات پر گرانقدر تصانیف تحریر کیں۔
         </p>
 
         <h3 className="text-[22px] font-bold text-primary border-b pb-2">وفات حسرت آیات</h3>

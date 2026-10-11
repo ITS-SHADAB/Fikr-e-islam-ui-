@@ -1,11 +1,11 @@
 import { COLORS } from '@/utils/themeColors';
 export const SITE = {
-  nameArabic: 'جامعة العلوم الإسلامية',
-  nameUrdu: 'علامہ محمد یوسف بنوری ٹاؤن گیا بہار انڈیا',
+  nameArabic: 'مفتی محمد فیضان سرور مصباحی',
+  nameUrdu: 'مفتی محمد فیضان سرور مصباحی',
   bismillah: 'بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ',
   hijriDate: '۱۴ ذوالحجہ ۱۴۴۷ھ',
   gregDate: '۳۱ مئی ۲۰۲۶ء',
-  copyright: '© 2026 جامعة العلوم الإسلامية علامہ محمد یوسف بنوری ٹاؤن گیا — جملہ حقوق محفوظ ہیں',
+  copyright: '© 2026 مفتی محمد فیضان سرور مصباحی — جملہ حقوق محفوظ ہیں',
 }
 
 export const NAV_ITEMS = [
@@ -19,14 +19,14 @@ export const NAV_ITEMS = [
 export const FEATURE_CARDS = [
   {
     id: 1,
-    title: 'بانی جامعہ حضرت بنوری رحمہ اللہ',
+    title: 'تعارف و سوانح',
     desc: 'تعارف، علمی و تحقیقی مقالات',
     icon: 'founder',
   },
   {
     id: 2,
-    title: 'تعارف جامعہ بنوری ٹاؤن',
-    desc: 'جامعہ اور اس کی شاخیں ایک نظر میں',
+    title: 'تعارف و خدمات',
+    desc: 'علمی، فقہی اور دینی خدمات ایک نظر میں',
     icon: 'star',
   },
   {

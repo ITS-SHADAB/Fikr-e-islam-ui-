@@ -29,8 +29,8 @@ function SlideSeal() {
         <line x1="20" y1="200" x2="30" y2="190" />
         <line x1="190" y1="200" x2="180" y2="190" />
       </g>
-      <text x="110" y="160" textAnchor="middle" fontSize="10" fill="rgba(255,255,255,0.65)" fontFamily="serif">جامعة العلوم الإسلامية</text>
-      <text x="110" y="175" textAnchor="middle" fontSize="8" fill="rgba(255,255,255,0.5)" fontFamily="serif">علامہ بنوری ٹاؤن گیا بہار انڈیا</text>
+      <text x="110" y="160" textAnchor="middle" fontSize="10" fill="rgba(255,255,255,0.65)" fontFamily="serif">مفتی محمد فیضان سرور</text>
+      <text x="110" y="175" textAnchor="middle" fontSize="8" fill="rgba(255,255,255,0.5)" fontFamily="serif">مصباحی</text>
     </svg>
   )
 }
@@ -146,8 +146,8 @@ function Slide2() {
 }
 
 const SLIDES = [
-  { id: 1, title: 'جامعة العلوم الإسلامية', Scene: Slide1 },
-  { id: 2, title: 'علامہ بنوری ٹاؤن گیا انڈیا', Scene: Slide2 },
+  { id: 1, title: 'مفتی محمد فیضان سرور', Scene: Slide1 },
+  { id: 2, title: 'مصباحی', Scene: Slide2 },
 ]
 
 export default function HeroSlider() {

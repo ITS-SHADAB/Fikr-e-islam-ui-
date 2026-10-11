@@ -13,7 +13,7 @@ export default function Rules() {
   return (
     <PageContainer
       title="طلبہ اور ان کے سرپرستوں کے لیے ضروری ہدایات"
-      subtitle="جامعہ العلوم الاسلامیہ بنوری ٹاؤن کے قواعد و ضوابط اور ضابطہ اخلاق"
+      subtitle="قواعد و ضوابط اور ضابطہ اخلاق"
     >
       <div className="space-y-6">
         <div className="bg-red-50/50 border-r-4 border-red-500 p-5 my-4">

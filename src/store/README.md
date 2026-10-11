@@ -1,4 +1,4 @@
-# Redux Guidelines for Jamia Banuri
+# Redux Guidelines for Mufti Faizan Sarwar
 
 These guidelines define how and when to use Redux Toolkit in this project. Please adhere to these rules to keep the Redux store lightweight, performant, and maintainable.
 

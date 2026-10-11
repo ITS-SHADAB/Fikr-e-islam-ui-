@@ -13,12 +13,12 @@ export default function AimsObjectives() {
 
   return (
     <PageContainer
-      title="جامعہ کے اغراض و مقاصد"
-      subtitle="جامعہ العلوم الاسلامیہ کے بنیادی اہداف اور مشن"
+      title="اغراض و مقاصد"
+      subtitle="بنیادی اہداف اور مشن"
     >
       <div className="space-y-6">
         <p className="text-[18px]">
-          جامعہ العلوم الاسلامیہ بنوری ٹاؤن کے قیام کے بنیادی اغراض و مقاصد درج ذیل ہیں جن پر شروع دن سے کام کیا جا رہا ہے:
+          قیام کے بنیادی اغراض و مقاصد درج ذیل ہیں جن پر کام کیا جا رہا ہے:
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">

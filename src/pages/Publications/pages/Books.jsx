@@ -13,13 +13,13 @@ export default function Books() {
   return (
     <PageContainer
       title={language === 'en' ? 'Useful Educational & Reformative Books' : 'مفید علمی و اصلاحی کتابیں'}
-      subtitle={language === 'en' ? 'Masterpieces written by the elders of Jamia Banuri Town' : 'جامعہ بنوری ٹاؤن کے اکابرین کی تحریر کردہ شاہکار کتب'}
+      subtitle={language === 'en' ? 'Masterpieces written by Mufti Faizan Sarwar Misbahi' : 'مفتی فیضان سرور مصباحی کی تحریر کردہ شاہکار کتب'}
     >
       <div className={`space-y-6 ${language === 'ur' ? 'text-right' : 'text-left'}`} dir={language === 'ur' ? 'rtl' : 'ltr'}>
         <p>
           {language === 'en'
-            ? 'The writing and compilation department of the Jamia is active in scientific and research activities. Numerous valuable religious, jurisprudential, and educational books written by the elders of the Jamia are provided free of charge for study.'
-            : 'جامعہ کا شعبہ تصنیف و تالیف علمی تحقیقی سرگرمیوں میں پیش پیش ہے۔ اکابرینِ جامعہ کی تحریر کردہ متعدد گرانقدر دینی، فقہی اور تعلیمی کتابیں مطالعہ کے لیے بلا معاوضہ فراہم کی جاتی ہیں۔'
+            ? 'The research and compilation section provides valuable religious, jurisprudential, and educational books for study.'
+            : 'شعبہ تصنیف و تالیف علمی تحقیقی سرگرمیوں میں پیش پیش ہے۔ متعدد گرانقدر دینی، فقہی اور تعلیمی کتابیں مطالعہ کے لیے فراہم کی جاتی ہیں۔'
           }
         </p>
 
@@ -45,7 +45,7 @@ export default function Books() {
               <div className="p-4 bg-gray-50 border-t border-border flex flex-col gap-2">
                 <span className="text-[17px] font-bold text-primary">{book.title}</span>
                 <span className="text-[13px] text-accent">
-                  {language === 'en' ? 'Publishing Department, Jamia Banuri Town' : 'شعبہ نشر و اشاعت، جامعہ بنوری ٹاؤن'}
+                  {language === 'en' ? 'Publishing Department, Mufti Faizan Sarwar' : 'شعبہ نشر و اشاعت، مفتی فیضان سرور'}
                 </span>
                 <button
                   onClick={() => {

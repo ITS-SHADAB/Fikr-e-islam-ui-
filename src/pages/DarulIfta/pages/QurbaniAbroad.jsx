@@ -26,9 +26,9 @@ export default function QurbaniAbroad() {
         </ul>
 
         <div className="bg-gray-50 border border-border p-6 rounded-sm my-6">
-          <h4 className="text-[19px] font-bold text-accent mb-3 text-center">جامعہ بنوری ٹاؤن قربانی سروس</h4>
+          <h4 className="text-[19px] font-bold text-accent mb-3 text-center">قربانی سروس</h4>
           <p className="text-[16px] text-primary text-center mb-4 leading-relaxed">
-            جامعہ ہر سال بیرونِ ملک مقیم بھائیوں کی طرف سے شرعی حدود و قیود کا پورا خیال رکھتے ہوئے اجتماعی قربانی کا خصوصی انتظام کرتا ہے اور گوشت مستحقینِ گیا میں تقسیم کیا جاتا ہے۔
+            ہر سال بیرونِ ملک مقیم بھائیوں کی طرف سے شرعی حدود و قیود کا پورا خیال رکھتے ہوئے اجتماعی قربانی کا خصوصی انتظام کیا جاتا ہے اور گوشت مستحقین میں تقسیم کیا جاتا ہے۔
           </p>
           <div className="text-center">
             <button

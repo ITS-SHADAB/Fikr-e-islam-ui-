@@ -23,7 +23,7 @@ export default function NewQuestions() {
   return (
     <PageContainer
       title="نئے سوالات و فتاویٰ"
-      subtitle="دارالافتاء بنوری ٹاؤن کے تازہ ترین فتاویٰ اور شرعی مسائل کا حل"
+      subtitle="دارالافتاء کے تازہ ترین فتاویٰ اور شرعی مسائل کا حل"
     >
       <div className="space-y-8">
         <div className="bg-background border border-border p-6 rounded-sm">

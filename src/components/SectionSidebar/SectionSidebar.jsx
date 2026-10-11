@@ -43,7 +43,7 @@ export function SidebarLink({ label, active, onClick, count }) {
 }
 
 /**
- * SectionSidebar: Universal Sidebar Component for Jamia Banuri Town
+ * SectionSidebar: Universal Sidebar Component for Mufti Faizan Sarwar
  * Handles both Desktop Sticky Sidebar and Mobile Sticky Top Search & One-by-One Filter Dropdown
  */
 export default function SectionSidebar({

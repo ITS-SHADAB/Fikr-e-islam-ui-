@@ -4,13 +4,13 @@ export const NAV_ITEMS = [
     href: '/introduction',
     hasDropdown: true,
     dropdownItems: [
-      { label: 'بانی جامعہ حضرت بنوری رحمہ اللہ', href: '/introduction/founder' },
-      { label: 'مقدمہ از بانی جامعہ', href: '/introduction/preface' },
-      { label: 'جامعہ کے اغراض و مقاصد', href: '/introduction/objectives' },
-      { label: 'جامعہ کا نظم و نسق', href: '/introduction/administration' },
-      { label: 'جامعہ کے مصارف', href: '/introduction/expenses' },
-      { label: 'تعارف جامعہ (پی ڈی ایف)', href: '/introduction/profile' },
-      { label: 'جامعہ کی شاخیں و شعبہ جات', href: '/introduction/branches' },
+      { label: 'تعارف و سوانح', href: '/about' },
+      { label: 'مقدمہ', href: '/about' },
+      { label: 'اغراض و مقاصد', href: '/about' },
+      { label: 'نظم و نسق', href: '/about' },
+      { label: 'مصارف', href: '/about' },
+      { label: 'تعارف و خدمات', href: '/about' },
+      { label: 'شاخیں و شعبہ جات', href: '/about' },
     ]
   },
   {
