@@ -804,20 +804,20 @@ export default function Header() {
               {/* Scholar Main Calligraphic Name Title & Brand Logo */}
               <Link
                 to="/"
-                className="group flex items-center justify-center gap-2.5 sm:gap-3.5 transition-transform duration-200 hover:scale-[1.01] -my-0.5 sm:-my-1 py-0.5"
+                className="group flex items-center justify-center gap-2.5 sm:gap-3.5 transition-transform duration-200 hover:scale-[1.01] -my-0.5 sm:-my-1 md:my-0 py-0.5"
               >
                 <span
                   style={{
                     fontFamily: "'Payami Quran', 'Noto Naskh Arabic', serif",
                   }}
-                  className="text-xl sm:text-2xl md:text-[26px] lg:text-[28px] font-bold text-[#2A211A] leading-tight tracking-tight group-hover:text-[#5C4433] transition-colors my-0 py-0"
+                  className="text-xl sm:text-2xl md:text-[26px] lg:text-[28px] font-bold text-[#2A211A] leading-tight tracking-tight md:tracking-normal group-hover:text-[#5C4433] transition-colors my-0 py-0"
                 >
                   مفتی فیضان سرور مصباحی
                 </span>
               </Link>
 
               {/* Continuous Straight Divider Line with Subheading Badge (Placed JUST below the name) */}
-              <div className="relative flex items-center justify-center w-full max-w-[480px] sm:max-w-[560px] md:max-w-[620px] mx-auto -mt-0.5 sm:-mt-1 mb-0.5 px-3">
+              <div className="relative flex items-center justify-center w-full max-w-[480px] sm:max-w-[560px] md:max-w-[620px] mx-auto -mt-0.5 sm:-mt-1 md:mt-0.5 lg:mt-1 mb-0.5 px-3">
                 {/* Continuous horizontal divider line running behind the badge */}
                 <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-[1px] bg-gradient-to-r from-transparent via-[#A8793E]/65 to-transparent pointer-events-none" />
 
