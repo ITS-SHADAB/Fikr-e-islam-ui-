@@ -143,12 +143,6 @@ export default function BookDetail() {
         className="min-h-screen flex items-center justify-center"
         style={{ backgroundColor: COLORS.background }}
       >
-        <SEO
-          title={isRTL ? "کتاب لوڈ ہو رہی ہے... | مفتی فیضان سرور" : "Loading Book... | Mufti Faizan Sarwar"}
-          description={isRTL ? "مفتی فیضان سرور کی تصنیف و علمی مطالعہ۔" : "Islamic publication and book by Mufti Faizan Sarwar."}
-          canonical={`/publications/${cleanSlug}`}
-          noindex={false}
-        />
         <Spinner size="lg" text="کتاب کی تفصیلات لوڈ ہو رہی ہیں..." />
       </div>
     );
@@ -199,8 +193,9 @@ export default function BookDetail() {
     );
   }
 
-  // ── 3. Temporary API / Network Error ──
+  // ── 3. Temporary API / Network Error: Never deindex a valid published URL on transient glitch ──
   if (isApiError || (error && !book)) {
+    const slugTopic = cleanSlug ? cleanSlug.replace(/[-_]/g, ' ') : '';
     return (
       <div
         className="min-h-screen flex flex-col items-center justify-center p-6 text-center"
@@ -208,8 +203,8 @@ export default function BookDetail() {
         dir={isRTL ? "rtl" : "ltr"}
       >
         <SEO
-          title={isRTL ? "عارضی رابطہ منقطع | مفتی فیضان سرور" : "Connection Issue | Mufti Faizan Sarwar"}
-          description={isRTL ? "کتاب لوڈ کرنے میں عارضی دشواری پیش آئی ہے۔ برائے مہربانی صفحہ دوبارہ لوڈ فرمائیں۔" : "A temporary network or server issue occurred while loading this book. Please retry."}
+          title={slugTopic ? `${slugTopic} | مفتی محمد فیضان سرور مصباحی` : (isRTL ? "کتاب و مطبوعہ | مفتی محمد فیضان سرور مصباحی" : "Publication | Mufti Faizan Sarwar")}
+          description={isRTL ? "مفتی محمد فیضان سرور مصباحی کی تصنیف و علمی مطالعہ۔" : "Islamic publication and book by Mufti Faizan Sarwar Misbahi."}
           canonical={`/publications/${cleanSlug}`}
           noindex={false}
         />

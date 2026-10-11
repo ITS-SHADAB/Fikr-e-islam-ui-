@@ -294,14 +294,23 @@ export default function QAList() {
                               </span>
                             )}
                             <span className="text-slate-300 select-none">|</span>
-                            <span className="inline-flex items-center gap-1 font-medium">
-                              <Calendar className="w-3.5 h-3.5 text-slate-400" />
-                              {new Date(q.answeredAt || q.createdAt).toLocaleDateString('ur-PK', {
-                                month: 'short',
-                                day: 'numeric',
-                                year: 'numeric',
-                              })}
-                            </span>
+                            {(() => {
+                              const rawDate = q.answeredAt || q.createdAt;
+                              const dt = rawDate ? new Date(rawDate) : null;
+                              const isValid = dt && !isNaN(dt.getTime());
+                              return (
+                                <span className="inline-flex items-center gap-1 font-medium">
+                                  <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                                  {isValid
+                                    ? dt.toLocaleDateString('ur-PK', {
+                                        month: 'short',
+                                        day: 'numeric',
+                                        year: 'numeric',
+                                      })
+                                    : '—'}
+                                </span>
+                              );
+                            })()}
                             <span className="text-slate-300 select-none">|</span>
                             <span
                               className="text-[11px] font-bold px-2.5 py-0.5 rounded-full text-slate-800"
@@ -324,7 +333,9 @@ export default function QAList() {
                               سوال
                             </span>
                             <h2 className="text-base sm:text-lg md:text-xl font-bold leading-relaxed font-['Noto_Nastaliq_Urdu'] text-slate-900 flex-1">
-                              {q.questionTitle}
+                              <Link to={`/qa/${q.slug}`} className="hover:text-amber-800 transition-colors">
+                                {q.questionTitle}
+                              </Link>
                             </h2>
                           </div>
 
@@ -354,9 +365,8 @@ export default function QAList() {
                           style={{ borderColor: `${COLORS.border}99` }}
                         >
                           {/* Left (RTL: right visually) — مزید پڑھیں */}
-                          <button
-                            type="button"
-                            onClick={() => navigate(`/qa/${q.slug}`)}
+                          <Link
+                            to={`/qa/${q.slug}`}
                             className="inline-flex items-center gap-1.5 text-xs font-bold rounded-full px-3 py-1.5 border transition-colors cursor-pointer"
                             style={{
                               color: COLORS.textSecondary,
@@ -366,7 +376,7 @@ export default function QAList() {
                           >
                             <ChevronDown className="w-3.5 h-3.5" />
                             مزید پڑھیں
-                          </button>
+                          </Link>
 
                           {/* Right (RTL: left visually) — دار الافتاء */}
                           <div className="flex items-center gap-1.5 text-[11px] text-slate-400 font-['Noto_Nastaliq_Urdu'] font-medium">

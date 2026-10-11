@@ -46,7 +46,7 @@ import {
   SectionLoader,
   SEO,
 } from "@/components";
-import { getWebSiteSchema, getPersonEntitySchema } from "@/utils/seoHelpers";
+import { getWebSiteSchema, getPersonEntitySchema, DEFAULT_AUTHOR_IMAGE } from "@/utils/seoHelpers";
 import SeamlessMobileSlider from "../components/SeamlessMobileSlider";
 import { FATWA_TRANSLATIONS, LECTURE_TRANSLATIONS } from "@/utils/categories";
 import AnimatedFeatureCard from "../components/AnimatedFeatureCard";
@@ -420,6 +420,7 @@ export default function Home() {
         title="مفتی محمد فیضان سرور مصباحی | باضابطہ ویب سائٹ"
         description="مفتی محمد فیضان سرور مصباحی کی باضابطہ ویب سائٹ - فقہی فتاویٰ، علمی مضامین، کتب و رسائل، سوال و جواب اور شرعی رہنمائی۔ Official website of Mufti Faizan Sarwar Misbahi."
         canonical="/"
+        image={DEFAULT_AUTHOR_IMAGE}
         schema={[getWebSiteSchema(), getPersonEntitySchema()]}
       />
       {/* 1. HERO BANNER CAROUSEL */}

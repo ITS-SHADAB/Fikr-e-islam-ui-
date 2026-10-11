@@ -30,6 +30,16 @@ export const cleanText = (str = '', maxLength = 160) => {
 };
 
 /**
+ * Safely parses and converts a date string or timestamp into an ISO 8601 string.
+ * Returns undefined on null, invalid, or unparseable dates to prevent RangeError during schema generation.
+ */
+export const safeIsoDate = (dateVal) => {
+  if (!dateVal) return undefined;
+  const d = new Date(dateVal);
+  return isNaN(d.getTime()) ? undefined : d.toISOString();
+};
+
+/**
  * Safely decodes a URL slug, handling both single and double percent-encoded Unicode strings
  */
 export const safeDecodeSlug = (str = '') => {
@@ -212,8 +222,10 @@ export const getArticleSchema = ({
     schema.image = DEFAULT_OG_IMAGE;
   }
 
-  if (publishDate) schema.datePublished = new Date(publishDate).toISOString();
-  if (updatedAt) schema.dateModified = new Date(updatedAt).toISOString();
+  const isoPub = safeIsoDate(publishDate);
+  if (isoPub) schema.datePublished = isoPub;
+  const isoMod = safeIsoDate(updatedAt);
+  if (isoMod) schema.dateModified = isoMod;
   if (category) schema.articleSection = category;
 
   return schema;
@@ -251,8 +263,10 @@ export const getFatwaSchema = ({
     image: DEFAULT_OG_IMAGE,
   };
 
-  if (publishDate) schema.datePublished = new Date(publishDate).toISOString();
-  if (updatedAt) schema.dateModified = new Date(updatedAt).toISOString();
+  const isoPub = safeIsoDate(publishDate);
+  if (isoPub) schema.datePublished = isoPub;
+  const isoMod = safeIsoDate(updatedAt);
+  if (isoMod) schema.dateModified = isoMod;
   if (category) schema.articleSection = category;
 
   return schema;
@@ -298,8 +312,10 @@ export const getBookSchema = ({
   if (pageCount && Number(pageCount) > 0) {
     schema.numberOfPages = Number(pageCount);
   }
-  if (publishDate) schema.datePublished = new Date(publishDate).toISOString();
-  if (updatedAt) schema.dateModified = new Date(updatedAt).toISOString();
+  const isoPub = safeIsoDate(publishDate);
+  if (isoPub) schema.datePublished = isoPub;
+  const isoMod = safeIsoDate(updatedAt);
+  if (isoMod) schema.dateModified = isoMod;
 
   return schema;
 };
@@ -330,7 +346,7 @@ export const getQASchema = ({
         ? {
             '@type': 'Answer',
             text: cleanA,
-            dateCreated: answeredAt ? new Date(answeredAt).toISOString() : undefined,
+            dateCreated: safeIsoDate(answeredAt),
             author: {
               '@type': 'Person',
               name: answeredByName || 'مفتی محمد فیضان سرور مصباحی',

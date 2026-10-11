@@ -200,12 +200,6 @@ export default function ArticleDetail() {
         className="min-h-screen flex items-center justify-center"
         style={{ backgroundColor: "#E8DFD2" }}
       >
-        <SEO
-          title={isRTL ? "مضمون لوڈ ہو رہا ہے... | مفتی فیضان سرور" : "Loading Article... | Mufti Faizan Sarwar"}
-          description={isRTL ? "مفتی فیضان سرور کے قلم سے مستند علمی و تحقیقی مضمون۔" : "Authentic Islamic research article by Mufti Faizan Sarwar."}
-          canonical={`/articles/${cleanSlug}`}
-          noindex={false}
-        />
         <Spinner size="lg" text="مضمون لوڈ ہو رہا ہے..." />
       </div>
     );
@@ -254,8 +248,9 @@ export default function ArticleDetail() {
     );
   }
 
-  /* ── 3. Temporary API / Network Error ── */
+  /* ── 3. Temporary API / Network Error: Never deindex a valid published URL on transient glitch ── */
   if (isApiError || (error && !article)) {
+    const slugTopic = cleanSlug ? cleanSlug.replace(/[-_]/g, ' ') : '';
     return (
       <div
         className="min-h-screen flex flex-col items-center justify-center p-6 text-center"
@@ -263,8 +258,8 @@ export default function ArticleDetail() {
         dir={isRTL ? "rtl" : "ltr"}
       >
         <SEO
-          title={isRTL ? "عارضی رابطہ منقطع | مفتی فیضان سرور" : "Connection Issue | Mufti Faizan Sarwar"}
-          description={isRTL ? "مضمون لوڈ کرنے میں عارضی دشواری پیش آئی ہے۔ برائے مہربانی صفحہ دوبارہ لوڈ فرمائیں۔" : "A temporary network or server issue occurred while loading this article. Please retry."}
+          title={slugTopic ? `${slugTopic} | مفتی محمد فیضان سرور مصباحی` : (isRTL ? "علمی مضمون | مفتی محمد فیضان سرور مصباحی" : "Islamic Article | Mufti Faizan Sarwar")}
+          description={isRTL ? "مفتی محمد فیضان سرور مصباحی کے قلم سے مستند تحقیقی مضمون۔" : "Authentic Islamic research article by Mufti Faizan Sarwar Misbahi."}
           canonical={`/articles/${cleanSlug}`}
           noindex={false}
         />

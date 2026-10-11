@@ -14,6 +14,13 @@ export default class ErrorBoundary extends Component {
 
   componentDidCatch(error, errorInfo) {
     console.error('ErrorBoundary caught an error:', error, errorInfo);
+    if (typeof document !== 'undefined') {
+      try {
+        // Remove stale structured data from a crashed component view
+        const jsonLd = document.getElementById('seo-jsonld');
+        if (jsonLd) jsonLd.remove();
+      } catch (e) {}
+    }
   }
 
   handleReload = () => {

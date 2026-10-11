@@ -106,12 +106,6 @@ export default function QADetail() {
         className="min-h-[70vh] py-16 flex items-center justify-center"
         style={{ backgroundColor: COLORS.background }}
       >
-        <SEO
-          title="سوال لوڈ ہو رہا ہے... | مفتی فیضان سرور"
-          description="مفتی فیضان سرور کی جانب سے شرعی سوال و جواب۔"
-          canonical={`/qa/${cleanSlug}`}
-          noindex={false}
-        />
         <Spinner size="lg" text="تفصیلات لوڈ ہو رہی ہیں..." />
       </div>
     );
@@ -153,8 +147,9 @@ export default function QADetail() {
     );
   }
 
-  // ── 3. Temporary API / Network Error ──
+  // ── 3. Temporary API / Network Error: Never deindex a valid published URL on transient glitch ──
   if (isApiError || (error && !question)) {
+    const slugTopic = cleanSlug ? cleanSlug.replace(/[-_]/g, ' ') : '';
     return (
       <div
         dir="rtl"
@@ -162,8 +157,8 @@ export default function QADetail() {
         style={{ backgroundColor: COLORS.background }}
       >
         <SEO
-          title="عارضی رابطہ منقطع | مفتی فیضان سرور"
-          description="سوال کی تفصیلات لوڈ کرنے میں عارضی دشواری پیش آئی ہے۔ برائے مہربانی دوبارہ کوشش فرمائیں۔"
+          title={slugTopic ? `${slugTopic} | مفتی محمد فیضان سرور مصباحی` : "شرعی سوال و جواب | مفتی محمد فیضان سرور مصباحی"}
+          description="مفتی محمد فیضان سرور مصباحی کی جانب سے شرعی سوال و جواب اور رہنمائی۔"
           canonical={`/qa/${cleanSlug}`}
           noindex={false}
         />

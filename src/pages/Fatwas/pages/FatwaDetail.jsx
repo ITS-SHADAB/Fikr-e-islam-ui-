@@ -138,12 +138,6 @@ export default function FatwaDetail() {
         className="min-h-screen flex items-center justify-center"
         style={{ backgroundColor: COLORS?.background }}
       >
-        <SEO
-          title={isRTL ? "فتویٰ لوڈ ہو رہا ہے... | مفتی فیضان سرور" : "Loading Fatwa... | Mufti Faizan Sarwar"}
-          description={isRTL ? "مفتی فیضان سرور کے قلم سے مستند فقہی فتویٰ و شرعی رہنمائی۔" : "Authentic Islamic fatwa and Shariah guidance by Mufti Faizan Sarwar."}
-          canonical={`/fatwas/${cleanSlug}`}
-          noindex={false}
-        />
         <Spinner size="lg" text="فتویٰ لوڈ ہو رہا ہے..." />
       </div>
     );
@@ -192,8 +186,9 @@ export default function FatwaDetail() {
     );
   }
 
-  // ── 3. TEMPORARY API / NETWORK ERROR: Do NOT emit noindex, allow Googlebot to re-crawl ──
+  // ── 3. TEMPORARY API / NETWORK ERROR: Never deindex a valid published URL on transient glitch ──
   if (isApiError || (error && !fatwa)) {
+    const slugTopic = cleanSlug ? cleanSlug.replace(/[-_]/g, ' ') : '';
     return (
       <div
         className="min-h-screen flex flex-col items-center justify-center p-6 text-center"
@@ -201,8 +196,8 @@ export default function FatwaDetail() {
         dir={isRTL ? "rtl" : "ltr"}
       >
         <SEO
-          title={isRTL ? "عارضی رابطہ منقطع | مفتی فیضان سرور" : "Connection Issue | Mufti Faizan Sarwar"}
-          description={isRTL ? "فتویٰ کی تفصیلات لوڈ کرنے میں عارضی دشواری پیش آئی ہے۔ برائے مہربانی صفحہ دوبارہ لوڈ فرمائیں۔" : "A temporary network or server issue occurred while loading this fatwa. Please retry."}
+          title={slugTopic ? `${slugTopic} | مفتی محمد فیضان سرور مصباحی` : (isRTL ? "شرعی فتویٰ | مفتی محمد فیضان سرور مصباحی" : "Islamic Fatwa | Mufti Faizan Sarwar")}
+          description={isRTL ? "مفتی محمد فیضان سرور مصباحی کے قلم سے مستند فقہی فتویٰ و شرعی رہنمائی۔" : "Authentic Islamic fatwa and Shariah guidance by Mufti Faizan Sarwar Misbahi."}
           canonical={`/fatwas/${cleanSlug}`}
           noindex={false}
         />
