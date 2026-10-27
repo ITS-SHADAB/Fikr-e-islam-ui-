@@ -18,6 +18,13 @@ import {
   updateArticle,
   deleteArticle,
 } from '@/services';
+import { useDispatch } from 'react-redux';
+import {
+  invalidateContentCache,
+  removeContentItem,
+  updateContentItem,
+} from '@/store/slices/contentSlice';
+import { broadcastContentChange } from '@/utils/contentSync';
 import { useSettings } from '@/hooks/useSettings';
 import { Input, PdfViewer, Table, ConfirmationBox } from '@/components';
 import { BACKEND_URL } from '@/constants/urls';
@@ -28,6 +35,7 @@ import {
 import { getUserFriendlyError } from '@/utils/errorHandler';
 
 export default function ManageArticles() {
+  const dispatch = useDispatch();
   const { settings } = useSettings();
   const [deleteTargetId, setDeleteTargetId] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -230,18 +238,65 @@ export default function ManageArticles() {
 
     try {
       if (editingId) {
-        await updateArticle(editingId, formData);
+        const res = await updateArticle(editingId, formData);
+        const updatedItem = res?.article || res?.updatedArticle || res;
+
+        // Invalidate Redux cache immediately across relevant content types
+        dispatch(
+          invalidateContentCache({
+            types: ['articles_list', 'articles_detail', 'content_counts', 'categories'],
+          })
+        );
+
+        // Optimistically / immediately update local articles table
+        if (updatedItem && (updatedItem._id || updatedItem.id)) {
+          setArticles((prev) =>
+            prev.map((item) =>
+              (item._id === editingId || item.id === editingId)
+                ? { ...item, ...updatedItem }
+                : item
+            )
+          );
+        }
+
+        // Notify other tabs in real-time
+        broadcastContentChange({
+          action: 'update',
+          contentType: 'article',
+          id: editingId,
+          item: updatedItem,
+          types: ['articles_list', 'articles_detail', 'content_counts', 'categories'],
+        });
+
         showSuccess(
           language === 'en'
             ? 'Article updated successfully.'
             : 'مضمون کامیابی سے اپ ڈیٹ ہو گیا۔'
         );
       } else {
-        await createArticle(formData);
+        const res = await createArticle(formData);
+        const newItem = res?.createdArticle || res?.article || res;
+
+        // Invalidate Redux cache immediately across relevant content types
+        dispatch(
+          invalidateContentCache({
+            types: ['articles_list', 'articles_detail', 'content_counts', 'categories'],
+          })
+        );
+
+        // Notify other tabs in real-time
+        broadcastContentChange({
+          action: 'create',
+          contentType: 'article',
+          item: newItem,
+          types: ['articles_list', 'articles_detail', 'content_counts', 'categories'],
+        });
+
         showSuccess(
           language === 'en'
             ? 'Article published successfully.'
-            : 'مضمون کامیابی سے شائع ہو گیا۔'
+            : 'مضمون کامیابی سے شائع ہو گیا۔',
+          1
         );
       }
     } catch (err) {
@@ -261,26 +316,67 @@ export default function ManageArticles() {
     const id = deleteTargetId;
     setShowDeleteModal(false);
     setActionError(null);
+
+    // Optimistic UI update: immediately remove from admin view and decrement total
+    const previousArticles = articles;
+    const previousTotal = total;
+    setArticles((prev) => prev.filter((item) => (item._id || item.id) !== id));
+    setTotal((prev) => Math.max(0, prev - 1));
+
     try {
       await deleteArticle(id);
+
+      // Invalidate Redux queries: purge detail, invalidate lists, categories & counts
+      dispatch(
+        invalidateContentCache({
+          types: ['articles_list', 'content_counts', 'categories'],
+        })
+      );
+      dispatch(
+        invalidateContentCache({
+          type: 'articles_detail',
+          purge: true,
+        })
+      );
+      dispatch(removeContentItem({ type: 'articles_list', id }));
+
+      // Notify other open tabs in real-time
+      broadcastContentChange({
+        action: 'delete',
+        contentType: 'article',
+        id,
+        types: ['articles_list', 'articles_detail', 'content_counts', 'categories'],
+      });
+
+      // Compute appropriate page if the deleted item was the only one on current page
+      const remainingOnPage = previousArticles.filter((item) => (item._id || item.id) !== id).length;
+      const targetPage = remainingOnPage === 0 && page > 1 ? page - 1 : page;
+      if (targetPage !== page) {
+        setPage(targetPage);
+      }
+
       showSuccess(
         language === 'en'
           ? 'Article deleted successfully.'
-          : 'مضمون کامیابی سے حذف کر دیا گیا۔'
+          : 'مضمون کامیابی سے حذف کر دیا گیا۔',
+        targetPage
       );
     } catch (err) {
+      // Rollback optimistic update on failure!
+      setArticles(previousArticles);
+      setTotal(previousTotal);
       setActionError(getUserFriendlyError(err, 'article', language === 'en' ? 'en' : 'ur').message);
     } finally {
       setDeleteTargetId(null);
     }
   };
 
-  const showSuccess = (msg) => {
+  const showSuccess = (msg, targetPage = page) => {
     setSuccess(true);
     setSuccessMsg(msg);
     setIsFormOpen(false);
     setEditingId(null);
-    loadArticles();
+    loadArticles(targetPage, selectedCategory, searchTerm);
     setTimeout(() => setSuccess(false), 3000);
   };
 
@@ -320,9 +416,8 @@ export default function ManageArticles() {
         {/* Success alert */}
         {success && (
           <div
-            className={`bg-emerald-50 border-r-4 border-emerald-500 p-4 flex items-start gap-2.5 text-emerald-800 text-xs shadow-sm border-2 border-emerald-200 ${
-              language === 'ur' ? 'text-right' : 'text-left'
-            }`}
+            className={`bg-emerald-50 border-r-4 border-emerald-500 p-4 flex items-start gap-2.5 text-emerald-800 text-xs shadow-sm border-2 border-emerald-200 ${language === 'ur' ? 'text-right' : 'text-left'
+              }`}
           >
             <CheckCircle className="w-5 h-5 text-emerald-600 shrink-0" />
             <span>{successMsg}</span>
@@ -794,8 +889,8 @@ export default function ManageArticles() {
                       <span className="font-light text-xs text-slate-600 text-right">
                         {article?.publishDate
                           ? new Date(article?.publishDate).toLocaleDateString(
-                              'ur-PK'
-                            )
+                            'ur-PK'
+                          )
                           : '—'}
                       </span>
                     ),

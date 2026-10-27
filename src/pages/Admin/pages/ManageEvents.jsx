@@ -491,17 +491,15 @@ export default function ManageEvents() {
 
   return (
     <div
-      className={`bg-background py-10 min-h-[80vh] ${
-        language === 'ur' ? 'text-right' : 'text-left'
-      }`}
+      className={`bg-background py-10 min-h-[80vh] ${language === 'ur' ? 'text-right' : 'text-left'
+        }`}
       dir={language === 'ur' ? 'rtl' : 'ltr'}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
         {/* Module Header */}
         <div
-          className={`flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-border/50 pb-5 ${
-            language === 'ur' ? 'text-right' : 'text-left'
-          }`}
+          className={`flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-border/50 pb-5 ${language === 'ur' ? 'text-right' : 'text-left'
+            }`}
         >
           <div className="flex items-center gap-3">
             <Link
@@ -539,9 +537,8 @@ export default function ManageEvents() {
         {/* Success alert */}
         {success && (
           <div
-            className={`bg-emerald-50 border-r-4 border-emerald-500 p-4 flex items-start gap-2.5 text-emerald-800 text-xs shadow-xs rounded-l ${
-              language === 'ur' ? 'text-right' : 'text-left'
-            }`}
+            className={`bg-emerald-50 border-r-4 border-emerald-500 p-4 flex items-start gap-2.5 text-emerald-800 text-xs shadow-xs rounded-l ${language === 'ur' ? 'text-right' : 'text-left'
+              }`}
           >
             <CheckCircle className="w-5 h-5 text-emerald-600 shrink-0" />
             <span className="font-medium">{successMsg}</span>
@@ -560,8 +557,8 @@ export default function ManageEvents() {
                       ? 'Edit Event Details'
                       : 'پروگرام کی تفصیلات میں ترمیم کریں'
                     : language === 'en'
-                    ? 'Add New Educational Event'
-                    : 'نیا تعلیمی پروگرام شامل کریں'}
+                      ? 'Add New Educational Event'
+                      : 'نیا تعلیمی پروگرام شامل کریں'}
                 </h2>
                 <p className="text-[11px] text-accent font-light mt-0.5">
                   {language === 'en'
@@ -582,9 +579,8 @@ export default function ManageEvents() {
               {/* Alert error */}
               {actionError && (
                 <div
-                  className={`bg-red-50 border-r-4 border-red-500 p-4 flex items-start gap-2 text-red-700 text-xs shrink-0 rounded-l ${
-                    language === 'ur' ? 'text-right' : 'text-left'
-                  }`}
+                  className={`bg-red-50 border-r-4 border-red-500 p-4 flex items-start gap-2 text-red-700 text-xs shrink-0 rounded-l ${language === 'ur' ? 'text-right' : 'text-left'
+                    }`}
                 >
                   <AlertTriangle className="w-4.5 h-4.5 shrink-0 text-red-600" />
                   <span>{actionError}</span>
@@ -624,11 +620,9 @@ export default function ManageEvents() {
                         ? 'e.g. Halal Investment Workshop Seminar'
                         : 'مثال: حلال سرمایہ کاری ورکشاپ سیمینار'
                     }
-                    inputClassName={`w-full px-3 py-2 text-sm bg-slate-50 border ${
-                      fieldErrors.title ? 'border-red-400 bg-red-50/20' : 'border-border'
-                    } rounded outline-none focus:border-accent focus:bg-white transition-all ${
-                      language === 'ur' ? 'text-right' : 'text-left'
-                    }`}
+                    inputClassName={`w-full px-3 py-2 text-sm bg-slate-50 border ${fieldErrors.title ? 'border-red-400 bg-red-50/20' : 'border-border'
+                      } rounded outline-none focus:border-accent focus:bg-white transition-all ${language === 'ur' ? 'text-right' : 'text-left'
+                      }`}
                     border=""
                   />
                   {fieldErrors.title && (
@@ -660,13 +654,11 @@ export default function ManageEvents() {
                         ? 'Provide detailed information about the schedule, agenda, speakers, registration requirements, etc...'
                         : 'اجتماع کے موضوعات، اہم مقررین، اوقات کار اور رجسٹریشن کی شرائط وغیرہ کے بارے میں تفصیلی معلومات درج کریں...'
                     }
-                    className={`w-full px-3 py-2 text-sm bg-slate-50 border ${
-                      fieldErrors.description
+                    className={`w-full px-3 py-2 text-sm bg-slate-50 border ${fieldErrors.description
                         ? 'border-red-400 bg-red-50/20'
                         : 'border-border'
-                    } rounded outline-none focus:border-accent focus:bg-white transition-all resize-y ${
-                      language === 'ur' ? 'text-right' : 'text-left'
-                    }`}
+                      } rounded outline-none focus:border-accent focus:bg-white transition-all resize-y ${language === 'ur' ? 'text-right' : 'text-left'
+                      }`}
                   ></textarea>
                   {fieldErrors.description && (
                     <p className="text-[11px] text-red-600 mt-1 font-medium">
@@ -700,13 +692,11 @@ export default function ManageEvents() {
                       value={formFields.eventDate}
                       onChange={handleInputChange}
                       required
-                      inputClassName={`w-full px-3 py-2 text-sm bg-slate-50 border ${
-                        fieldErrors.eventDate
+                      inputClassName={`w-full px-3 py-2 text-sm bg-slate-50 border ${fieldErrors.eventDate
                           ? 'border-red-400 bg-red-50/20'
                           : 'border-border'
-                      } rounded outline-none text-slate-700 focus:border-accent focus:bg-white transition-all ${
-                        language === 'ur' ? 'text-right' : 'text-left'
-                      }`}
+                        } rounded outline-none text-slate-700 focus:border-accent focus:bg-white transition-all ${language === 'ur' ? 'text-right' : 'text-left'
+                        }`}
                       border=""
                     />
                     {fieldErrors.eventDate && (
@@ -733,13 +723,11 @@ export default function ManageEvents() {
                           ? 'e.g. Masjid Noor, Seminar Hall A, Aurangabad'
                           : 'مثال: جامع مسجد نور، کانفرنس ہال، اورنگ آباد'
                       }
-                      inputClassName={`w-full px-3 py-2 text-sm bg-slate-50 border ${
-                        fieldErrors.location
+                      inputClassName={`w-full px-3 py-2 text-sm bg-slate-50 border ${fieldErrors.location
                           ? 'border-red-400 bg-red-50/20'
                           : 'border-border'
-                      } rounded outline-none focus:border-accent focus:bg-white transition-all ${
-                        language === 'ur' ? 'text-right' : 'text-left'
-                      }`}
+                        } rounded outline-none focus:border-accent focus:bg-white transition-all ${language === 'ur' ? 'text-right' : 'text-left'
+                        }`}
                       border=""
                     />
                     {fieldErrors.location && (
@@ -785,13 +773,11 @@ export default function ManageEvents() {
                       value={formFields.latitude}
                       onChange={handleInputChange}
                       placeholder="e.g. 24.7538"
-                      inputClassName={`w-full px-3 py-2 text-sm bg-slate-50 border ${
-                        fieldErrors.latitude
+                      inputClassName={`w-full px-3 py-2 text-sm bg-slate-50 border ${fieldErrors.latitude
                           ? 'border-red-400 bg-red-50/20'
                           : 'border-border'
-                      } rounded outline-none focus:border-accent focus:bg-white transition-all ${
-                        language === 'ur' ? 'text-right' : 'text-left'
-                      }`}
+                        } rounded outline-none focus:border-accent focus:bg-white transition-all ${language === 'ur' ? 'text-right' : 'text-left'
+                        }`}
                       border=""
                     />
                     {fieldErrors.latitude ? (
@@ -817,13 +803,11 @@ export default function ManageEvents() {
                       value={formFields.longitude}
                       onChange={handleInputChange}
                       placeholder="e.g. 84.3725"
-                      inputClassName={`w-full px-3 py-2 text-sm bg-slate-50 border ${
-                        fieldErrors.longitude
+                      inputClassName={`w-full px-3 py-2 text-sm bg-slate-50 border ${fieldErrors.longitude
                           ? 'border-red-400 bg-red-50/20'
                           : 'border-border'
-                      } rounded outline-none focus:border-accent focus:bg-white transition-all ${
-                        language === 'ur' ? 'text-right' : 'text-left'
-                      }`}
+                        } rounded outline-none focus:border-accent focus:bg-white transition-all ${language === 'ur' ? 'text-right' : 'text-left'
+                        }`}
                       border=""
                     />
                     {fieldErrors.longitude ? (
@@ -934,13 +918,12 @@ export default function ManageEvents() {
                     onDragLeave={handleDragLeave}
                     onDrop={handleDrop}
                     onClick={() => fileInputRef.current?.click()}
-                    className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-all ${
-                      isDragging
+                    className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-all ${isDragging
                         ? 'border-accent bg-accent/10 scale-[1.01]'
                         : fieldErrors.posterImage
-                        ? 'border-red-400 bg-red-50/20 hover:border-red-500'
-                        : 'border-border/80 bg-slate-50/60 hover:border-accent hover:bg-accent/5'
-                    }`}
+                          ? 'border-red-400 bg-red-50/20 hover:border-red-500'
+                          : 'border-border/80 bg-slate-50/60 hover:border-accent hover:bg-accent/5'
+                      }`}
                   >
                     <div className="w-12 h-12 rounded-full bg-accent/10 text-accent flex items-center justify-center mx-auto mb-3">
                       <UploadCloud className="w-6 h-6" />
@@ -1000,8 +983,8 @@ export default function ManageEvents() {
                             ? 'Update Event'
                             : 'پروگرام اپ ڈیٹ کریں'
                           : language === 'en'
-                          ? 'Create Event'
-                          : 'پروگرام محفوظ کریں'}
+                            ? 'Create Event'
+                            : 'پروگرام محفوظ کریں'}
                       </span>
                     </>
                   )}
@@ -1053,9 +1036,8 @@ export default function ManageEvents() {
                           </button>
                         ) : null}
                         <div
-                          className={`w-12 h-14 rounded border border-border/40 bg-slate-100 items-center justify-center shrink-0 text-slate-400 ${
-                            posterUrl ? 'hidden' : 'flex'
-                          }`}
+                          className={`w-12 h-14 rounded border border-border/40 bg-slate-100 items-center justify-center shrink-0 text-slate-400 ${posterUrl ? 'hidden' : 'flex'
+                            }`}
                         >
                           <ImageIcon className="w-5 h-5" />
                         </div>

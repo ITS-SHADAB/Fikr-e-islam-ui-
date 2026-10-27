@@ -34,6 +34,7 @@ const ArticlesList = lazyWithRetry(() => import('../pages/Articles/pages/Article
 const ArticleDetail = lazyWithRetry(() => import('../pages/Articles/pages/ArticleDetail'));
 const FatwasList = lazyWithRetry(() => import('../pages/Fatwas/pages/FatwasList'));
 const FatwaDetail = lazyWithRetry(() => import('../pages/Fatwas/pages/FatwaDetail'));
+const ShortUrlRedirect = lazyWithRetry(() => import('../pages/ShortUrlRedirect/ShortUrlRedirect'));
 const AskQuestion = lazyWithRetry(() => import('../pages/AskQuestion/pages/AskQuestion'));
 const QAList = lazyWithRetry(() => import('../pages/QuestionsAnswers/pages/QAList'));
 const QADetail = lazyWithRetry(() => import('../pages/QuestionsAnswers/pages/QADetail'));
@@ -81,6 +82,10 @@ export default function AppRoutes() {
             <Route path="fatwas" element={<FatwasList />} />
             <Route path="fatwas/slug/:slug" element={<RedirectWithSlug toPrefix="/fatwas" />} />
             <Route path="fatwas/:slug" element={<FatwaDetail />} />
+
+            {/* ── Short Share URL Routes (/f/:code and /a/:code) ── */}
+            <Route path="f/:code" element={<ShortUrlRedirect type="fatwa" />} />
+            <Route path="a/:code" element={<ShortUrlRedirect type="article" />} />
 
             <Route path="ask" element={<AskQuestion />} />
             <Route path="qa" element={<QAList />} />

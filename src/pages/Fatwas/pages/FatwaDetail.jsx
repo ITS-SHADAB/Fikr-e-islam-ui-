@@ -39,6 +39,14 @@ import {
 } from "../components/FatwaDetailDecorativeAssets";
 import FatwaQuestionCard from "../components/FatwaQuestionCard";
 import FatwaSummaryCard from "../components/FatwaSummaryCard";
+import {
+  getShareUrl,
+  getWhatsAppShareUrl,
+  getTwitterShareUrl,
+  triggerNativeShare,
+  canNativeShare,
+  copyToClipboard,
+} from "@/utils/shareHelpers";
 
 // ═════════════════════════════════════════════════════════════════════
 // Exact Palette for the 3 Image 2 Target Cards
@@ -108,27 +116,31 @@ export default function FatwaDetail() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [cleanSlug]);
 
-  const shareUrl = typeof window !== "undefined" ? window?.location?.href : "";
+  const shareUrl = getShareUrl("fatwa", fatwa);
 
   const handleShare = (platform) => {
-    const urls = {
-      whatsapp: `https://api.whatsapp.com/send?text=${encodeURIComponent(
-        (fatwa?.title || "") + " - " + shareUrl
-      )}`,
-      twitter: `https://twitter.com/intent/tweet?url=${encodeURIComponent(
-        shareUrl
-      )}&text=${encodeURIComponent(fatwa?.title || "")}`,
-    };
-    if (urls[platform]) {
-      window.open(urls[platform], "_blank", "width=600,height=400");
+    if (platform === "whatsapp") {
+      const url = getWhatsAppShareUrl(fatwa?.title, shareUrl, "fatwa");
+      window.open(url, "_blank", "width=600,height=400");
+    } else if (platform === "twitter") {
+      const url = getTwitterShareUrl(fatwa?.title, shareUrl);
+      window.open(url, "_blank", "width=600,height=400");
+    } else if (platform === "native") {
+      triggerNativeShare({
+        title: fatwa?.title || "فتویٰ",
+        text: fatwa?.title || "",
+        url: shareUrl,
+      });
     }
   };
 
-  const copyLink = () => {
-    navigator?.clipboard?.writeText(shareUrl);
-    setCopied(true);
-    toast.success(isRTL ? "لنک کاپی ہو گیا!" : "Link copied!");
-    setTimeout(() => setCopied(false), 2000);
+  const copyLink = async () => {
+    const success = await copyToClipboard(shareUrl);
+    if (success) {
+      setCopied(true);
+      toast.success(isRTL ? "لنک کاپی ہو گیا!" : "Link copied!");
+      setTimeout(() => setCopied(false), 2000);
+    }
   };
 
   // ── 1. LOADING STATE: Keep page indexable & declare self-canonical ──
@@ -487,6 +499,24 @@ export default function FatwaDetail() {
                 {isRTL ? "واٹس ایپ" : "WhatsApp"}
               </span>
             </button>
+
+            {canNativeShare() && (
+              <button
+                onClick={() => handleShare("native")}
+                className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl border cursor-pointer hover:bg-white transition-colors"
+                style={{
+                  borderColor: COLORS?.border,
+                  color: COLORS?.textSecondary,
+                  backgroundColor: "rgba(255,255,255,0.7)",
+                }}
+                title={isRTL ? "شیئر کریں" : "Share"}
+              >
+                <Share2 className="w-3.5 h-3.5 text-[#A8793E]" />
+                <span className="font-['Payami_Nastaleeq',serif]">
+                  {isRTL ? "شیئر" : "Share"}
+                </span>
+              </button>
+            )}
 
             <button
               onClick={handleDownloadPdf}

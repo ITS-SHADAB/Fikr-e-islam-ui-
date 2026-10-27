@@ -74,3 +74,14 @@ export const deleteArticle = async (id) => {
     throw error;
   }
 };
+
+export const getArticleByShortCode = async (code) => {
+  try {
+    const response = await API.get(`${ARTICLES}/short/${encodeURIComponent(code)}`);
+    return response.data;
+  } catch (error) {
+    console.error("Get Article By Short Code Error:", error);
+    throw error;
+  }
+};
+

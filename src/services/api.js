@@ -25,6 +25,12 @@ API.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
 
+    // Ensure browsers and proxies do not serve stale cached GET responses
+    if (config.method?.toLowerCase() === "get") {
+      config.headers["Cache-Control"] = "no-cache";
+      config.headers["Pragma"] = "no-cache";
+    }
+
     return config;
   },
   (error) => Promise.reject(error)

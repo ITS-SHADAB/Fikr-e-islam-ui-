@@ -16,6 +16,13 @@ import {
   Upload,
   X,
 } from 'lucide-react';
+import { useDispatch } from 'react-redux';
+import {
+  invalidateContentCache,
+  removeContentItem,
+  updateContentItem,
+} from '@/store/slices/contentSlice';
+import { broadcastContentChange } from '@/utils/contentSync';
 import { getFatwas, createFatwa, updateFatwa, deleteFatwa } from '@/services';
 import { Table, ConfirmationBox, PdfViewer } from '@/components';
 import { FATWA_CATEGORIES, FATWA_TRANSLATIONS } from '@/utils/categories';
@@ -23,6 +30,7 @@ import { COLORS } from '@/utils/themeColors';
 import { getUserFriendlyError } from '@/utils/errorHandler';
 
 export default function ManageFatwas() {
+  const dispatch = useDispatch();
   const [deleteTargetId, setDeleteTargetId] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [fatwas, setFatwas] = useState([]);
@@ -207,11 +215,57 @@ export default function ManageFatwas() {
       }
 
       if (editingId) {
-        await updateFatwa(editingId, formData);
+        const res = await updateFatwa(editingId, formData);
+        const updatedItem = res?.fatwa || res?.updatedFatwa || res;
+
+        // Invalidate Redux cache immediately across relevant content types
+        dispatch(
+          invalidateContentCache({
+            types: ['fatwas_list', 'fatwas_detail', 'content_counts', 'categories'],
+          })
+        );
+
+        // Optimistically / immediately update local fatwas table
+        if (updatedItem && (updatedItem._id || updatedItem.id)) {
+          setFatwas((prev) =>
+            prev.map((item) =>
+              (item._id === editingId || item.id === editingId)
+                ? { ...item, ...updatedItem }
+                : item
+            )
+          );
+        }
+
+        // Notify other tabs in real-time
+        broadcastContentChange({
+          action: 'update',
+          contentType: 'fatwa',
+          id: editingId,
+          item: updatedItem,
+          types: ['fatwas_list', 'fatwas_detail', 'content_counts', 'categories'],
+        });
+
         showSuccess('فتویٰ کامیابی کے ساتھ اپ ڈیٹ ہو گیا۔');
       } else {
-        await createFatwa(formData);
-        showSuccess('نیا فتویٰ کامیابی کے ساتھ شائع ہو گیا۔');
+        const res = await createFatwa(formData);
+        const newItem = res?.createdFatwa || res?.fatwa || res;
+
+        // Invalidate Redux cache immediately across relevant content types
+        dispatch(
+          invalidateContentCache({
+            types: ['fatwas_list', 'fatwas_detail', 'content_counts', 'categories'],
+          })
+        );
+
+        // Notify other tabs in real-time
+        broadcastContentChange({
+          action: 'create',
+          contentType: 'fatwa',
+          item: newItem,
+          types: ['fatwas_list', 'fatwas_detail', 'content_counts', 'categories'],
+        });
+
+        showSuccess('نیا فتویٰ کامیابی کے ساتھ شائع ہو گیا۔', 1);
       }
     } catch (err) {
       setActionError(getUserFriendlyError(err, 'fatwa', 'ur').message);
@@ -230,22 +284,62 @@ export default function ManageFatwas() {
     const id = deleteTargetId;
     setShowDeleteModal(false);
     setActionError(null);
+
+    // Optimistic UI update: immediately remove from admin view and decrement total
+    const previousFatwas = fatwas;
+    const previousTotal = total;
+    setFatwas((prev) => prev.filter((item) => (item._id || item.id) !== id));
+    setTotal((prev) => Math.max(0, prev - 1));
+
     try {
       await deleteFatwa(id);
-      showSuccess('فتویٰ کامیابی کے ساتھ حذف کر دیا گیا۔');
+
+      // Invalidate Redux queries: purge detail, invalidate lists, categories & counts
+      dispatch(
+        invalidateContentCache({
+          types: ['fatwas_list', 'content_counts', 'categories'],
+        })
+      );
+      dispatch(
+        invalidateContentCache({
+          type: 'fatwas_detail',
+          purge: true,
+        })
+      );
+      dispatch(removeContentItem({ type: 'fatwas_list', id }));
+
+      // Notify other open tabs in real-time
+      broadcastContentChange({
+        action: 'delete',
+        contentType: 'fatwa',
+        id,
+        types: ['fatwas_list', 'fatwas_detail', 'content_counts', 'categories'],
+      });
+
+      // Compute appropriate page if the deleted item was the only one on current page
+      const remainingOnPage = previousFatwas.filter((item) => (item._id || item.id) !== id).length;
+      const targetPage = remainingOnPage === 0 && page > 1 ? page - 1 : page;
+      if (targetPage !== page) {
+        setPage(targetPage);
+      }
+
+      showSuccess('فتویٰ کامیابی کے ساتھ حذف کر دیا گیا۔', targetPage);
     } catch (err) {
+      // Rollback optimistic update on failure!
+      setFatwas(previousFatwas);
+      setTotal(previousTotal);
       setActionError(getUserFriendlyError(err, 'fatwa', 'ur').message);
     } finally {
       setDeleteTargetId(null);
     }
   };
 
-  const showSuccess = (msg) => {
+  const showSuccess = (msg, targetPage = page) => {
     setSuccess(true);
     setSuccessMsg(msg);
     setIsFormOpen(false);
     setEditingId(null);
-    loadFatwas(page, selectedCategory, searchTerm);
+    loadFatwas(targetPage, selectedCategory, searchTerm);
     setTimeout(() => setSuccess(false), 3500);
   };
 
@@ -523,8 +617,8 @@ export default function ManageFatwas() {
                       {pdfFile
                         ? `منتخب شدہ: ${pdfFile.name}`
                         : existingPdfUrl
-                        ? 'موجودہ PDF تبدیل کرنے کے لیے یہاں کلک کریں'
-                        : 'PDF فائل اپ لوڈ کرنے کے لیے کلک کریں'}
+                          ? 'موجودہ PDF تبدیل کرنے کے لیے یہاں کلک کریں'
+                          : 'PDF فائل اپ لوڈ کرنے کے لیے کلک کریں'}
                     </span>
                     <span
                       className="text-[11px]"
@@ -688,8 +782,8 @@ export default function ManageFatwas() {
                       <span className="text-[11px] font-medium whitespace-nowrap text-slate-600">
                         {fatwa?.publishDate
                           ? new Date(fatwa?.publishDate).toLocaleDateString(
-                              'ur-PK'
-                            )
+                            'ur-PK'
+                          )
                           : '—'}
                       </span>
                     ),

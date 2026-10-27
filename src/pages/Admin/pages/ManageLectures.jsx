@@ -5,10 +5,17 @@ import { getLectures, createLecture, updateLecture, deleteLecture } from '@/serv
 import { useSettings } from '@/hooks/useSettings';
 import { Input, Table, ConfirmationBox } from '@/components';
 
+import { useDispatch } from 'react-redux';
+import {
+  invalidateContentCache,
+  removeContentItem,
+} from '@/store/slices/contentSlice';
+import { broadcastContentChange } from '@/utils/contentSync';
 import { CATEGORY_MAP, LECTURE_TRANSLATIONS } from '@/utils/categories';
 import { getUserFriendlyError } from '@/utils/errorHandler';
 
 export default function ManageLectures() {
+  const dispatch = useDispatch();
   const { settings } = useSettings();
   const [deleteTargetId, setDeleteTargetId] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -93,9 +100,30 @@ export default function ManageLectures() {
     try {
       if (editingId) {
         await updateLecture(editingId, formFields);
+        dispatch(
+          invalidateContentCache({
+            types: ['lectures_list', 'content_counts'],
+          })
+        );
+        broadcastContentChange({
+          action: 'update',
+          contentType: 'lecture',
+          id: editingId,
+          types: ['lectures_list', 'content_counts'],
+        });
         showSuccess(language === 'en' ? 'Lecture updated successfully.' : 'بیان کامیابی سے اپ ڈیٹ ہو گیا۔');
       } else {
         await createLecture(formFields);
+        dispatch(
+          invalidateContentCache({
+            types: ['lectures_list', 'content_counts'],
+          })
+        );
+        broadcastContentChange({
+          action: 'create',
+          contentType: 'lecture',
+          types: ['lectures_list', 'content_counts'],
+        });
         showSuccess(language === 'en' ? 'Lecture added successfully.' : 'بیان کامیابی سے شامل ہو گیا۔');
       }
     } catch (err) {
@@ -117,6 +145,18 @@ export default function ManageLectures() {
     setActionError(null);
     try {
       await deleteLecture(id);
+      dispatch(
+        invalidateContentCache({
+          types: ['lectures_list', 'content_counts'],
+        })
+      );
+      dispatch(removeContentItem({ type: 'lectures_list', id }));
+      broadcastContentChange({
+        action: 'delete',
+        contentType: 'lecture',
+        id,
+        types: ['lectures_list', 'content_counts'],
+      });
       showSuccess(language === 'en' ? 'Lecture deleted successfully.' : 'بیان کامیابی سے حذف کر دیا گیا۔');
     } catch (err) {
       setActionError(getUserFriendlyError(err, 'lecture', language === 'en' ? 'en' : 'ur').message);
@@ -124,8 +164,6 @@ export default function ManageLectures() {
       setDeleteTargetId(null);
     }
   };
-
-
 
   const showSuccess = (msg) => {
     setSuccess(true);

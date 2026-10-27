@@ -20,6 +20,7 @@ import { FaWhatsapp } from "react-icons/fa";
 import { toast } from "react-hot-toast";
 import { useSettings } from "@/hooks/useSettings";
 import { FATWA_CATEGORY_TRANSLATIONS } from "@/utils/categories";
+import { getShareUrl, copyToClipboard, triggerNativeShare } from "@/utils/shareHelpers";
 
 export default function FatwaCard({ fatwa }) {
   const { settings } = useSettings();
@@ -49,6 +50,8 @@ export default function FatwaCard({ fatwa }) {
   const publishDate = fatwa?.publishDate;
   const viewCount = fatwa?.viewCount || 0;
   const tags = Array.isArray(fatwa?.tags) ? fatwa.tags : [];
+  const fatwaIdentifier = slug || fatwa?._id || "";
+  const detailUrl = fatwaIdentifier ? `/fatwas/${fatwaIdentifier}` : "/fatwas";
 
   const categoryLabel =
     FATWA_CATEGORY_TRANSLATIONS?.[category] ||
@@ -72,11 +75,7 @@ export default function FatwaCard({ fatwa }) {
 
   const questionPreview = question || "";
 
-  const fatwaIdentifier = slug || fatwa?._id || "";
-  const fullShareUrl =
-    typeof window !== "undefined" && window?.location?.origin
-      ? `${window.location.origin}/fatwas/${fatwaIdentifier}`
-      : `https://muftifaizansarwar.in/fatwas/${fatwaIdentifier}`;
+  const fullShareUrl = getShareUrl("fatwa", fatwa);
 
   const handleWhatsAppShare = (e) => {
     e?.preventDefault();
@@ -91,38 +90,14 @@ export default function FatwaCard({ fatwa }) {
     window.open(whatsappUrl, "_blank", "noopener,noreferrer");
   };
 
-  const handleCopyLink = (e) => {
+  const handleCopyLink = async (e) => {
     e?.preventDefault();
     e?.stopPropagation();
 
-    let copied = false;
-    if (navigator?.clipboard?.writeText) {
-      try {
-        navigator.clipboard.writeText(fullShareUrl);
-        copied = true;
-      } catch {
-        copied = false;
-      }
+    const copied = await copyToClipboard(fullShareUrl);
+    if (copied) {
+      toast.success(isRTL ? "لنک کاپی ہو گیا!" : "Link copied!");
     }
-
-    if (!copied) {
-      try {
-        const textArea = document.createElement("textarea");
-        textArea.value = fullShareUrl;
-        textArea.style.position = "fixed";
-        textArea.style.top = "-9999px";
-        textArea.style.left = "-9999px";
-        document.body.appendChild(textArea);
-        textArea.focus();
-        textArea.select();
-        copied = document.execCommand("copy");
-        document.body.removeChild(textArea);
-      } catch (err) {
-        console.error("Fallback copy failed", err);
-      }
-    }
-
-    toast.success(isRTL ? "لنک کاپی ہو گیا!" : "Link copied!");
     setShowShareModal(false);
   };
 
@@ -130,17 +105,11 @@ export default function FatwaCard({ fatwa }) {
     e?.preventDefault();
     e?.stopPropagation();
     setShowShareModal(false);
-    if (typeof navigator !== "undefined" && navigator.share) {
-      try {
-        await navigator.share({
-          title: title,
-          text: title,
-          url: fullShareUrl,
-        });
-      } catch {
-        // User cancelled share dialog
-      }
-    }
+    await triggerNativeShare({
+      title: title || "فتویٰ",
+      text: title || "",
+      url: fullShareUrl,
+    });
   };
 
   const handleBookmark = (e) => {
@@ -290,7 +259,7 @@ export default function FatwaCard({ fatwa }) {
 
           {/* Urdu Summary Text (Clickable to Fatwa Detail) */}
           <Link
-            to={`/fatwas/${slug}`}
+            to={detailUrl}
             className="block group/summary cursor-pointer"
             title={isRTL ? "مکمل فتویٰ پڑھیں" : "Read Full Fatwa"}
           >

@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
-import { Calendar, Eye, Clock, Tag, BookOpen, FileText } from "lucide-react";
+import { Calendar, Eye, Clock, Tag, BookOpen, FileText, Share2 } from "lucide-react";
+import { toast } from "react-hot-toast";
 import { COLORS } from "@/utils/themeColors";
 import { BACKEND_URL } from "@/constants/urls";
 import { ARTICLE_CATEGORY_TRANSLATIONS } from "@/utils/categories";
 import { PdfViewer } from "../PdfViewer";
+import { getShareUrl, triggerNativeShare, copyToClipboard } from "@/utils/shareHelpers";
 
 // Estimated reading time based on summary length
 const getReadingTime = (text = "") => {
@@ -21,6 +23,21 @@ export default function ArticleCard({ article }) {
   if (!article) return null;
 
   const detailUrl = `/articles/${article?.slug || article?._id}`;
+
+  const handleCardShare = async (e) => {
+    e?.preventDefault();
+    e?.stopPropagation();
+    const shareUrl = getShareUrl("article", article);
+    const shared = await triggerNativeShare({
+      title: article?.title || "مضمون",
+      text: article?.title || "",
+      url: shareUrl,
+    });
+    if (!shared) {
+      const copied = await copyToClipboard(shareUrl);
+      if (copied) toast.success("لنک کاپی ہو گیا!");
+    }
+  };
 
   const formattedDate = article?.publishDate
     ? new Date(article?.publishDate).toLocaleDateString("ur-PK", {
@@ -224,6 +241,19 @@ export default function ArticleCard({ article }) {
                   PDF
                 </button>
               )}
+              <button
+                type="button"
+                onClick={handleCardShare}
+                className="text-[10px] font-bold p-1.5 rounded-lg border transition-colors cursor-pointer hover:bg-white"
+                style={{
+                  borderColor: COLORS?.border,
+                  color: COLORS?.textSecondary,
+                  backgroundColor: COLORS?.background,
+                }}
+                title="شیئر کریں"
+              >
+                <Share2 className="w-3.5 h-3.5" />
+              </button>
               <Link
                 to={detailUrl}
                 className="text-[11px] font-bold px-3 py-1.5 rounded-lg text-white transition-opacity hover:opacity-90"

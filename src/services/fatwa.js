@@ -66,3 +66,14 @@ export const deleteFatwa = async (id) => {
     throw error;
   }
 };
+
+export const getFatwaByShortCode = async (code) => {
+  try {
+    const response = await API.get(`${FATWAS}/short/${encodeURIComponent(code)}`);
+    return response.data;
+  } catch (error) {
+    console.error("Get Fatwa By Short Code Error:", error);
+    throw error;
+  }
+};
+

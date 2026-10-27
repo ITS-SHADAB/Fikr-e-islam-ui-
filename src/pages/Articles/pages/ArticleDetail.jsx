@@ -42,6 +42,14 @@ import {
   IslamicGeometricWatermark,
 } from "@/pages/Fatwas/components/FatwaDetailDecorativeAssets";
 import TalaqSeriesNavigator from "../components/TalaqSeriesNavigator";
+import {
+  getShareUrl,
+  getWhatsAppShareUrl,
+  getTwitterShareUrl,
+  triggerNativeShare,
+  canNativeShare,
+  copyToClipboard,
+} from "@/utils/shareHelpers";
 
 // ═════════════════════════════════════════════════════════════════════
 // Exact Palette from Fatwa Detail / Design System
@@ -109,26 +117,31 @@ export default function ArticleDetail() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [cleanSlug]);
 
-  const shareUrl = typeof window !== "undefined" ? window?.location?.href : "";
+  const shareUrl = getShareUrl("article", article);
 
   const handleShare = (platform) => {
-    const urls = {
-      whatsapp: `https://api.whatsapp.com/send?text=${encodeURIComponent(
-        (article?.title || "") + " - " + shareUrl
-      )}`,
-      twitter: `https://twitter.com/intent/tweet?url=${encodeURIComponent(
-        shareUrl
-      )}&text=${encodeURIComponent(article?.title || "")}`,
-    };
-    if (urls[platform])
-      window.open(urls[platform], "_blank", "width=600,height=400");
+    if (platform === "whatsapp") {
+      const url = getWhatsAppShareUrl(article?.title, shareUrl, "article");
+      window.open(url, "_blank", "width=600,height=400");
+    } else if (platform === "twitter") {
+      const url = getTwitterShareUrl(article?.title, shareUrl);
+      window.open(url, "_blank", "width=600,height=400");
+    } else if (platform === "native") {
+      triggerNativeShare({
+        title: article?.title || "مضمون",
+        text: article?.title || "",
+        url: shareUrl,
+      });
+    }
   };
 
-  const copyLink = () => {
-    navigator?.clipboard?.writeText(shareUrl);
-    setCopied(true);
-    toast.success(isRTL ? "لنک کاپی ہو گیا!" : "Link copied!");
-    setTimeout(() => setCopied(false), 2000);
+  const copyLink = async () => {
+    const success = await copyToClipboard(shareUrl);
+    if (success) {
+      setCopied(true);
+      toast.success(isRTL ? "لنک کاپی ہو گیا!" : "Link copied!");
+      setTimeout(() => setCopied(false), 2000);
+    }
   };
 
   // Trigger PDF download with clean sanitized filename
@@ -531,6 +544,23 @@ export default function ArticleDetail() {
               <FaWhatsapp className="w-4 h-4 text-white" />
               <span>{isRTL ? "واٹس ایپ پر شیئر کریں" : "Share on WhatsApp"}</span>
             </button>
+
+            {/* Native Web Share */}
+            {canNativeShare() && (
+              <button
+                onClick={() => handleShare("native")}
+                className="flex items-center gap-1.5 text-xs sm:text-sm font-semibold font-['Payami_Nastaleeq',serif] px-3.5 py-2.5 rounded-xl border cursor-pointer hover:bg-white transition-colors shadow-xs"
+                style={{
+                  borderColor: THEME.secondaryBorder,
+                  color: THEME.textMuted,
+                  backgroundColor: THEME.cardBg,
+                }}
+                title={isRTL ? "شیئر کریں" : "Share"}
+              >
+                <Share2 className="w-4 h-4 text-[#A8793E]" />
+                <span>{isRTL ? "شیئر کریں" : "Share"}</span>
+              </button>
+            )}
 
             {/* Print */}
             <button

@@ -5,8 +5,18 @@ import { getPublications, createPublication, updatePublication, deletePublicatio
 import { useSettings } from '@/hooks/useSettings';
 import { Input, PdfViewer, Table, ConfirmationBox } from '@/components';
 import { BACKEND_URL } from '@/constants/urls';
+import { useDispatch } from 'react-redux';
+import {
+  invalidateContentCache,
+  removeContentItem,
+} from '@/store/slices/contentSlice';
+import { broadcastContentChange } from '@/utils/contentSync';
 import { useCategories } from '@/hooks/useCategories';
-import { CATEGORY_MAP, PUBLICATION_TRANSLATIONS, BOOK_LANGUAGE_TRANSLATIONS } from '@/utils/categories';
+import {
+  CATEGORY_MAP,
+  PUBLICATION_TRANSLATIONS,
+  BOOK_LANGUAGE_TRANSLATIONS,
+} from '@/utils/categories';
 import { getUserFriendlyError } from '@/utils/errorHandler';
 
 const BOOK_LANGUAGES = [
@@ -16,6 +26,7 @@ const BOOK_LANGUAGES = [
 ];
 
 export default function ManagePublications() {
+  const dispatch = useDispatch();
   const { settings } = useSettings();
   const [deleteTargetId, setDeleteTargetId] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -212,9 +223,30 @@ export default function ManagePublications() {
     try {
       if (editingId) {
         await updatePublication(editingId, formData);
+        dispatch(
+          invalidateContentCache({
+            types: ['publications_list', 'publications_detail', 'content_counts', 'categories'],
+          })
+        );
+        broadcastContentChange({
+          action: 'update',
+          contentType: 'book',
+          id: editingId,
+          types: ['publications_list', 'publications_detail', 'content_counts', 'categories'],
+        });
         showSuccess(language === 'en' ? 'Publication updated successfully.' : 'مطبوعہ کامیابی سے اپ ڈیٹ ہو گئی۔');
       } else {
         await createPublication(formData);
+        dispatch(
+          invalidateContentCache({
+            types: ['publications_list', 'publications_detail', 'content_counts', 'categories'],
+          })
+        );
+        broadcastContentChange({
+          action: 'create',
+          contentType: 'book',
+          types: ['publications_list', 'publications_detail', 'content_counts', 'categories'],
+        });
         showSuccess(language === 'en' ? 'Publication added successfully.' : 'مطبوعہ کامیابی سے شامل ہو گئی۔');
       }
     } catch (err) {
@@ -236,6 +268,24 @@ export default function ManagePublications() {
     setActionError(null);
     try {
       await deletePublication(id);
+      dispatch(
+        invalidateContentCache({
+          types: ['publications_list', 'content_counts', 'categories'],
+        })
+      );
+      dispatch(
+        invalidateContentCache({
+          type: 'publications_detail',
+          purge: true,
+        })
+      );
+      dispatch(removeContentItem({ type: 'publications_list', id }));
+      broadcastContentChange({
+        action: 'delete',
+        contentType: 'book',
+        id,
+        types: ['publications_list', 'publications_detail', 'content_counts', 'categories'],
+      });
       showSuccess(language === 'en' ? 'Publication deleted successfully.' : 'مطبوعہ کامیابی سے حذف کر دی گئی۔');
     } catch (err) {
       setActionError(getUserFriendlyError(err, 'publication', language === 'en' ? 'en' : 'ur').message);
@@ -243,8 +293,6 @@ export default function ManagePublications() {
       setDeleteTargetId(null);
     }
   };
-
-
 
   const showSuccess = (msg) => {
     setSuccess(true);
@@ -691,7 +739,7 @@ export default function ManagePublications() {
                     headData: 'زمرہ',
                     bodyData: (pub) => (
                       <span className="bg-primary/10 text-primary text-[10px] font-bold px-2 py-0.5 rounded border border-primary/20">
-                        {PUBLICATION_TRANSLATIONS[pub.category] || pub.category}
+                        {PUBLICATION_TRANSLATIONS?.[pub?.category] || pub?.category || '—'}
                       </span>
                     ),
                     tdClassName: "border-b border-gray-200 py-3 text-right"
@@ -700,7 +748,7 @@ export default function ManagePublications() {
                     headData: 'زبان',
                     bodyData: (pub) => (
                       <span className="text-xs font-semibold text-slate-500 text-right">
-                        {BOOK_LANGUAGE_TRANSLATIONS[pub.blanguage] || pub.blanguage}
+                        {BOOK_LANGUAGE_TRANSLATIONS?.[pub?.blanguage] || pub?.blanguage || 'اردو'}
                       </span>
                     ),
                     tdClassName: "border-b border-gray-200 py-3 text-right"
@@ -774,4 +822,4 @@ export default function ManagePublications() {
       />
     </div>
   );
-}
+}

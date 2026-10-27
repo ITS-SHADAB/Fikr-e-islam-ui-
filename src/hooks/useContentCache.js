@@ -90,6 +90,49 @@ export function useCachedContent({
     }
   }, [key, isFresh, enabled, staleTime, dispatch]);
 
+  // Multi-user & active session freshness: revalidate on window focus & tab visibility
+  const queryStateRef = useRef(queryState);
+  queryStateRef.current = queryState;
+
+  useEffect(() => {
+    if (!enabled || typeof window === 'undefined') return;
+
+    const revalidateIfStale = () => {
+      if (document.visibilityState === 'visible') {
+        const state = queryStateRef.current;
+        const fresh =
+          state?.fetchedAt && state?.data
+            ? Date.now() - state.fetchedAt < staleTime
+            : false;
+
+        if (!fresh) {
+          dispatch(
+            fetchContentWithCache({
+              key,
+              fetcher: async () => {
+                return await fetcherRef.current();
+              },
+              staleTime,
+              force: false,
+            })
+          );
+        }
+      }
+    };
+
+    window.addEventListener('focus', revalidateIfStale);
+    document.addEventListener('visibilitychange', revalidateIfStale);
+
+    // Periodic background sync for active users browsing the page (every 60s)
+    const interval = setInterval(revalidateIfStale, 60000);
+
+    return () => {
+      window.removeEventListener('focus', revalidateIfStale);
+      document.removeEventListener('visibilitychange', revalidateIfStale);
+      clearInterval(interval);
+    };
+  }, [key, enabled, staleTime, dispatch]);
+
   const refetch = useCallback(
     (force = true) => {
       const currentKey = key;

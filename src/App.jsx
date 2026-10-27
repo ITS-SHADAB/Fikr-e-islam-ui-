@@ -6,6 +6,12 @@ import AppRoutes from "./routes/AppRoutes";
 import { Toaster } from "react-hot-toast";
 import { checkAuthStatus } from "./store/slices/authSlice";
 import { fetchSettings } from "./store/slices/settingsSlice";
+import {
+  invalidateContentCache,
+  removeContentItem,
+  updateContentItem,
+} from "./store/slices/contentSlice";
+import { initContentSyncListener } from "./utils/contentSync";
 import { NotificationProvider } from "./context/NotificationContext";
 import { AuthModalProvider } from "./context/AuthModalContext";
 import NotificationManager from "./components/Notification/NotificationManager";
@@ -16,6 +22,38 @@ function AppInitializer({ children }) {
   useEffect(() => {
     dispatch(checkAuthStatus());
     dispatch(fetchSettings());
+
+    // Listen for cross-tab and cross-window real-time content mutations
+    const unsubscribe = initContentSyncListener((change) => {
+      if (change?.types) {
+        dispatch(
+          invalidateContentCache({
+            types: change.types,
+            purge: change.action === "delete",
+          })
+        );
+      }
+      if (change?.action === "delete" && change?.id && change?.contentType) {
+        dispatch(
+          removeContentItem({
+            type: `${change.contentType}s_list`,
+            id: change.id,
+          })
+        );
+      }
+      if (change?.action === "update" && change?.item && change?.contentType) {
+        dispatch(
+          updateContentItem({
+            type: `${change.contentType}s_list`,
+            item: change.item,
+          })
+        );
+      }
+    });
+
+    return () => {
+      unsubscribe();
+    };
   }, [dispatch]);
 
   return children;

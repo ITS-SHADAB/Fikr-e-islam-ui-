@@ -1,16 +1,16 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { getUserFriendlyError } from '@/utils/errorHandler';
 
-export const DEFAULT_STALE_TIME = 5 * 60 * 1000; // 5 minutes
+export const DEFAULT_STALE_TIME = 30 * 1000; // 30 seconds
 
 export const STALE_TIMES = {
-  articles: 5 * 60 * 1000,      // 5 minutes
-  fatwas: 5 * 60 * 1000,        // 5 minutes
-  publications: 5 * 60 * 1000,  // 5 minutes
-  lectures: 5 * 60 * 1000,      // 5 minutes
-  questions: 3 * 60 * 1000,     // 3 minutes
-  events: 30 * 1000,            // 30 seconds (dynamic admin-managed resource, prevents render fetch storm)
-  categories: 10 * 60 * 1000,   // 10 minutes (dynamic categories cached across components)
+  articles: 30 * 1000,          // 30 seconds
+  fatwas: 30 * 1000,            // 30 seconds
+  publications: 60 * 1000,      // 1 minute
+  lectures: 60 * 1000,          // 1 minute
+  questions: 30 * 1000,         // 30 seconds
+  events: 30 * 1000,            // 30 seconds
+  categories: 60 * 1000,        // 1 minute
 };
 
 /**
@@ -99,16 +99,99 @@ const contentSlice = createSlice({
   initialState,
   reducers: {
     invalidateContentCache: (state, action) => {
-      const { type, key } = action.payload || {};
+      const { type, types, key, purge = false } = action.payload || {};
+      const targetTypes = Array.isArray(types)
+        ? types
+        : type
+        ? [type]
+        : null;
+
       if (key && state.queries[key]) {
-        delete state.queries[key];
-      } else if (type) {
+        if (purge) {
+          delete state.queries[key];
+        } else {
+          state.queries[key].fetchedAt = 0;
+        }
+        return;
+      }
+
+      if (targetTypes && targetTypes.length > 0) {
         Object.keys(state.queries).forEach((k) => {
-          if (k.startsWith(`${type}:`)) {
+          if (targetTypes.some((t) => k.startsWith(`${t}:`))) {
+            if (purge) {
+              delete state.queries[k];
+            } else {
+              state.queries[k].fetchedAt = 0;
+            }
+          }
+        });
+      } else if (!type && !key && !types) {
+        Object.keys(state.queries).forEach((k) => {
+          if (purge) {
             delete state.queries[k];
+          } else {
+            state.queries[k].fetchedAt = 0;
           }
         });
       }
+    },
+    removeContentItem: (state, action) => {
+      const { type, id } = action.payload || {};
+      if (!type || !id) return;
+
+      Object.keys(state.queries).forEach((k) => {
+        if (k.startsWith(`${type}:`)) {
+          const entry = state.queries[k];
+          if (entry?.data) {
+            ['articles', 'fatwas', 'books', 'lectures', 'questions', 'events', 'data'].forEach((listKey) => {
+              if (Array.isArray(entry.data[listKey])) {
+                entry.data[listKey] = entry.data[listKey].filter(
+                  (item) => item && (item._id || item.id) !== id
+                );
+              }
+            });
+            if (Array.isArray(entry.data)) {
+              entry.data = entry.data.filter(
+                (item) => item && (item._id || item.id) !== id
+              );
+            }
+            if (typeof entry.data.total === 'number') {
+              entry.data.total = Math.max(0, entry.data.total - 1);
+            }
+            entry.fetchedAt = 0;
+          }
+        }
+      });
+    },
+    updateContentItem: (state, action) => {
+      const { type, item } = action.payload || {};
+      const id = item?._id || item?.id;
+      if (!type || !id) return;
+
+      Object.keys(state.queries).forEach((k) => {
+        if (k.startsWith(`${type}:`)) {
+          const entry = state.queries[k];
+          if (entry?.data) {
+            ['articles', 'fatwas', 'books', 'lectures', 'questions', 'events', 'data'].forEach((listKey) => {
+              if (Array.isArray(entry.data[listKey])) {
+                entry.data[listKey] = entry.data[listKey].map((existing) =>
+                  (existing?._id === id || existing?.id === id)
+                    ? { ...existing, ...item }
+                    : existing
+                );
+              }
+            });
+            if (Array.isArray(entry.data)) {
+              entry.data = entry.data.map((existing) =>
+                (existing?._id === id || existing?.id === id)
+                  ? { ...existing, ...item }
+                  : existing
+              );
+            }
+            entry.fetchedAt = 0;
+          }
+        }
+      });
     },
     clearContentCache: (state) => {
       state.queries = {};
@@ -181,7 +264,12 @@ const contentSlice = createSlice({
   },
 });
 
-export const { invalidateContentCache, clearContentCache } = contentSlice.actions;
+export const {
+  invalidateContentCache,
+  removeContentItem,
+  updateContentItem,
+  clearContentCache,
+} = contentSlice.actions;
 
 // Selectors
 export const selectContentQuery = (state, key) =>
