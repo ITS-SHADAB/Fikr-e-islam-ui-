@@ -12,6 +12,7 @@ import {
 import toast from "react-hot-toast";
 import { useSettings } from "@/hooks/useSettings";
 import { QA_TRANSLATIONS, FATWA_TRANSLATIONS } from "@/utils/categories";
+import { getShareUrl, triggerNativeShare, copyToClipboard } from "@/utils/shareHelpers";
 
 function stripHtml(html) {
   if (!html) return "";
@@ -96,21 +97,16 @@ export default function QaCard({ question }) {
   const handleShare = async (e) => {
     e.preventDefault();
     e.stopPropagation();
-    const shareUrl = `${window.location.origin}/qa/${slug}`;
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: title || "سوال و جواب",
-          text: title,
-          url: shareUrl,
-        });
-      } catch {}
-    } else {
-      try {
-        await navigator.clipboard.writeText(shareUrl);
+    const shareUrl = getShareUrl("question", question);
+    const shared = await triggerNativeShare({
+      title: title || "سوال و جواب",
+      text: title || "",
+      url: shareUrl,
+    });
+    if (!shared) {
+      const copied = await copyToClipboard(shareUrl);
+      if (copied) {
         toast.success(isRTL ? "لنک کاپی ہو گیا!" : "Link copied!");
-      } catch {
-        toast.error(isRTL ? "شیئر کرنے میں ناکامی" : "Sharing not supported");
       }
     }
   };
@@ -362,3 +358,5 @@ export default function QaCard({ question }) {
     </article>
   );
 }
+
+

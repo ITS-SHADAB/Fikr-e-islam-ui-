@@ -13,27 +13,41 @@ export const getOrigin = () => {
 };
 
 /**
- * Builds the canonical short share URL for a fatwa or article.
+ * Builds the canonical short share URL for a fatwa, article, book, or question.
  * Format:
- *   Fatwas:   https://muftifaizansarwar.in/f/:shortCode
- *   Articles: https://muftifaizansarwar.in/a/:shortCode
+ *   Fatwas:       https://muftifaizansarwar.in/f/:shortCode
+ *   Articles:     https://muftifaizansarwar.in/a/:shortCode
+ *   Books:        https://muftifaizansarwar.in/b/:shortCode
+ *   Sawal-Jawab:  https://muftifaizansarwar.in/q/:shortCode
  *
  * If shortCode is not yet available, falls back safely to canonical route with slug.
  *
- * @param {'fatwa'|'article'} type
+ * @param {'fatwa'|'article'|'book'|'publication'|'question'|'qa'} type
  * @param {object} item
  * @returns {string}
  */
 export const getShareUrl = (type, item) => {
   const origin = getOrigin();
-  const prefix = type === "fatwa" ? "f" : "a";
+
+  let prefix = "f";
+  let canonicalFolder = "fatwas";
+
+  if (type === "article") {
+    prefix = "a";
+    canonicalFolder = "articles";
+  } else if (type === "book" || type === "publication") {
+    prefix = "b";
+    canonicalFolder = "publications";
+  } else if (type === "question" || type === "qa") {
+    prefix = "q";
+    canonicalFolder = "qa";
+  }
 
   if (item?.shortCode) {
     return `${origin}/${prefix}/${item.shortCode}`;
   }
 
   // Fallback if item is loaded without shortCode yet
-  const canonicalFolder = type === "fatwa" ? "fatwas" : "articles";
   const identifier = item?.slug || item?._id || "";
   return `${origin}/${canonicalFolder}/${identifier}`;
 };
@@ -115,7 +129,14 @@ export const copyToClipboard = async (text) => {
  * @returns {string}
  */
 export const getWhatsAppShareUrl = (title, url, type = "fatwa") => {
-  const label = type === "fatwa" ? "مکمل فتویٰ پڑھیں:" : "مکمل مضمون پڑھیں:";
+  let label = "مکمل فتویٰ پڑھیں:";
+  if (type === "article") {
+    label = "مکمل مضمون پڑھیں:";
+  } else if (type === "book" || type === "publication") {
+    label = "مکمل کتاب پڑھیں:";
+  } else if (type === "question" || type === "qa") {
+    label = "مکمل سوال و جواب پڑھیں:";
+  }
   const message = `${title ? title + "\n\n" : ""}${label}\n${url}`;
   return `https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`;
 };

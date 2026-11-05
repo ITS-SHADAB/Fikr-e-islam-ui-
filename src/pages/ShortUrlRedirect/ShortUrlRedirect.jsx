@@ -3,19 +3,76 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import PropTypes from "prop-types";
 import { getFatwaByShortCode } from "@/services/fatwa";
 import { getArticleByShortCode } from "@/services/article";
+import { getPublicationBySlug } from "@/services/publication";
+import { getQuestionBySlug } from "@/services/question";
 import { Spinner, SEO } from "@/components";
 import { COLORS } from "@/utils/themeColors";
-import { ArrowRight, AlertCircle, Home, BookOpen, HelpCircle } from "lucide-react";
+import { AlertCircle, Home, BookOpen } from "lucide-react";
+
+const fetchBook = async (code) => {
+  const data = await getPublicationBySlug(code);
+  const slug = data?.book?.slug || data?.slug;
+  if (slug) {
+    return { success: true, slug };
+  }
+  return data;
+};
+
+const fetchQuestion = async (code) => {
+  const data = await getQuestionBySlug(code);
+  const slug = data?.question?.slug || data?.slug;
+  if (slug) {
+    return { success: true, slug };
+  }
+  return data;
+};
+
+const TYPE_CONFIG = {
+  fatwa: {
+    itemLabel: "فتویٰ",
+    pluralPath: "/fatwas",
+    pluralLabel: "تمام فتاویٰ",
+    fetcher: getFatwaByShortCode,
+  },
+  article: {
+    itemLabel: "مضمون",
+    pluralPath: "/articles",
+    pluralLabel: "تمام مضامین",
+    fetcher: getArticleByShortCode,
+  },
+  book: {
+    itemLabel: "کتاب",
+    pluralPath: "/publications",
+    pluralLabel: "تمام کتب",
+    fetcher: fetchBook,
+  },
+  publication: {
+    itemLabel: "کتاب",
+    pluralPath: "/publications",
+    pluralLabel: "تمام کتب",
+    fetcher: fetchBook,
+  },
+  question: {
+    itemLabel: "سوال و جواب",
+    pluralPath: "/qa",
+    pluralLabel: "تمام سوال و جواب",
+    fetcher: fetchQuestion,
+  },
+  qa: {
+    itemLabel: "سوال و جواب",
+    pluralPath: "/qa",
+    pluralLabel: "تمام سوال و جواب",
+    fetcher: fetchQuestion,
+  },
+};
 
 export default function ShortUrlRedirect({ type = "fatwa" }) {
   const { code } = useParams();
   const navigate = useNavigate();
   const [errorState, setErrorState] = useState(null);
 
-  const isFatwa = type === "fatwa";
-  const itemLabel = isFatwa ? "فتویٰ" : "مضمون";
-  const pluralPath = isFatwa ? "/fatwas" : "/articles";
-  const pluralLabel = isFatwa ? "تمام فتاویٰ" : "تمام مضامین";
+  const config = TYPE_CONFIG[type] || TYPE_CONFIG.fatwa;
+  const { itemLabel, pluralPath, pluralLabel, fetcher } = config;
 
   useEffect(() => {
     let isMounted = true;
@@ -27,7 +84,6 @@ export default function ShortUrlRedirect({ type = "fatwa" }) {
       }
 
       try {
-        const fetcher = isFatwa ? getFatwaByShortCode : getArticleByShortCode;
         const result = await fetcher(code);
 
         if (!isMounted) return;
@@ -53,7 +109,7 @@ export default function ShortUrlRedirect({ type = "fatwa" }) {
     return () => {
       isMounted = false;
     };
-  }, [code, isFatwa, itemLabel, navigate, pluralPath]);
+  }, [code, fetcher, itemLabel, navigate, pluralPath]);
 
   // Loading / Redirecting state
   if (!errorState) {
@@ -162,5 +218,5 @@ export default function ShortUrlRedirect({ type = "fatwa" }) {
 }
 
 ShortUrlRedirect.propTypes = {
-  type: PropTypes.oneOf(["fatwa", "article"]).isRequired,
+  type: PropTypes.oneOf(["fatwa", "article", "book", "publication", "question", "qa"]).isRequired,
 };

@@ -83,9 +83,11 @@ export default function AppRoutes() {
             <Route path="fatwas/slug/:slug" element={<RedirectWithSlug toPrefix="/fatwas" />} />
             <Route path="fatwas/:slug" element={<FatwaDetail />} />
 
-            {/* ── Short Share URL Routes (/f/:code and /a/:code) ── */}
+            {/* ── Short Share URL Routes (/f/:code, /a/:code, /b/:code, and /q/:code) ── */}
             <Route path="f/:code" element={<ShortUrlRedirect type="fatwa" />} />
             <Route path="a/:code" element={<ShortUrlRedirect type="article" />} />
+            <Route path="b/:code" element={<ShortUrlRedirect type="book" />} />
+            <Route path="q/:code" element={<ShortUrlRedirect type="question" />} />
 
             <Route path="ask" element={<AskQuestion />} />
             <Route path="qa" element={<QAList />} />

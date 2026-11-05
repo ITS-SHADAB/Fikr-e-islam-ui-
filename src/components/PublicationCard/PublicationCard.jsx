@@ -4,6 +4,7 @@ import PropTypes from "prop-types";
 import {
   BookOpen,
   Bookmark,
+  Share2,
   Download,
   Calendar,
   User,
@@ -17,6 +18,8 @@ import {
   PUBLICATION_CATEGORY_TRANSLATIONS,
   BOOK_LANGUAGE_TRANSLATIONS,
 } from "@/utils/categories";
+import toast from "react-hot-toast";
+import { getShareUrl, triggerNativeShare, copyToClipboard } from "@/utils/shareHelpers";
 
 /* ── Grand Islamic Mimbar / Mihrab Arch Background for Book Stage ── */
 export function MihrabArchBackground({ className = "" }) {
@@ -365,6 +368,21 @@ export default function PublicationCard({ publication }) {
     });
   };
 
+  const handleShare = async (e) => {
+    e?.preventDefault();
+    e?.stopPropagation();
+    const shareUrl = getShareUrl("book", publication);
+    const shared = await triggerNativeShare({
+      title: title || "کتاب",
+      text: title || "",
+      url: shareUrl,
+    });
+    if (!shared) {
+      const copied = await copyToClipboard(shareUrl);
+      if (copied) toast.success("لنک کاپی ہو گیا!");
+    }
+  };
+
   const formattedDate = publishDate
     ? new Date(publishDate).toLocaleDateString("ur-PK", {
         year: "numeric",
@@ -496,7 +514,25 @@ export default function PublicationCard({ publication }) {
             </span>
           </div>
 
-          {/* Bookmark Button on RIGHT */}
+          {/* Action Buttons on RIGHT: Share & Bookmark */}
+          <div className="flex items-center gap-1.5 shrink-0">
+            {/* Share Button */}
+            <button
+              type="button"
+              onClick={handleShare}
+              className="w-7.5 h-7.5 sm:w-8 sm:h-8 rounded-full flex items-center justify-center border transition-all duration-200 cursor-pointer shadow-2xs hover:scale-105 active:scale-95"
+              style={{
+                borderColor: "rgba(168, 121, 62, 0.3)",
+                backgroundColor: "rgba(255, 255, 255, 0.9)",
+                color: COLORS.accent || "#A8793E",
+              }}
+              title="شیئر کریں"
+              aria-label="Share this book"
+            >
+              <Share2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#A8793E]" />
+            </button>
+
+            {/* Bookmark Button */}
           <button
             type="button"
             onClick={handleToggleBookmark}
@@ -515,6 +551,7 @@ export default function PublicationCard({ publication }) {
               }`}
             />
           </button>
+          </div>
         </div>
 
         {/* ══════════════════════════════════════════════════════════════
@@ -782,3 +819,4 @@ PublicationCard.propTypes = {
     publisher: PropTypes.string,
   }),
 };
+

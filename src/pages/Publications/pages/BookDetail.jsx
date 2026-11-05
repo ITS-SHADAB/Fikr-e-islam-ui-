@@ -36,6 +36,14 @@ import {
 } from "@/components/PublicationCard/PublicationCard";
 import { CardGeometricTexture } from "@/pages/Fatwas/components/FatwaDetailDecorativeAssets";
 import toast from "react-hot-toast";
+import {
+  getShareUrl,
+  getWhatsAppShareUrl,
+  getTwitterShareUrl,
+  triggerNativeShare,
+  canNativeShare,
+  copyToClipboard,
+} from "@/utils/shareHelpers";
 
 export default function BookDetail() {
   const { id, slug } = useParams();
@@ -105,11 +113,11 @@ export default function BookDetail() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [rawParam]);
 
-  const shareUrl = typeof window !== "undefined" ? window.location.href : "";
+  const shareUrl = getShareUrl("book", book);
 
-  const copyToClipboard = () => {
-    if (typeof navigator !== "undefined" && navigator.clipboard) {
-      navigator.clipboard.writeText(shareUrl);
+  const copyLink = async () => {
+    const success = await copyToClipboard(shareUrl);
+    if (success) {
       setCopied(true);
       toast.success(isRTL ? "لنک کاپی ہو گیا ہے!" : "Link copied to clipboard!");
       setTimeout(() => setCopied(false), 2000);
@@ -117,22 +125,28 @@ export default function BookDetail() {
   };
 
   const handleNativeShare = async () => {
-    const fullShareText = `${book?.title || ""}\n${book?.author ? `مصنف: ${book.author}\n` : ""
-      }${shareUrl}`;
-    if (typeof navigator !== "undefined" && navigator.share) {
-      try {
-        await navigator.share({
-          title: book?.title || "کتاب",
-          text: fullShareText,
-          url: shareUrl,
-        });
-      } catch (err) {
-        if (err.name !== "AbortError") {
-          copyToClipboard();
-        }
-      }
-    } else {
-      copyToClipboard();
+    const fullShareText = `${book?.title || ""}\n${
+      book?.author ? `مصنف: ${book.author}\n` : ""
+    }${shareUrl}`;
+    const shared = await triggerNativeShare({
+      title: book?.title || "کتاب",
+      text: fullShareText,
+      url: shareUrl,
+    });
+    if (!shared) {
+      await copyLink();
+    }
+  };
+
+  const handleShare = (platform) => {
+    if (platform === "whatsapp") {
+      const url = getWhatsAppShareUrl(book?.title, shareUrl, "book");
+      window.open(url, "_blank", "width=600,height=400");
+    } else if (platform === "twitter") {
+      const url = getTwitterShareUrl(book?.title, shareUrl);
+      window.open(url, "_blank", "width=600,height=400");
+    } else if (platform === "native") {
+      handleNativeShare();
     }
   };
 

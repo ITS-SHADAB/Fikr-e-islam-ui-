@@ -28,6 +28,7 @@ import { Spinner, SEO, InlineErrorState } from '@/components';
 import { getQASchema, getBreadcrumbSchema, safeDecodeSlug } from '@/utils/seoHelpers';
 import { QA_TRANSLATIONS } from '@/utils/categories';
 import toast from 'react-hot-toast';
+import { getShareUrl, triggerNativeShare, copyToClipboard } from '@/utils/shareHelpers';
 
 export default function QADetail() {
   const { slug, id } = useParams();
@@ -66,10 +67,11 @@ export default function QADetail() {
     window.scrollTo(0, 0);
   }, [cleanSlug]);
 
-  const handleCopyLink = () => {
-    const url = window.location.href;
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(url);
+  const shareUrl = getShareUrl("question", question);
+
+  const handleCopyLink = async () => {
+    const success = await copyToClipboard(shareUrl);
+    if (success) {
       setCopied(true);
       toast.success('لنک کاپی ہو گیا!');
       setTimeout(() => setCopied(false), 2500);
@@ -77,16 +79,13 @@ export default function QADetail() {
   };
 
   const handleShare = async () => {
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: question?.questionTitle || 'سوال و جواب',
-          text: question?.questionTitle,
-          url: window.location.href,
-        });
-      } catch (e) {}
-    } else {
-      handleCopyLink();
+    const shared = await triggerNativeShare({
+      title: question?.questionTitle || 'سوال و جواب',
+      text: question?.questionTitle || '',
+      url: shareUrl,
+    });
+    if (!shared) {
+      await handleCopyLink();
     }
   };
 
@@ -511,3 +510,5 @@ export default function QADetail() {
     </div>
   );
 }
+
+
